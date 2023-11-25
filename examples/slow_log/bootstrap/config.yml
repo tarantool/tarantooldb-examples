@@ -1,0 +1,9 @@
+metrics:
+  export:
+    - path: '/myapp/metrics'
+      format: 'json'
+    - path: '/myapp/health'
+      format: 'health'
+slow_log:
+  enable: true
+  threshold: 0.01
