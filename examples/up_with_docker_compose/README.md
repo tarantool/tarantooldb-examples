@@ -16,7 +16,7 @@
 
 ```yaml
 tarantool-router:
-  image: tdb:latest
+  image: tarantooldb:latest
   networks:
     - tdb
   ports:
@@ -35,11 +35,11 @@ tarantool-router:
 
 ```yaml
 tarantool-db-init:
-  image: tdb:latest
+  image: tarantooldb:latest
   networks:
    - tdb
   command: |
-    /bin/bash -c 'sleep 1; TARANTOOL_TARGET_URI=tarantool-router:8081 /usr/share/tarantool/tdb/bootstrap-app.sh'
+    /bin/bash -c 'sleep 1; TARANTOOL_TARGET_URI=tarantool-router:8081 /usr/share/tarantool/tarantooldb/bootstrap-app.sh'
   depends_on:
     - tarantool-router
     - tarantool-storage1

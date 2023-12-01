@@ -14,10 +14,10 @@
    ``tt build``
 3. Запустить процессы tarantool
 
-   ``tt start tdb``
+   ``tt start tarantooldb``
 4. Выполнить сборку cartridge кластера
 
-   ``tt cartridge replicasets setup --bootstrap-vshard --name tdb --run-dir tmp/run/tdb``
+   ``tt cartridge replicasets setup --bootstrap-vshard --name tarantooldb --run-dir tmp/run/tarantooldb``
 
 Чтобы выключить кластер используйте ``tt stop``.
 

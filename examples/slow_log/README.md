@@ -89,7 +89,7 @@ rawset(_G, 'app', app)
    Должен найтись такой лог:
 
    ```
-    slow_log-tarantool-router-1    | 2023-11-30 14:02:35.599 [12] main/176/main/tdb.app.roles.slow_log I> Function call crud.replace(["data",[1,null,[]]]) was too long: 0.011s
+    slow_log-tarantool-router-1    | 2023-11-30 14:02:35.599 [12] main/176/main/tarantooldb.app.roles.slow_log I> Function call crud.replace(["data",[1,null,[]]]) was too long: 0.011s
    ```
 5. Теперь добавим поддержку логирования для функции ``wait_for``
     Необходимо обновить секцию ``slow_log`` в конфиге:
@@ -115,5 +115,5 @@ rawset(_G, 'app', app)
     ```
     slow_log-tarantool-router-1    | 2023-11-30 14:13:52.738 [12] main/225/main/tarantool I> start wait_for 3
     slow_log-tarantool-router-1    | 2023-11-30 14:13:55.740 [12] main/225/main/tarantool I> stop wait_for 3
-    slow_log-tarantool-router-1    | 2023-11-30 14:13:55.740 [12] main/225/main/tdb.app.roles.slow_log I> Function call app.wait_for([3]) was too long: 3.002s
+    slow_log-tarantool-router-1    | 2023-11-30 14:13:55.740 [12] main/225/main/tarantooldb.app.roles.slow_log I> Function call app.wait_for([3]) was too long: 3.002s
     ```
