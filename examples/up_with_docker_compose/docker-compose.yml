@@ -1,7 +1,7 @@
 version: '3'
 services:
   tarantool-router:
-    image: kvee:0.5.0
+    image: tdb:latest
     networks:
       - tdb
     ports:
@@ -11,7 +11,7 @@ services:
       - TARANTOOL_LISTEN=0.0.0.0:3301
       - TARANTOOL_ADVERTISE_URI=tarantool-router:3301
   tarantool-storage1:
-    image: kvee:0.5.0
+    image: tdb:latest
     networks:
       - tdb
     ports:
@@ -21,7 +21,7 @@ services:
       - TARANTOOL_LISTEN=0.0.0.0:3301
       - TARANTOOL_ADVERTISE_URI=tarantool-storage1:3301
   tarantool-storage2:
-    image: kvee:0.5.0
+    image: tdb:latest
     networks:
       - tdb
     ports:
@@ -31,7 +31,7 @@ services:
       - TARANTOOL_LISTEN=0.0.0.0:3301
       - TARANTOOL_ADVERTISE_URI=tarantool-storage2:3301
   tarantool-storage3:
-    image: kvee:0.5.0
+    image: tdb:latest
     networks:
       - tdb
     ports:
@@ -41,7 +41,7 @@ services:
       - TARANTOOL_LISTEN=0.0.0.0:3301
       - TARANTOOL_ADVERTISE_URI=tarantool-storage3:3301
   tarantool-storage4:
-    image: kvee:0.5.0
+    image: tdb:latest
     networks:
       - tdb
     ports:
@@ -51,11 +51,11 @@ services:
       - TARANTOOL_LISTEN=0.0.0.0:3301
       - TARANTOOL_ADVERTISE_URI=tarantool-storage4:3301
   tarantool-db-init:
-    image: kvee:0.5.0
+    image: tdb:latest
     networks:
       - tdb
     command: |
-      /bin/bash -c 'sleep 1; TARANTOOL_TARGET_URI=tarantool-router:8081 /usr/share/tarantool/kvee/bootstrap-app.sh'
+      /bin/bash -c 'sleep 1; TARANTOOL_TARGET_URI=tarantool-router:8081 /usr/share/tarantool/tdb/bootstrap-app.sh'
     depends_on:
       - tarantool-router
       - tarantool-storage1

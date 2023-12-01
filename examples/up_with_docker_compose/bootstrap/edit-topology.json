@@ -4,8 +4,6 @@
       "alias": "router",
       "roles": [
         "crud-router",
-        "vshard-router",
-        "app.roles.api",
         "expirationd",
         "space-explorer"
       ],
@@ -22,8 +20,6 @@
       "alias": "storage-A",
       "roles": [
         "crud-storage",
-        "vshard-storage",
-        "app.roles.storage",
         "expirationd",
         "space-explorer"
       ],
@@ -39,8 +35,6 @@
       "alias": "storage-B",
       "roles": [
         "crud-storage",
-        "vshard-storage",
-        "app.roles.storage",
         "expirationd",
         "space-explorer"
       ],

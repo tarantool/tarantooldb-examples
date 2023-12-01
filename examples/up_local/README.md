@@ -14,10 +14,10 @@
    ``tt build``
 3. Запустить процессы tarantool
 
-   ``tt start kvee``
+   ``tt start tdb``
 4. Выполнить сборку cartridge кластера
 
-   ``tt cartridge replicasets setup --bootstrap-vshard --name kvee --run-dir tmp/run/kvee``
+   ``tt cartridge replicasets setup --bootstrap-vshard --name tdb --run-dir tmp/run/tdb``
 
 Чтобы выключить кластер используйте ``tt stop``.
 

@@ -16,7 +16,7 @@
 
 ```yaml
 tarantool-router:
-  image: kvee:0.5.0
+  image: tdb:latest
   networks:
     - tdb
   ports:
@@ -35,11 +35,11 @@ tarantool-router:
 
 ```yaml
 tarantool-db-init:
-  image: kvee:0.5.0
+  image: tdb:latest
   networks:
    - tdb
   command: |
-    /bin/bash -c 'sleep 1; TARANTOOL_TARGET_URI=tarantool-router:8081 /usr/share/tarantool/kvee/bootstrap-app.sh'
+    /bin/bash -c 'sleep 1; TARANTOOL_TARGET_URI=tarantool-router:8081 /usr/share/tarantool/tdb/bootstrap-app.sh'
   depends_on:
     - tarantool-router
     - tarantool-storage1

@@ -89,16 +89,15 @@ rawset(_G, 'app', app)
    Должен найтись такой лог:
 
    ```
-    tracing-tarantool-router-1    | 2023-11-17 07:43:53.272 [11] main/193/main/kvee.app.roles.tracing I> Function call crud.replace(["data",[1,null,[]]]) was too long: 0.013s
+    slow_log-tarantool-router-1    | 2023-11-30 14:02:35.599 [12] main/176/main/tdb.app.roles.slow_log I> Function call crud.replace(["data",[1,null,[]]]) was too long: 0.011s
    ```
 5. Теперь добавим поддержку логирования для функции ``wait_for``
     Необходимо обновить секцию ``slow_log`` в конфиге:
     ```
-    slow_log:
-      enable: true
-      threshold: 3
-      namespaces:
-        - "app"
+    enable: true
+    threshold: 3
+    namespaces:
+    - app
     ```
 6. Проверим функцию ``wait_for``
 
@@ -114,7 +113,7 @@ rawset(_G, 'app', app)
     Должен найтись такой лог:
 
     ```
-    tracing-tarantool-router-1  | 2023-11-17 08:45:29.846 [12] main/178/main/tarantool I> start wait_for 3
-    tracing-tarantool-router-1  | 2023-11-17 08:45:32.850 [12] main/178/main/tarantool I> stop wait_for 3
-    tracing-tarantool-router-1  | 2023-11-17 08:45:32.851 [12] main/178/main/kvee.app.roles.tracing I> Function call app.wait_for([3]) was too long: 3.004s
+    slow_log-tarantool-router-1    | 2023-11-30 14:13:52.738 [12] main/225/main/tarantool I> start wait_for 3
+    slow_log-tarantool-router-1    | 2023-11-30 14:13:55.740 [12] main/225/main/tarantool I> stop wait_for 3
+    slow_log-tarantool-router-1    | 2023-11-30 14:13:55.740 [12] main/225/main/tdb.app.roles.slow_log I> Function call app.wait_for([3]) was too long: 3.002s
     ```

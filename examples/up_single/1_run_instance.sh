@@ -9,4 +9,4 @@ docker run -d \
   -e TARANTOOL_HTTP_PORT=8081 \
   -p 127.0.0.1:8081:8081 \
   -p 127.0.0.1:3301:3301 \
-  kvee:0.5.0.0
+  tdb:latest
