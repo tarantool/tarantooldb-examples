@@ -18,7 +18,7 @@
 tarantool-router:
   image: tarantooldb:latest
   networks:
-    - tdb
+    - tarantooldb_network
   ports:
     - "8080:8081"
     - "3300:3301"
@@ -37,7 +37,7 @@ tarantool-router:
 tarantool-db-init:
   image: tarantooldb:latest
   networks:
-   - tdb
+   - tarantooldb_network
   command: |
     /bin/bash -c 'sleep 1; TARANTOOL_TARGET_URI=tarantool-router:8081 /usr/share/tarantool/tarantooldb/bootstrap-app.sh'
   depends_on:
