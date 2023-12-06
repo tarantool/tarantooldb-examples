@@ -40,7 +40,7 @@ slow_log:
     - "app"
 ```
 
-Здесь усновлено логирование для функций из модуля ``app``.
+Здесь установлено логирование для функций из модуля ``app``(функции из ``_G['app']``) и для персистентных функций с префиксом ``app.``.
 
 ## Пример использования
 
@@ -57,20 +57,22 @@ box.space.data:format({
 })
 ```
 
-Также создана глобальная функция ``app.wait_for``, которая спит переданное количество секунд.
+Также создана персистентная функция ``app.wait_for``, которая спит переданное количество секунд.
 
 ```lua
-local function wait_for(sleep_time)
-    log.info("start wait_for " .. sleep_time)
-    fiber.sleep(sleep_time)
-    log.info("stop wait_for " .. sleep_time)
-end
-
-local app = {
-    wait_for = wait_for
-}
-
-rawset(_G, 'app', app)
+box.schema.func.create('app.wait_for',  {
+    language = 'LUA',
+    if_not_exists = true,
+    body = [[
+        function(sleep_time)
+            local log = require('log')
+            local fiber = require('fiber')
+            log.info("start wait_for " .. sleep_time)
+            fiber.sleep(sleep_time)
+            log.info("stop wait_for " .. sleep_time)
+        end
+    ]],
+})
 ```
 
 
@@ -91,7 +93,7 @@ rawset(_G, 'app', app)
    ```
     slow_log-tarantool-router-1    | 2023-11-30 14:02:35.599 [12] main/176/main/tarantooldb.app.roles.slow_log I> Function call crud.replace(["data",[1,null,[]]]) was too long: 0.011s
    ```
-5. Теперь добавим поддержку логирования для функции ``wait_for``
+5. Теперь добавим поддержку логирования для функции ``app.wait_for``
     Необходимо обновить секцию ``slow_log`` в конфиге:
     ```
     enable: true
@@ -99,13 +101,13 @@ rawset(_G, 'app', app)
     namespaces:
     - app
     ```
-6. Проверим функцию ``wait_for``
+6. Проверим функцию ``app.wait_for``
 
     Подключимся через tt к роутеру.
 
     ``tt connect admin:secret-cluster-cookie@localhost:3300``
     
-    ``app.wait_for(3)``
+    ``box.schema.func.call('app.wait_for', 3)``
 7. Проверим логи
 
     ``docker-compose logs | grep wait_for``
@@ -117,3 +119,7 @@ rawset(_G, 'app', app)
     slow_log-tarantool-router-1    | 2023-11-30 14:13:55.740 [12] main/225/main/tarantool I> stop wait_for 3
     slow_log-tarantool-router-1    | 2023-11-30 14:13:55.740 [12] main/225/main/tarantooldb.app.roles.slow_log I> Function call app.wait_for([3]) was too long: 3.002s
     ```
+
+При использовании модуля персистентные функции заменяются на версии с логированием времени выполнения, оригинальные функции
+сохраняются с префиксом ``__slow_log_orig_``. В случае с ``app.wait_for`` при использовании ``slow_log`` будет создана функция
+``__slow_log_orig_app.wait_for``. После отключения модуля ``__slow_log_orig_app.wait_for`` будет удалена.

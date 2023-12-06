@@ -1,30 +1,48 @@
-local fiber = require('fiber')
-local log = require('log')
 local utils = require('migrator.utils')
 
-local function wait_for(sleep_time)
-    log.info("start wait_for " .. sleep_time)
-    fiber.sleep(sleep_time)
-    log.info("stop wait_for " .. sleep_time)
+local function is_storage_master()
+    if box.info.ro then
+        return false
+    end
+    
+    local roles = require('cartridge.lua-api.get-topology').get_enabled_roles_without_deps()
+    for _, rname in pairs(roles) do
+        if rname == 'crud-storage' then
+            return true
+        end
+    end
+
+    return false
 end
 
-local app = {
-    wait_for = wait_for
-}
-
 local function up()
-    box.schema.space.create('data', {if_not_exists = true})
-    box.space.data:format({
-        { name = 'id', type = 'number' },
-        { name = 'bucket_id', type = 'unsigned' },
-        { name = 'data', type = 'any' },
-    })
-    box.space.data:create_index('pk', { parts = {'id'}, if_not_exists = true})
-    box.space.data:create_index('bucket_id', { parts = {'bucket_id'}, unique = false, if_not_exists = true})
-
-    utils.register_sharding_key('data', {'id'})
+    if is_storage_master() then
+        box.schema.space.create('data', {if_not_exists = true})
+        box.space.data:format({
+            { name = 'id', type = 'number' },
+            { name = 'bucket_id', type = 'unsigned' },
+            { name = 'data', type = 'any' },
+        })
+        box.space.data:create_index('pk', { parts = {'id'}, if_not_exists = true})
+        box.space.data:create_index('bucket_id', { parts = {'bucket_id'}, unique = false, if_not_exists = true})
     
-    rawset(_G, 'app', app)
+        utils.register_sharding_key('data', {'id'})
+    end
+
+    box.schema.func.create('app.wait_for',  {
+        language = 'LUA',
+        if_not_exists = true,
+        body = [[
+            function(sleep_time)
+                local log = require('log')
+                local fiber = require('fiber')
+                log.info("start wait_for " .. sleep_time)
+                fiber.sleep(sleep_time)
+                log.info("stop wait_for " .. sleep_time)
+            end
+        ]],
+    })
+
     return true
 end
 
