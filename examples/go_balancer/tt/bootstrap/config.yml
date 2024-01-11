@@ -4,3 +4,5 @@ metrics:
       format: 'json'
     - path: '/myapp/health'
       format: 'health'
+crud:
+  stats: true
