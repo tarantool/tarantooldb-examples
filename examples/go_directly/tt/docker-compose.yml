@@ -1,0 +1,27 @@
+version: '3'
+services:
+  tarantool-storage1:
+    image: tarantooldb:latest
+    networks:
+      - tarantooldb_network
+    ports:
+      - "8081:8081"
+      - "3301:3301"
+    environment:
+      - TARANTOOL_INSTANCE_NAME=storage1
+      - TARANTOOL_ADVERTISE_URI=tarantool-storage1:3301
+      - TARANTOOL_CLUSTER_COOKIE=secret
+      - TARANTOOL_HTTP_PORT=8081
+  tarantool-db-init:
+    image: tarantooldb:latest
+    networks:
+      - tarantooldb_network
+    command: |
+      /bin/bash -c 'sleep 1; TARANTOOL_TARGET_URI=tarantool-storage1:8081 /usr/share/tarantool/tarantooldb/bootstrap-app.sh'
+    depends_on:
+      - tarantool-storage1
+    working_dir: /bootstrap
+    volumes:
+      - ./bootstrap/:/bootstrap/
+networks:
+  tarantooldb_network:
