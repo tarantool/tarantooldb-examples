@@ -66,14 +66,14 @@ services:
       - TARANTOOL_ADVERTISE_URI=tarantool-storage4:3301
       - TARANTOOL_ALIAS=storage-B-2
       - TARANTOOL_CLUSTER_COOKIE=secret-cluster-cookie
-  tarantool-db-init:
+  installer:
     image: tarantooldb:latest
     networks:
       - tarantooldb_network
     environment:
       - TARANTOOLDB_TARGET_URI=tarantool-router1:8081
     working_dir: /usr/share/tarantool/tarantooldb/client/utils/
-    command: /bin/bash -c "./bootstrap.sh && ./migrate.sh"
+    command: ./bootstrap.sh
     depends_on:
       - tarantool-router1
       - tarantool-router2
@@ -82,36 +82,16 @@ services:
       - tarantool-storage3
       - tarantool-storage4
     volumes:
-      - ./bootstrap/:/bootstrap/
-
-  influxdb:
-    image: influxdb:1.8
-    networks:
-      - tarantooldb_network
-    environment:
-      - INFLUXDB_DB=tarantool
-
-  grafana:
-    image: grafana/grafana:latest
+      - ./installer/:/bootstrap/
+  nginx:
+    image: nginx:latest
     networks:
       - tarantooldb_network
     ports:
-      - "8080:3000"
-    environment:
-      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
-      - GF_AUTH_ANONYMOUS_ENABLED=true
-      - GF_AUTH_BASIC_ENABLED=false
-    volumes:
-      - ./grafana/:/etc/grafana/provisioning/
-
-  telegraf:
-    image: telegraf:1.28
+      - "8000:8000"
     depends_on:
-      - influxdb
-    networks:
-      - tarantooldb_network
+      - installer
     volumes:
-      - ./telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:ro
-
+      - ./installer/nginx.conf:/etc/nginx/nginx.conf:ro
 networks:
   tarantooldb_network:

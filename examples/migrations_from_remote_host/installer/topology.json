@@ -1,0 +1,62 @@
+{
+  "replicasets": [
+    {
+      "alias": "router1",
+      "roles": [
+        "crud-router",
+        "space-explorer"
+      ],
+      "weight": null,
+      "all_rw": false,
+      "vshard_group": "default",
+      "join_servers": [
+        {
+          "uri": "tarantool-router1:3301"
+        }
+      ]
+    },
+    {
+      "alias": "router2",
+      "roles": [
+        "crud-router",
+        "space-explorer"
+      ],
+      "weight": null,
+      "all_rw": false,
+      "vshard_group": "default",
+      "join_servers": [
+        {
+          "uri": "tarantool-router2:3301"
+        }
+      ]
+    },
+    {
+      "alias": "storage-A",
+      "roles": [
+        "crud-storage",
+        "space-explorer"
+      ],
+      "weight": null,
+      "all_rw": false,
+      "vshard_group": "default",
+      "join_servers": [
+        {"uri": "tarantool-storage1:3301"},
+        {"uri": "tarantool-storage2:3301"}
+      ]
+    },
+    {
+      "alias": "storage-B",
+      "roles": [
+        "crud-storage",
+        "space-explorer"
+      ],
+      "weight": null,
+      "all_rw": false,
+      "vshard_group": "default",
+      "join_servers": [
+        {"uri": "tarantool-storage3:3301"},
+        {"uri": "tarantool-storage4:3301"}
+      ]
+    }
+  ]
+}

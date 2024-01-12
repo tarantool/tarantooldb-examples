@@ -140,7 +140,7 @@ func main() {
 	dialer := tarantool.NetDialer{
 		Address:  "127.0.0.1:3301",
 		User:     "admin",
-		Password: "secret",
+		Password: "secret-cluster-cookie",
 	}
 
 	opts := tarantool.Opts{

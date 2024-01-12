@@ -12,7 +12,7 @@ import (
 )
 
 const USER = "admin"
-const PASS = "secret"
+const PASS = "secret-cluster-cookie"
 const LETTER_BYTES = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 var routerUriList = []string{"localhost:3301", "localhost:3302"}
