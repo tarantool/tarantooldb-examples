@@ -1,0 +1,92 @@
+version: '3'
+services:
+  tarantool-router1:
+    image: tarantooldb:latest
+    networks:
+      - tarantooldb_network
+    ports:
+      - "8081:8081"
+      - "3301:3301"
+    environment:
+      - TARANTOOL_LISTEN=0.0.0.0:3301
+      - TARANTOOL_ADVERTISE_URI=tarantool-router1:3301
+      - TARANTOOL_ALIAS=router-1
+      - TARANTOOL_CLUSTER_COOKIE=secret
+  tarantool-router2:
+    image: tarantooldb:latest
+    networks:
+      - tarantooldb_network
+    ports:
+      - "8082:8081"
+      - "3302:3301"
+    environment:
+      - TARANTOOL_LISTEN=0.0.0.0:3301
+      - TARANTOOL_ADVERTISE_URI=tarantool-router2:3301
+      - TARANTOOL_ALIAS=router-2
+      - TARANTOOL_CLUSTER_COOKIE=secret
+  tarantool-storage1:
+    image: tarantooldb:latest
+    networks:
+      - tarantooldb_network
+    ports:
+      - "8083:8081"
+      - "3303:3301"
+    environment:
+      - TARANTOOL_LISTEN=0.0.0.0:3301
+      - TARANTOOL_ADVERTISE_URI=tarantool-storage1:3301
+      - TARANTOOL_ALIAS=storage-A-1
+      - TARANTOOL_CLUSTER_COOKIE=secret
+  tarantool-storage2:
+    image: tarantooldb:latest
+    networks:
+      - tarantooldb_network
+    ports:
+      - "8084:8081"
+      - "3304:3301"
+    environment:
+      - TARANTOOL_LISTEN=0.0.0.0:3301
+      - TARANTOOL_ADVERTISE_URI=tarantool-storage2:3301
+      - TARANTOOL_ALIAS=storage-A-2
+      - TARANTOOL_CLUSTER_COOKIE=secret
+  tarantool-storage3:
+    image: tarantooldb:latest
+    networks:
+      - tarantooldb_network
+    ports:
+      - "8085:8081"
+      - "3305:3301"
+    environment:
+      - TARANTOOL_LISTEN=0.0.0.0:3301
+      - TARANTOOL_ADVERTISE_URI=tarantool-storage3:3301
+      - TARANTOOL_ALIAS=storage-B-1
+      - TARANTOOL_CLUSTER_COOKIE=secret
+  tarantool-storage4:
+    image: tarantooldb:latest
+    networks:
+      - tarantooldb_network
+    ports:
+      - "8086:8081"
+      - "3306:3301"
+    environment:
+      - TARANTOOL_LISTEN=0.0.0.0:3301
+      - TARANTOOL_ADVERTISE_URI=tarantool-storage4:3301
+      - TARANTOOL_ALIAS=storage-B-2
+      - TARANTOOL_CLUSTER_COOKIE=secret
+  tarantool-db-init:
+    image: tarantooldb:latest
+    networks:
+      - tarantooldb_network
+    command: |
+      /bin/bash -c 'sleep 1; TARANTOOL_TARGET_URI=tarantool-router1:8081 /usr/share/tarantool/tarantooldb/bootstrap-app.sh'
+    depends_on:
+      - tarantool-router1
+      - tarantool-router2
+      - tarantool-storage1
+      - tarantool-storage2
+      - tarantool-storage3
+      - tarantool-storage4
+    working_dir: /bootstrap
+    volumes:
+      - ./bootstrap/:/bootstrap/
+networks:
+  tarantooldb_network:
