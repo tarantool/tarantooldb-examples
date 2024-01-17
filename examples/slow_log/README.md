@@ -76,7 +76,7 @@ box.schema.func.create('app.wait_for',  {
 ```
 
 
-1. Запустим пример ``docker-compose up -d``.
+1. Запустим пример ``docker compose up -d``.
 2. Проверим логирование через ``crud``.
    Выставим в конфиге ``threshold`` в 0, чтобы гарантированно получить сообщение в логе.
 3. Подключимся через ``tt`` к роутеру и через ``crud`` добавим запись
@@ -86,7 +86,7 @@ box.schema.func.create('app.wait_for',  {
    ``require('crud').replace("data", {1, box.NULL, {}})``
 4. Посмотрим логи приложения:
 
-   ``docker-compose logs | grep 'Function call crud'``
+   ``docker compose logs | grep 'Function call crud'``
 
    Должен найтись такой лог:
 
@@ -110,7 +110,7 @@ box.schema.func.create('app.wait_for',  {
     ``box.schema.func.call('app.wait_for', 3)``
 7. Проверим логи
 
-    ``docker-compose logs | grep wait_for``
+    ``docker compose logs | grep wait_for``
 
     Должен найтись такой лог:
 

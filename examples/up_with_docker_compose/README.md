@@ -1,8 +1,8 @@
-# Конфигурация и запуск кластера через docker-compose
+# Конфигурация и запуск кластера через docker compose
 
 В данном примере показан запуск кластера TarantoolDB с помощью docker.
 
-Для запуска кластера из директории ``up_with_docker_compose`` выполните ``docker compose up`` или ``docker-compose up``.
+Для запуска кластера из директории ``up_with_docker_compose`` выполните ``docker compose up -d``.
 
 ## Файлы конфигурации
 
