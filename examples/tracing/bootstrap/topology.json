@@ -1,0 +1,34 @@
+{
+  "replicasets": [
+    {
+      "alias": "router",
+      "roles": [
+        "crud-router",
+        "space-explorer"
+      ],
+      "weight": null,
+      "all_rw": false,
+      "vshard_group": "default",
+      "join_servers": [
+        {
+          "uri": "tarantool-router:3301"
+        }
+      ]
+    },
+    {
+      "alias": "storage",
+      "roles": [
+        "crud-storage",
+        "space-explorer"
+      ],
+      "weight": null,
+      "all_rw": false,
+      "vshard_group": "default",
+      "join_servers": [
+        {
+          "uri": "tarantool-storage:3301"
+        }
+      ]
+    }
+  ]
+}

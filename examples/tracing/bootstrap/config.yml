@@ -1,0 +1,17 @@
+metrics:
+  export:
+    - path: '/myapp/metrics'
+      format: 'json'
+    - path: '/myapp/health'
+      format: 'health'
+
+tracing:
+  enabled: true
+  global_sample_rate: 0
+  sample_rates:
+    get_token_router: 2
+    debug_1: 1
+  base_url: 'http://tracing:9411/api/v2/spans'
+  api_method: 'POST'
+  report_interval: 1
+  spans_limit: 1000
