@@ -1,0 +1,120 @@
+version: '3'
+services:
+  tarantool-router:
+    image: tarantooldb:latest
+    networks:
+      - tarantooldb_network
+    ports:
+      - "8080:8081"
+      - "3300:3301"
+    environment:
+      - TARANTOOL_ADVERTISE_URI=tarantool-router:3301
+      - TARANTOOL_TRANSPORT=SSL
+      - TARANTOOL_SSL_SERVER_CA_FILE=/bootstrap/ca-cert.pem
+      - TARANTOOL_SSL_SERVER_CERT_FILE=/bootstrap/server-cert.pem
+      - TARANTOOL_SSL_SERVER_KEY_FILE=/bootstrap/server-key.pem
+      - TARANTOOL_SSL_CLIENT_CA_FILE=/bootstrap/ca-cert.pem
+      - TARANTOOL_SSL_CLIENT_CERT_FILE=/bootstrap/client-cert.pem
+      - TARANTOOL_SSL_CLIENT_KEY_FILE=/bootstrap/client-key.pem
+      - TARANTOOL_SSL_SERVER_PASSWORD=12345
+      - TARANTOOL_SSL_CLIENT_PASSWORD=54321
+    volumes:
+      - ./bootstrap/:/bootstrap/
+  tarantool-storage1:
+    image: tarantooldb:latest
+    networks:
+      - tarantooldb_network
+    ports:
+      - "8081:8081"
+      - "3301:3301"
+    environment:
+      - TARANTOOL_ADVERTISE_URI=tarantool-storage1:3301
+      - TARANTOOL_TRANSPORT=SSL
+      - TARANTOOL_SSL_SERVER_CA_FILE=/bootstrap/ca-cert.pem
+      - TARANTOOL_SSL_SERVER_CERT_FILE=/bootstrap/server-cert.pem
+      - TARANTOOL_SSL_SERVER_KEY_FILE=/bootstrap/server-key.pem
+      - TARANTOOL_SSL_CLIENT_CA_FILE=/bootstrap/ca-cert.pem
+      - TARANTOOL_SSL_CLIENT_CERT_FILE=/bootstrap/client-cert.pem
+      - TARANTOOL_SSL_CLIENT_KEY_FILE=/bootstrap/client-key.pem
+      - TARANTOOL_SSL_SERVER_PASSWORD=12345
+      - TARANTOOL_SSL_CLIENT_PASSWORD=54321
+    volumes:
+      - ./bootstrap/:/bootstrap/
+  tarantool-storage2:
+    image: tarantooldb:latest
+    networks:
+      - tarantooldb_network
+    ports:
+      - "8082:8081"
+      - "3302:3301"
+    environment:
+      - TARANTOOL_ADVERTISE_URI=tarantool-storage2:3301
+      - TARANTOOL_TRANSPORT=SSL
+      - TARANTOOL_SSL_SERVER_CA_FILE=/bootstrap/ca-cert.pem
+      - TARANTOOL_SSL_SERVER_CERT_FILE=/bootstrap/server-cert.pem
+      - TARANTOOL_SSL_SERVER_KEY_FILE=/bootstrap/server-key.pem
+      - TARANTOOL_SSL_CLIENT_CA_FILE=/bootstrap/ca-cert.pem
+      - TARANTOOL_SSL_CLIENT_CERT_FILE=/bootstrap/client-cert.pem
+      - TARANTOOL_SSL_CLIENT_KEY_FILE=/bootstrap/client-key.pem
+      - TARANTOOL_SSL_SERVER_PASSWORD=12345
+      - TARANTOOL_SSL_CLIENT_PASSWORD=54321
+    volumes:
+      - ./bootstrap/:/bootstrap/
+  tarantool-storage3:
+    image: tarantooldb:latest
+    networks:
+      - tarantooldb_network
+    ports:
+      - "8083:8081"
+      - "3303:3301"
+    environment:
+      - TARANTOOL_ADVERTISE_URI=tarantool-storage3:3301
+      - TARANTOOL_TRANSPORT=SSL
+      - TARANTOOL_SSL_SERVER_CA_FILE=/bootstrap/ca-cert.pem
+      - TARANTOOL_SSL_SERVER_CERT_FILE=/bootstrap/server-cert.pem
+      - TARANTOOL_SSL_SERVER_KEY_FILE=/bootstrap/server-key.pem
+      - TARANTOOL_SSL_CLIENT_CA_FILE=/bootstrap/ca-cert.pem
+      - TARANTOOL_SSL_CLIENT_CERT_FILE=/bootstrap/client-cert.pem
+      - TARANTOOL_SSL_CLIENT_KEY_FILE=/bootstrap/client-key.pem
+      - TARANTOOL_SSL_SERVER_PASSWORD=12345
+      - TARANTOOL_SSL_CLIENT_PASSWORD=54321
+    volumes:
+      - ./bootstrap/:/bootstrap/
+  tarantool-storage4:
+    image: tarantooldb:latest
+    networks:
+      - tarantooldb_network
+    ports:
+      - "8084:8081"
+      - "3304:3301"
+    environment:
+      - TARANTOOL_ADVERTISE_URI=tarantool-storage4:3301
+      - TARANTOOL_TRANSPORT=SSL
+      - TARANTOOL_SSL_SERVER_CA_FILE=/bootstrap/ca-cert.pem
+      - TARANTOOL_SSL_SERVER_CERT_FILE=/bootstrap/server-cert.pem
+      - TARANTOOL_SSL_SERVER_KEY_FILE=/bootstrap/server-key.pem
+      - TARANTOOL_SSL_CLIENT_CA_FILE=/bootstrap/ca-cert.pem
+      - TARANTOOL_SSL_CLIENT_CERT_FILE=/bootstrap/client-cert.pem
+      - TARANTOOL_SSL_CLIENT_KEY_FILE=/bootstrap/client-key.pem
+      - TARANTOOL_SSL_SERVER_PASSWORD=12345
+      - TARANTOOL_SSL_CLIENT_PASSWORD=54321
+    volumes:
+      - ./bootstrap/:/bootstrap/
+  tarantool-db-init:
+    image: tarantooldb:latest
+    networks:
+      - tarantooldb_network
+    environment:
+      - TARANTOOLDB_TARGET_URI=tarantool-router:8081
+    working_dir: /usr/share/tarantool/tarantooldb/client/utils/
+    command: /bin/bash -c "./bootstrap.sh && ./migrate.sh"
+    depends_on:
+      - tarantool-router
+      - tarantool-storage1
+      - tarantool-storage2
+      - tarantool-storage3
+      - tarantool-storage4
+    volumes:
+      - ./bootstrap/:/bootstrap/
+networks:
+  tarantooldb_network:
