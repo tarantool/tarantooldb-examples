@@ -1,18 +1,24 @@
 # Конфигурация и запуск кластера через docker compose
 
-В данном примере показан запуск кластера TarantoolDB с помощью docker.
+Для этого примера понадобятся:
+* Docker-образ TarantoolDB ([установить](../../INSTALL.md))
+* Docker compose
 
-Для запуска кластера из директории ``up_with_docker_compose`` выполните ``docker compose up -d``.
+Для запуска кластера из директории ``up_with_docker_compose`` выполните:
+```shell
+docker compose up -d --build 
+```
 
-## Файлы конфигурации
+## Используемые файлы
 
-- Инстансы кластера описаны в [docker-compose.yml](./docker-compose.yml).
-- Топология кластера описана в [bootstrap/edit-topology.json](./bootstrap/edit-topology.json)
-- Для применения топологии кластера используется скрипт [bootstrap-app.sh](../../../bootstrap-app.sh)
-- Конфиг для cartridge описан в [bootstrap/config.yml](./bootstrap/config.yml)
+- Узлы кластера описаны в [docker-compose.yml](./docker-compose.yml)
+- Топология кластера описана в [bootstrap/topology.json](./bootstrap/topology.json)
+- Для применения топологии кластера используется скрипт [/client/utils/bootstrap.sh](../../../client/utils/bootstrap.md)
+- Конфигурация кластера описана в [bootstrap/config.yml](./bootstrap/config.yml)
 - Миграции описываются в [bootstrap/migrations/source](./bootstrap/migrations/source/)
+- Для применения миграций используется скрипт [/client/utils/migrate.sh](../../../client/utils/migrate.md)
 
-## Пример конфигурации контейнера для инстанса tarantool
+## Пример конфигурации контейнера для узла TarantoolDB
 
 ```yaml
 tarantool-router:
@@ -23,43 +29,58 @@ tarantool-router:
     - "8080:8081"
     - "3300:3301"
   environment:
-    - TARANTOOL_LISTEN=0.0.0.0:3301
     - TARANTOOL_ADVERTISE_URI=tarantool-router:3301
 ```
 
-В ``environment`` перечиляются опции через переменные окружения для ``tarantool`` и ``cartridge``. Список опций доступен в документации к модулю [cartridge.argparse](https://www.tarantool.io/ru/doc/latest/book/cartridge/cartridge_api/modules/cartridge.argparse/).
+В ``environment`` перечиляются опции через переменные окружения для ``tarantool`` и ``cartridge``. Список опций
+доступен в документации к модулю
+[cartridge.argparse](https://www.tarantool.io/ru/doc/latest/book/cartridge/cartridge_api/modules/cartridge.argparse/),
+а также в описании [докер-образа](doc/DOCKERFILE.md).
 
-## Контейнер для старта кластера
+## Контейнер `user-host`
 
-В [``docker-compose.yml``](./docker-compose.yml) есть специальный контейнер ``tarantool-db-init`` для bootstrap-а кластера(конфигурации модуля [vshard](https://www.tarantool.io/ru/doc/latest/book/admin/vshard_admin/) и ролей cartridge).
+В [``docker-compose.yml``](./docker-compose.yml) есть специальный контейнер ``user-host``. Он выполняет роль компьютера
+разработчика с которого выполняются:
+1. Настройка топологии кластера и первоначальный запуск (bootstrap) модуля шардирования
+   [vshard](https://www.tarantool.io/ru/doc/latest/book/admin/vshard_admin/).
+   > **Примечание**
+   >
+   > Данный способ используется только для демонстрации в примерах документации. В нормальных условиях это выполняет
+   > инсталлятор (Ansible Tarantool Enterprise).
+2. Загрузка клиентского кода в кластер: описание спкейсов, функций и т. д. (миграции)
 
 ```yaml
-tarantool-db-init:
+user-host:
   image: tarantooldb:latest
   networks:
-   - tarantooldb_network
-  command: |
-    /bin/bash -c 'sleep 1; TARANTOOL_TARGET_URI=tarantool-router:8081 /usr/share/tarantool/tarantooldb/bootstrap-app.sh'
+    - tarantooldb_network
+  environment:
+    - TARANTOOLDB_TARGET_URI=tarantool-router:8081
+  working_dir: /usr/share/tarantool/tarantooldb/client/utils/
+  command: /bin/bash -c "./bootstrap.sh && ./migrate.sh"
   depends_on:
     - tarantool-router
     - tarantool-storage1
     - tarantool-storage2
     - tarantool-storage3
     - tarantool-storage4
-  working_dir: /bootstrap
   volumes:
     - ./bootstrap/:/bootstrap/
 ```
 
-За счет опции ``depends_on`` контейнер запускается только после подъема всех инстансов кластера. Вся пользовательская настройка кластера должна находиться в директории [bootstrap](./bootstrap). В контейнере в опциях ``working_dir`` и ``volumes`` используется данная директория.
+Рассмотрим его состав более подробно:
+* `image: tarantooldb:latest` - образ используется только как источник скриптов `bootstrap.sh` и `migrate.sh`
+  ([подробнее](../../../client/utils/README.md)) Предполагается, что в реальных условиях данные скрипты будут загружены на компьютер разработчика из 
+  [клиентской зоны](https://www.tarantool.io/ru/accounts/customer_zone/packages/tarantooldb).
+* `environment` - в данной секции мы устанавливаем переменные окружения, в частности `TARANTOOLDB_TARGET_URI`, которая
+  используется скриптами `bootstrap.sh` и `migrate.sh` для определения адреса, по которому доступны API-команды
+  кластера.
+* `working_dir` - указывает на папку, в которой лежат скрипты
+* `depends_on` - данный контейнер запускается только после запуска всех остальных узлов кластера
+* `volumes` - здесь мы пробрасываем в контейнер директорию с настройками кластера и пользовательской логикой, чтобы они стали доступны для скриптов.
 
-Данный контейнер хранит пользовательскую логику для TarantoolDB и конфигурирует кластер через скрипт [bootstrap-app.sh](../../../bootstrap-app.sh).
-
-# Скрипт [bootstrap-app.sh](../../../bootstrap-app.sh)
-
-Скрипт [bootstrap-app.sh](../../../bootstrap-app.sh) выполняет следующие действия:
-1. Создает топологию кластера cartridge черз [GraphQL API](https://www.tarantool.io/en/doc/latest/book/cartridge/cartridge_admin/#changing-the-cluster-topology)(mutation "editTopology"), используя файл с топологией [bootstrap/edit-topology.json](./bootstrap/edit-topology.json).
-2. Создает конфиг кластера из [config.yml](./bootstrap/config.yml) и [миграций](./bootstrap/migrations/source/).
-3. Грузит получившийся конфиг в кластер.
-4. Запускает миграции.
-
+## Останов стенда
+Останов стенда производится командой:
+```shell
+docker compose down
+```

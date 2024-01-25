@@ -46,20 +46,20 @@ services:
     environment:
       - TARANTOOL_ADVERTISE_URI=tarantool-storage4:3301
   user-host:
-    image: tarantooldb:latest
+    build:
+      context: .
+      dockerfile: bootstrap.Dockerfile
     networks:
       - tarantooldb_network
     environment:
       - TARANTOOLDB_TARGET_URI=tarantool-router:8081
-    working_dir: /usr/share/tarantool/tarantooldb/client/utils/
-    command: /bin/sh -c "./bootstrap.sh && ./migrate.sh"
+    working_dir: /bootstrap/
+    command: sh -c "./bootstrap.sh && ./migrate.sh"
     depends_on:
       - tarantool-router
       - tarantool-storage1
       - tarantool-storage2
       - tarantool-storage3
       - tarantool-storage4
-    volumes:
-      - ./bootstrap/:/bootstrap/
 networks:
   tarantooldb_network:

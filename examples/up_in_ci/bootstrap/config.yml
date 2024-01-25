@@ -1,0 +1,6 @@
+metrics:
+  export:
+    - path: '/myapp/metrics'
+      format: 'json'
+    - path: '/myapp/health'
+      format: 'health'
