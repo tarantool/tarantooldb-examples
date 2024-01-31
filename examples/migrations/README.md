@@ -9,7 +9,7 @@
 Для этого примера понадобятся:
 * Docker-образ TarantoolDB ([установить](../../INSTALL.md))
 * Docker compose
-* Tarantool CLI ([установить](https://www.tarantool.io/en/doc/latest/reference/tooling/tt_cli/installation/))
+* [TT CLI](../../../README.md#интерфейс-командной-строки-%28cli%29)
 
 ## Описание задачи
 

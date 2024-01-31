@@ -1,4 +1,4 @@
-# Модуль для отслеживания устаревания данных
+# Использование модуля устаревания данных `expirationd`
 
 Модуль [`expirationd`](https://github.com/tarantool/expirationd) необходим для фоновой обработки данных в рамках одного спейса.
 
@@ -16,7 +16,7 @@
 Для этого примера понадобятся:
 * Docker-образ TarantoolDB ([установить](../../INSTALL.md))
 * Docker compose
-* Tarantool CLI ([установить](https://www.tarantool.io/en/doc/latest/reference/tooling/tt_cli/installation/))
+* [TT CLI](../../../README.md#интерфейс-командной-строки-%28cli%29)
 
 ## Пример использования модуля
 

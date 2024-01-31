@@ -1,0 +1,36 @@
+router1:
+  instances:
+  - router1
+  roles:
+  - failover-coordinator
+  - crud-router
+  - space-explorer
+  all_rw: false
+router2:
+  instances:
+  - router2
+  roles:
+  - failover-coordinator
+  - crud-router
+  - space-explorer
+  all_rw: false
+storage-1:
+  instances:
+  - storage-1-1
+  - storage-1-2
+  roles:
+  - crud-storage
+  - space-explorer
+  weight: 1
+  all_rw: false
+  vshard_group: default
+storage-2:
+  instances:
+  - storage-2-1
+  - storage-2-2
+  roles:
+  - crud-storage
+  - space-explorer
+  weight: 1
+  all_rw: false
+  vshard_group: default

@@ -8,6 +8,7 @@
 Для запуска примера необходимы:
 - docker-compose
 - [docker образ TarantoolDB](../../INSTALL.md)
+- [TT CLI](../../../README.md#интерфейс-командной-строки-%28cli%29)
 - go версии выше 1.13
 - python3
 
