@@ -21,7 +21,7 @@ docker compose up -d --build
 ## Пример конфигурации контейнера для узла TarantoolDB
 
 ```yaml
-tarantool-router:
+tarantool-router-msk:
   image: tarantooldb:latest
   networks:
     - tarantooldb_network
@@ -29,7 +29,7 @@ tarantool-router:
     - "8080:8081"
     - "3300:3301"
   environment:
-    - TARANTOOL_ADVERTISE_URI=tarantool-router:3301
+    - TARANTOOL_ADVERTISE_URI=tarantool-router-msk:3301
 ```
 
 В ``environment`` перечиляются опции через переменные окружения для ``tarantool`` и ``cartridge``. Список опций
@@ -55,15 +55,16 @@ user-host:
   networks:
     - tarantooldb_network
   environment:
-    - TARANTOOLDB_TARGET_URI=tarantool-router:8081
+    - TARANTOOLDB_TARGET_URI=tarantool-router-msk:8081
   working_dir: /usr/share/tarantool/tarantooldb/client/utils/
   command: /bin/bash -c "./bootstrap.sh && ./migrate.sh"
   depends_on:
-    - tarantool-router
-    - tarantool-storage1
-    - tarantool-storage2
-    - tarantool-storage3
-    - tarantool-storage4
+    - tarantool-router-msk
+    - tarantool-router-spb
+    - tarantool-storage-1-msk
+    - tarantool-storage-1-spb
+    - tarantool-storage-2-msk
+    - tarantool-storage-2-spb
   volumes:
     - ./bootstrap/:/bootstrap/
 ```

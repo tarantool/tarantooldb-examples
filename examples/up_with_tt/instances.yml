@@ -1,25 +1,25 @@
 ---
-tarantooldb.router1:
+tarantooldb.router-msk:
   advertise_uri: localhost:3301
   http_port: 8081
 
-tarantooldb.router2:
+tarantooldb.router-spb:
   advertise_uri: localhost:3302
   http_port: 8082
 
-tarantooldb.storage-1-1:
+tarantooldb.storage-1-msk:
   advertise_uri: localhost:3303
   http_port: 8083
 
-tarantooldb.storage-1-2:
+tarantooldb.storage-1-spb:
   advertise_uri: localhost:3304
   http_port: 8084
 
-tarantooldb.storage-2-1:
+tarantooldb.storage-2-msk:
   advertise_uri: localhost:3305
   http_port: 8085
 
-tarantooldb.storage-2-2:
+tarantooldb.storage-2-spb:
   advertise_uri: localhost:3306
   http_port: 8086
 

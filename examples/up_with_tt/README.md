@@ -5,14 +5,11 @@
 Локальное развёртывание происходит с помощью клиентской утилиты [TT CLI](../../../README.md#интерфейс-командной-строки-%28cli%29) (`tt`).
 
 Для локального запуска TarantoolDB необходимо:
-1. Создать папку продукта TarantoolDB
+1. Перейти в директорию с примером (или создать где-то отдельную папку):
    ```shell
-   mkdir tarantooldb
+   cd ./doc/examples/up_with_tt/
    ```
-   > **Важно**
-   > 
-   > Папка должна называться `tarantooldb`
-2. Распаковать в созданную директорию `tarantooldb` содержимое архива для развёртывания (из раздела клиентской зоны [for deploy](https://www.tarantool.io/ru/accounts/customer_zone/packages/tarantooldb/release/for_deploy))
+2. Распаковать в директорию архив для развёртывания (из раздела клиентской зоны [for deploy](https://www.tarantool.io/ru/accounts/customer_zone/packages/tarantooldb/release/for_deploy))
 3. Создать конфигурационные файлы для локального старта (см. [подраздел ниже](#файлы-для-локального-старта))
 4. Запустить процессы узлов TarantoolDB из папки продукта командой:
    ```shell
@@ -21,7 +18,7 @@
 5. Выполнить сборку кластера из узлов TarantoolDB:
 
    ```shell
-   ./tt cartridge replicasets setup --bootstrap-vshard --name tarantooldb --run-dir var/run
+   ./tt cartridge replicasets setup --bootstrap-vshard --name tarantooldb
    ```
 
 Кластер доступен по адресу одного из узлов (кроме stateboard). Например: http://localhost:8081
