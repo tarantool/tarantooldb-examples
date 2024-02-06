@@ -1,13 +1,13 @@
 # Пример эволюции схемы
 
-В данном примере будет показано как разрабатывать типовое приложение на ``TarantoolDB``, а именно:
+В данном примере будет показано как разрабатывать типовое приложение на ``Tarantool DB``, а именно:
 - как реализовывать ``API`` для доступа к данным
 - как менять схему данных через модуль [migration](https://github.com/tarantool/migrations)
 - как использовать модули [crud](https://github.com/tarantool/crud) и [vshard](https://www.tarantool.io/ru/doc/latest/reference/reference_rock/vshard/)
 - как использовать персистентные функции для доступа к данным
 
 Для этого примера понадобятся:
-* Docker-образ TarantoolDB ([установить](../../INSTALL.md))
+* Docker-образ Tarantool DB ([установить](../../INSTALL.md))
 * Docker compose
 * [TT CLI](../../../README.md#интерфейс-командной-строки-%28cli%29)
 
@@ -51,7 +51,7 @@ cd ./docs/examples/migrations/
 docker compose up -d
 ```
 
-В результате будет запущен кластер TarantoolDB и в нём будут созданы спейсы **projects**, **tasks**, **users** и 
+В результате будет запущен кластер Tarantool DB и в нём будут созданы спейсы **projects**, **tasks**, **users** и 
 функции ``app.delete_user(user_id)``, ``app.get_project_data(project_id)``.
 
 Загрузим тестовые данные. Для этого в [миграции](./bootstrap/migrations/source/001_test.lua) была создана функция `__create_example_data`. Она очищает кластер и заново его заполняет данными из примера.

@@ -1,7 +1,7 @@
 # Конфигурация и запуск кластера через docker compose
 
 Для этого примера понадобятся:
-* Docker-образ TarantoolDB ([установить](../../INSTALL.md))
+* Docker-образ Tarantool DB ([установить](../../INSTALL.md))
 * Docker compose
 
 Для запуска кластера из директории ``up_with_docker_compose`` выполните:
@@ -18,7 +18,7 @@ docker compose up -d --build
 - Миграции описываются в [bootstrap/migrations/source](./bootstrap/migrations/source/)
 - Для применения миграций используется скрипт [/client/utils/migrate.sh](../../../client/utils/migrate.md)
 
-## Пример конфигурации контейнера для узла TarantoolDB
+## Пример конфигурации контейнера для узла Tarantool DB
 
 ```yaml
 tarantool-router-msk:
