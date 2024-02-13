@@ -8,7 +8,6 @@ services:
       - "8080:8081"
       - "3300:3301"
     environment:
-      - TARANTOOL_LISTEN=0.0.0.0:3301
       - TARANTOOL_ADVERTISE_URI=tarantool-router:3301
   tarantool-storage1:
     image: tarantooldb:latest
@@ -18,7 +17,6 @@ services:
       - "8081:8081"
       - "3301:3301"
     environment:
-      - TARANTOOL_LISTEN=0.0.0.0:3301
       - TARANTOOL_ADVERTISE_URI=tarantool-storage1:3301
   tarantool-storage2:
     image: tarantooldb:latest
@@ -28,7 +26,6 @@ services:
       - "8082:8081"
       - "3302:3301"
     environment:
-      - TARANTOOL_LISTEN=0.0.0.0:3301
       - TARANTOOL_ADVERTISE_URI=tarantool-storage2:3301
   tarantool-storage3:
     image: tarantooldb:latest
@@ -38,7 +35,6 @@ services:
       - "8083:8081"
       - "3303:3301"
     environment:
-      - TARANTOOL_LISTEN=0.0.0.0:3301
       - TARANTOOL_ADVERTISE_URI=tarantool-storage3:3301
   tarantool-storage4:
     image: tarantooldb:latest
@@ -48,21 +44,21 @@ services:
       - "8084:8081"
       - "3304:3301"
     environment:
-      - TARANTOOL_LISTEN=0.0.0.0:3301
       - TARANTOOL_ADVERTISE_URI=tarantool-storage4:3301
-  tarantool-db-init:
+  user-host:
     image: tarantooldb:latest
     networks:
       - tarantooldb_network
-    command: |
-      /bin/bash -c 'sleep 5; TARANTOOL_TARGET_URI=tarantool-router:8081 /usr/share/tarantool/tarantooldb/bootstrap-app.sh'
+    environment:
+      - TARANTOOLDB_TARGET_URI=tarantool-router:8081
+    working_dir: /usr/share/tarantool/tarantooldb/client/utils/
+    command: /bin/sh -c "./bootstrap.sh && ./migrate.sh"
     depends_on:
       - tarantool-router
       - tarantool-storage1
       - tarantool-storage2
       - tarantool-storage3
       - tarantool-storage4
-    working_dir: /bootstrap
     volumes:
       - ./bootstrap/:/bootstrap/
 networks:

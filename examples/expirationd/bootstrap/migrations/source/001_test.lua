@@ -1,25 +1,11 @@
 local utils = require('migrator.utils')
 
 local function is_storage()
-    local roles = require('cartridge.lua-api.get-topology').get_enabled_roles_without_deps()
-    for _, rname in pairs(roles) do
-        if rname == 'crud-storage' then
-            return true
-        end
-    end
-
-    return false
+    return utils.check_roles_enabled({'crud-storage'})
 end
 
 local function is_router()
-    local roles = require('cartridge.lua-api.get-topology').get_enabled_roles_without_deps()
-    for _, rname in pairs(roles) do
-        if rname == 'crud-router' then
-            return true
-        end
-    end
-
-    return false
+    return utils.check_roles_enabled({'crud-router'})
 end
 
 local function up()
@@ -36,7 +22,7 @@ local function up()
         box.space.messages:create_index('bucket_id', { parts = {'bucket_id'}, unique = false, if_not_exists = true})
         box.space.messages:create_index('create_date', { parts = {'create_date'}, unique = false, if_not_exists = true})
     
-        utils.register_sharding_key('message', {'id'})
+        utils.register_sharding_key('messages', {'id'})
 
         box.schema.func.create('messages_is_tuple_expired', {
             language = 'LUA',

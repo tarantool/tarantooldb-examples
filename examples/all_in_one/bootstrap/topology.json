@@ -1,0 +1,21 @@
+{
+  "replicasets": [
+    {
+      "alias": "all_in_one",
+      "roles": [
+        "crud-router",
+        "crud-storage",
+        "space-explorer"
+      ],
+      "weight": null,
+      "all_rw": false,
+      "vshard_group": "default",
+      "uuid": "aaaaaaaa-0000-4000-b001-000000000000",
+      "join_servers": [
+        {
+          "uri": "tarantool-instance:3301"
+        }
+      ]
+    }
+  ]
+}

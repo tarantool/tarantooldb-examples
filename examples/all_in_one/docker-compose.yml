@@ -1,0 +1,25 @@
+version: '3'
+services:
+  tarantool-instance:
+    image: tarantooldb:latest
+    networks:
+      - tarantooldb_network
+    ports:
+      - "8081:8081"
+      - "3301:3301"
+    environment:
+      - TARANTOOL_ADVERTISE_URI=tarantool-instance:3301
+  user-host:
+    image: tarantooldb:latest
+    networks:
+      - tarantooldb_network
+    environment:
+      - TARANTOOLDB_TARGET_URI=tarantool-instance:8081
+    working_dir: /usr/share/tarantool/tarantooldb/client/utils/
+    command: /bin/sh -c "./bootstrap.sh && ./migrate.sh"
+    depends_on:
+      - tarantool-instance
+    volumes:
+      - ./bootstrap/:/bootstrap/
+networks:
+  tarantooldb_network:

@@ -1,22 +1,11 @@
 local utils = require('migrator.utils')
 
-local function is_storage_master()
-    if box.info.ro then
-        return false
-    end
-    
-    local roles = require('cartridge.lua-api.get-topology').get_enabled_roles_without_deps()
-    for _, rname in pairs(roles) do
-        if rname == 'crud-storage' then
-            return true
-        end
-    end
-
-    return false
+local function is_storage()
+    return utils.check_roles_enabled({'crud-storage'})
 end
 
 local function up()
-    if is_storage_master() then
+    if is_storage() then
         box.schema.space.create('data', {if_not_exists = true})
         box.space.data:format({
             { name = 'id', type = 'number' },

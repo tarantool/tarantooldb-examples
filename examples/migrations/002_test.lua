@@ -1,27 +1,14 @@
-local cartridge_api_topology = require('cartridge.lua-api.get-topology')
+local utils = require('migrator.utils')
+
 local fiber = require('fiber')
 local datetime = require('datetime')
 
 local function is_router()
-    local roles = cartridge_api_topology.get_enabled_roles_without_deps()
-    for _, rname in pairs(roles) do
-        if rname == 'crud-router' then
-            return true
-        end
-    end
-
-    return false
+    return utils.check_roles_enabled({'crud-router'})
 end
 
 local function is_storage()
-    local roles = cartridge_api_topology.get_enabled_roles_without_deps()
-    for _, rname in pairs(roles) do
-        if rname == 'crud-storage' then
-            return true
-        end
-    end
-
-    return false
+    return utils.check_roles_enabled({'crud-storage'})
 end
 
 local function set_default_value(space_name, pk_name, field_name, value)
