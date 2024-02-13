@@ -40,6 +40,7 @@
 * 3301 .. 3306
 * 8080 .. 8086
 
+Запуск стенда производится командой:
 ```shell
 cd ./doc/examples/go_balancer/tt
 docker compose up -d

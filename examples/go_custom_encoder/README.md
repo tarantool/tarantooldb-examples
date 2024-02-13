@@ -37,6 +37,7 @@ box.space.test:format({
 * 3301 .. 3306
 * 8081 .. 8086
 
+Запуск стенда производится командой:
 ```shell
 cd ./doc/examples/go_custom_encoder/tt
 docker compose up -d

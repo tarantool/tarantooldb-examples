@@ -54,7 +54,7 @@ box.space.messages:create_index('create_date', { parts = {'create_date'}, unique
 * 3300 .. 3304
 * 8080 .. 8084
 
-Выполните следующие команды:
+Запуск стенда производится командой:
 ``` shell
 cd ./docs/examples/expirationd/
 docker compose up -d

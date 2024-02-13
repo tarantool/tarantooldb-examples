@@ -1,19 +1,13 @@
 # Работа с кластером Tarantool DB через модуль CRUD
 Тестовый стенд представляет собой кластер Tarantool DB из двух шардов и двух роутеров.
 
-Пример приложения производит запись строк пачками через выбранный роутер - см.
-функцию `WritePerBatchOverCrud`.
-
-Также пример демонстрирует чтение - см. функцию
-`CheckRecords`. Поскольку для взаимодействия в целях универсальности используется
-тип `interface{}`, то значения после чтения необходимо преобразовывать в нужный тип.
-Для примера показано преобразование в число, см. функцию `convertToInt`. Пример,
-где показано как работать без конвертаций - go_custom_encoder.
-
-Дополнительные материалы по коннектору - см. [здесь](https://pkg.go.dev/github.com/tarantool/go-tarantool/v2/crud).
-
 ## Запуск примера
-Предварительно должен быть установлен [docker-образ Tarantool DB](../../INSTALL.md). 
+Предварительно должен быть установлен:
+* [docker-образ Tarantool DB](../../INSTALL.md)
+* Maven
+* java 8+
+
+Так же необходимо настроить [maven конфиг](INSTALL.md), чтобы иметь возможность загрузить java connector.
 
 Для успешного запуска должны быть свободны порты:
 * 3301 .. 3306
@@ -21,7 +15,7 @@
 
 Запуск стенда производится командой:
 ```shell
-cd ./doc/examples/go_crud/tt
+cd ./doc/examples/java_crud/tt
 docker compose up -d
 ```
 
@@ -37,18 +31,14 @@ docker compose up -d
 
 Далее запускаем приложение. Необходимо открыть второй терминал и выполнить команды:
 ```shell
-cd ./doc/examples/go_crud/go
-go run -tags go_tarantool_ssl_disable main.go
+cd ./doc/examples/java_crud
+mvn clean compile
+mvn exec:java -Dexec.mainClass="org.example.App"
 ```
-
-> **Примечание**
-> 
-> Здесь для простоты мы отключаем поддержку TLS - `-tags go_tarantool_ssl_disable`, так
-> как для поддержки данного функционала требуется установленный OpenSSL 3.x. 
 
 После того, как приложение отработает, вывод будет таким:
 ```
-Recorded via crud in batches of 10000 records in 147.229874ms
+Records inserted via CRUD in batches of 10000 records in 1106 ms
 Rows verified
 ```
 
