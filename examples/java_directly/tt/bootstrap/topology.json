@@ -1,0 +1,16 @@
+{
+  "replicasets": [
+    {
+      "alias": "tarantool-storage",
+      "roles": [
+        "space-explorer"
+      ],
+      "weight": null,
+      "all_rw": false,
+      "vshard_group": "default",
+      "join_servers": [
+        {"uri": "tarantool-storage1:3301"}
+      ]
+    }
+  ]
+}

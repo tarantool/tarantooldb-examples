@@ -11,16 +11,23 @@
 
 Также пример демонстрирует чтение - см. функцию `ReadOne`.
 
-Дополнительные материалы по коннектору - см. [здесь](https://pkg.go.dev/github.com/tarantool/go-tarantool/v2).
+Дополнительные материалы по коннектору - см. [здесь](https://github.com/tarantool/tarantool-java-ee).
 
 ## Запуск примера
+Предварительно должен быть установлен:
+* [docker-образ Tarantool DB](../../INSTALL.md)
+* Maven
+* java 8+
+
+Так же необходимо настроить [maven конфиг](../../JAVA_INSTALL.md), чтобы иметь возможность загрузить java connector.
+
 Для успешного запуска должны быть свободны порты:
 * 3301
 * 8081
 
 Запуск стенда производится командой:
 ```shell
-cd ./doc/examples/go_directly/tt
+cd ./doc/examples/java_directly/tt
 docker compose up -d
 ```
 
@@ -28,7 +35,7 @@ docker compose up -d
 после запуска доступна админка кластера TarantoolDB по адресу: http://localhost:8081
 
 Откройте админку кластера и визуально убедитесь, что нет каких либо предупреждений,
-или ошибок. Сразу после старта в течении нескольких секунд могут быть предупреждения,
+или ошибок. Сразу после старта в течение нескольких секунд могут быть предупреждения,
 так как кластер поднимается. В данном примере используется репликация и не
 используется функционал шардинга, поэтому vshard не забутсраплен.
 
@@ -37,19 +44,15 @@ docker compose up -d
 
 Далее запускаем приложение. Необходимо открыть второй терминал и выполнить команды:
 ```shell
-cd ./doc/examples/go_directly/go
-go run -tags go_tarantool_ssl_disable main.go
+cd ./doc/examples/java_directly
+mvn clean compile
+mvn exec:java -Dexec.mainClass="org.example.App"
 ```
-
-> **Примечание**
-> 
-> Здесь для простоты мы отключаем поддержку TLS - `-tags go_tarantool_ssl_disable`, так
-как для поддержки данного функционала требуется установленный OpenSSL 3.x. 
 
 После того, как приложение отработает, вывод будет таким:
 ```
-Directly recorded 10000 rows one at a time in 670.147941ms
-Tuples [{{} 1 77 WjishcEWgbUGSerPYtkmAhtSrRYXmyYaXDyScIFcRCpFwIMYpGZwrZbYRSBUdPAP}]
+Directly recorded 10000 rows one at a time in 483 milliseconds
+Tuples: [[1, 4677746723089159966, aHRDJPQVkTEBttESWzzUH]]
 ```
 
 Необходимо убедиться, что в спейсе `test` появились данные. Остановка кластера
