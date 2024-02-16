@@ -1,0 +1,21 @@
+local utils = require('migrator.utils')
+
+local function up()
+    box.schema.space.create('test', {if_not_exists = true})
+    box.space.test:format({
+        { name = 'id', type = 'number' },
+        { name = 'bucket_id', type = 'unsigned' },
+        { name = 'too', type = 'number' },
+        { name = 'foo', type = 'string' },
+    })
+    box.space.test:create_index('pk', { parts = {'id'}, if_not_exists = true})
+    box.space.test:create_index('bucket_id', { parts = {'bucket_id'}, unique = false, if_not_exists = true})
+
+    utils.register_sharding_key('test', {'id'})
+
+    return true
+end
+
+return {
+    up = up,
+}
