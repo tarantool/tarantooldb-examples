@@ -84,12 +84,14 @@ services:
     volumes:
       - ./bootstrap/:/bootstrap/
 
-  influxdb:
-    image: influxdb:1.8
+  prometheus:
+    image: prom/prometheus:v2.30.3
     networks:
       - tarantooldb_network
-    environment:
-      - INFLUXDB_DB=tarantool
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
 
   grafana:
     image: grafana/grafana:9.5.14
@@ -102,16 +104,7 @@ services:
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_BASIC_ENABLED=false
     volumes:
-      - ./grafana/:/etc/grafana/provisioning/
-
-  telegraf:
-    image: telegraf:1.28
-    depends_on:
-      - influxdb
-    networks:
-      - tarantooldb_network
-    volumes:
-      - ./telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+      - ./grafana:/etc/grafana/provisioning
 
 networks:
   tarantooldb_network:

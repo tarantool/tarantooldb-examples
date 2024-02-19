@@ -1,7 +1,7 @@
 metrics:
   export:
     - path: '/myapp/metrics'
-      format: 'json'
+      format: 'prometheus'
     - path: '/myapp/health'
       format: 'health'
 crud:
