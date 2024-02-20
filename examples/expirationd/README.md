@@ -101,6 +101,15 @@ messages_expiration: # название для задачи по экспира�
             seconds: 5
 ```
 
+Сделать это можно через [web-ui](http://localhost:8081/admin/cluster/code):
+
+1. Создаем файл
+
+    ![add_config](./expirationd_config.png)
+2. Добавляем конфиг
+    ![add_config_2](./expirationd_config_2.png)  
+3. Нажимаем `Apply`
+
 Согласно данному конфигу задачи по экпирации **messages_expiration** будет выполняться так:
 
 1. Запускается файбер для фоновой экспирации спейса `messages`
