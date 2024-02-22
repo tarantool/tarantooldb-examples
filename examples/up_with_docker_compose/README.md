@@ -1,10 +1,12 @@
 # Конфигурация и запуск кластера через docker compose
 
 Для этого примера понадобятся:
+
 * Docker-образ Tarantool DB ([установить](../../INSTALL.md))
 * Docker compose
 
 Для запуска кластера из директории ``up_with_docker_compose`` выполните:
+
 ```shell
 docker compose up -d --build 
 ```
@@ -41,6 +43,7 @@ tarantool-router-msk:
 
 В [``docker-compose.yml``](./docker-compose.yml) есть специальный контейнер ``user-host``. Он выполняет роль компьютера
 разработчика с которого выполняются:
+
 1. Настройка топологии кластера и первоначальный запуск (bootstrap) модуля шардирования
    [vshard](https://www.tarantool.io/ru/doc/latest/book/admin/vshard_admin/).
    > **Примечание**
@@ -57,7 +60,7 @@ user-host:
   environment:
     - TARANTOOLDB_TARGET_URI=tarantool-router-msk:8081
   working_dir: /usr/share/tarantool/tarantooldb/client/utils/
-  command: /bin/bash -c "./bootstrap.sh && ./migrate.sh"
+  command: /bin/bash -c "./bootstrap.sh && ./health_check.sh && ./migrate.sh"
   depends_on:
     - tarantool-router-msk
     - tarantool-router-spb
@@ -70,18 +73,23 @@ user-host:
 ```
 
 Рассмотрим его состав более подробно:
-* `image: tarantooldb:latest` - образ используется только как источник скриптов `bootstrap.sh` и `migrate.sh`
-  ([подробнее](../../../client/utils/README.md)) Предполагается, что в реальных условиях данные скрипты будут загружены на компьютер разработчика из 
-  [клиентской зоны](https://www.tarantool.io/ru/accounts/customer_zone/packages/tarantooldb).
-* `environment` - в данной секции мы устанавливаем переменные окружения, в частности `TARANTOOLDB_TARGET_URI`, которая
-  используется скриптами `bootstrap.sh` и `migrate.sh` для определения адреса, по которому доступны API-команды
-  кластера.
+
+* `image: tarantooldb:latest` - образ используется только как источник скриптов `bootstrap.sh`, `health_check.sh`
+  и `migrate.sh` ([подробнее](../../../client/utils/README.md)) Предполагается, что в реальных условиях данные скрипты
+  будут загружены на компьютер разработчика
+  из [клиентской зоны](https://www.tarantool.io/ru/accounts/customer_zone/packages/tarantooldb).
+* `environment` - в данной секции мы устанавливаем переменные окружения, в частности:
+    - `TARANTOOLDB_TARGET_URI`, которая используется скриптами `bootstrap.sh`, `health_check.sh` и `migrate.sh` для
+      определения адреса, по которому доступны API-команды кластера
 * `working_dir` - указывает на папку, в которой лежат скрипты
 * `depends_on` - данный контейнер запускается только после запуска всех остальных узлов кластера
-* `volumes` - здесь мы пробрасываем в контейнер директорию с настройками кластера и пользовательской логикой, чтобы они стали доступны для скриптов.
+* `volumes` - здесь мы пробрасываем в контейнер директорию с настройками кластера и пользовательской логикой, чтобы они
+  стали доступны для скриптов.
 
 ## Останов стенда
+
 Останов стенда производится командой:
+
 ```shell
 docker compose down
 ```

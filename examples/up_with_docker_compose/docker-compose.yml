@@ -92,7 +92,7 @@ services:
       - TARANTOOLDB_TARGET_URI=tarantool-router-msk:8081
       - BOOTSTRAP_FAILOVER=1
     working_dir: /usr/share/tarantool/tarantooldb/client/utils/
-    command: /bin/sh -c "./bootstrap.sh && ./migrate.sh"
+    command: /bin/sh -c "./bootstrap.sh && ./health_check.sh && ./migrate.sh"
     depends_on:
       - tarantool-router-msk
       - tarantool-router-spb

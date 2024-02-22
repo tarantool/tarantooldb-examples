@@ -54,7 +54,7 @@ services:
     environment:
       - TARANTOOLDB_TARGET_URI=tarantool-router:8081
     working_dir: /bootstrap/
-    command: sh -c "./bootstrap.sh && ./migrate.sh"
+    command: sh -c "./bootstrap.sh && ./health_check.sh && ./migrate.sh"
     depends_on:
       - tarantool-router
       - tarantool-storage1
