@@ -8,7 +8,7 @@ router-msk:
   all_rw: false
 router-spb:
   instances:
-  - router-nsk
+  - router-spb
   roles:
   - failover-coordinator
   - crud-router

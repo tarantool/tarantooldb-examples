@@ -1,4 +1,4 @@
-# Примеры файлов для конфигурирования кластера через TT CLI
+# Примеры файлов для запуска и конфигурирования кластера через TT CLI
 
 > Для разработчиков TarantoolDB см. соответствующий [раздел](../../CONTRIBUTING.md#локальный-запуск).
 
@@ -9,13 +9,26 @@
    ```shell
    cd ./doc/examples/up_with_tt/
    ```
-2. Распаковать в директорию архив для развёртывания (из раздела клиентской зоны [for deploy](https://www.tarantool.io/ru/accounts/customer_zone/packages/tarantooldb/release/for_deploy))
-3. Создать конфигурационные файлы для локального старта (см. [подраздел ниже](#файлы-для-локального-старта))
-4. Запустить процессы узлов TarantoolDB из папки продукта командой:
+2. Скачать в эту папку архив для развёртывания из раздела клиентской зоны 
+   [for deploy](https://www.tarantool.io/ru/accounts/customer_zone/packages/tarantooldb/release/for_deploy)
+3. Распаковать в директорию архив для развёртывания 
+   ```shell
+   tar -xzvf tarantooldb-latest.linux.x86_64.tar.gz
+   ```
+4. Будет создана папка `tarantooldb`. Переименовывать её нельзя!
+5. Скопировать в папку `tarantooldb` файлы `*.yml` из папки примера:
+   ```shell
+   cp *.yml tarantooldb/
+   ```
+6. Перейти в созданную папку `tarantooldb`:
+   ```shell
+   cd tarantooldb
+   ```
+7. Запустить процессы узлов TarantoolDB из папки продукта командой:
    ```shell
    ./tt start
    ```
-5. Выполнить сборку кластера из узлов TarantoolDB:
+8. Выполнить сборку кластера из узлов TarantoolDB:
 
    ```shell
    ./tt cartridge replicasets setup --bootstrap-vshard --name tarantooldb
