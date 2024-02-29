@@ -263,6 +263,46 @@ local function up()
                 end
             ]],
         })
+
+         -- __create_example_data_mant используется для заполнения кластера тестовыми данными в большом объеме
+        box.schema.func.create('__fill_data', {
+            language = 'LUA',
+            if_not_exists = true,
+            body = [[
+                function()
+                    local uuid = require('uuid')
+
+                    local len = 450000
+                    for _ = 1, len / 1000 do
+                        local projects, tasks, users = {}, {}, {}
+
+                        for i = 1, 1000 do
+                            table.insert(projects, {
+                                project_id = uuid.new(),
+                                name = 'Task Management ' .. i,
+                                description = 'Development of a task management system ' .. i,
+                            })
+                            table.insert(users, {
+                                user_id = uuid.new(),
+                                name = 'john_doe ' .. i,
+                                email = 'john.doe' .. i .. "@example.com"
+                            })
+                            table.insert(tasks, {
+                                task_id = uuid.new(),
+                                name = 'Create New Logo',
+                                description = 'Design a new logo for the website.',
+                                status = 'Not Started',
+                                project_id = uuid.new(),
+                                assigned_user_id = uuid.new(),
+                            })
+                        end
+                        crud.replace_object_many('projects', projects)
+                        crud.replace_object_many('users', users)
+                        crud.replace_object_many('tasks', tasks)
+                    end
+                end
+            ]],
+        })
     end
 
     return true
