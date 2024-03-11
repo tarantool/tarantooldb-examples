@@ -1,0 +1,68 @@
+{
+  "replicasets": [
+    {
+      "alias": "router-msk",
+      "roles": [
+        "crud-router",
+        "space-explorer",
+        "dictionary.roles.router",
+        "failover-coordinator"
+      ],
+      "weight": null,
+      "all_rw": false,
+      "vshard_group": "default",
+      "join_servers": [
+        {
+          "uri": "tarantool-router-msk:3301"
+        }
+      ]
+    },
+    {
+      "alias": "router-spb",
+      "roles": [
+        "crud-router",
+        "space-explorer",
+        "dictionary.roles.router",
+        "failover-coordinator"
+      ],
+      "weight": null,
+      "all_rw": false,
+      "vshard_group": "default",
+      "join_servers": [
+        {
+          "uri": "tarantool-router-spb:3301"
+        }
+      ]
+    },
+    {
+      "alias": "storage-1",
+      "roles": [
+        "crud-storage",
+        "space-explorer",
+        "dictionary.roles.storage"
+      ],
+      "weight": null,
+      "all_rw": false,
+      "vshard_group": "default",
+      "join_servers": [
+        {"uri": "tarantool-storage-1-msk:3301"},
+        {"uri": "tarantool-storage-1-spb:3301"}
+      ]
+    },
+    {
+      "alias": "storage-2",
+      "roles": [
+        "crud-storage",
+        "space-explorer",
+        "dictionary.roles.storage"
+      ],
+      "weight": null,
+      "all_rw": false,
+      "vshard_group": "default",
+      "join_servers": [
+        {"uri": "tarantool-storage-2-msk:3301"},
+        {"uri": "tarantool-storage-2-spb:3301"}
+      ]
+    }
+  ]
+}

@@ -5,6 +5,7 @@ router-msk:
   - failover-coordinator
   - crud-router
   - space-explorer
+  - dictionary.roles.router
   all_rw: false
 router-spb:
   instances:
@@ -13,6 +14,7 @@ router-spb:
   - failover-coordinator
   - crud-router
   - space-explorer
+  - dictionary.roles.router
   all_rw: false
 storage-1:
   instances:
@@ -21,6 +23,7 @@ storage-1:
   roles:
   - crud-storage
   - space-explorer
+  - dictionary.roles.storage
   weight: 1
   all_rw: false
   vshard_group: default
@@ -31,6 +34,7 @@ storage-2:
   roles:
   - crud-storage
   - space-explorer
+  - dictionary.roles.storage
   weight: 1
   all_rw: false
   vshard_group: default
