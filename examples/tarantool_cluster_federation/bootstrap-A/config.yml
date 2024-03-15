@@ -1,0 +1,18 @@
+metrics:
+  export:
+    - path: '/myapp/metrics'
+      format: 'json'
+    - path: '/myapp/health'
+      format: 'health'
+
+cluster_federation:
+  cluster_1: cluster_a
+  cluster_2: cluster_b
+
+  replication_user: replicator
+  replication_password: SuPPerSECreT_PAssw0rd
+
+  initial_status: active
+
+  dml_users:
+    - db_user

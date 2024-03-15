@@ -1,0 +1,22 @@
+version: '3'
+services:
+  tcf-replicator:
+    build:
+      context: .
+      dockerfile: replicator.Dockerfile
+    networks:
+      - tarantooldb_network
+    command:
+    - /bin/sh
+    - -c
+    - |
+      sleep 60 &
+      tcf-gateway --config ./config_repl_AB.yaml --rebootstrap --force &
+      tcf-destination --config ./config_repl_AB.yaml --rebootstrap --force &
+      tcf-gateway --config ./config_repl_BA.yaml &
+      tcf-destination --config ./config_repl_BA.yaml &
+      sleep 1
+      tail -f /var/log/*
+
+networks:
+  tarantooldb_network:

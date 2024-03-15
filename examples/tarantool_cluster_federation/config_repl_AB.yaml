@@ -1,0 +1,57 @@
+gateway:
+  metrics_enabled: true
+  grpc_server:
+    host: 0.0.0.0
+    port: 10080
+  prometheus:
+    host: 0.0.0.0
+    port: 10081
+  replica_type: anonymous
+  max_cpu: 2
+  log_level: debug
+  log_type: plain # plain/json
+  log_path: gateway_AB.log,stdout
+  report_interval: 10
+
+  stream_instances:
+    - uri: tarantool-storage-A-1-1:3301
+      user: replicator
+      password: SuPPerSECreT_PAssw0rd
+    - uri: tarantool-storage-A-1-2:3301
+      user: replicator
+      password: SuPPerSECreT_PAssw0rd
+    - uri: tarantool-storage-A-2-1:3301
+      user: replicator
+      password: SuPPerSECreT_PAssw0rd
+    - uri: tarantool-storage-A-2-2:3301
+      user: replicator
+      password: SuPPerSECreT_PAssw0rd
+
+destination:
+  metrics_enabled: true
+  prometheus:
+    host: 0.0.0.0
+    port: 10082
+  gateway:
+    host: localhost
+    port: 10080
+
+  # size of every channel for replicaset events. Zero will make it unbuffered
+  buffer_size: 10000
+  log_type: plain # plain/json
+  log_level: debug
+  log_path: destination_AB.log,stdout
+  report_interval: 10
+
+  vshard_routers:
+    hosts:
+      - "tarantool-router-B:3301"
+    user: replicator
+    password: SuPPerSECreT_PAssw0rd
+
+  # Optional parameters
+  start_retry_delay: 200 #  milliseconds
+  max_retry_delay: 1500 # milliseconds
+  retry_attempts: 10 # milliseconds
+
+  max_cpu: 2
