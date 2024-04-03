@@ -1,0 +1,549 @@
+# Изменение схемы данных с помощью space:format()
+
+В этом руководстве рассказано, как разработать типовое приложение в Tarantool DB и изменить в нем схему данных, используя
+метод [space:format()](https://www.tarantool.io/ru/doc/latest/reference/reference_lua/box_space/format/).
+В качестве примера используется база данных для системы управления проектами.
+Для работы используются модули [migrations](https://github.com/tarantool/migrations), [CRUD](https://github.com/tarantool/crud) и [vshard](https://www.tarantool.io/ru/doc/latest/reference/reference_rock/vshard/).
+
+Полный пример с исходным кодом находится в директории `./doc/examples/migrations/`.
+
+Руководство включает следующие шаги:
+
+* [](user_guide-space_format-prereq)
+* [](user_guide-space_format-schema)
+* [](user_guide-space_format-start_example)
+* [](user_guide-space_format-load_data)
+* [](user_guide-space_format-check_functions)
+* [](user_guide-space_format-change_schema)
+* [](user_guide-space_format-stop_example)
+
+(user_guide-space_format-prereq)=
+## Пререквизиты
+
+Для выполнения примера требуются:
+
+* установленный [Docker-образ](/install_and_upgrade/install/install_docker.md) Tarantool DB;
+* приложение Docker compose;
+* утилита [TT CLI](install-install_tt);
+* исходные файлы примера `migrations`. Пример находится в директории `./doc/examples/migrations/`.
+
+(user_guide-space_format-schema)=
+## Схема данных
+
+В качестве примера приведена база данных для системы управления проектами, которая состоит из трех спейсов: `projects` (проекты), `tasks` (задачи),
+`users` (пользователи).
+Схема этой базы данных выглядит так:
+
+![Cхема данных](images/schema1.drawio.svg)
+
+Здесь:
+
+* Спейсы `projects` и `tasks` имеют одинаковый ключ шардирования `project_id` и находятся на одном экземпляре.
+* Спейс `users` имеет ключ [шардирования](https://www.tarantool.io/ru/doc/latest/concepts/sharding/) `user_id`.
+
+Особенности базы данных:
+* Задач на проекте больше, чем пользователей.
+* При удалении проекта нужно удалить и связанные с ним задачи.
+  Это удобно сделать, если все записи находятся на одном экземпляре.
+
+```{admonition} Примечание
+:class: note
+При выборе ключа шардирования учитывайте предметную область и предполагаемое API.
+```
+
+Для работы с данными в примере используются методы модуля CRUD.
+Дополнительно будет реализовано следующее API:
+
+- `app.delete_user(user_id)` - удалить пользователя. У всех задач, связанных с этим пользователем, в поле `assigned_user_id` должен быть выставлен `box.NULL`;
+- `app.delete_project(project_id)` - удалить проект и все связанные с ним задачи;
+- `app.get_project_data(project_id)` - получить проект и все связанные с ним задачи и пользователей.
+
+(user_guide-space_format-start_example)=
+## Запуск стенда
+
+Для запуска и настройки кластера используются файлы из папки ``migrations``:
+
+* `docker-compose.yml` -- описание узлов кластера;
+* `bootstrap/topology.json` -- описание топологии кластера.
+
+Для успешного старта должны быть свободны следующие порты:
+
+* 3300 .. 3304
+* 8080 .. 8084
+
+Перейдите в директорию примера `migrations`:
+
+```
+cd ./doc/examples/migrations/
+```
+
+Запустите стенд:
+
+```
+docker compose up -d
+```
+
+В запущенном кластере созданы спейсы `projects`, `tasks` и `users`, а также
+функции ``app.delete_user(user_id)`` и ``app.get_project_data(project_id)``.
+
+(user_guide-space_format-load_data)=
+## Загрузка и проверка данных
+
+Подключитесь к роутеру с помощью команды `tt connect`.
+Команда открывает интерактивную консоль Tarantool, позволяющую работать с базой данных:
+
+```shell
+tt connect admin:secret-cluster-cookie@localhost:3300
+```
+
+Исходный код миграции приведен в файле `001_test.lua` в директории `./doc/examples/migrations/bootstrap/migrations/source/`.
+
+Загрузить тестовые данные можно с помощью функции `__create_example_data`.
+Функция очищает кластер и заполняет его данными из примера:
+
+```shell
+localhost:3300> box.schema.func.call('__create_example_data')
+```
+
+Чтобы проверить загруженные данные, выполните несколько базовых операций в спейсе `users`, используя модуль CRUD:
+
+```shell
+localhost:3300> crud.select('users')
+---
+- metadata: [{'name': 'user_id', 'type': 'uuid'}, {'name': 'bucket_id', 'type': 'unsigned'},
+    {'name': 'name', 'type': 'string'}, {'type': 'string', 'name': 'email', 'is_nullable': true}]
+  rows:
+  - [04e7f6a2-2979-46e4-8d71-e80217e3aac3, 23464, 'john_doe', 'john.doe@example.com']
+  - [1e63739a-dad0-4c5d-80e4-cd39594fe302, 1985, 'jane_smith', 'jane.smith@example.com']
+- null
+...
+
+localhost:3300> crud.select('users', {{"==", "name", "john_doe"}})
+---
+- metadata: [{'name': 'user_id', 'type': 'uuid'}, {'name': 'bucket_id', 'type': 'unsigned'},
+    {'name': 'name', 'type': 'string'}, {'type': 'string', 'name': 'email', 'is_nullable': true}]
+  rows:
+  - [04e7f6a2-2979-46e4-8d71-e80217e3aac3, 23464, 'john_doe', 'john.doe@example.com']
+- null
+
+localhost:3300> crud.update('users', require('uuid').fromstr('04e7f6a2-2979-46e4-8d71-e80217e3aac3'), {{'=', 'name', "John Doe"}})
+---
+- rows:
+  - [04e7f6a2-2979-46e4-8d71-e80217e3aac3, 23464, 'John Doe', 'john.doe@example.com']
+  metadata: [{'name': 'user_id', 'type': 'uuid'}, {'name': 'bucket_id', 'type': 'unsigned'},
+    {'name': 'name', 'type': 'string'}, {'type': 'string', 'name': 'email', 'is_nullable': true}]
+- null
+
+localhost:3300> crud.get('users', require('uuid').fromstr('04e7f6a2-2979-46e4-8d71-e80217e3aac3'))
+---
+- rows:
+  - [04e7f6a2-2979-46e4-8d71-e80217e3aac3, 23464, 'John Doe', 'john.doe@example.com']
+  metadata: [{'name': 'user_id', 'type': 'uuid'}, {'name': 'bucket_id', 'type': 'unsigned'},
+    {'name': 'name', 'type': 'string'}, {'type': 'string', 'name': 'email', 'is_nullable': true}]
+- null
+
+localhost:3300> crud.delete('users', require('uuid').fromstr('04e7f6a2-2979-46e4-8d71-e80217e3aac3'))
+---
+- rows:
+  - [04e7f6a2-2979-46e4-8d71-e80217e3aac3, 23464, 'John Doe', 'john.doe@example.com']
+  metadata: [{'name': 'user_id', 'type': 'uuid'}, {'name': 'bucket_id', 'type': 'unsigned'},
+    {'name': 'name', 'type': 'string'}, {'type': 'string', 'name': 'email', 'is_nullable': true}]
+- null
+...
+```
+
+Чтобы вернуть данные в прежнее состояние, вызовите функцию `__create_example_data` еще раз:
+
+```shell
+localhost:3300> box.schema.func.call('__create_example_data')
+```
+
+(user_guide-space_format-check_functions)=
+## Проверка пользовательских функций базы данных
+
+Модуль [CRUD](https://github.com/tarantool/crud) упрощает работу с шардированными данными -- выполнение простых операций
+чтения и записи таких данных прозрачно для пользователя.
+Тем не менее, для задач, реализующих функции базы данных (``app.get_project_data(id)``, ``app.delete_user(id)`` и ``app.delete_project(id)``),
+модуля CRUD недостаточно.
+Это связано с тем, что эти функции работают с несколькими спейсами и нестандартными операциями чтения и записи.
+
+### Получение данных проекта
+
+Для проверки функции `app.get_project_data(project_id)` верните данные в первоначальное состояние:
+```shell
+localhost:3300> box.schema.func.call('__create_example_data')
+```
+
+Вызовите функцию и оцените результат:
+```shell
+localhost:3300> box.schema.func.call('app.get_project_data', require('uuid').fromstr('46f8e628-d2c2-42ba-984f-29a459a3d0fc'))
+---
+- res:
+    tasks:
+    - status: In Progress
+      user:
+        name: john_doe
+        email: john.doe@example.com
+      name: Optimize Database
+      description: Optimize the database to improve performance.
+    name: Task Management
+    description: Development of a task management system
+  err: null
+```
+
+Функция `app.get_project_data(project_id)` выполняет `join` из всех спейсов, используются `crud.get`, `crud.pairs`.
+
+### Удаление пользователя
+
+Для проверки функции `app.delete_user(user_id)` верните данные в первоначальное состояние:
+
+```shell
+localhost:3300> box.schema.func.call('__create_example_data')
+```
+
+Удалите пользователя:
+
+```shell
+localhost:3300> box.schema.func.call('app.delete_user', require('uuid').fromstr('04e7f6a2-2979-46e4-8d71-e80217e3aac3'))
+---
+- res: true
+  err: null
+...
+
+localhost:3300> box.schema.func.call('app.get_project_data', require('uuid').fromstr('46f8e628-d2c2-42ba-984f-29a459a3d0fc'))
+---
+- res:
+    tasks:
+    - status: In Progress
+      name: Optimize Database
+      description: Optimize the database to improve performance.
+    name: Task Management
+    description: Development of a task management system
+  err: null
+
+localhost:3300> crud.get('users', require('uuid').fromstr('04e7f6a2-2979-46e4-8d71-e80217e3aac3'))
+---
+- rows: []
+  metadata: [{'name': 'user_id', 'type': 'uuid'}, {'name': 'bucket_id', 'type': 'unsigned'},
+    {'name': 'name', 'type': 'string'}, {'type': 'string', 'name': 'email', 'is_nullable': true}]
+- null
+...
+```
+
+В выводе функции видно, что информации о пользователе нет -- пользователь успешно удален.
+
+Теперь во всех связанных с этим пользователем задачах нужно присвоить полю `assigned_user_id` значение `box.NULL`.
+Для этого на всех хранилищах была объявлена функция ``tasks.set_box_NULL_for_user_id``.
+Функция задает `box.NULL` в поле `assigned_user_id` для всех задач, у которых `assigned_user_id == user_id`, где
+`user_id` -- аргумент функции.
+
+Код функции:
+
+```lua
+function(user_id)
+  local fiber = require('fiber')
+  local every_100 = 0
+  for _, t in box.space.tasks.index.assigned_user_id:pairs({user_id}, 'EQ') do
+      box.space.tasks:update(t.id, {{'=', 'assigned_user_id', box.NULL}})
+      every_100 = every_100 + 1
+      if every_100 == 100 then
+          every_100 = 0
+          fiber.yield() -- выполняем fiber.yield(), чтобы не занимать полностью TX тред в случае, когда задач у пользователя очень много
+      end
+  end
+  return true
+end
+```
+
+Особенность ``app.delete_user(id)`` в том, спейсы  ``tasks`` и ``users`` шардируются по разным ключам.
+В общем случае связанные задачи и пользователи будут находиться на разных шардах. Это значит, что нет узла, на котором бы было известно,
+на каких шардах будут задачи, связанные с удаляемым пользователем.
+Вызывать функцию ``tasks.set_box_NULL_for_user_id`` нужно на каждом мастере шарда., потому что такие задачи будут на всех 
+шардах.
+Для вызова функции на всех шардах используется модуль для горизонтального масштабирования [vshard](https://www.tarantool.io/ru/doc/latest/reference/reference_rock/vshard/).
+
+Вызов функции `tasks.set_box_NULL_for_user_id` выглядит так:
+
+```lua
+local _, err, uuid = vshard_router.map_callrw('tasks.set_box_NULL_for_user_id', {user_id})
+```
+
+Полный исходный код приведен в файле миграции `./doc/examples/migrations/bootstrap/migrations/source/001_test.lua`.
+
+### Удаление проекта
+
+Для проверки функции `app.delete_project(project_id)` верните данные в первоначальное состояние:
+
+```shell
+localhost:3300> box.schema.func.call('__create_example_data')
+```
+
+Просмотрите содержимое спейса `projects`. Видно, что проект `Website Update` был удален вместе со всеми задачами:
+
+```shell
+localhost:3300> crud.select('projects')
+---
+- metadata: [{'name': 'id', 'type': 'uuid'}, {'name': 'bucket_id', 'type': 'unsigned'},
+    {'name': 'name', 'type': 'string'}, {'type': 'string', 'name': 'description',
+      'is_nullable': true}]
+  rows:
+  - [46f8e628-d2c2-42ba-984f-29a459a3d0fc, 1033, 'Task Management', 'Development of
+      a task management system']
+  - [f53392af-30e3-4bfc-bde8-37043951159a, 21589, 'Website Update', 'Making changes
+      to the website design and functionality']
+- null
+
+localhost:3300> crud.select('tasks')
+---
+- metadata: [{'name': 'task_id', 'type': 'uuid'}, {'name': 'bucket_id', 'type': 'unsigned'},
+    {'name': 'name', 'type': 'string'}, {'type': 'string', 'name': 'description',
+      'is_nullable': true}, {'name': 'status', 'type': 'string'}, {'name': 'project_id',
+      'type': 'uuid'}, {'type': 'uuid', 'name': 'assigned_user_id', 'is_nullable': true}]
+  rows:
+  - [5043a3f6-6ffa-4d90-8b66-4fb623878f8e, 1033, 'Optimize Database', 'Optimize the
+      database to improve performance.', 'In Progress', 46f8e628-d2c2-42ba-984f-29a459a3d0fc,
+    04e7f6a2-2979-46e4-8d71-e80217e3aac3]
+  - [c57d56ef-33fc-453b-880f-5d3ba4dc9d10, 21589, 'Create New Logo', 'Design a new
+      logo for the website.', 'Not Started', f53392af-30e3-4bfc-bde8-37043951159a,
+    1e63739a-dad0-4c5d-80e4-cd39594fe302]
+- null
+
+localhost:3300> box.schema.func.call('app.delete_project', require('uuid').fromstr('f53392af-30e3-4bfc-bde8-37043951159a'))
+---
+- res: true
+  err: null
+...
+
+localhost:3300> crud.select('projects')
+---
+- metadata: [{'name': 'project_id', 'type': 'uuid'}, {'name': 'bucket_id', 'type': 'unsigned'},
+    {'name': 'name', 'type': 'string'}, {'type': 'string', 'name': 'description',
+      'is_nullable': true}]
+  rows:
+  - [46f8e628-d2c2-42ba-984f-29a459a3d0fc, 1033, 'Task Management', 'Development of
+      a task management system']
+- null
+
+localhost:3300> crud.select('tasks')
+---
+- metadata: [{'name': 'task_id', 'type': 'uuid'}, {'name': 'bucket_id', 'type': 'unsigned'},
+    {'name': 'name', 'type': 'string'}, {'type': 'string', 'name': 'description',
+      'is_nullable': true}, {'name': 'status', 'type': 'string'}, {'name': 'project_id',
+      'type': 'uuid'}, {'type': 'uuid', 'name': 'assigned_user_id', 'is_nullable': true}]
+  rows:
+  - [5043a3f6-6ffa-4d90-8b66-4fb623878f8e, 1033, 'Optimize Database', 'Optimize the
+      database to improve performance.', 'In Progress', 46f8e628-d2c2-42ba-984f-29a459a3d0fc,
+    04e7f6a2-2979-46e4-8d71-e80217e3aac3]
+- null
+...
+```
+
+Спейсы `projects` и `tasks` шардируются по одинаковым значениям.
+Это означает, что связанные между собой проект и задача находятся на одном экземпляре.
+Такой подход позволяет транзакционно удалить данные из `projects` и `tasks`.
+Для этого на хранилищах реализована API-функция ``'projects.delete_project``.
+
+Код функции:
+
+```lua
+function(project_id)
+    local proj = box.space.projects:get(project_id)
+    if proj == nil then
+        return false
+    end
+
+    box.atomic(function() -- атомарно удаляем и из projects и из tasks
+        box.space.projects:delete(project_id)
+
+        for _, t in box.space.tasks.index.project_id:pairs({project_id}, 'EQ') do
+            box.space.tasks:delete(t.id)
+        end
+    end)
+    return true
+end
+```
+
+Для вызова функции на конкретном мастере используется модуль ``vshard``.
+Вызов функции `projects.delete_project` выглядит так:
+
+```lua
+local vshard_router = require('vshard.router')
+local bucket_id = vshard_router.bucket_id_strcrc32(id)
+local _, err = vshard_router.callrw(bucket_id, 'projects.delete_project', {id})
+```
+
+Полный исходный код приведен в файле миграции `./doc/examples/migrations/bootstrap/migrations/source/001_test.lua`.
+
+(user_guide-space_format-change_schema)=
+## Изменение схемы данных
+
+Предположим, что теперь нужно изменить схему данных, добавив в нее новые поля:
+
+* `deadline(datetime)` (дедлайн) в `projects`;
+* `due_date(datetime)` в ``tasks``;
+* `role(string)` в ``users``.
+
+По умолчанию в ``projects.deadline`` и ``due_date(datetime)`` должно быть значение `2999-12-31T00:00:00Z`, а в 
+`users.role` -- значение `not set`.
+Функцию ``app.get_project_data`` нужно также переписать, чтобы отображались новые поля.
+
+Новая схема данных будет выглядеть так:
+
+![Схема данных](images/schema2.drawio.svg)
+
+Код миграции приведен в файле `./doc/examples/migrations/002_test.lua002_test.lua`.
+
+Миграции выполняются в лексикографическом порядке, так им нумерованные названия: (`0001_my_migr.lua`, `2023_12_24_migr.lua`).
+
+Подготовьте данные для миграции:
+
+```lua
+localhost:3300> box.schema.func.call('__create_example_data')
+```
+
+### Способы выполнения миграции
+
+Есть два способа выполнить миграцию:
+
+* в веб-интерфейсе Tarantool DB;
+* с помощью graphql.
+
+**Веб-интерфейс**
+
+1. Откройте вкладку [Code](http://localhost:8081/admin/cluster/code) в меню слева.
+2. Добавьте в `migrations/source` файл `002_test.lua`.
+3. Скопируйте код из файла `002_test.lua` в этот файл.
+4. Нажмите кнопку `Apply`.
+5. Конфигурация успешно применена.
+
+**Graphql API**
+
+Для выполнения миграции запустите следующий запрос на изменение (мутацию):
+
+```bash
+curl -v --raw 'http://localhost:8081/admin/api' -X POST --data '{
+        "query":"mutation($sections: [ConfigSectionInput!]) {
+            cluster {
+                config(sections: $sections) {
+                    filename
+                    content
+                }
+            }
+        }",
+        "variables": {
+            "sections": [{
+                "filename":"migrations/source/002_test.lua",
+                "content":"'"$(cat 002_test.lua | sed 's/"/\\"/g' )"'"
+            }]
+        }
+}'
+```
+
+Чтобы выполнить старт миграции, запустите в консоли следующую команду:
+
+```bash
+curl -X POST localhost:8081/migrations/up
+```
+
+Дождитесь ответа:
+
+```
+{"applied":["002_test.lua"]}
+```
+
+Проверьте, что миграция прошла успешно. 
+Видно, что добавлены новые поля со значениями по умолчанию:
+
+```shell
+localhost:3300> crud.select('projects')
+---
+- metadata: [{'name': 'project_id', 'type': 'uuid'}, {'name': 'bucket_id', 'type': 'unsigned'},
+    {'name': 'name', 'type': 'string'}, {'type': 'string', 'name': 'description',
+      'is_nullable': true}, {'type': 'datetime', 'name': 'deadline', 'is_nullable': true}]
+  rows:
+  - [46f8e628-d2c2-42ba-984f-29a459a3d0fc, 1033, 'Task Management', 'Development of
+      a task management system', '2999-12-31T00:00:00Z']
+  - [f53392af-30e3-4bfc-bde8-37043951159a, 21589, 'Website Update', 'Making changes
+      to the website design and functionality', '2999-12-31T00:00:00Z']
+- null
+...
+
+localhost:3300> crud.select('tasks')
+---
+- metadata: [{'name': 'task_id', 'type': 'uuid'}, {'name': 'bucket_id', 'type': 'unsigned'},
+    {'name': 'name', 'type': 'string'}, {'type': 'string', 'name': 'description',
+      'is_nullable': true}, {'name': 'status', 'type': 'string'}, {'name': 'project_id',
+      'type': 'uuid'}, {'type': 'uuid', 'name': 'assigned_user_id', 'is_nullable': true},
+    {'type': 'datetime', 'name': 'due_date', 'is_nullable': true}]
+  rows:
+  - [5043a3f6-6ffa-4d90-8b66-4fb623878f8e, 1033, 'Optimize Database', 'Optimize the
+      database to improve performance.', 'In Progress', 46f8e628-d2c2-42ba-984f-29a459a3d0fc,
+    04e7f6a2-2979-46e4-8d71-e80217e3aac3, '2999-12-31T00:00:00Z']
+  - [c57d56ef-33fc-453b-880f-5d3ba4dc9d10, 21589, 'Create New Logo', 'Design a new
+      logo for the website.', 'Not Started', f53392af-30e3-4bfc-bde8-37043951159a,
+    1e63739a-dad0-4c5d-80e4-cd39594fe302, '2999-12-31T00:00:00Z']
+- null
+...
+
+localhost:3300> crud.select('users')
+---
+- metadata: [{'name': 'user_id', 'type': 'uuid'}, {'name': 'bucket_id', 'type': 'unsigned'},
+    {'name': 'name', 'type': 'string'}, {'type': 'string', 'name': 'email', 'is_nullable': true},
+    {'type': 'string', 'name': 'role', 'is_nullable': true}]
+  rows:
+  - [04e7f6a2-2979-46e4-8d71-e80217e3aac3, 23464, 'john_doe', 'john.doe@example.com',
+    'not set']
+  - [1e63739a-dad0-4c5d-80e4-cd39594fe302, 1985, 'jane_smith', 'jane.smith@example.com',
+    'not set']
+- null
+...
+```
+
+Теперь проверьте функцию ``app.get_project_data``.
+В функции должны появиться новые поля в ответе:
+
+```shell
+localhost:3300> box.schema.func.call('app.get_project_data', require('uuid').fromstr('46f8e628-d2c2-42ba-984f-29a459a3d0fc'))
+---
+- res:
+    tasks:
+    - due_date: 2999-12-31T00:00:00Z
+      status: In Progress
+      user:
+        email: john.doe@example.com
+        name: john_doe
+        role: not set
+      name: Optimize Database
+      description: Optimize the database to improve performance.
+    deadline: 2999-12-31T00:00:00Z
+    name: Task Management
+    description: Development of a task management system
+  err: null
+...
+```
+
+Теперь нужно изменить функцию ``app.get_project_data``.
+Для этого транзакционно удалите старую функцию и добавьте новую.
+Такой подход гарантирует, что не произойдет ситуации, когда функции ``app.get_project_data`` не существует.
+
+```lua
+ box.atomic(function()
+    box.schema.func.drop('app.get_project_data') -- удаляется старый вариант
+    box.schema.func.create('app.get_project_data',  {
+      language = 'LUA',
+        if_not_exists = true,
+        body = [[ ... ]]
+    }) -- добавляем новый вариант
+end)
+```
+
+Узнать подробнее о том, как хранятся персистентные функции, можно в спейсе [box.space._func](https://www.tarantool.io/ru/doc/latest/reference/reference_lua/box_space/_func/).
+
+(user_guide-space_format-stop_example)=
+## Остановка стенда
+
+Чтобы остановить стенд, выполните следующую команду:
+
+```shell
+docker compose down
+```

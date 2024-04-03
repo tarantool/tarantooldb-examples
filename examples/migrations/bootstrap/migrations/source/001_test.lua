@@ -10,7 +10,7 @@ end
 
 local function up()
     if is_storage() then
-        -- задаем спейсы и индексы для них
+        -- создание спейсов и индексов для них
         box.schema.space.create('projects', { if_not_exists = true })
         box.space.projects:format({
             { name = 'project_id', type = 'uuid' },

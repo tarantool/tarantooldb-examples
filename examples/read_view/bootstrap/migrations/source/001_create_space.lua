@@ -1,6 +1,7 @@
 local utils = require('migrator.utils')
 
 local function up()
+     -- Создание спейса customers
     box.schema.space.create('customers', {if_not_exists = true})
     box.space.customers:format({
         { name = 'id', type = 'integer' },

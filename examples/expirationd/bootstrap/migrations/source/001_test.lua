@@ -10,7 +10,7 @@ end
 
 local function up()
     if is_storage() then
-        -- спейс messages
+        -- создание спейса messages
         box.schema.space.create('messages', {if_not_exists = true})
         box.space.messages:format({
             { name = 'id', type = 'uuid' },
