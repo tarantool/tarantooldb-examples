@@ -290,7 +290,7 @@ rawset(_G, '__users_migration', users_migration)
 ## Запуск миграции
 
 Загрузите файл с миграцией в конфигурацию кластера.
-Подробнее о загрузке миграции в конфигурацию рассказано в разделе [Способы выполнения миграции](../migrations/migrations_space_format.md).
+Подробнее о загрузке миграции в конфигурацию рассказано в разделе [Способы выполнения миграции](user_guide-space_format-change_schema-migrations).
 
 ```bash
 curl -v --raw 'http://localhost:8081/admin/api' -X POST --data '{

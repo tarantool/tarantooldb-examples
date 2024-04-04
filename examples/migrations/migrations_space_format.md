@@ -379,11 +379,11 @@ local _, err = vshard_router.callrw(bucket_id, 'projects.delete_project', {id})
 
 Предположим, что теперь нужно изменить схему данных, добавив в нее новые поля:
 
-* `deadline(datetime)` (дедлайн) в `projects`;
-* `due_date(datetime)` в ``tasks``;
-* `role(string)` в ``users``.
+* `deadline (datetime)` в спейс `projects`;
+* `due_date (datetime)` в спейс `tasks`;
+* `role (string)` в спейс `users`.
 
-По умолчанию в ``projects.deadline`` и ``due_date(datetime)`` должно быть значение `2999-12-31T00:00:00Z`, а в 
+По умолчанию в полях `projects.deadline` и `due_date(datetime)` должно быть значение `2999-12-31T00:00:00Z`, а в поле
 `users.role` -- значение `not set`.
 Функцию ``app.get_project_data`` нужно также переписать, чтобы отображались новые поля.
 
@@ -401,12 +401,13 @@ local _, err = vshard_router.callrw(bucket_id, 'projects.delete_project', {id})
 localhost:3300> box.schema.func.call('__create_example_data')
 ```
 
+(user_guide-space_format-change_schema-migrations)=
 ### Способы выполнения миграции
 
 Есть два способа выполнить миграцию:
 
 * в веб-интерфейсе Tarantool DB;
-* с помощью graphql.
+* с помощью GraphQL.
 
 **Веб-интерфейс**
 
