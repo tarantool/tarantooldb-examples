@@ -62,14 +62,14 @@ tt status tarantooldb
 
 Ответ выглядит так:
 ```
-INSTANCE                      STATUS          PID
-tarantooldb:stateboard        RUNNING         18939
-tarantooldb:router-msk        NOT RUNNING     
-tarantooldb:router-spb        NOT RUNNING     
-tarantooldb:storage-1-msk     NOT RUNNING     
-tarantooldb:storage-1-spb     NOT RUNNING     
-tarantooldb:storage-2-msk     NOT RUNNING     
-tarantooldb:storage-2-spb     NOT RUNNING
+INSTANCE                      STATUS      PID
+tarantooldb:router-msk        RUNNING     118242
+tarantooldb:router-spb        RUNNING     118243
+tarantooldb:storage-1-msk     RUNNING     118244
+tarantooldb:storage-1-spb     RUNNING     118245
+tarantooldb:storage-2-msk     RUNNING     118246
+tarantooldb:storage-2-spb     RUNNING     118247
+tarantooldb:stateboard        RUNNING     118249
 ```
 
 Соберите кластер из узлов Tarantool DB:
