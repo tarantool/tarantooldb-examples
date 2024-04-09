@@ -23,6 +23,7 @@
 * приложение Docker compose;
 * исходные файлы примера `go_custom_encoder`.
   Пример находится в директории `./doc/examples/go_custom_encoder/`.
+  Скачать архив с исходными файлами примера можно на [сайте Tarantool](https://tarantool.io/ru/tarantooldb/doc/latest/examples/go_custom_encoder/go_custom_encoder.tar.gz).
 
 (user_guide-go_encoder-space)=
 ## Формат спейса

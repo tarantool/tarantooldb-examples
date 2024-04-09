@@ -3,7 +3,6 @@
 
 В этом руководстве описано, как настроить трассировку функций, а также просмотреть и оценить результаты трассировки
 в веб-интерфейсе [Jaeger](https://www.jaegertracing.io/).
-Полный пример с исходным кодом находится в директории `./doc/examples/tracing/`.
 
 Подробнее о модуле `tracing` можно узнать в разделе [Оценка производительности](/user_guide/troubleshooting/tracing.md).
 
@@ -24,7 +23,9 @@
 * приложение Docker compose;
 * утилита [TT CLI](install-install_tt);
 * сервис для сбора данных трассировки [Jaeger](https://www.jaegertracing.io/);
-* исходные файлы примера `tracing`. Пример находится в директории `./doc/examples/tracing/`.
+* исходные файлы примера `tracing`.
+  Пример находится в директории `./doc/examples/tracing/`.
+  Скачать архив с исходными файлами примера можно на [сайте Tarantool](https://tarantool.io/ru/tarantooldb/doc/latest/examples/tracing/tracing.tar.gz).
 
 (user_guide-tracing_jaeger-set_config)=
 ## Определение конфигурации

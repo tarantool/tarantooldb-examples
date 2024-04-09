@@ -21,7 +21,8 @@
 * установленный [Docker-образ](/install_and_upgrade/install/install_docker.md) Tarantool DB;
 * приложение Docker compose;
 * исходные файлы примера `go_crud`.
-  Пример находится в директории `./doc/examples/go_crud/`.
+  Полный пример находится в директории `./doc/examples/go_crud/`.
+  Скачать архив с исходными файлами примера можно на [сайте Tarantool](https://tarantool.io/ru/tarantooldb/doc/latest/examples/go_crud/go_crud.tar.gz).
 
 (user_guide-go_crud-start_example)=
 ## Запуск стенда

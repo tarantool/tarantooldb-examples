@@ -8,7 +8,6 @@
 
 В этом руководстве описано, как включить и настроить логирование медленных запросов, а также приведен пример приложения,
 в котором логирование настроено для функции и CRUD-запросов.
-Полный пример с исходным кодом находится в директории `./doc/examples/slow_log/`.
 
 ```{admonition} Примечание
 :class: note
@@ -35,7 +34,9 @@
 * [Docker-образ](/install_and_upgrade/install/install_docker.md) Tarantool DB;
 * приложение Docker compose;
 * утилита [TT CLI](install-install_tt);
-* исходные файлы примера `slow_log`. Пример находится в директории `./doc/examples/slow_log/`.
+* исходные файлы примера `slow_log`.
+  Пример находится в директории `./doc/examples/slow_log/`.
+  Скачать архив с исходными файлами примера можно на [сайте Tarantool](https://tarantool.io/ru/tarantooldb/doc/latest/examples/slow_log/slow_log.tar.gz).
 
 (user_guide-slow_log-set_config)=
 ## Конфигурация модуля slow_log

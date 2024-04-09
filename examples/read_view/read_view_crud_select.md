@@ -20,7 +20,9 @@
 * [Docker-образ](/install_and_upgrade/install/install_docker.md) Tarantool DB;
 * приложение Docker compose;
 * утилита [TT CLI](install-install_tt);
-* исходные файлы примера `read_view`. Пример находится в директории `./doc/examples/read_view/`.
+* исходные файлы примера `read_view`.
+  Пример находится в директории `./doc/examples/read_view/`.
+  Скачать архив с исходными файлами примера можно на [сайте Tarantool](https://tarantool.io/ru/tarantooldb/doc/latest/examples/read_view/read_view.tar.gz).
 
 (user_guide-readview_crud_filter-start_example)=
 ## Запуск стенда и подключение к узлу

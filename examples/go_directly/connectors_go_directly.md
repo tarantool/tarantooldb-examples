@@ -27,6 +27,7 @@
 * приложение Docker compose;
 * исходные файлы примера `go_directly`.
   Пример находится в директории `./doc/examples/go_directly/`.
+  Скачать архив с исходными файлами примера можно на [сайте Tarantool](https://tarantool.io/ru/tarantooldb/doc/latest/examples/go_directly/go_directly.tar.gz).
 
 (user_guide-go_directly-start_example)=
 ## Запуск стенда

@@ -3,8 +3,6 @@
 При работе в CI возникает необходимость запускать Docker в Docker или другой виртуальной среде.
 В примере описано, как при таком подходе решить возможную проблему с передачей локальной папки в Docker-образ.
 
-Полный пример с исходным кодом находится в директории `./doc/examples/up_in_ci/`.
-
 Содержание:
 
 * [](admin_guide-deploy_ci-prereq)
@@ -21,6 +19,7 @@
 * приложение Docker compose;
 * исходные файлы примера `up_in_ci`.
   Пример находится в директории `./doc/examples/up_in_ci/`.
+  Скачать архив с исходными файлами примера можно на [сайте Tarantool](https://tarantool.io/ru/tarantooldb/doc/latest/examples/up_in_ci/up_in_ci.tar.gz).
 
 (admin_guide-deploy_ci-start_example)=
 ## Запуск стенда

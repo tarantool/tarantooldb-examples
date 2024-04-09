@@ -10,7 +10,6 @@
 ```
 
 Подробнее о миграции можно прочитать в разделе [Миграция данных](/user_guide/migrations.md).
-Полный пример с исходным кодом находится в директории `./doc/examples/space_upgrade/`.
 
 Руководство включает следующие шаги:
 
@@ -30,7 +29,9 @@
 * установленный [Docker-образ](/install_and_upgrade/install/install_docker.md) Tarantool DB;
 * приложение Docker compose;
 * утилита [TT CLI](install-install_tt);
-* исходные файлы примера `space_upgrade`.  Пример находится в директории `./doc/examples/space_upgrade/`.
+* исходные файлы примера `space_upgrade`. 
+  Пример находится в директории `./doc/examples/space_upgrade/`.
+  Скачать архив с исходными файлами примера можно на [сайте Tarantool](https://tarantool.io/ru/tarantooldb/doc/latest/examples/space_upgrade/space_upgrade.tar.gz).
 
 (user_guide-space_upgrade-schema)=
 ## Схема данных

@@ -2,8 +2,6 @@
 
 В этом руководстве показано, как выполнить [миграции](../migrations/migrations_space_format.md) с сервера, который не входит в состав кластера.
 
-Полный пример с исходным кодом находится в директории `./doc/examples/migrations_from_remote_hosts/`.
-
 Руководство включает следующие шаги:
 
 * [](user_guide-migrations_remote_host-prereq)
@@ -18,7 +16,9 @@
 
 * установленный [Docker-образ](/install_and_upgrade/install/install_docker.md) Tarantool DB;
 * приложение Docker compose;
-* исходные файлы примера `migrations_from_remote_hosts`. Пример находится в директории `./doc/examples/migrations_from_remote_hosts/`.
+* исходные файлы примера `migrations_from_remote_hosts`.
+  Пример находится в директории `./doc/examples/migrations_from_remote_hosts/`.
+  Скачать архив с исходными файлами примера можно на [сайте Tarantool](https://tarantool.io/ru/tarantooldb/doc/latest/examples/migrations_from_remote_hosts/migrations_from_remote_hosts.tar.gz).
 
 Запустить кластер из этого примера можно любым доступным способом -- через Ansible Tarantool Enterprise, docker compose или локально.
 В руководстве для запуска используется [Docker compose](../up_with_docker_compose/deploy_docker_compose).

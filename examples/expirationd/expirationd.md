@@ -9,7 +9,7 @@
 - проверяет срок жизни кортежа с помощью функции `is_expired`;
 - применяет к кортежу функцию `process_expired_tuple`, заданную пользователем.
 
-В Tarantool DB модуль доступен в виде Cartridge-роли [expirationd](reference-roles-expirationd).
+В Tarantool DB модуль доступен в виде технологической роли [expirationd](reference-roles-expirationd).
 
 ```{admonition} Важно
 :class: warning
@@ -40,6 +40,7 @@
 * утилита [TT CLI](install-install_tt);
 * исходные файлы примера `expirationd`.
   Пример находится в директории `./doc/examples/expirationd/`.
+  Скачать архив с исходными файлами примера можно на [сайте Tarantool](https://tarantool.io/ru/tarantooldb/doc/latest/examples/expirationd/expirationd.tar.gz).
 
 (user_guide-expirationd-start_example)=
 ## Запуск кластера и подключение к узлу

@@ -2,7 +2,6 @@
 # Запуск кластера из одного узла через Docker compose
 
 В этом руководстве показано, как развернуть кластер Tarantool DB из одного узла с помощью Docker compose.
-Полный пример с исходным кодом находится в директории `./doc/examples/all_in_one/`.
 
 Содержание:
 
@@ -19,7 +18,8 @@
 * установленный [Docker-образ](install_docker-image) Tarantool DB;
 * приложение Docker compose;
 * исходные файлы примера `all_in_one`.
-  Пример находится в директории `./doc/examples/all_in_one/`.
+  Полный пример находится в директории `./doc/examples/all_in_one/`.
+  Скачать архив с исходными файлами примера можно на [сайте Tarantool](https://devx.d.tarantool.io/ru/tarantooldb/doc/docs-add-links-to-archives/examples/all_in_one/all_in_one.tar.gz).
 
 (admin_guide-deploy_one_node-files)=
 ## Используемые файлы

@@ -20,7 +20,9 @@
 * [Docker-образ](/install_and_upgrade/install/install_docker.md) Tarantool DB;
 * приложение Docker compose;
 * утилита [TT CLI](install-install_tt);
-* исходные файлы примера `dictionary`. Пример находится в директории `./doc/examples/dictionary/`.
+* исходные файлы примера `dictionary`.
+  Полный пример находится в директории `./doc/examples/dictionary/`.
+  Скачать архив с исходными файлами примера можно на [сайте Tarantool](https://tarantool.io/ru/tarantooldb/doc/latest/examples/dictionary/dictionary.tar.gz).
 
 (user_guide-dictionary_example-start_example)=
 ## Запуск стенда и подключение к узлу 

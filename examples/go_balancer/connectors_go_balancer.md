@@ -35,8 +35,9 @@
 * установленный [Docker-образ](/install_and_upgrade/install/install_docker.md) Tarantool DB;
 * приложение Docker compose;
 * Go;
-* исходные файлы примера `go_balance`.
-  Пример находится в директории `./doc/examples/go_balance/`.
+* исходные файлы примера `go_balancer`.
+  Полный пример находится в директории `./doc/examples/go_balancer/`.
+  Скачать архив с исходными файлами примера можно на [сайте Tarantool](https://tarantool.io/ru/tarantooldb/doc/latest/examples/go_balancer/go_balancer.tar.gz).
 
 (user_guide-go_balancer-start_example)=
 ## Запуск стенда

@@ -13,10 +13,10 @@
 
 В примере показано, как запустить кластеры Tarantool DB в Docker в связке с Tarantool Clusters Federation
 и настроить работу репликатора между кластерами.
-Полный пример с исходным кодом находится в директории [./doc/examples/tarantool_clusters_federation/](https://github.com/tarantool/tarantooldb/tree/master/doc/examples/tarantool_cluster_federation).
 
 Содержание:
 
+* [](admin_guide-tcf-prereq)
 * [](admin_guide-tcf-start_example)
 * [](admin_guide-tcf-replication)
 * [](admin_guide-tcf-config)
@@ -25,6 +25,17 @@
   - [](admin_guide-tcf-config-b-to-a)
   - [](admin_guide-tcf-config-a-to-b)
 * [](admin_guide-tcf-stop_example)
+
+(admin_guide-tcf-prereq)=
+## Пререквизиты
+
+Для выполнения примера требуются:
+
+* установленный [Docker-образ](/install_and_upgrade/install/install_docker.md) Tarantool DB;
+* приложение Docker compose;
+* исходные файлы примера `tarantool_clusters_federation`.
+  Пример находится в директории `./doc/examples/tarantool_clusters_federation/`.
+  Скачать архив с исходными файлами примера можно на [сайте Tarantool](https://tarantool.io/ru/tarantooldb/doc/latest/examples/tarantool_clusters_federation/tarantool_clusters_federation.tar.gz).
 
 (admin_guide-tcf-start_example)=
 ## Запуск стенда
@@ -104,12 +115,13 @@ box.schema.func.call('__stop_data_stream')
 (admin_guide-tcf-config)=
 ## Файлы конфигурации Tarantool Clusters Federation
 
-Файлы конфигурации Tarantool Clusters Federation расположены в директории примера [tarantool_clusters_federation](https://github.com/tarantool/tarantooldb/tree/master/doc/examples/tarantool_cluster_federation).
+Файлы конфигурации Tarantool Clusters Federation расположены в корневой директории примера.
+Скачать архив с исходными файлами примера можно на сайте Tarantool в разделе [tarantool_clusters_federation](https://tarantool.io/ru/tarantooldb/doc/latest/examples/tarantool_clusters_federation/tarantool_clusters_federation.tar.gz).
 
 (admin_guide-tcf-config-a)=
 ### Кластер A
 
-Конфигурация кластера приведена в файле [./bootstrap-A/config.yml](https://github.com/tarantool/tarantooldb/blob/master/doc/examples/tarantool_cluster_federation/bootstrap-A/config.yml):
+Конфигурация кластера приведена в файле `./bootstrap-A/config.yml`:
 
 ```{literalinclude} bootstrap-A/config.yml
 :start-at: cluster_federation
@@ -121,7 +133,7 @@ box.schema.func.call('__stop_data_stream')
 (admin_guide-tcf-config-b)=
 ### Кластер B
 
-Конфигурация кластера приведена в файле [./bootstrap-B/config.yml](https://github.com/tarantool/tarantooldb/blob/master/doc/examples/tarantool_cluster_federation/bootstrap-B/config.yml):
+Конфигурация кластера приведена в файле `./bootstrap-B/config.yml`:
 
 ```{literalinclude} bootstrap-B/config.yml
 :start-at: cluster_federation
@@ -133,8 +145,7 @@ box.schema.func.call('__stop_data_stream')
 (admin_guide-tcf-config-a-to-b)=
 ### Репликация из A в B
 
-Конфигурация для репликации из A в B приведена в файле [./config_repl_AB.yaml](https://github.com/tarantool/tarantooldb/blob/master/doc/examples/tarantool_cluster_federation/config_repl_AB.yaml):
-
+Конфигурация для репликации из A в B приведена в файле `./config_repl_AB.yaml`:
 ```{literalinclude} config_repl_AB.yaml
 :language: yaml
 :dedent:
@@ -143,7 +154,7 @@ box.schema.func.call('__stop_data_stream')
 (admin_guide-tcf-config-b-to-a)=
 ### Репликация из B в A
 
-Конфигурация для репликации из B в A приведена в файле [./config_repl_BA.yaml](https://github.com/tarantool/tarantooldb/blob/master/doc/examples/tarantool_cluster_federation/config_repl_BA.yaml):
+Конфигурация для репликации из B в A приведена в файле `./config_repl_BA.yaml`:
 
 ```{literalinclude} config_repl_BA.yaml
 :language: yaml

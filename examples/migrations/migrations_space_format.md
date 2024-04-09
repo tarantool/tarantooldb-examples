@@ -5,8 +5,6 @@
 В качестве примера используется база данных для системы управления проектами.
 Для работы используются модули [migrations](https://github.com/tarantool/migrations), [CRUD](https://github.com/tarantool/crud) и [vshard](https://www.tarantool.io/ru/doc/latest/reference/reference_rock/vshard/).
 
-Полный пример с исходным кодом находится в директории `./doc/examples/migrations/`.
-
 Руководство включает следующие шаги:
 
 * [](user_guide-space_format-prereq)
@@ -25,7 +23,9 @@
 * установленный [Docker-образ](/install_and_upgrade/install/install_docker.md) Tarantool DB;
 * приложение Docker compose;
 * утилита [TT CLI](install-install_tt);
-* исходные файлы примера `migrations`. Пример находится в директории `./doc/examples/migrations/`.
+* исходные файлы примера `migrations`.
+  Пример находится в директории `./doc/examples/migrations/`.
+  Скачать архив с исходными файлами примера можно на [сайте Tarantool](https://tarantool.io/ru/tarantooldb/doc/latest/examples/migrations/migrations.tar.gz).
 
 (user_guide-space_format-schema)=
 ## Схема данных

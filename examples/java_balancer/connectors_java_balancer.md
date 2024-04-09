@@ -39,6 +39,7 @@
 * Java версии 8+;
 * исходные файлы примера `java_balancer`.
   Пример находится в директории `./doc/examples/java_balancer/`.
+  Скачать архив с исходными файлами примера можно на [сайте Tarantool](https://tarantool.io/ru/tarantooldb/doc/latest/examples/java_balancer/java_balancer.tar.gz).
 
 Кроме того, для загрузки Java-коннектора нужно настроить конфигурацию Maven.
 Чтобы задать эту конфигурацию, используйте инструкцию [Установка клиента tarantool-java-ee](/user_guide/connectors/java/java_install.md).

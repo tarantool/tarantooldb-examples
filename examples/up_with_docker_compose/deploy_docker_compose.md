@@ -2,7 +2,6 @@
 # Запуск кластера через Docker compose
 
 В этом руководстве показано, как развернуть Tarantool DB с помощью Docker compose.
-Полный пример с исходным кодом находится в директории `./doc/examples/up_with_docker_compose/`.
 
 ```{admonition} Примечание
 :class: note
@@ -29,6 +28,7 @@
 * приложение Docker compose;
 * исходные файлы примера `up_with_docker_compose`.
   Пример находится в директории `./doc/examples/up_with_docker_compose/`.
+  Скачать архив с исходными файлами примера можно на [сайте Tarantool](https://tarantool.io/ru/tarantooldb/doc/latest/examples/up_with_docker_compose/up_with_docker_compose.tar.gz).
 
 (admin_guide-deploy_docker_compose-start_example)=
 ## Запуск стенда
