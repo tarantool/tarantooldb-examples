@@ -19,7 +19,7 @@
 * приложение Docker compose;
 * исходные файлы примера `all_in_one`.
   Полный пример находится в директории `./doc/examples/all_in_one/`.
-  Скачать архив с исходными файлами примера можно на [сайте Tarantool](https://devx.d.tarantool.io/ru/tarantooldb/doc/docs-add-links-to-archives/examples/all_in_one/all_in_one.tar.gz).
+  Скачать архив с исходными файлами примера можно на [сайте Tarantool](https://tarantool.io/ru/tarantooldb/doc/latest/examples/all_in_one/all_in_one.tar.gz).
 
 (admin_guide-deploy_one_node-files)=
 ## Используемые файлы

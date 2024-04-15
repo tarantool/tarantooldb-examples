@@ -5,14 +5,26 @@
 
 Содержание:
 
+* [](admin_guide-deploy_tt-prereq)
 * [](admin_guide-deploy_tt-files)
 * [](admin_guide-deploy_tt-start_example)
 * [](admin_guide-deploy_tt-stop_example)
 
+(admin_guide-deploy_tt-prereq)=
+## Пререквизиты
+
+Для выполнения примера требуются:
+
+* архив для развёртывания Tarantool DB.
+  Архив можно скачать в customer zone, в разделе [tarantooldb/release/for_deploy/](https://www.tarantool.io/ru/accounts/customer_zone/packages/tarantooldb/release/for_deploy);
+* исходные файлы примера `up_with_tt`.
+  Пример находится в директории `./doc/examples/up_with_tt/`.
+  Скачать архив с исходными файлами примера можно на [сайте Tarantool](https://tarantool.io/ru/tarantooldb/doc/latest/examples/up_with_tt/up_with_tt.tar.gz).
+
 (admin_guide-deploy_tt-files)=
 ## Используемые файлы
 
-В примере для конфигурации кластера используются файлы из директории `./tarantooldb/`:
+В примере `up_with_tt` для конфигурации кластера используются файлы из директории `./tarantooldb/`:
 
 * `tt.yaml` -- [конфигурация](https://www.tarantool.io/en/doc/latest/reference/tooling/tt_cli/configuration/) TT CLI.
   Чтобы сгенерировать этот файл, используется команда `tt init`;
@@ -29,17 +41,19 @@
 cd ./doc/examples/up_with_tt/
 ```
 
-Загрузите в эту директорию архив для развёртывания Tarantool DB.
-Архив можно скачать в customer zone, в разделе [tarantooldb/release/for_deploy/](https://www.tarantool.io/ru/accounts/customer_zone/packages/tarantooldb/release/for_deploy).
-
-Распакуйте архив:
+Загрузите в эту директорию архив для развёртывания Tarantool DB и распакуйте его:
 
 ```shell
-tar -xzvf tarantooldb-<VERSION>.tar.gz
+tar -xzvf tarantooldb-<VERSION>.<OS>.<ARCH>.tar.gz
 ```
 
 Здесь:
-* `VERSION`-- версия Tarantool DB. Пример: `tarantooldb-0.8.0.linux.x86_64.tar.gz`.
+
+- `VERSION` -- версия продукта;
+- `OS` -- поддерживаемая операционная система;
+- `ARCH` -- архитектура процессора.
+
+Пример: `tarantooldb-0.8.0.linux.x86_64.tar.gz`.
 
 При распаковке будет создана директория `tarantooldb`. Переименовывать её нельзя.
 Скопируйте в эту директорию файлы `instances.yml`, `replicasets.yml` и `tt.yml` из директории `up_with_tt`:
