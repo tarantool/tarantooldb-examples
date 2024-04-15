@@ -7,7 +7,7 @@
 :class: note
 
 Данный способ является вспомогательным и используется для тестирования и демонстрации в примерах документации.
-Для целевого развертывания используйте инсталлятор Ansible Tarantool Enterprise.
+Для целевого развертывания используйте [инсталлятор Ansible Tarantool Enterprise](admin_guide-deploy_ate).
 ```
 
 Содержание:
@@ -75,11 +75,9 @@ docker compose up -d --build
 * `ports` -- используемые порты;
 * `environment` -- переменные окружения для опций Tarantool и Cartridge:
   * `TARANTOOL_ADVERTISE_URI` -- адрес и порт, на котором узел доступен в кластере;
-  * `TARANTOOL_ALIAS` -- название узла кластера;
-В `environment` через переменные окружения заданы опции Tarantool и Cartridge.
-Полный список опций доступен в документации к модулю
-[cartridge.argparse](https://www.tarantool.io/ru/doc/latest/book/cartridge/cartridge_api/modules/cartridge.argparse/)
-и в описании [Docker-образа](/install_and_upgrade/install.md) Tarantool DB.
+  * `TARANTOOL_ALIAS` -- название узла кластера.
+
+  Полный список опций доступен в документации к модулю [cartridge.argparse](https://www.tarantool.io/ru/doc/latest/book/cartridge/cartridge_api/modules/cartridge.argparse/) и в описании [Docker-образа](/install_and_upgrade/install.md) Tarantool DB.
 
 (admin_guide-deploy_docker_compose-user_host)=
 ## Контейнер user-host
@@ -105,10 +103,10 @@ docker compose up -d --build
   Используется как источник скриптов `bootstrap.sh`, `health_check.sh` и `migrate.sh`.
   Предполагается, что в реальных условиях скрипты будут загружены на компьютер разработчика из [customer zone](https://www.tarantool.io/ru/accounts/customer_zone/packages/tarantooldb).
 * `networks`-- название подсети;
-* `environment` -- задание переменных окружения:
+* `environment` -- переменные окружения:
   * `TARANTOOLDB_TARGET_URI` -- адрес, по которому доступны API-команды кластера.
     Используется скриптами `bootstrap.sh`, `health_check.sh` и `migrate.sh`;
-  * `BOOTSTRAP_FAILOVER` --
+  * `BOOTSTRAP_FAILOVER` -- первоначальный запуск механизма восстановления после сбоев (failover);
   * `TARANTOOLDB_BOOTSTRAP_TIMEOUT` -- время ожидания первоначального запуска (bootstrap);
 * `working_dir` -- директория, в которой лежат скрипты;
 * `command` -- запуск скриптов `bootstrap.sh`, `health_check.sh` и `migrate.sh`;

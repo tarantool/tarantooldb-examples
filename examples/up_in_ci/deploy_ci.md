@@ -40,7 +40,7 @@ docker compose up -d --build
 ## Контейнер user-host
 
 Контейнер `user-host` указывается в файле `docker-compose.yml`.
-Подробное описание контейнера приводится в разделе [](admin_guide-deploy_docker_compose-user_host).
+Подробное описание контейнера приводится в руководстве по запуску кластера через Docker compose в разделе [](admin_guide-deploy_docker_compose-user_host).
 
 В примере конфигурация контейнера `user-host` выглядит так:
 
@@ -53,7 +53,7 @@ docker compose up -d --build
 
 Здесь:
 
-* `build.context.dockerfile` -- сборка отдельного контейнера, в который копируется папка `bootstrap` и пользовательские скрипты;
+* `build.context.dockerfile` -- сборка отдельного контейнера, в который копируются папка `bootstrap` и пользовательские скрипты;
 * `networks`-- название подсети;
 * `environment` -- задание переменных окружения:
   * `TARANTOOLDB_TARGET_URI` -- адрес, по которому доступны API-команды кластера.
