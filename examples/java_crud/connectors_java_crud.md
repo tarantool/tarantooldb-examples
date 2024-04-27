@@ -21,8 +21,18 @@
 * Maven;
 * Java версии 8+;
 * исходные файлы примера `java_crud`.
-  Пример находится в директории `./doc/examples/java_crud/`.
-  Скачать архив с исходными файлами примера можно на [сайте Tarantool](https://tarantool.io/ru/tarantooldb/doc/latest/examples/java_crud/java_crud.tar.gz).
+
+  ```{admonition} Примечание
+  :class: note
+
+  Есть два способа получить исходные файлы примера:
+
+  * Архив с полной документацией Tarantool DB, полученный по почте или скачанный в [личном кабинете tarantool.io](https://www.tarantool.io/en/accounts/customer_zone/packages/tarantooldb/release/documentation).
+    Пример архива: `tarantooldb-documentation-0.8.0.tar.gz`.
+    Пример `java_crud` расположен в таком архиве в директории `./doc/examples/java_crud/`.
+    
+  * Отдельный архив [java_crud.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/java_crud/java_crud.tar.gz), скачанный c сайта Tarantool.
+  ```
 
 Кроме того, для загрузки Java-коннектора нужно настроить конфигурацию Maven.
 Чтобы задать эту конфигурацию, используйте инструкцию [Установка клиента tarantool-java-ee](/user_guide/connectors/java/java_install.md).
@@ -31,8 +41,8 @@
 ## Запуск стенда
 
 Для успешного запуска должны быть свободны порты:
-* 3301 .. 3306
-* 8081 .. 8086
+* 3301--3306;
+* 8081--8086.
 
 Перейдите в директорию `java_crud/tt`:
 

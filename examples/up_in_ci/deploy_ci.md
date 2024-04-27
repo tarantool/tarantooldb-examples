@@ -18,8 +18,18 @@
 * установленный [Docker-образ](/install_and_upgrade/install.md) Tarantool DB;
 * приложение Docker compose;
 * исходные файлы примера `up_in_ci`.
-  Пример находится в директории `./doc/examples/up_in_ci/`.
-  Скачать архив с исходными файлами примера можно на [сайте Tarantool](https://tarantool.io/ru/tarantooldb/doc/latest/examples/up_in_ci/up_in_ci.tar.gz).
+
+  ```{admonition} Примечание
+  :class: note
+
+  Есть два способа получить исходные файлы примера:
+
+  * Архив с полной документацией Tarantool DB, полученный по почте или скачанный в [личном кабинете tarantool.io](https://www.tarantool.io/en/accounts/customer_zone/packages/tarantooldb/release/documentation).
+    Пример архива: `tarantooldb-documentation-0.8.0.tar.gz`.
+    Пример `up_in_ci` расположен в таком архиве в директории `./doc/examples/up_in_ci/`.
+    
+  * Отдельный архив [up_in_ci.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/up_in_ci/up_in_ci.tar.gz), скачанный c сайта Tarantool.
+  ```
 
 (admin_guide-deploy_ci-start_example)=
 ## Запуск стенда
@@ -57,12 +67,11 @@ docker compose up -d --build
 * `networks`-- название подсети;
 * `environment` -- задание переменных окружения:
   * `TARANTOOLDB_TARGET_URI` -- адрес, по которому доступны API-команды кластера.
-    Используется скриптами `bootstrap.sh`, `health_check.sh` и `migrate.sh`;
+    Используется скриптами [bootstrap.sh](user_guide-connectors-utils-bootstrap), [health_check.sh](user_guide-connectors-utils-health_check) и [migrate.sh](user_guide-connectors-utils-migrate);
 * `working_dir` -- директория, в которой лежат файл конфигурации и файлы миграций;
-* `command` -- запуск скриптов `bootstrap.sh`, `health_check.sh` и `migrate.sh`;
+* `command` -- запуск скриптов [bootstrap.sh](user_guide-connectors-utils-bootstrap), [health_check.sh](user_guide-connectors-utils-health_check) и [migrate.sh](user_guide-connectors-utils-migrate);
 * `depends_on` -- секция определяет, что контейнер `user-host` запускается только после запуска всех остальных узлов кластера;
 * `volumes` -- передача в контейнер директории с настройками кластера и пользовательской логикой, чтобы они стали доступны для скриптов.
-
 
 (admin_guide-deploy_ci-stop_example)=
 ## Остановка стенда

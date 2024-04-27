@@ -38,8 +38,18 @@
 * Maven;
 * Java версии 8+;
 * исходные файлы примера `java_balancer`.
-  Пример находится в директории `./doc/examples/java_balancer/`.
-  Скачать архив с исходными файлами примера можно на [сайте Tarantool](https://tarantool.io/ru/tarantooldb/doc/latest/examples/java_balancer/java_balancer.tar.gz).
+
+  ```{admonition} Примечание
+  :class: note
+
+  Есть два способа получить исходные файлы примера:
+
+  * Архив с полной документацией Tarantool DB, полученный по почте или скачанный в [личном кабинете tarantool.io](https://www.tarantool.io/en/accounts/customer_zone/packages/tarantooldb/release/documentation).
+    Пример архива: `tarantooldb-documentation-0.8.0.tar.gz`.
+    Пример `java_balancer` расположен в таком архиве в директории `./doc/examples/java_balancer/`.
+    
+  * Отдельный архив [java_balancer.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/java_balancer/java_balancer.tar.gz), скачанный c сайта Tarantool.
+  ```
 
 Кроме того, для загрузки Java-коннектора нужно настроить конфигурацию Maven.
 Чтобы задать эту конфигурацию, используйте инструкцию [Установка клиента tarantool-java-ee](/user_guide/connectors/java/java_install.md).
@@ -48,8 +58,8 @@
 ## Запуск стенда
 
 Для успешного запуска должны быть свободны порты:
-* 3301 .. 3306
-* 8080 .. 8086
+* 3301--3306;
+* 8080--8086.
 
 Перейдите в директорию `java_balancer/tt`:
 
@@ -70,8 +80,8 @@ docker compose up -d
 
 После запуска должны работать все контейнеры, кроме `tarantool-db-init`. Также
 после запуска доступны следующие пользовательские интерфейсы:
-* http://localhost:8083 - веб-интерфейс кластера Tarantool DB;
-* http://localhost:8080 - веб-интерфейс Grafana.
+* http://localhost:8083 -- веб-интерфейс кластера Tarantool DB;
+* http://localhost:8080 -- веб-интерфейс Grafana.
 
 Теперь откройте в браузере веб-интерфейс Tarantool DB по адресу [http://localhost:8081](http://localhost:8081).
 Перейдите во вкладку **Cluster** и проверьте, что отсутствуют ошибки или предупреждения.

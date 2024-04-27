@@ -29,14 +29,24 @@
 (user_guide-slow_log-prereq)=
 ## Пререквизиты
 
-Для выполнения примера требуются следующие установленные компоненты:
+Для выполнения примера требуются:
 
-* [Docker-образ](/install_and_upgrade/install/install_docker.md) Tarantool DB;
+* установленный [Docker-образ](/install_and_upgrade/install/install_docker.md) Tarantool DB;
 * приложение Docker compose;
 * утилита [TT CLI](install-install_tt);
 * исходные файлы примера `slow_log`.
-  Пример находится в директории `./doc/examples/slow_log/`.
-  Скачать архив с исходными файлами примера можно на [сайте Tarantool](https://tarantool.io/ru/tarantooldb/doc/latest/examples/slow_log/slow_log.tar.gz).
+
+  ```{admonition} Примечание
+  :class: note
+
+  Есть два способа получить исходные файлы примера:
+
+  * Архив с полной документацией Tarantool DB, полученный по почте или скачанный в [личном кабинете tarantool.io](https://www.tarantool.io/en/accounts/customer_zone/packages/tarantooldb/release/documentation).
+    Пример архива: `tarantooldb-documentation-0.8.0.tar.gz`.
+    Пример `slow_log` расположен в таком архиве в директории `./doc/examples/slow_log/`.
+    
+  * Отдельный архив [slow_log.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/slow_log/slow_log.tar.gz), скачанный c сайта Tarantool.
+  ```
 
 (user_guide-slow_log-set_config)=
 ## Конфигурация модуля slow_log

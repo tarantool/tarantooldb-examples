@@ -17,13 +17,23 @@
 
 Для выполнения примера требуются:
 
-* [Docker-образ](/install_and_upgrade/install/install_docker.md) Tarantool DB;
+* установленный [Docker-образ](/install_and_upgrade/install/install_docker.md) Tarantool DB;
 * приложение Docker compose;
 * утилита [TT CLI](install-install_tt);
 * исходные файлы примера `read_view`.
-  Пример находится в директории `./doc/examples/read_view/`.
-  Скачать архив с исходными файлами примера можно на [сайте Tarantool](https://tarantool.io/ru/tarantooldb/doc/latest/examples/read_view/read_view.tar.gz).
 
+  ```{admonition} Примечание
+  :class: note
+
+  Есть два способа получить исходные файлы примера:
+
+  * Архив с полной документацией Tarantool DB, полученный по почте или скачанный в [личном кабинете tarantool.io](https://www.tarantool.io/en/accounts/customer_zone/packages/tarantooldb/release/documentation).
+    Пример архива: `tarantooldb-documentation-0.8.0.tar.gz`.
+    Пример `read_view` расположен в таком архиве в директории `./doc/examples/read_view/`.
+    
+  * Отдельный архив [read_view.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/read_view/read_view.tar.gz), скачанный c сайта Tarantool.
+  ```
+  
 (user_guide-readview_crud_filter-start_example)=
 ## Запуск стенда и подключение к узлу
 
@@ -41,8 +51,8 @@ docker compose up -d
 
 Команда развернет кластер, состоящий из одного роутера и двух наборов реплик по 2 экземпляра в каждой.
 На завершающем этапе поднятия кластера вызывается команда автоматического бутстрапа и [миграции](../migrations/migrations_space_format.md).
-Миграции создают спейс `customers` (файл `bootstrap/migrations/source/001_create_space.lua`) и
-загружают в него данные (файл `bootstrap/migrations/source/002_data.lua`).
+Миграции создают спейс `customers` (файл `./bootstrap/migrations/source/001_create_space.lua`) и
+загружают в него данные (файл `./bootstrap/migrations/source/002_data.lua`).
 Спейс имеет следующий формат:
 
 ```{literalinclude} bootstrap/migrations/source/001_create_space.lua

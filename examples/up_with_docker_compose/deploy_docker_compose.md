@@ -27,8 +27,18 @@
 * установленный [Docker-образ](/install_and_upgrade/install.md) Tarantool DB;
 * приложение Docker compose;
 * исходные файлы примера `up_with_docker_compose`.
-  Пример находится в директории `./doc/examples/up_with_docker_compose/`.
-  Скачать архив с исходными файлами примера можно на [сайте Tarantool](https://tarantool.io/ru/tarantooldb/doc/latest/examples/up_with_docker_compose/up_with_docker_compose.tar.gz).
+
+  ```{admonition} Примечание
+  :class: note
+
+  Есть два способа получить исходные файлы примера:
+
+  * Архив с полной документацией Tarantool DB, полученный по почте или скачанный в [личном кабинете tarantool.io](https://www.tarantool.io/en/accounts/customer_zone/packages/tarantooldb/release/documentation).
+    Пример архива: `tarantooldb-documentation-0.8.0.tar.gz`.
+    Пример `up_with_docker_compose` расположен в таком архиве в директории `./doc/examples/up_with_docker_compose/`.
+    
+  * Отдельный архив [up_with_docker_compose.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/up_with_docker_compose/up_with_docker_compose.tar.gz), скачанный c сайта Tarantool.
+  ```
 
 (admin_guide-deploy_docker_compose-start_example)=
 ## Запуск стенда
@@ -48,14 +58,14 @@ docker compose up -d --build
 (admin_guide-deploy_docker_compose-files)=
 ## Используемые файлы
 
-В руководстве используются следующие файлы примера `./doc/examples/up_with_docker_compose/`:
+В руководстве используются следующие файлы примера `up_with_docker_compose`:
 
 * `docker-compose.yml` -- описание узлов кластера;
 * `bootstrap/topology.json` -- топология кластера;
-* `./client/utils/bootstrap.sh` -- скрипт, применяющий топологию кластера;
+* `./client/utils/bootstrap.sh` -- скрипт, [применяющий топологию кластера](user_guide-connectors-utils-bootstrap);
 * `bootstrap/config.yml` -- конфигурация кластера;
 * `bootstrap/migrations/source` -- директория, содержащая файлы с описанием миграций; 
-* `./client/utils/migrate.sh` -- скрипт, применяющий миграции.
+* `./client/utils/migrate.sh` -- скрипт, [применяющий миграции](user_guide-connectors-utils-migrate).
 
 (admin_guide-deploy_docker_compose-config)=
 ## Конфигурация контейнера для узла Tarantool DB
@@ -101,7 +111,7 @@ docker compose up -d --build
 
 * `image` --  название Docker-образа, используемого для создания контейнера;
   Используется как источник скриптов `bootstrap.sh`, `health_check.sh` и `migrate.sh`.
-  Предполагается, что в реальных условиях скрипты будут загружены на компьютер разработчика из [customer zone](https://www.tarantool.io/ru/accounts/customer_zone/packages/tarantooldb).
+  Предполагается, что в реальных условиях скрипты будут загружены на компьютер разработчика из [личного кабинета tarantool.io](https://www.tarantool.io/ru/accounts/customer_zone/packages/tarantooldb).
 * `networks`-- название подсети;
 * `environment` -- переменные окружения:
   * `TARANTOOLDB_TARGET_URI` -- адрес, по которому доступны API-команды кластера.

@@ -24,9 +24,19 @@
 * приложение Docker compose;
 * утилита [TT CLI](install-install_tt);
 * исходные файлы примера `migrations`.
-  Пример находится в директории `./doc/examples/migrations/`.
-  Скачать архив с исходными файлами примера можно на [сайте Tarantool](https://tarantool.io/ru/tarantooldb/doc/latest/examples/migrations/migrations.tar.gz).
 
+  ```{admonition} Примечание
+  :class: note
+
+  Есть два способа получить исходные файлы примера:
+
+  * Архив с полной документацией Tarantool DB, полученный по почте или скачанный в [личном кабинете tarantool.io](https://www.tarantool.io/en/accounts/customer_zone/packages/tarantooldb/release/documentation).
+    Пример архива: `tarantooldb-documentation-0.8.0.tar.gz`.
+    Пример `migrations` расположен в таком архиве в директории `./doc/examples/migrations/`.
+    
+  * Отдельный архив [migrations.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/migrations/migrations.tar.gz), скачанный c сайта Tarantool.
+  ```
+ 
 (user_guide-space_format-schema)=
 ## Схема данных
 
@@ -54,9 +64,9 @@
 Для работы с данными в примере используются методы модуля CRUD.
 Дополнительно будет реализовано следующее API:
 
-- `app.delete_user(user_id)` - удалить пользователя. У всех задач, связанных с этим пользователем, в поле `assigned_user_id` должен быть выставлен `box.NULL`;
-- `app.delete_project(project_id)` - удалить проект и все связанные с ним задачи;
-- `app.get_project_data(project_id)` - получить проект и все связанные с ним задачи и пользователей.
+- `app.delete_user(user_id)` -- удалить пользователя. У всех задач, связанных с этим пользователем, в поле `assigned_user_id` должен быть выставлен `box.NULL`;
+- `app.delete_project(project_id)` -- удалить проект и все связанные с ним задачи;
+- `app.get_project_data(project_id)` -- получить проект и все связанные с ним задачи и пользователей.
 
 (user_guide-space_format-start_example)=
 ## Запуск стенда
@@ -64,7 +74,7 @@
 Для запуска и настройки кластера используются файлы из папки ``migrations``:
 
 * `docker-compose.yml` -- описание узлов кластера;
-* `bootstrap/topology.json` -- описание топологии кластера.
+* `bootstrap/topology.json` -- топология кластера.
 
 Для успешного старта должны быть свободны следующие порты:
 
@@ -96,7 +106,7 @@ docker compose up -d
 tt connect admin:secret-cluster-cookie@localhost:3300
 ```
 
-Исходный код миграции приведен в файле `001_test.lua` в директории `./doc/examples/migrations/bootstrap/migrations/source/`.
+Исходный код миграции приведен в файле `001_test.lua` в директории `./bootstrap/migrations/source/` примера `migrations`.
 
 Загрузить тестовые данные можно с помощью функции `__create_example_data`.
 Функция очищает кластер и заполняет его данными из примера:
@@ -268,7 +278,7 @@ end
 local _, err, uuid = vshard_router.map_callrw('tasks.set_box_NULL_for_user_id', {user_id})
 ```
 
-Полный исходный код приведен в файле миграции `./doc/examples/migrations/bootstrap/migrations/source/001_test.lua`.
+Полный исходный код приведен в файле миграции `./bootstrap/migrations/source/001_test.lua` примера `migrations`.
 
 ### Удаление проекта
 
@@ -372,7 +382,7 @@ local bucket_id = vshard_router.bucket_id_strcrc32(id)
 local _, err = vshard_router.callrw(bucket_id, 'projects.delete_project', {id})
 ```
 
-Полный исходный код приведен в файле миграции `./doc/examples/migrations/bootstrap/migrations/source/001_test.lua`.
+Полный исходный код приведен в файле миграции `./bootstrap/migrations/source/001_test.lua` примера `migrations`.
 
 (user_guide-space_format-change_schema)=
 ## Изменение схемы данных
@@ -391,7 +401,7 @@ local _, err = vshard_router.callrw(bucket_id, 'projects.delete_project', {id})
 
 ![Схема данных](images/schema2.drawio.svg)
 
-Код миграции приведен в файле `./doc/examples/migrations/002_test.lua002_test.lua`.
+Код миграции приведен в файле `./migrations/002_test.lua002_test.lua` примера `migrations`.
 
 Миграции выполняются в лексикографическом порядке, так им нумерованные названия: (`0001_my_migr.lua`, `2023_12_24_migr.lua`).
 

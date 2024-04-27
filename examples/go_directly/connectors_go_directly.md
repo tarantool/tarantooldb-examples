@@ -26,8 +26,18 @@
 * установленный [Docker-образ](/install_and_upgrade/install/install_docker.md) Tarantool DB;
 * приложение Docker compose;
 * исходные файлы примера `go_directly`.
-  Пример находится в директории `./doc/examples/go_directly/`.
-  Скачать архив с исходными файлами примера можно на [сайте Tarantool](https://tarantool.io/ru/tarantooldb/doc/latest/examples/go_directly/go_directly.tar.gz).
+
+  ```{admonition} Примечание
+  :class: note
+
+  Есть два способа получить исходные файлы примера:
+
+  * Архив с полной документацией Tarantool DB, полученный по почте или скачанный в [личном кабинете tarantool.io](https://www.tarantool.io/en/accounts/customer_zone/packages/tarantooldb/release/documentation).
+    Пример архива: `tarantooldb-documentation-0.8.0.tar.gz`.
+    Пример `go_directly` расположен в таком архиве в директории `./doc/examples/go_directly/`.
+    
+  * Отдельный архив [go_directly.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/go_directly/go_directly.tar.gz), скачанный c сайта Tarantool.
+  ```
 
 (user_guide-go_directly-start_example)=
 ## Запуск стенда

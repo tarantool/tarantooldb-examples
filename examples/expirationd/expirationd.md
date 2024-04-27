@@ -39,9 +39,19 @@
 * приложение Docker compose;
 * утилита [TT CLI](install-install_tt);
 * исходные файлы примера `expirationd`.
-  Пример находится в директории `./doc/examples/expirationd/`.
-  Скачать архив с исходными файлами примера можно на [сайте Tarantool](https://tarantool.io/ru/tarantooldb/doc/latest/examples/expirationd/expirationd.tar.gz).
 
+  ```{admonition} Примечание
+  :class: note
+
+  Есть два способа получить исходные файлы примера:
+
+  * Архив с полной документацией Tarantool DB, полученный по почте или скачанный в [личном кабинете tarantool.io](https://www.tarantool.io/en/accounts/customer_zone/packages/tarantooldb/release/documentation).
+    Пример архива: `tarantooldb-documentation-0.8.0.tar.gz`.
+    Пример `expirationd` расположен в таком архиве в директории `./doc/examples/expirationd/`.
+    
+  * Отдельный архив [expirationd.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/expirationd/expirationd.tar.gz), скачанный c сайта Tarantool.
+  ```
+  
 (user_guide-expirationd-start_example)=
 ## Запуск кластера и подключение к узлу
 
@@ -65,7 +75,7 @@ docker compose up -d
 (user_guide-expirationd-migration)=
 ## Описание миграции
 
-В руководстве используется миграция из файла `./doc/examples/expirationd/bootstrap/migrations/source/001_test.lua`.
+В руководстве используется миграция из файла `./bootstrap/migrations/source/001_test.lua` примера `expirationd`.
 В этой миграции:
 - создан спейс `messages`;
 - созданы персистентные функции с логикой устаревания данных -- `messages_is_tuple_expired`, `messages_iterate_with`, `messages_process_expired_tuple`;

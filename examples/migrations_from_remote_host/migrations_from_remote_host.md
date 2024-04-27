@@ -17,8 +17,18 @@
 * установленный [Docker-образ](/install_and_upgrade/install/install_docker.md) Tarantool DB;
 * приложение Docker compose;
 * исходные файлы примера `migrations_from_remote_hosts`.
-  Пример находится в директории `./doc/examples/migrations_from_remote_hosts/`.
-  Скачать архив с исходными файлами примера можно на [сайте Tarantool](https://tarantool.io/ru/tarantooldb/doc/latest/examples/migrations_from_remote_hosts/migrations_from_remote_hosts.tar.gz).
+
+  ```{admonition} Примечание
+  :class: note
+
+  Есть два способа получить исходные файлы примера:
+
+  * Архив с полной документацией Tarantool DB, полученный по почте или скачанный в [личном кабинете tarantool.io](https://www.tarantool.io/en/accounts/customer_zone/packages/tarantooldb/release/documentation).
+    Пример архива: `tarantooldb-documentation-0.8.0.tar.gz`.
+    Пример `migrations_from_remote_hosts` расположен в таком архиве в директории `./doc/examples/migrations_from_remote_hosts/`.
+
+  * Отдельный архив [migrations_from_remote_hosts.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/migrations_from_remote_host/migrations_from_remote_host.tar.gz), скачанный c сайта Tarantool.
+  ```
 
 Запустить кластер из этого примера можно любым доступным способом -- через Ansible Tarantool Enterprise, docker compose или локально.
 В руководстве для запуска используется [Docker compose](../up_with_docker_compose/deploy_docker_compose).
@@ -57,7 +67,7 @@ Cluster started
 
 Запущенный стенд состоит из:
 * кластера Tarantool DB из двух роутеров и двух шардов;
-* веб-сервера NGINX, предоставляющего доступ к удаленному серверу по HTTP с авторизацией и балансировкой нагрузки.
+* веб-сервера nginx, предоставляющего доступ к удаленному серверу по HTTP с авторизацией и балансировкой нагрузки.
 
 Удаленный доступ к админ-функциям кластера доступен по адресу [localhost:8000](http://localhost:8000).
 Проверить и настроить узлы кластера изнутри можно в веб-интерфейсе Tarantool DB -- например, по адресу [localhost:8081](http://localhost:8081).
@@ -67,8 +77,8 @@ Cluster started
 
 Для запуска миграции используются следующие файлы:
 
-- `config.yml` (`./doc/examples/migrations_from_remote_host/user-host/config.yml`) -- файл конфигурации кластера;
-- `migrations/source/` (./doc/examples/migrations_from_remote_host/user-host/migrations/source/) - директория, содержащая файлы миграций;
+- `config.yml` (`./user-host/config.yml`) -- файл конфигурации кластера;
+- `migrations/source/` (./user-host/migrations/source/) -- директория, содержащая файлы миграций;
 - скрипт `migrate.sh` (`./client/utils/migrate.sh`) -- загрузка конфигурации кластера, клиентского кода и выполнения миграций.
 
 Перед запуском миграции скопируйте скрипт `migrate.sh`, выполняющий миграции, из директории `client/utils`:
@@ -86,7 +96,7 @@ TARANTOOLDB_TARGET_URI=localhost:8000 TARANTOOLDB_BOOTSTRAP_PATH=./user-host/ TA
 
 Здесь для удаленного доступа используется авторизация по токену.
 В запросе авторизации должен присутствовать заголовок `Authorization: Bearer 123`.
-Логика проверки этого заголовка настроена в конфигурации NGINX.
+Логика проверки этого заголовка настроена в конфигурации nginx.
 
 После успешного завершения миграции в консоли появится следующее сообщение:
 

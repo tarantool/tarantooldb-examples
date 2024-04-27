@@ -16,17 +16,28 @@
 Для выполнения примера требуются:
 
 * архив для развёртывания Tarantool DB.
-  Архив можно скачать в customer zone, в разделе [tarantooldb/release/for_deploy/](https://www.tarantool.io/ru/accounts/customer_zone/packages/tarantooldb/release/for_deploy);
+  Архив можно скачать в личном кабинете tarantool.io, в разделе [tarantooldb/release/for_deploy/](https://www.tarantool.io/ru/accounts/customer_zone/packages/tarantooldb/release/for_deploy);
+* утилита [TT CLI](https://www.tarantool.io/ru/doc/latest/reference/tooling/tt_cli/);
 * исходные файлы примера `up_with_tt`.
-  Пример находится в директории `./doc/examples/up_with_tt/`.
-  Скачать архив с исходными файлами примера можно на [сайте Tarantool](https://tarantool.io/ru/tarantooldb/doc/latest/examples/up_with_tt/up_with_tt.tar.gz).
+
+  ```{admonition} Примечание
+  :class: note
+
+  Есть два способа получить исходные файлы примера:
+
+  * Архив с полной документацией Tarantool DB, полученный по почте или скачанный в [личном кабинете tarantool.io](https://www.tarantool.io/en/accounts/customer_zone/packages/tarantooldb/release/documentation).
+    Пример архива: `tarantooldb-documentation-0.8.0.tar.gz`.
+    Пример `up_with_tt` расположен в таком архиве в директории `./doc/examples/up_with_tt/`.
+    
+  * Отдельный архив [up_with_tt.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/up_with_tt/up_with_tt.tar.gz), скачанный c сайта Tarantool.
+  ```
 
 (admin_guide-deploy_tt-files)=
 ## Используемые файлы
 
 В примере `up_with_tt` для конфигурации кластера используются файлы из директории `./tarantooldb/`:
 
-* `tt.yaml` -- [конфигурация](https://www.tarantool.io/en/doc/latest/reference/tooling/tt_cli/configuration/) TT CLI.
+* `tt.yaml` -- [конфигурация](https://www.tarantool.io/ru/doc/latest/reference/tooling/tt_cli/configuration/) TT CLI.
   Чтобы сгенерировать этот файл, используется команда `tt init`;
 
 * `instances.yml` -- список узлов кластера для запуска в текущем окружении;

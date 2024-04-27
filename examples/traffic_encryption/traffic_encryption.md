@@ -5,7 +5,7 @@ Tarantool DB позволяет шифровать трафик по IPROTO пр
 В этом руководстве описано, как включить шифрование на стороне кластера Tarantool DB,
 а также создать шифрованные соединения из коннекторов на Go и Python.
 
-Документацию по шифрованию трафика можно найти в [документации Tarantool Enterprise](https://www.tarantool.io/en/doc/latest/concepts/configuration/configuration_connections/#securing-connections-with-ssl). 
+Документацию по шифрованию трафика можно найти в [документации Tarantool Enterprise](https://www.tarantool.io/ru/doc/latest/concepts/configuration/configuration_connections/#securing-connections-with-ssl). 
 
 Руководство включает следующие шаги:
 
@@ -26,8 +26,18 @@ Tarantool DB позволяет шифровать трафик по IPROTO пр
 * Go версии 1.13 или выше;
 * python3;
 * исходные файлы примера `traffic_encryption`.
-  Файлы примера находятся в директории `./doc/examples/traffic_encryption/`.
-  Скачать архив с исходными файлами примера можно на [сайте Tarantool](https://tarantool.io/ru/tarantooldb/doc/latest/examples/traffic_encryption/traffic_encryption.tar.gz).
+
+  ```{admonition} Примечание
+  :class: note
+
+  Есть два способа получить исходные файлы примера:
+
+  * Архив с полной документацией Tarantool DB, полученный по почте или скачанный в [личном кабинете tarantool.io](https://www.tarantool.io/en/accounts/customer_zone/packages/tarantooldb/release/documentation).
+    Пример архива: `tarantooldb-documentation-0.8.0.tar.gz`.
+    Пример `traffic_encryption` расположен в таком архиве в директории `./doc/examples/traffic_encryption/`.
+
+  * Отдельный архив [traffic_encryption.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/traffic_encryption/traffic_encryption.tar.gz), скачанный c сайта Tarantool.
+  ```
 
 (admin_guide-traffic_encryption-ssl_setup)=
 ## Настройка SSL-шифрования
@@ -38,9 +48,9 @@ Tarantool DB позволяет шифровать трафик по IPROTO пр
 сервера, так и сертификат клиента.
 Это означает, что для экземпляра кластера всегда нужно передавать как серверные, так и клиентские аргументы.
 
-В примере `traffic_encryption` сертификаты находятся в директории `./doc/examples/traffic_encryption/bootstrap/` и
+В примере `traffic_encryption` сертификаты находятся в директории `./bootstrap/` и
 должны быть доступны для каждого экземпляра.
-Сертификаты генерируются с помощью скрипта `./doc/examples/traffic_encryption/bootstrap/gen.sh`.
+Сертификаты генерируются с помощью скрипта `./bootstrap/gen.sh`.
 
 В примере заданы параметры SSL-шифрования для экземпляра с помощью переменных окружения:
 
@@ -113,7 +123,7 @@ localhost:3300>
 ## Подключение через Go-коннектор
 
 В этом разделе описано подключение к экземпляру Tarantool DB через [Go-коннектор](https://github.com/tarantool/go-tarantool/).
-Пример расположен в директории `./doc/examples/traffic_encryption/go/`.
+Пример расположен в директории `./go/` примера `traffic_encryption`.
 
 Запустите кластер:
 
@@ -142,7 +152,7 @@ cd go && go run main.go
 ## Подключение через Python-коннектор
 
 В разделе описано подключение к экземпляру Tarantool DB через [Python-коннектор](https://github.com/tarantool/go-tarantool/).
-Пример расположен в директории `./doc/examples/traffic_encryption/python/`.
+Пример расположен в директории `./python/` примера `traffic_encryption`.
 
 Перейдите в директорию с примером Python-коннектора:
 

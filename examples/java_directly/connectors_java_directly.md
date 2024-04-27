@@ -28,8 +28,18 @@
 * Maven;
 * Java версии 8+;
 * исходные файлы примера `java_directly`.
-  Пример находится в директории `./doc/examples/java_directly/`.
-  Скачать архив с исходными файлами примера можно на [сайте Tarantool](https://tarantool.io/ru/tarantooldb/doc/latest/examples/java_directly/java_directly.tar.gz).
+
+  ```{admonition} Примечание
+  :class: note
+
+  Есть два способа получить исходные файлы примера:
+
+  * Архив с полной документацией Tarantool DB, полученный по почте или скачанный в [личном кабинете tarantool.io](https://www.tarantool.io/en/accounts/customer_zone/packages/tarantooldb/release/documentation).
+    Пример архива: `tarantooldb-documentation-0.8.0.tar.gz`.
+    Пример `java_directly` расположен в таком архиве в директории `./doc/examples/java_directly/`.
+
+  * Отдельный архив [java_directly.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/java_directly/java_directly.tar.gz), скачанный c сайта Tarantool.
+  ```
 
 Кроме того, для загрузки Java-коннектора нужно настроить конфигурацию Maven.
 Чтобы задать эту конфигурацию, используйте инструкцию [Установка клиента tarantool-java-ee](/user_guide/connectors/java/java_install.md).

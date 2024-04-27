@@ -30,8 +30,18 @@
 * приложение Docker compose;
 * утилита [TT CLI](install-install_tt);
 * исходные файлы примера `space_upgrade`. 
-  Пример находится в директории `./doc/examples/space_upgrade/`.
-  Скачать архив с исходными файлами примера можно на [сайте Tarantool](https://tarantool.io/ru/tarantooldb/doc/latest/examples/space_upgrade/space_upgrade.tar.gz).
+
+  ```{admonition} Примечание
+  :class: note
+
+  Есть два способа получить исходные файлы примера:
+
+  * Архив с полной документацией Tarantool DB, полученный по почте или скачанный в [личном кабинете tarantool.io](https://www.tarantool.io/en/accounts/customer_zone/packages/tarantooldb/release/documentation).
+    Пример архива: `tarantooldb-documentation-0.8.0.tar.gz`.
+    Пример `space_upgrade` расположен в таком архиве в директории `./doc/examples/space_upgrade/`.
+
+  * Отдельный архив [space_upgrade.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/space_upgrade/space_upgrade.tar.gz), скачанный c сайта Tarantool.
+  ```
 
 (user_guide-space_upgrade-schema)=
 ## Схема данных
@@ -93,7 +103,7 @@ tt connect admin:secret-cluster-cookie@localhost:3300
 box.schema.func.call('__fill_data')
 ```
 
-Исходный код функции приведен в файле `001_test.lua` в директории `./doc/examples/space_upgrade/bootstrap/migrations/source/`.
+Исходный код функции приведен в файле `001_test.lua` в директории `./bootstrap/migrations/source/` примера `migrations_space_upgrade`.
 
 Дождитесь окончания загрузки данных, это может занять до трех минут.
 В результате на каждом хранилище будет занято по 164 MB данных. 
@@ -131,12 +141,12 @@ space_upgrade-tarantool-router-1    | 2024-02-26 05:49:01.795 [12] main/189/main
 (user_guide-space_upgrade-migration_code)=
 ## Определение кода миграций
 
-Исходный код миграции приведен в файле `002_test.lua` в директории `./doc/examples/space_upgrade/`.
+Исходный код миграции приведен в файле `002_test.lua` в корневой директории примера `migrations_space_upgrade`.
 
 ### Спейс projects
 
 В спейсе `projects` нужно добавить `assigned_manager_id` между полями `name` и `description`. 
-При работе с кортежами используется встроенная библиотека [`box.tuple`](https://www.tarantool.io/en/doc/latest/reference/reference_lua/box_tuple/).
+При работе с кортежами используется встроенная библиотека [`box.tuple`](https://www.tarantool.io/ru/doc/latest/reference/reference_lua/box_tuple/).
 
 Определите функцию для изменения кортежей:
 
