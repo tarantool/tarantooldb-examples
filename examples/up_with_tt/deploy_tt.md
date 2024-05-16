@@ -40,37 +40,14 @@
 * `tt.yaml` -- [конфигурация](https://www.tarantool.io/ru/doc/latest/reference/tooling/tt_cli/configuration/) TT CLI.
   Чтобы сгенерировать этот файл, используется команда `tt init`;
 
-* `instances.yml` -- список узлов кластера для запуска в текущем окружении;
-* `replicasets.yml` -- описание наборов реплик и их ролей.
+Обратите внимание на опцию ``instances_enabled``. На нашем случае оно говорит tt о том, что текущая директория может сордержать `config.yml` и `instances.yml` или содержит символьную ссылку на приложение Tarantool 3 с этими файлами.
 
 (admin_guide-deploy_tt-start_example)=
 ## Запуск стенда
-
 Перейдите в директорию с примером `up_with_tt`:
 
 ```shell
 cd ./doc/examples/up_with_tt/
-```
-
-Загрузите в эту директорию архив для развёртывания Tarantool DB и распакуйте его:
-
-```shell
-tar -xzvf tarantooldb-<VERSION>.<OS>.<ARCH>.tar.gz
-```
-
-Здесь:
-
-- `VERSION` -- версия продукта;
-- `OS` -- поддерживаемая операционная система;
-- `ARCH` -- архитектура процессора.
-
-Пример: `tarantooldb-0.8.0.linux.x86_64.tar.gz`.
-
-При распаковке будет создана директория `tarantooldb`. Переименовывать её нельзя.
-Скопируйте в эту директорию файлы `instances.yml`, `replicasets.yml` и `tt.yml` из директории `up_with_tt`:
-
-```shell
-cp *.yml tarantooldb/
 ```
 
 Запустите экземпляры Tarantool DB с помощью команды `tt start`:
@@ -88,22 +65,19 @@ tt status tarantooldb
 Ответ выглядит так:
 ```
 INSTANCE                      STATUS      PID
-tarantooldb:router-msk        RUNNING     118242
-tarantooldb:router-spb        RUNNING     118243
-tarantooldb:storage-1-msk     RUNNING     118244
-tarantooldb:storage-1-spb     RUNNING     118245
-tarantooldb:storage-2-msk     RUNNING     118246
-tarantooldb:storage-2-spb     RUNNING     118247
-tarantooldb:stateboard        RUNNING     118249
+tarantooldb:storage-001-a     RUNNING     98110
+tarantooldb:storage-001-b     RUNNING     98111
+tarantooldb:storage-002-a     RUNNING     98112
+tarantooldb:storage-002-b     RUNNING     98113
+tarantooldb:router-001-a      RUNNING     98114
 ```
 
-Соберите кластер из узлов Tarantool DB:
 
-```shell
-tt cartridge replicasets setup --bootstrap-vshard --name tarantooldb
-```
+Теперь кластер доступен по IPROTO по адресу одного из узлов. Можно также подключиться по названию узла.
 
-Теперь кластер доступен по адресу одного из узлов (кроме `stateboard`), например, [http://localhost:8081](http://localhost:8081).
+``
+tt connect tarantooldb:storage-001-a
+``
 
 (admin_guide-deploy_tt-stop_example)=
 ## Остановка кластера
