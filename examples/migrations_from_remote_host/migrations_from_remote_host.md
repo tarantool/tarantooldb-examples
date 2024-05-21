@@ -78,13 +78,13 @@ Cluster started
 Для запуска миграции используются следующие файлы:
 
 - `config.yml` (`./user-host/config.yml`) -- файл конфигурации кластера;
-- `migrations/source/` (./user-host/migrations/source/) -- директория, содержащая файлы миграций;
-- скрипт `migrate.sh` (`./client/utils/migrate.sh`) -- загрузка конфигурации кластера, клиентского кода и выполнения миграций.
+- `migrations/source/` (`./user-host/migrations/source/`) -- директория, содержащая файлы миграций;
+- скрипт `migrate.sh` (`./tools/client/migrate.sh`) -- загрузка конфигурации кластера, клиентского кода и выполнения миграций.
 
-Перед запуском миграции скопируйте скрипт `migrate.sh`, выполняющий миграции, из директории `client/utils`:
+Перед запуском миграции скопируйте скрипт [migrate.sh](user_guide-connectors-utils-migrate), выполняющий миграции, из директории `tools/client`:
 
 ```shell
-cp ../../../client/utils/migrate.sh ./
+cp ../../../tools/client/migrate.sh ./
 chmod a+x migrate.sh
 ```
 

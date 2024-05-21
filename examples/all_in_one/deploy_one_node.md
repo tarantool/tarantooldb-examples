@@ -38,10 +38,10 @@
 
 * `docker-compose.yml` -- описание узлов кластера. Узнать больше: [](admin_guide-deploy_docker_compose).
 * `bootstrap/topology.json` -- топология кластера;
-* `./client/utils/bootstrap.sh` -- скрипт, [применяющий топологию кластера](user_guide-connectors-utils-bootstrap);
+* `./tools/client/bootstrap.sh` -- скрипт, [применяющий топологию кластера](user_guide-connectors-utils-bootstrap);
 * `bootstrap/config.yml` -- конфигурация кластера;
 * `bootstrap/migrations/source` -- директория, содержащая файлы с описанием миграций; 
-* `./client/utils/migrate.sh` -- скрипт, [применяющий миграции](user_guide-connectors-utils-migrate).
+* `./tools/client/migrate.sh` -- скрипт, [применяющий миграции](user_guide-connectors-utils-migrate).
 
 (admin_guide-deploy_one_node-start_example)=
 ## Запуск стенда

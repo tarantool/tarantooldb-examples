@@ -57,7 +57,7 @@ services:
     environment:
       - TARANTOOLDB_TARGET_URI=tarantool-router-A:8081
       - TARANTOOLDB_BOOTSTRAP_TIMEOUT=100
-    working_dir: /usr/share/tarantool/tarantooldb/client/utils/
+    working_dir: /usr/share/tarantool/tarantooldb/tools/client/
     command: /bin/sh -c "./bootstrap.sh && ./health_check.sh && /bootstrap/setup_failover.sh && ./migrate.sh "
     depends_on:
       - tarantool-router-A
@@ -124,7 +124,7 @@ services:
     environment:
       - TARANTOOLDB_TARGET_URI=tarantool-router-B:8081
       - TARANTOOLDB_BOOTSTRAP_TIMEOUT=100
-    working_dir: /usr/share/tarantool/tarantooldb/client/utils/
+    working_dir: /usr/share/tarantool/tarantooldb/tools/client/
     command: /bin/sh -c "./bootstrap.sh && ./health_check.sh && /bootstrap/setup_failover.sh && ./migrate.sh"
     depends_on:
       - tarantool-router-B
