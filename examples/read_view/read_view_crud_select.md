@@ -31,7 +31,7 @@
     Пример архива: `tarantooldb-documentation-0.8.0.tar.gz`.
     Пример `read_view` расположен в таком архиве в директории `./doc/examples/read_view/`.
     
-  * Отдельный архив [read_view.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/read_view/read_view.tar.gz), скачанный c сайта Tarantool.
+  * Отдельный архив [read_view.tar.gz](https://tarantool.io/ru/tarantooldb/doc/1.x/examples/read_view/read_view.tar.gz), скачанный c сайта Tarantool.
   ```
   
 (user_guide-readview_crud_filter-start_example)=

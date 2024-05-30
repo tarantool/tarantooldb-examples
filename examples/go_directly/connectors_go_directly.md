@@ -36,7 +36,7 @@
     Пример архива: `tarantooldb-documentation-0.8.0.tar.gz`.
     Пример `go_directly` расположен в таком архиве в директории `./doc/examples/go_directly/`.
     
-  * Отдельный архив [go_directly.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/go_directly/go_directly.tar.gz), скачанный c сайта Tarantool.
+  * Отдельный архив [go_directly.tar.gz](https://tarantool.io/ru/tarantooldb/doc/1.x/examples/go_directly/go_directly.tar.gz), скачанный c сайта Tarantool.
   ```
 
 (user_guide-go_directly-start_example)=

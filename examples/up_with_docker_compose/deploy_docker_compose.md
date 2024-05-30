@@ -37,7 +37,7 @@
     Пример архива: `tarantooldb-documentation-0.8.0.tar.gz`.
     Пример `up_with_docker_compose` расположен в таком архиве в директории `./doc/examples/up_with_docker_compose/`.
     
-  * Отдельный архив [up_with_docker_compose.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/up_with_docker_compose/up_with_docker_compose.tar.gz), скачанный c сайта Tarantool.
+  * Отдельный архив [up_with_docker_compose.tar.gz](https://tarantool.io/ru/tarantooldb/doc/1.x/examples/up_with_docker_compose/up_with_docker_compose.tar.gz), скачанный c сайта Tarantool.
   ```
 
 (admin_guide-deploy_docker_compose-start_example)=

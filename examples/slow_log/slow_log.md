@@ -45,7 +45,7 @@
     Пример архива: `tarantooldb-documentation-0.8.0.tar.gz`.
     Пример `slow_log` расположен в таком архиве в директории `./doc/examples/slow_log/`.
     
-  * Отдельный архив [slow_log.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/slow_log/slow_log.tar.gz), скачанный c сайта Tarantool.
+  * Отдельный архив [slow_log.tar.gz](https://tarantool.io/ru/tarantooldb/doc/1.x/examples/slow_log/slow_log.tar.gz), скачанный c сайта Tarantool.
   ```
 
 (user_guide-slow_log-set_config)=

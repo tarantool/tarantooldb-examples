@@ -31,7 +31,7 @@
     Пример архива: `tarantooldb-documentation-0.8.0.tar.gz`.
     Пример `java_crud` расположен в таком архиве в директории `./doc/examples/java_crud/`.
     
-  * Отдельный архив [java_crud.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/java_crud/java_crud.tar.gz), скачанный c сайта Tarantool.
+  * Отдельный архив [java_crud.tar.gz](https://tarantool.io/ru/tarantooldb/doc/1.x/examples/java_crud/java_crud.tar.gz), скачанный c сайта Tarantool.
   ```
 
 Кроме того, для загрузки Java-коннектора нужно настроить конфигурацию Maven.

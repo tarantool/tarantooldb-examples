@@ -6,8 +6,8 @@
 Содержание:
 
 * [](admin_guide-deploy_one_node-prereq)
-* [](admin_guide-deploy_docker_compose-start_example)
 * [](admin_guide-deploy_one_node-files)
+* [](admin_guide-deploy_one_node-start_example)
 * [](admin_guide-deploy_one_node-stop_example)
 
 (admin_guide-deploy_one_node-prereq)=
@@ -28,7 +28,7 @@
     Пример архива: `tarantooldb-documentation-0.8.0.tar.gz`.
     Пример `all_in_one` расположен в таком архиве в директории `./doc/examples/all_in_one/`.
     
-  * Отдельный архив [all_in_one.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/all_in_one/all_in_one.tar.gz), скачанный c сайта Tarantool.
+  * Отдельный архив [all_in_one.tar.gz](https://tarantool.io/ru/tarantooldb/doc/1.x/examples/all_in_one/all_in_one.tar.gz), скачанный c сайта Tarantool.
   ```
 
 (admin_guide-deploy_one_node-files)=

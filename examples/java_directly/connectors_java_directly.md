@@ -38,7 +38,7 @@
     Пример архива: `tarantooldb-documentation-0.8.0.tar.gz`.
     Пример `java_directly` расположен в таком архиве в директории `./doc/examples/java_directly/`.
 
-  * Отдельный архив [java_directly.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/java_directly/java_directly.tar.gz), скачанный c сайта Tarantool.
+  * Отдельный архив [java_directly.tar.gz](https://tarantool.io/ru/tarantooldb/doc/1.x/examples/java_directly/java_directly.tar.gz), скачанный c сайта Tarantool.
   ```
 
 Кроме того, для загрузки Java-коннектора нужно настроить конфигурацию Maven.

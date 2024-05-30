@@ -46,7 +46,7 @@
     Пример архива: `tarantooldb-documentation-0.8.0.tar.gz`.
     Пример `go_balancer` расположен в таком архиве в директории `./doc/examples/go_balancer/`.
     
-  * Отдельный архив [go_balancer.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/go_balancer/go_balancer.tar.gz), скачанный c сайта Tarantool.
+  * Отдельный архив [go_balancer.tar.gz](https://tarantool.io/ru/tarantooldb/doc/1.x/examples/go_balancer/go_balancer.tar.gz), скачанный c сайта Tarantool.
   ```
  
 (user_guide-go_balancer-start_example)=

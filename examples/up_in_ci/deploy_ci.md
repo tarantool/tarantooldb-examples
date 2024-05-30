@@ -28,7 +28,7 @@
     Пример архива: `tarantooldb-documentation-0.8.0.tar.gz`.
     Пример `up_in_ci` расположен в таком архиве в директории `./doc/examples/up_in_ci/`.
     
-  * Отдельный архив [up_in_ci.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/up_in_ci/up_in_ci.tar.gz), скачанный c сайта Tarantool.
+  * Отдельный архив [up_in_ci.tar.gz](https://tarantool.io/ru/tarantooldb/doc/1.x/examples/up_in_ci/up_in_ci.tar.gz), скачанный c сайта Tarantool.
   ```
 
 (admin_guide-deploy_ci-start_example)=

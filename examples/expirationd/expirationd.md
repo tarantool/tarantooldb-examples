@@ -49,7 +49,7 @@
     Пример архива: `tarantooldb-documentation-0.8.0.tar.gz`.
     Пример `expirationd` расположен в таком архиве в директории `./doc/examples/expirationd/`.
     
-  * Отдельный архив [expirationd.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/expirationd/expirationd.tar.gz), скачанный c сайта Tarantool.
+  * Отдельный архив [expirationd.tar.gz](https://tarantool.io/ru/tarantooldb/doc/1.x/examples/expirationd/expirationd.tar.gz), скачанный c сайта Tarantool.
   ```
   
 (user_guide-expirationd-start_example)=

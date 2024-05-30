@@ -40,7 +40,7 @@
     Пример архива: `tarantooldb-documentation-0.8.0.tar.gz`.
     Пример `space_upgrade` расположен в таком архиве в директории `./doc/examples/space_upgrade/`.
 
-  * Отдельный архив [space_upgrade.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/space_upgrade/space_upgrade.tar.gz), скачанный c сайта Tarantool.
+  * Отдельный архив [space_upgrade.tar.gz](https://tarantool.io/ru/tarantooldb/doc/1.x/examples/space_upgrade/space_upgrade.tar.gz), скачанный c сайта Tarantool.
   ```
 
 (user_guide-space_upgrade-schema)=

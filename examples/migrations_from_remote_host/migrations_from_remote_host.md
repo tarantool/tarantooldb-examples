@@ -27,7 +27,7 @@
     Пример архива: `tarantooldb-documentation-0.8.0.tar.gz`.
     Пример `migrations_from_remote_hosts` расположен в таком архиве в директории `./doc/examples/migrations_from_remote_hosts/`.
 
-  * Отдельный архив [migrations_from_remote_hosts.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/migrations_from_remote_host/migrations_from_remote_host.tar.gz), скачанный c сайта Tarantool.
+  * Отдельный архив [migrations_from_remote_hosts.tar.gz](https://tarantool.io/ru/tarantooldb/doc/1.x/examples/migrations_from_remote_host/migrations_from_remote_host.tar.gz), скачанный c сайта Tarantool.
   ```
 
 Запустить кластер из этого примера можно любым доступным способом -- через Ansible Tarantool Enterprise, docker compose или локально.

@@ -36,7 +36,7 @@ Tarantool DB позволяет шифровать трафик по IPROTO пр
     Пример архива: `tarantooldb-documentation-0.8.0.tar.gz`.
     Пример `traffic_encryption` расположен в таком архиве в директории `./doc/examples/traffic_encryption/`.
 
-  * Отдельный архив [traffic_encryption.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/traffic_encryption/traffic_encryption.tar.gz), скачанный c сайта Tarantool.
+  * Отдельный архив [traffic_encryption.tar.gz](https://tarantool.io/ru/tarantooldb/doc/1.x/examples/traffic_encryption/traffic_encryption.tar.gz), скачанный c сайта Tarantool.
   ```
 
 (admin_guide-traffic_encryption-ssl_setup)=
@@ -151,7 +151,7 @@ cd go && go run main.go
 (admin_guide-traffic_encryption-python)=
 ## Подключение через Python-коннектор
 
-В разделе описано подключение к экземпляру Tarantool DB через [Python-коннектор]((https://github.com/tarantool/tarantool-python).
+В разделе описано подключение к экземпляру Tarantool DB через [Python-коннектор](https://github.com/tarantool/tarantool-python).
 Пример расположен в директории `./python/` примера `traffic_encryption`.
 
 Перейдите в директорию с примером Python-коннектора:

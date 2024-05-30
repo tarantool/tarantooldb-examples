@@ -44,7 +44,7 @@
     Пример архива: `tarantooldb-documentation-0.8.0.tar.gz`.
     Пример `tarantool_clusters_federation` расположен в таком архиве в директории `./doc/examples/tarantool_clusters_federation/`.
 
-  * Отдельный архив [tarantool_clusters_federation.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/tarantool_clusters_federation/tarantool_clusters_federation.tar.gz), скачанный c сайта Tarantool.
+  * Отдельный архив [tarantool_clusters_federation.tar.gz](https://tarantool.io/ru/tarantooldb/doc/1.x/examples/tarantool_clusters_federation/tarantool_clusters_federation.tar.gz), скачанный c сайта Tarantool.
   ```
 
 (admin_guide-tcf-start_example)=
