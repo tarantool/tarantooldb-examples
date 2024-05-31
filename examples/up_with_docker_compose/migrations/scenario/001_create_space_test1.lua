@@ -6,10 +6,10 @@ local function up()
         { name = 'foo', type = 'string' },
     })
     box.space.test1:create_index('pk', { parts = {'id'}, if_not_exists = true})
-
-    return true
 end
 
 return {
-    up = up,
+    up = {
+        scenario = up,
+    },
 }
