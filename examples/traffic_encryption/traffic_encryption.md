@@ -151,7 +151,7 @@ cd go && go run main.go
 (admin_guide-traffic_encryption-python)=
 ## Подключение через Python-коннектор
 
-В разделе описано подключение к экземпляру Tarantool DB через [Python-коннектор](https://github.com/tarantool/go-tarantool/).
+В разделе описано подключение к экземпляру Tarantool DB через [Python-коннектор](https://github.com/tarantool/tarantool-python).
 Пример расположен в директории `./python/` примера `traffic_encryption`.
 
 Перейдите в директорию с примером Python-коннектора:
