@@ -158,8 +158,8 @@ services:
     working_dir: /usr/share/tarantool/stand
     command: /bin/sh -c "\
         sleep 3 \
-        && tarantool make_config_tcm_yml.lua \
-        && tt cluster publish http://etcd1:2379/tdb config.tcm.yml \
+        && SRC_FILE=config.yml DST_FILE=/tmp/config.tcm.yml tarantool /usr/share/tarantool/tarantooldb/tools/make_config_tcm_yml.lua
+        && tt cluster publish http://etcd1:2379/tdb /tmp/config.tcm.yml \
         && tt migrations publish http://etcd1:2379/tdb migrations \
         && tt migrations up http://etcd1:2379/tdb --tarantool-cluster-username=admin --tarantool-cluster-password=secret-cluster-cookie \
         && tcm add-cluster -n="Tarantool DB" -d="Example cluster" --storage.provider=etcd --storage.etcd.endpoints="http://etcd1:2379" --storage.etcd.endpoints="http://etcd2:2379" --storage.etcd.endpoints="http://etcd3:2379" --storage.etcd.prefix="/tdb" --tarantool.username="admin" --tarantool.password="secret-cluster-cookie" \
@@ -216,7 +216,7 @@ services:
     networks:
       - tarantooldb_network
     ports:
-      - "8080:3000"
+      - "3000:3000"
     environment:
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
       - GF_AUTH_ANONYMOUS_ENABLED=true
