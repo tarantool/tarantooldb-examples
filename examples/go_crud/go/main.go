@@ -11,11 +11,12 @@ import (
 	"github.com/tarantool/go-tarantool/v2/crud"
 )
 
-const DATA_QTY = 10000
-const BATCH_SIZE = 100
-const BATCH_QTY = DATA_QTY / BATCH_SIZE
-const LETTER_BYTES = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-const TIMEOUT = uint(2)
+const (
+	DATA_QTY     = 10000
+	BATCH_SIZE   = 100
+	BATCH_QTY    = DATA_QTY / BATCH_SIZE
+	LETTER_BYTES = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+)
 
 var batches [BATCH_QTY][]crud.Tuple
 

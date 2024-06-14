@@ -1,8 +1,0 @@
-metrics:
-  export:
-    - path: '/myapp/metrics'
-      format: 'prometheus'
-    - path: '/myapp/health'
-      format: 'health'
-crud:
-  stats: true

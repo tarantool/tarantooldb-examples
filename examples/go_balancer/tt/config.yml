@@ -1,0 +1,103 @@
+# simple config for demo purposes
+
+credentials:
+  users:
+    admin:
+      password: 'secret-cluster-cookie'
+      roles: [ super ]
+    client:
+      password: 'secret'
+      roles: [super]
+    replicator:
+      password: 'secret'
+      roles: [replication]
+    storage:
+      password: 'secret'
+      roles: [sharding]
+
+config:
+  etcd:
+    endpoints:
+      - http://etcd1:2379
+      - http://etcd2:2379
+      - http://etcd3:2379
+    prefix: /tdb
+    http:
+      request:
+        timeout: 3
+
+iproto:
+  advertise:
+    peer:
+      login: replicator
+    sharding:
+      login: storage
+
+replication:
+  failover: election
+
+groups:
+  routers:
+    sharding:
+      roles: [ router ]
+    roles:
+      - roles.crud-router
+    roles_cfg:
+      roles.crud-router:
+        stats: true
+        stats_driver: metrics
+        stats_quantiles: true
+        stats_quantile_tolerated_error: 0.001
+        stats_quantile_age_buckets_count: 5
+        stats_quantile_max_age_time: 180
+    app:
+      module: app.vshard_bootstrapper
+    replicasets:
+      router-1:
+        instances:
+          router-1:
+            iproto:
+              listen:
+                - uri: tarantool-router-1:3301
+              advertise:
+                client: tarantool-router-1:3301
+      router-2:
+        instances:
+          router-2:
+            iproto:
+              listen:
+                - uri: tarantool-router-2:3301
+              advertise:
+                client: tarantool-router-2:3301
+  storages:
+    sharding:
+      roles: [ storage ]
+    roles:
+      - roles.crud-storage
+    replicasets: 
+      storage-1:
+        instances: 
+          storage-1:
+            iproto:
+              listen:
+                - uri: tarantool-storage-1:3301
+              advertise:
+                client: tarantool-storage-1:3301
+          storage-2:
+            iproto:
+              listen:
+                - uri: tarantool-storage-2:3301
+              advertise:
+                client: tarantool-storage-2:3301
+          storage-3:
+            iproto:
+              listen:
+                - uri: tarantool-storage-3:3301
+              advertise:
+                client: tarantool-storage-3:3301
+          storage-4:
+            iproto:
+              listen:
+                - uri: tarantool-storage-4:3301
+              advertise:
+                client: tarantool-storage-4:3301

@@ -11,11 +11,17 @@ import (
 	"github.com/vmihailenco/msgpack/v5"
 )
 
-const DATA_QTY = 10000
-const BATCH_SIZE = 100
-const BATCH_QTY = DATA_QTY / BATCH_SIZE
-const LETTER_BYTES = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-const TIMEOUT = uint(2)
+const (
+	DATA_QTY     = 10000
+	BATCH_SIZE   = 100
+	BATCH_QTY    = DATA_QTY / BATCH_SIZE
+	LETTER_BYTES = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	TIMEOUT      = uint(2)
+	TT_HOST      = "127.0.0.1"
+	TT_PORT      = "3301"
+	TT_USER      = "admin"
+	TT_PASS      = "secret-cluster-cookie"
+)
 
 var batches [BATCH_QTY][]crud.Tuple
 
@@ -188,8 +194,8 @@ func CheckRecords(conn *tarantool.Connection) {
 }
 
 func main() {
-	opts := tarantool.Opts{User: "admin", Pass: "secret"}
-	conn, err := tarantool.Connect("127.0.0.1:3301", opts)
+	opts := tarantool.Opts{User: TT_USER, Pass: TT_PASS}
+	conn, err := tarantool.Connect(TT_HOST + ":" + TT_PORT, opts)
 	if err != nil {
 		fmt.Printf("database connection error: %s\n", err.Error())
 		return

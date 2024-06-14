@@ -11,9 +11,11 @@ import (
 	"github.com/tarantool/go-tarantool/v2/pool"
 )
 
-const USER = "admin"
-const PASS = "secret-cluster-cookie"
-const LETTER_BYTES = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+const (
+	USER         = "admin"
+	PASS         = "secret-cluster-cookie"
+	LETTER_BYTES = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+)
 
 var routerUriList = []string{"localhost:3301", "localhost:3302"}
 

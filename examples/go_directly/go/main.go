@@ -9,8 +9,14 @@ import (
 	"github.com/tarantool/go-tarantool/v2"
 )
 
-const DATA_QTY = 10000
-const LETTER_BYTES = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+const (
+	DATA_QTY     = 10000
+	LETTER_BYTES = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	TT_HOST      = "127.0.0.1"
+	TT_PORT      = "3301"
+	TT_USER      = "admin"
+	TT_PASS      = "secret-cluster-cookie"
+)
 
 type Tuple struct {
 	// Instruct msgpack to pack this struct as array, so no custom packer
@@ -71,9 +77,9 @@ func main() {
 	defer cancel()
 
 	dialer := tarantool.NetDialer{
-		Address:  "127.0.0.1:3301",
-		User:     "admin",
-		Password: "secret",
+		Address:  TT_HOST + ":" + TT_PORT,
+		User:     TT_USER,
+		Password: TT_PASS,
 	}
 	opts := tarantool.Opts{}
 
