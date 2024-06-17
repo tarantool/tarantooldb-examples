@@ -41,8 +41,9 @@
 * `config.yml` -- топология и конфигурация кластера;
 * `migrations/scenario` -- директория, содержащая файлы с описанием миграций; 
 * `tcm.yml` -- конфигурация для запуска [Tarantool Cluster Manager](https://www.tarantool.io/ru/doc/latest/reference/tooling/tcm/).
-  Кроме того, при запуске примера скрипт `make_config_tcm_yml.lua` создает файл `config.tcm.yml`.
-  Это файл содержит конфигурацию для загрузки в Tarantool Cluster Manager, сгенерированную на основе конфигурации кластера.
+
+Кроме того, при запуске примера скрипт `make_config_tcm_yml.lua` создает файл `config.tcm.yml`.
+Это файл содержит конфигурацию для загрузки в Tarantool Cluster Manager, сгенерированную на основе конфигурации кластера.
 
 (admin_guide-deploy_one_node-start_example)=
 ## Запуск стенда
@@ -59,12 +60,12 @@ cd ./doc/examples/all_in_one/
 docker compose up -d --build 
 ```
 
-Получите пароль для входа в веб-интерфейс Tarantool DB:
+Получите пароль для входа в веб-интерфейс Tarantool DB (TCM):
 ```shell
 docker compose logs tcm-1 | grep "super admin"
 ```
 
-Откройте в браузере веб-интерфейс Tarantool DB по адресу [http://localhost:8081](http://localhost:8081).
+Откройте в браузере веб-интерфейс TCM по адресу [http://localhost:8081](http://localhost:8081).
 Для входа используйте логин `admin` и пароль, полученный с помощью предыдущей команды.
 
 (admin_guide-deploy_one_node-config)=
