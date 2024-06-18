@@ -6,6 +6,7 @@
 Содержание:
 
 * [](user_guide-readview_crud_filter-prereq)
+* [](user_guide-readview_crud_filter-files)
 * [](user_guide-readview_crud_filter-start_example)
 * [](user_guide-readview_crud_filter-migrations)
 * [](user_guide-readview_crud-filter-create)
@@ -49,10 +50,10 @@
 ## Запуск стенда
 
 
-Для успешного запуска должны быть свободны порты:
-* 3301-3306;
-* 8081;
-* 2379;
+Для успешного запуска должны быть свободны следующие порты:
+* 3301--3306
+* 8081
+* 2379
 
 Перейдите в директорию примера `read_view`:
 
@@ -60,7 +61,7 @@
 cd ./doc/examples/read_view/
 ```
 
-Запустите стенд через docker compose:
+Запустите стенд через Docker compose:
 
 ```shell
 docker compose up -d
@@ -70,9 +71,10 @@ docker compose up -d
 * кластера Tarantool DB (1 роутер, 4 хранилища, 1 TCM);
 * клиентского приложения, подающего нагрузку.
 
-После запуска должны работать все контейнеры. Также после запуска становится доступен пользовательский интерфейс http://localhost:8081 -- веб-интерфейс кластера Tarantool DB (TCM).
+После запуска должны работать все контейнеры.
+Также после запуска становится доступен пользовательский интерфейс http://localhost:8081[http://localhost:8081] -- веб-интерфейс кластера Tarantool DB (TCM).
 
-Получите пароль для входа в веб-интерфейс Tarantool DB (TCM):
+Получите пароль для входа в веб-интерфейс Tarantool DB:
 ```shell
 docker compose logs tcm-1 | grep "super admin"
 ```
@@ -93,8 +95,8 @@ docker compose logs tcm-1 | grep "super admin"
 6. Нажмите **Update**, чтобы сохранить новые настройки кластера. При успешном обновлении в веб-интерфейсе появится сообщение `Cluster updated successfully`.
 7. В веб-интерфейсе перейдите на вкладку **Stateboard**.
 8. Выберите любой роутер из списка (например, `router-1`) и в открывшемся окне перейдите на вкладку **Terminal**.
-9. В терминале введите команду `box.space`. В выводе должен присутствовать спейс `customers`.
-10. Перейдите на вкладку `Tuples`. В ней должен присутствовать созданный спейс, а внутри должны быть данные.
+9. В терминале введите команду `box.space`. Проверьте, что в выводе есть спейс `customers` -- этот спейс создается при запуске кластера.
+10. Перейдите на вкладку `Tuples`. Проверьте, что во вкладке отображается спейс `customers`, и в этот спейс загружены данные.
 
 (user_guide-readview_crud_filter-migrations)=
 ## Создание спейса и подключение к узлу
@@ -106,9 +108,9 @@ docker compose logs tcm-1 | grep "super admin"
 
 Спейс имеет следующий формат:
 
-```{literalinclude} bootstrap/migrations/scenario/001_create_space.lua
+```{literalinclude} migrations/scenario/001_create_space.lua
 :start-after: -- Создание спейса customers
-:end-before: utils.register_sharding_key
+:end-before: helpers.register_sharding_key
 :language: lua
 :dedent:
 ```

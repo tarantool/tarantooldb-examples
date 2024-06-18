@@ -57,7 +57,7 @@ docker compose up -d
 
 Запущенный стенд состоит из:
 
-* кластера Tarantool DB двух роутеров и двух шардов;,
+* кластера Tarantool DB, двух роутеров и двух шардов;
 * кластера etcd из трех узлов;
 * средств мониторинга (Prometheus, Grafana).
 
@@ -139,7 +139,7 @@ docker compose logs tcm-1 | grep "super admin"
 
 ## Остановка стенда
 
-Остановить кластер можно так:
+Остановить стенд можно так:
 
 ```shell
 docker compose down
