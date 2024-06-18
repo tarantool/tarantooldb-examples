@@ -1,8 +1,15 @@
-(admin_guide-tcf)=
-# Использование Tarantool Clusters Federation
+(admin_guide-tcf-example)=
+# Запуск кластеров Tarantool DB с TCF и настройка репликатора
 
-[Tarantool Clusters Federation](https://www.tarantool.io/ru/clustersfederation/) позволяет выполнять репликацию
-шардированных данных между двумя независимыми кластерами Tarantool DB.
+В этом руководстве показано, как запустить два независимых кластера Tarantool DB в Docker в связке с [Tarantool Clusters Federation](https://www.tarantool.io/ru/clustersfederation/doc/latest/) (TCF)
+и настроить работу репликатора между кластерами.
+
+```{admonition} Примечание
+:class: note
+
+TCF поддерживает репликацию шардированных данных в спейсах с асинхронным режимом репликации.
+Это означает, что передача [словарей](user_guide-dictionary) через TCF недоступна.
+```
 
 Для работы Tarantool Clusters Federation необходимы:
 
@@ -11,22 +18,19 @@
 * [etcd](https://etcd.io/) -- для восстановления после сбоя (failover) кластеров Tarantool DB;
 * репликатор Tarantool Clusters Federation -- бинарные файлы `tcf-destination` и `tcf-gateway`.
 
-В примере показано, как запустить кластеры Tarantool DB в Docker в связке с Tarantool Clusters Federation
-и настроить работу репликатора между кластерами.
-
 Содержание:
 
-* [](admin_guide-tcf-prereq)
-* [](admin_guide-tcf-start_example)
-* [](admin_guide-tcf-replication)
-* [](admin_guide-tcf-config)
-  - [](admin_guide-tcf-config-a)
-  - [](admin_guide-tcf-config-b)
-  - [](admin_guide-tcf-config-b-to-a)
-  - [](admin_guide-tcf-config-a-to-b)
-* [](admin_guide-tcf-stop_example)
+* [](admin_guide-tcf-example-prereq)
+* [](admin_guide-tcf-example-start_example)
+* [](admin_guide-tcf-example-replication)
+* [](admin_guide-tcf-example-config)
+  - [](admin_guide-tcf-example-config-a)
+  - [](admin_guide-tcf-example-config-b)
+  - [](admin_guide-tcf-example-config-b-to-a)
+  - [](admin_guide-tcf-example-config-a-to-b)
+* [](admin_guide-tcf-example-stop_example)
 
-(admin_guide-tcf-prereq)=
+(admin_guide-tcf-example-prereq)=
 ## Пререквизиты
 
 Для выполнения примера требуются:
@@ -41,13 +45,13 @@
   Есть два способа получить исходные файлы примера:
 
   * Архив с полной документацией Tarantool DB, полученный по почте или скачанный в [личном кабинете tarantool.io](https://www.tarantool.io/en/accounts/customer_zone/packages/tarantooldb/release/documentation).
-    Пример архива: `tarantooldb-documentation-0.8.0.tar.gz`.
+    Пример архива: `tarantooldb-documentation-2.0.0.tar.gz`.
     Пример `tarantool_clusters_federation` расположен в таком архиве в директории `./doc/examples/tarantool_clusters_federation/`.
 
   * Отдельный архив [tarantool_clusters_federation.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/tarantool_clusters_federation/tarantool_clusters_federation.tar.gz), скачанный c сайта Tarantool.
   ```
 
-(admin_guide-tcf-start_example)=
+(admin_guide-tcf-example-start_example)=
 ## Запуск стенда
 
 Перейдите в директорию с примером:
@@ -97,8 +101,10 @@ docker compose -f docker-compose-replicator.yml up --force-recreate -d --build
 * сервиса репликатора Tarantool Clusters Federation.
 
 На запущенном стенде настроена репликация из [**кластера А**](http://localhost:8080) в [**кластер B**](http://localhost:9080).
+Настройки TCF доступны в веб-интерфейсе Tarantool DB по адресу [http://localhost:8081](http://localhost:8081) на вкладке **TCF**.
+Подробная информация о доступных [опциях конфигурации TCF](https://www.tarantool.io/ru/clustersfederation/doc/latest/references/configuration_reference_cluster_yaml/) и [настройке TCF через веб-интерфейс]() приведена в документации Tarantool Clusters Federation.
 
-(admin_guide-tcf-replication)=
+(admin_guide-tcf-example-replication)=
 ## Репликация
 
 Подключитесь к роутеру-А, используя команду `tt connect`:
@@ -122,12 +128,12 @@ localhost:3300> box.schema.func.call('__start_data_stream')
 box.schema.func.call('__stop_data_stream')
 ```
 
-(admin_guide-tcf-config)=
+(admin_guide-tcf-example-config)=
 ## Файлы конфигурации Tarantool Clusters Federation
 
 Файлы конфигурации Tarantool Clusters Federation расположены в корневой директории примера `tarantool_clusters_federation`.
 
-(admin_guide-tcf-config-a)=
+(admin_guide-tcf-example-config-a)=
 ### Кластер A
 
 Конфигурация кластера приведена в файле `./bootstrap-A/config.yml`:
@@ -139,7 +145,13 @@ box.schema.func.call('__stop_data_stream')
 :dedent:
 ```
 
-(admin_guide-tcf-config-b)=
+Полный список поддерживаемых опций конфигурации кластера приведен в разделе
+[Конфигурация кластера в YAML (Cartridge)](https://www.tarantool.io/ru/clustersfederation/doc/latest/references/configuration_reference_cluster_yaml/) в документации TCF.
+
+Настроить кластер можно также в веб-интерфейсе Tarantool DB на вкладке **TCF**.
+Узнать больше: [Конфигурация кластера в веб-интерфейсе (Cartridge)](https://www.tarantool.io/ru/clustersfederation/doc/latest/references/configuration_reference_cluster_ui/).
+
+(admin_guide-tcf-example-config-b)=
 ### Кластер B
 
 Конфигурация кластера приведена в файле `./bootstrap-B/config.yml`:
@@ -151,7 +163,13 @@ box.schema.func.call('__stop_data_stream')
 :dedent:
 ```
 
-(admin_guide-tcf-config-a-to-b)=
+Полный список опций конфигурации кластера приведен в разделе
+[Конфигурация кластера в YAML (Cartridge)](https://www.tarantool.io/ru/clustersfederation/doc/latest/references/configuration_reference_cluster_yaml/) в документации TCF.
+
+Настроить кластер можно также в веб-интерфейсе Tarantool DB на вкладке **TCF**.
+Узнать больше: [Конфигурация кластера в веб-интерфейсе (Cartridge)](https://www.tarantool.io/ru/clustersfederation/doc/latest/references/configuration_reference_cluster_ui/).
+
+(admin_guide-tcf-example-config-a-to-b)=
 ### Репликация из A в B
 
 Конфигурация для репликации из A в B приведена в файле `./config_repl_AB.yaml`:
@@ -160,7 +178,10 @@ box.schema.func.call('__stop_data_stream')
 :dedent:
 ```
 
-(admin_guide-tcf-config-b-to-a)=
+Полный список опций конфигурации для репликатора приведен в разделе
+[Конфигурация репликаторов данных](https://www.tarantool.io/ru/clustersfederation/doc/latest/references/configuration_reference_replicator/) в документации TCF.
+
+(admin_guide-tcf-example-config-b-to-a)=
 ### Репликация из B в A
 
 Конфигурация для репликации из B в A приведена в файле `./config_repl_BA.yaml`:
@@ -169,7 +190,11 @@ box.schema.func.call('__stop_data_stream')
 :language: yaml
 :dedent:
 ```
-(admin_guide-tcf-stop_example)=
+
+Полный список опций конфигурации для репликатора приведен в разделе
+[Конфигурация репликаторов данных](https://www.tarantool.io/ru/clustersfederation/doc/latest/references/configuration_reference_replicator/) в документации TCF.
+
+(admin_guide-tcf-example-stop_example)=
 ## Отключение стенда
 
 Чтобы отключить стенд, выполните следующие команды:

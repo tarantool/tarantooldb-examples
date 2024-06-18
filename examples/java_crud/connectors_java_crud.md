@@ -28,7 +28,7 @@
   Есть два способа получить исходные файлы примера:
 
   * Архив с полной документацией Tarantool DB, полученный по почте или скачанный в [личном кабинете tarantool.io](https://www.tarantool.io/en/accounts/customer_zone/packages/tarantooldb/release/documentation).
-    Пример архива: `tarantooldb-documentation-0.8.0.tar.gz`.
+    Пример архива: `tarantooldb-documentation-2.0.0.tar.gz`.
     Пример `java_crud` расположен в таком архиве в директории `./doc/examples/java_crud/`.
     
   * Отдельный архив [java_crud.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/java_crud/java_crud.tar.gz), скачанный c сайта Tarantool.
