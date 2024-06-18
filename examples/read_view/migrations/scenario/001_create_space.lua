@@ -1,4 +1,4 @@
-local utils = require('migrator.utils')
+local helpers = require('tt-migrations.helpers')
 
 local function up()
      -- Создание спейса customers
@@ -15,11 +15,13 @@ local function up()
     box.space.customers:create_index('age_index', { parts = {'age'}, unique = false, if_not_exists = true})
     box.space.customers:create_index('full_name', { parts = {'name', 'surname'}, unique = false, if_not_exists = true})
 
-    utils.register_sharding_key('customers', {'id'})
+    helpers.register_sharding_key('customers', {'id'})
 
     return true
 end
 
 return {
-    up = up,
+    up = {
+        scenario = up,
+    },
 }

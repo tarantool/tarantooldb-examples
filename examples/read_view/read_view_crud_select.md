@@ -7,6 +7,7 @@
 
 * [](user_guide-readview_crud_filter-prereq)
 * [](user_guide-readview_crud_filter-start_example)
+* [](user_guide-readview_crud_filter-migrations)
 * [](user_guide-readview_crud-filter-create)
 * [](user_guide-readview_crud-filter-select)
 * [](user_guide-readview_crud-filter-pairs)
@@ -34,8 +35,24 @@
   * Отдельный архив [read_view.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/read_view/read_view.tar.gz), скачанный c сайта Tarantool.
   ```
   
+(user_guide-readview_crud_filter-files)=
+## Используемые файлы
+
+В руководстве используются следующие файлы примера `read_view`:
+
+* `config.yml` -- конфигурация и топология кластера;
+* `docker-compose.yml` -- описание узлов кластера;
+* `migrations/scenario` -- директория, содержащая файлы с описанием миграций;
+* `tcm.yml` -- конфигурация для запуска [Tarantool Cluster Manager](https://www.tarantool.io/ru/doc/latest/reference/tooling/tcm/).
+
 (user_guide-readview_crud_filter-start_example)=
-## Запуск стенда и подключение к узлу
+## Запуск стенда
+
+
+Для успешного запуска должны быть свободны порты:
+* 3301-3306;
+* 8081;
+* 2379;
 
 Перейдите в директорию примера `read_view`:
 
@@ -49,20 +66,54 @@ cd ./doc/examples/read_view/
 docker compose up -d
 ```
 
-Команда развернет кластер, состоящий из одного роутера и двух наборов реплик по 2 экземпляра в каждой.
-На завершающем этапе поднятия кластера вызывается команда автоматического бутстрапа и [миграции](../migrations/migrations_space_format.md).
-Миграции создают спейс `customers` (файл `./bootstrap/migrations/source/001_create_space.lua`) и
-загружают в него данные (файл `./bootstrap/migrations/source/002_data.lua`).
+Команда развернет стенд, состоящий из:
+* кластера Tarantool DB (1 роутер, 4 хранилища, 1 TCM);
+* клиентского приложения, подающего нагрузку.
+
+После запуска должны работать все контейнеры. Также после запуска становится доступен пользовательский интерфейс http://localhost:8081 -- веб-интерфейс кластера Tarantool DB (TCM).
+
+Получите пароль для входа в веб-интерфейс Tarantool DB (TCM):
+```shell
+docker compose logs tcm-1 | grep "super admin"
+```
+
+Откройте веб-интерфейс в браузере по адресу [http://localhost:8081](http://localhost:8081).
+Для входа используйте логин `admin` и пароль, полученный с помощью предыдущей команды.
+
+Чтобы настроить кластер:
+
+1. В веб-интерфейсе перейдите на вкладку **Cluster**.
+2. В строке с кластером `Default cluster` нажмите кнопку **...** (**Actions**) справа и выберите **Edit** в выпадающем меню.
+3. Переключитесь на второй экран настройки, используя кнопку **Next**.
+4. На втором экране укажите в поле **Prefix** значение `/tdb` и нажмите  **Next**.
+5. На третьем экране укажите следующие значения:
+   - в поле **Username** -- `admin`;
+   - в поле **Password** --  `secret-cluster-cookie`.
+   
+6. Нажмите **Update**, чтобы сохранить новые настройки кластера. При успешном обновлении в веб-интерфейсе появится сообщение `Cluster updated successfully`.
+7. В веб-интерфейсе перейдите на вкладку **Stateboard**.
+8. Выберите любой роутер из списка (например, `router-1`) и в открывшемся окне перейдите на вкладку **Terminal**.
+9. В терминале введите команду `box.space`. В выводе должен присутствовать спейс `customers`.
+10. Перейдите на вкладку `Tuples`. В ней должен присутствовать созданный спейс, а внутри должны быть данные.
+
+(user_guide-readview_crud_filter-migrations)=
+## Создание спейса и подключение к узлу
+
+На завершающем этапе поднятия кластера выполняется публикация YAML-конфигурации кластера в [централизованное хранилище](https://www.tarantool.io/ru/doc/latest/reference/tooling/tt_cli/cluster/#tt-cluster-publish)
+и применяются [миграции](../migrations/migrations_space_format.md).
+Миграции создают спейс `customers` (файл `./migrations/scenario/001_create_space.lua`) и
+загружают в него данные (файл `./migrations/scenario/002_data.lua`).
+
 Спейс имеет следующий формат:
 
-```{literalinclude} bootstrap/migrations/source/001_create_space.lua
+```{literalinclude} bootstrap/migrations/scenario/001_create_space.lua
 :start-after: -- Создание спейса customers
 :end-before: utils.register_sharding_key
 :language: lua
 :dedent:
 ```
 
-Когда в спейс загрузились данные, подключитесь к роутеру с ролью [crud-router](reference-roles-crud), используя команду `tt connect`.
+Подключитесь к роутеру с ролью [crud-router](reference-roles-crud), используя команду `tt connect`.
 Команда открывает интерактивную консоль Tarantool, позволяющую работать с базой данных:
 
 ```shell

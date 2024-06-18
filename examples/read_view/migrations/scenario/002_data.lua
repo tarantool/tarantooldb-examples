@@ -48,5 +48,7 @@ local function up()
 end
 
 return {
-    up = up,
+    up = {
+        scenario = up,
+    },
 }
