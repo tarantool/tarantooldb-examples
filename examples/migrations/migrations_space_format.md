@@ -3,7 +3,7 @@
 В этом руководстве рассказано, как разработать типовое приложение в Tarantool DB и изменить в нем схему данных, используя
 метод [space:format()](https://www.tarantool.io/ru/doc/latest/reference/reference_lua/box_space/format/).
 В качестве примера используется база данных для системы управления проектами.
-Для работы используются модули [migrations](https://github.com/tarantool/migrations), [CRUD](https://github.com/tarantool/crud) и [vshard](https://www.tarantool.io/ru/doc/latest/reference/reference_rock/vshard/).
+Для работы используются модули [CRUD](https://github.com/tarantool/crud) и [vshard](https://www.tarantool.io/ru/doc/latest/reference/reference_rock/vshard/).
 
 Руководство включает следующие шаги:
 
@@ -74,12 +74,14 @@
 Для запуска и настройки кластера используются файлы из папки ``migrations``:
 
 * `docker-compose.yml` -- описание узлов кластера;
-* `bootstrap/topology.json` -- топология кластера.
+* `config.yml` -- конфигурация и топология кластера;
+* `migrations/scenario` -- директория, содержащая файлы с описанием миграций;
+* `tcm.yml` -- конфигурация для запуска [Tarantool Cluster Manager](https://www.tarantool.io/ru/doc/latest/reference/tooling/tcm/).
+
 
 Для успешного запуска должны быть свободны следующие порты:
-
-* 3300--3304
-* 8080--8084
+* 3301--3304
+* 8081
 
 Перейдите в директорию примера `migrations`:
 
@@ -93,8 +95,35 @@ cd ./doc/examples/migrations/
 docker compose up -d
 ```
 
-В запущенном кластере созданы спейсы `projects`, `tasks` и `users`, а также
-функции ``app.delete_user(user_id)`` и ``app.get_project_data(project_id)``.
+Команда развернет стенд, состоящий из:
+* кластера Tarantool DB (1 роутер, 4 хранилища, 1 TCM);
+* клиентского приложения, подающего нагрузку.
+
+После запуска должны работать все контейнеры. Также после запуска становится доступен пользовательский интерфейс [http://localhost:8081](http://localhost:8081) -- веб-интерфейс кластера Tarantool DB (TCM).
+
+Получите пароль для входа в веб-интерфейс Tarantool DB:
+```shell
+docker compose logs tcm-1 | grep "super admin"
+```
+
+Откройте в браузере веб-интерфейс TCM по адресу [http://localhost:8081](http://localhost:8081).
+Для входа используйте логин `admin` и пароль, полученный с помощью предыдущей команды.
+
+Чтобы настроить кластер:
+
+1. В веб-интерфейсе перейдите на вкладку **Clusters**. ![tcm](images/tcm1.png)
+2. В строке с кластером `Default cluster` нажмите кнопку **...** (**Actions**) справа и выберите **Edit** в выпадающем меню.
+3. Переключитесь на второй экран настройки, используя кнопку **Next**.![tcm](images/tcm2.png)
+4. На втором экране укажите в поле **Prefix** значение `/tdb` и нажмите  **Next**.![tcm](images/tcm3.png)
+5. На третьем экране укажите следующие значения:
+   - в поле **Username** -- `admin`;
+   - в поле **Password** --  `secret-cluster-cookie`.
+     ![tcm](images/tcm4.png)
+6. Нажмите **Update**, чтобы сохранить новые настройки кластера. При успешном обновлении в веб-интерфейсе появится сообщение `Cluster updated successfully`.
+7. В веб-интерфейсе перейдите на вкладку **Stateboard**.![tcm](images/tcm5.png)
+8. Выберите любой роутер из списка (например, `router-1`) и в открывшемся окне перейдите на вкладку **Terminal**.
+9. В терминале введите команду `box.space`.  Проверьте, что в выводе есть спейсы `projects`, `tasks` и `users` -- эти спейсы создаются при запуске кластера.
+Также в запущенном кластере созданы функции ``app.delete_user(user_id)`` и ``app.get_project_data(project_id)``.
 
 (user_guide-space_format-load_data)=
 ## Загрузка и проверка данных
@@ -103,22 +132,22 @@ docker compose up -d
 Команда открывает интерактивную консоль Tarantool, позволяющую работать с базой данных:
 
 ```shell
-tt connect admin:secret-cluster-cookie@localhost:3300
+tt connect admin:secret-cluster-cookie@localhost:3301
 ```
 
-Исходный код миграции приведен в файле `001_test.lua` в директории `./bootstrap/migrations/source/` примера `migrations`.
+Исходный код миграции приведен в файле `001_test.lua` в директории `./migrations/scenario/` примера `migrations`.
 
 Загрузить тестовые данные можно с помощью функции `__create_example_data`.
 Функция очищает кластер и заполняет его данными из примера:
 
 ```shell
-localhost:3300> box.schema.func.call('__create_example_data')
+localhost:3301> box.schema.func.call('__create_example_data')
 ```
 
 Чтобы проверить загруженные данные, выполните несколько базовых операций в спейсе `users`, используя модуль CRUD:
 
 ```shell
-localhost:3300> crud.select('users')
+localhost:3301> crud.select('users')
 ---
 - metadata: [{'name': 'user_id', 'type': 'uuid'}, {'name': 'bucket_id', 'type': 'unsigned'},
     {'name': 'name', 'type': 'string'}, {'type': 'string', 'name': 'email', 'is_nullable': true}]
@@ -128,7 +157,7 @@ localhost:3300> crud.select('users')
 - null
 ...
 
-localhost:3300> crud.select('users', {{"==", "name", "john_doe"}})
+localhost:3301> crud.select('users', {{"==", "name", "john_doe"}})
 ---
 - metadata: [{'name': 'user_id', 'type': 'uuid'}, {'name': 'bucket_id', 'type': 'unsigned'},
     {'name': 'name', 'type': 'string'}, {'type': 'string', 'name': 'email', 'is_nullable': true}]
@@ -136,7 +165,7 @@ localhost:3300> crud.select('users', {{"==", "name", "john_doe"}})
   - [04e7f6a2-2979-46e4-8d71-e80217e3aac3, 23464, 'john_doe', 'john.doe@example.com']
 - null
 
-localhost:3300> crud.update('users', require('uuid').fromstr('04e7f6a2-2979-46e4-8d71-e80217e3aac3'), {{'=', 'name', "John Doe"}})
+localhost:3301> crud.update('users', require('uuid').fromstr('04e7f6a2-2979-46e4-8d71-e80217e3aac3'), {{'=', 'name', "John Doe"}})
 ---
 - rows:
   - [04e7f6a2-2979-46e4-8d71-e80217e3aac3, 23464, 'John Doe', 'john.doe@example.com']
@@ -144,7 +173,7 @@ localhost:3300> crud.update('users', require('uuid').fromstr('04e7f6a2-2979-46e4
     {'name': 'name', 'type': 'string'}, {'type': 'string', 'name': 'email', 'is_nullable': true}]
 - null
 
-localhost:3300> crud.get('users', require('uuid').fromstr('04e7f6a2-2979-46e4-8d71-e80217e3aac3'))
+localhost:3301> crud.get('users', require('uuid').fromstr('04e7f6a2-2979-46e4-8d71-e80217e3aac3'))
 ---
 - rows:
   - [04e7f6a2-2979-46e4-8d71-e80217e3aac3, 23464, 'John Doe', 'john.doe@example.com']
@@ -152,7 +181,7 @@ localhost:3300> crud.get('users', require('uuid').fromstr('04e7f6a2-2979-46e4-8d
     {'name': 'name', 'type': 'string'}, {'type': 'string', 'name': 'email', 'is_nullable': true}]
 - null
 
-localhost:3300> crud.delete('users', require('uuid').fromstr('04e7f6a2-2979-46e4-8d71-e80217e3aac3'))
+localhost:3301> crud.delete('users', require('uuid').fromstr('04e7f6a2-2979-46e4-8d71-e80217e3aac3'))
 ---
 - rows:
   - [04e7f6a2-2979-46e4-8d71-e80217e3aac3, 23464, 'John Doe', 'john.doe@example.com']
@@ -165,7 +194,7 @@ localhost:3300> crud.delete('users', require('uuid').fromstr('04e7f6a2-2979-46e4
 Чтобы вернуть данные в прежнее состояние, вызовите функцию `__create_example_data` еще раз:
 
 ```shell
-localhost:3300> box.schema.func.call('__create_example_data')
+localhost:3301> box.schema.func.call('__create_example_data')
 ```
 
 (user_guide-space_format-check_functions)=
@@ -181,12 +210,12 @@ localhost:3300> box.schema.func.call('__create_example_data')
 
 Для проверки функции `app.get_project_data(project_id)` верните данные в первоначальное состояние:
 ```shell
-localhost:3300> box.schema.func.call('__create_example_data')
+localhost:3301> box.schema.func.call('__create_example_data')
 ```
 
 Вызовите функцию и оцените результат:
 ```shell
-localhost:3300> box.schema.func.call('app.get_project_data', require('uuid').fromstr('46f8e628-d2c2-42ba-984f-29a459a3d0fc'))
+localhost:3301> box.schema.func.call('app.get_project_data', require('uuid').fromstr('46f8e628-d2c2-42ba-984f-29a459a3d0fc'))
 ---
 - res:
     tasks:
@@ -208,19 +237,19 @@ localhost:3300> box.schema.func.call('app.get_project_data', require('uuid').fro
 Для проверки функции `app.delete_user(user_id)` верните данные в первоначальное состояние:
 
 ```shell
-localhost:3300> box.schema.func.call('__create_example_data')
+localhost:3301> box.schema.func.call('__create_example_data')
 ```
 
 Удалите пользователя:
 
 ```shell
-localhost:3300> box.schema.func.call('app.delete_user', require('uuid').fromstr('04e7f6a2-2979-46e4-8d71-e80217e3aac3'))
+localhost:3301> box.schema.func.call('app.delete_user', require('uuid').fromstr('04e7f6a2-2979-46e4-8d71-e80217e3aac3'))
 ---
 - res: true
   err: null
 ...
 
-localhost:3300> box.schema.func.call('app.get_project_data', require('uuid').fromstr('46f8e628-d2c2-42ba-984f-29a459a3d0fc'))
+localhost:3301> box.schema.func.call('app.get_project_data', require('uuid').fromstr('46f8e628-d2c2-42ba-984f-29a459a3d0fc'))
 ---
 - res:
     tasks:
@@ -231,7 +260,7 @@ localhost:3300> box.schema.func.call('app.get_project_data', require('uuid').fro
     description: Development of a task management system
   err: null
 
-localhost:3300> crud.get('users', require('uuid').fromstr('04e7f6a2-2979-46e4-8d71-e80217e3aac3'))
+localhost:3301> crud.get('users', require('uuid').fromstr('04e7f6a2-2979-46e4-8d71-e80217e3aac3'))
 ---
 - rows: []
   metadata: [{'name': 'user_id', 'type': 'uuid'}, {'name': 'bucket_id', 'type': 'unsigned'},
@@ -278,20 +307,20 @@ end
 local _, err, uuid = vshard_router.map_callrw('tasks.set_box_NULL_for_user_id', {user_id})
 ```
 
-Полный исходный код приведен в файле миграции `./bootstrap/migrations/source/001_test.lua` примера `migrations`.
+Полный исходный код приведен в файле миграции `./migrations/scenario/001_test.lua` примера `migrations`.
 
 ### Удаление проекта
 
 Для проверки функции `app.delete_project(project_id)` верните данные в первоначальное состояние:
 
 ```shell
-localhost:3300> box.schema.func.call('__create_example_data')
+localhost:3301> box.schema.func.call('__create_example_data')
 ```
 
 Просмотрите содержимое спейса `projects`. Видно, что проект `Website Update` был удален вместе со всеми задачами:
 
 ```shell
-localhost:3300> crud.select('projects')
+localhost:3301> crud.select('projects')
 ---
 - metadata: [{'name': 'id', 'type': 'uuid'}, {'name': 'bucket_id', 'type': 'unsigned'},
     {'name': 'name', 'type': 'string'}, {'type': 'string', 'name': 'description',
@@ -303,7 +332,7 @@ localhost:3300> crud.select('projects')
       to the website design and functionality']
 - null
 
-localhost:3300> crud.select('tasks')
+localhost:3301> crud.select('tasks')
 ---
 - metadata: [{'name': 'task_id', 'type': 'uuid'}, {'name': 'bucket_id', 'type': 'unsigned'},
     {'name': 'name', 'type': 'string'}, {'type': 'string', 'name': 'description',
@@ -318,13 +347,13 @@ localhost:3300> crud.select('tasks')
     1e63739a-dad0-4c5d-80e4-cd39594fe302]
 - null
 
-localhost:3300> box.schema.func.call('app.delete_project', require('uuid').fromstr('f53392af-30e3-4bfc-bde8-37043951159a'))
+localhost:3301> box.schema.func.call('app.delete_project', require('uuid').fromstr('f53392af-30e3-4bfc-bde8-37043951159a'))
 ---
 - res: true
   err: null
 ...
 
-localhost:3300> crud.select('projects')
+localhost:3301> crud.select('projects')
 ---
 - metadata: [{'name': 'project_id', 'type': 'uuid'}, {'name': 'bucket_id', 'type': 'unsigned'},
     {'name': 'name', 'type': 'string'}, {'type': 'string', 'name': 'description',
@@ -334,7 +363,7 @@ localhost:3300> crud.select('projects')
       a task management system']
 - null
 
-localhost:3300> crud.select('tasks')
+localhost:3301> crud.select('tasks')
 ---
 - metadata: [{'name': 'task_id', 'type': 'uuid'}, {'name': 'bucket_id', 'type': 'unsigned'},
     {'name': 'name', 'type': 'string'}, {'type': 'string', 'name': 'description',
@@ -382,7 +411,7 @@ local bucket_id = vshard_router.bucket_id_strcrc32(id)
 local _, err = vshard_router.callrw(bucket_id, 'projects.delete_project', {id})
 ```
 
-Полный исходный код приведен в файле миграции `./bootstrap/migrations/source/001_test.lua` примера `migrations`.
+Полный исходный код приведен в файле миграции `./migrations/scenario/001_test.lua` примера `migrations`.
 
 (user_guide-space_format-change_schema)=
 ## Изменение схемы данных
@@ -401,72 +430,56 @@ local _, err = vshard_router.callrw(bucket_id, 'projects.delete_project', {id})
 
 ![Схема данных](images/schema2.drawio.svg)
 
-Код миграции приведен в файле `./migrations/002_test.lua002_test.lua` примера `migrations`.
+Код миграции приведен в файле `./002_test.lua` примера `migrations`.
 
-Миграции выполняются в лексикографическом порядке, так им нумерованные названия: (`0001_my_migr.lua`, `2023_12_24_migr.lua`).
+Миграции выполняются в лексикографическом порядке, так что им даны нумерованные названия: (`0001_my_migr.lua`, `2023_12_24_migr.lua`).
 
 Подготовьте данные для миграции:
 
 ```lua
-localhost:3300> box.schema.func.call('__create_example_data')
+localhost:3301> box.schema.func.call('__create_example_data')
 ```
 
 (user_guide-space_format-change_schema-migrations)=
-### Способы выполнения миграции
+### Выполнение миграции
 
-Есть два способа выполнить миграцию:
+Выполнить миграцию можно с помощью утилиты [tt CLI](https://www.tarantool.io/ru/doc/latest/reference/tooling/tt_cli/). Для этого:
 
-* в веб-интерфейсе Tarantool DB;
-* с помощью GraphQL.
-
-**Веб-интерфейс**
-
-1. Откройте вкладку [Code](http://localhost:8081/admin/cluster/code) в меню слева.
-2. Добавьте в `migrations/source` файл `002_test.lua`.
-3. Скопируйте код из файла `002_test.lua` в этот файл.
-4. Нажмите кнопку `Apply`.
-5. Конфигурация успешно применена.
-
-**Graphql API**
-
-Для выполнения миграции запустите следующий запрос на изменение (мутацию):
-
-```bash
-curl -v --raw 'http://localhost:8081/admin/api' -X POST --data '{
-        "query":"mutation($sections: [ConfigSectionInput!]) {
-            cluster {
-                config(sections: $sections) {
-                    filename
-                    content
-                }
-            }
-        }",
-        "variables": {
-            "sections": [{
-                "filename":"migrations/source/002_test.lua",
-                "content":"'"$(cat 002_test.lua | sed 's/"/\\"/g' )"'"
-            }]
-        }
-}'
+1. Поместите файлы с кодом миграций `002_test.lua` и `002_test_upgrade.lua` в папку `./migrations/scenario/`.
+```shell
+cp -a ./migration_next/* ./migrations/scenario/ 
+```
+2. Загрузите миграции в [централизованное хранилище](https://www.tarantool.io/ru/doc/latest/reference/tooling/tt_cli/cluster/#tt-cluster-publish):
+```shell
+tt migrations publish http://admin:secret-cluster-cookie@localhost:2379/tdb/ migrations
 ```
 
-Чтобы выполнить старт миграции, запустите в консоли следующую команду:
-
-```bash
-curl -X POST localhost:8081/migrations/up
+3. Примените миграции:
+```shell
+docker exec migrations-tarantool-router-1-1  tt migrations up http://etcd1:2379/tdb --tarantool-cluster-username=admin --tarantool-cluster-password=secret-cluster-cookie
+```
+В случае успеха команда выведет:
+```shell
+• storage-1:
+/tdb/migrations/scenario/001_test.lua:
+Status: skipped, already applied
+/tdb/migrations/scenario/002_test.lua:
+Status: skipped, already applied
+/tdb/migrations/scenario/002_test_upgrade.lua:
+Status: skipped, already applied
+• router-1:
+/tdb/migrations/scenario/001_test.lua:
+Status: applied
+/tdb/migrations/scenario/002_test.lua:
+Status: applied
+/tdb/migrations/scenario/002_test_upgrade.lua:
+Status: applied
 ```
 
-Дождитесь ответа:
-
-```
-{"applied":["002_test.lua"]}
-```
-
-Проверьте, что миграция прошла успешно. 
-Видно, что добавлены новые поля со значениями по умолчанию:
+4. Проверьте, что миграция прошла успешно. Видно, что добавлены новые поля со значениями по умолчанию:
 
 ```shell
-localhost:3300> crud.select('projects')
+localhost:3301> crud.select('projects')
 ---
 - metadata: [{'name': 'project_id', 'type': 'uuid'}, {'name': 'bucket_id', 'type': 'unsigned'},
     {'name': 'name', 'type': 'string'}, {'type': 'string', 'name': 'description',
@@ -479,7 +492,7 @@ localhost:3300> crud.select('projects')
 - null
 ...
 
-localhost:3300> crud.select('tasks')
+localhost:3301> crud.select('tasks')
 ---
 - metadata: [{'name': 'task_id', 'type': 'uuid'}, {'name': 'bucket_id', 'type': 'unsigned'},
     {'name': 'name', 'type': 'string'}, {'type': 'string', 'name': 'description',
@@ -496,7 +509,7 @@ localhost:3300> crud.select('tasks')
 - null
 ...
 
-localhost:3300> crud.select('users')
+localhost:3301> crud.select('users')
 ---
 - metadata: [{'name': 'user_id', 'type': 'uuid'}, {'name': 'bucket_id', 'type': 'unsigned'},
     {'name': 'name', 'type': 'string'}, {'type': 'string', 'name': 'email', 'is_nullable': true},
@@ -514,7 +527,7 @@ localhost:3300> crud.select('users')
 В функции должны появиться новые поля в ответе:
 
 ```shell
-localhost:3300> box.schema.func.call('app.get_project_data', require('uuid').fromstr('46f8e628-d2c2-42ba-984f-29a459a3d0fc'))
+localhost:3301> box.schema.func.call('app.get_project_data', require('uuid').fromstr('46f8e628-d2c2-42ba-984f-29a459a3d0fc'))
 ---
 - res:
     tasks:

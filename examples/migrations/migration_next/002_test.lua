@@ -1,14 +1,28 @@
-local utils = require('migrator.utils')
+local rconfig = require('config')
 
 local fiber = require('fiber')
 local datetime = require('datetime')
 
 local function is_router()
-    return utils.check_roles_enabled({'crud-router'})
+    local roles = rconfig:get().roles
+    for _, rname in pairs(roles) do
+        if rname == 'roles.crud-router' then
+            return true
+        end
+    end
+
+    return false
 end
 
 local function is_storage()
-    return utils.check_roles_enabled({'crud-storage'})
+    local roles = rconfig:get().roles
+    for _, rname in pairs(roles) do
+        if rname == 'roles.crud-storage' then
+            return true
+        end
+    end
+
+    return false
 end
 
 local function set_default_value(space_name, pk_name, field_name, value)
@@ -135,5 +149,7 @@ local function up()
 end
 
 return {
-    up = up,
+    up = {
+        scenario = up,
+    },
 }
