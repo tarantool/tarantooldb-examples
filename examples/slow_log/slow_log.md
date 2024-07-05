@@ -58,14 +58,13 @@
 Включить логирование медленных запросов можно с помощью опции [slow_log.enable](configuration_reference-slow_log-enable).
 Для включения записи:
 1. Задайте на нужном экземпляре технологическую роль **slow_log**.
-2. Добавьте секцию `slow_log` в файл конфигурации (`config.yaml`):
+2. Задайте опцию `slow_log.enable` в файле конфигурации (`config.yml`). Для этого добавьте секцию `app.roles.slow_log` в секцию конфигурации `roles_cfg`:
 
-    ```{literalinclude} bootstrap/config.yml
-    :start-at: slow_log
-    :end-at: enable
-    :language: yaml
-    :dedent:
-    ```
+```yaml
+roles_cfg:
+  app.roles.slow_log:
+    enable: true
+```
 
 По умолчанию запись будет включена для запросов через модуль [CRUD](https://github.com/tarantool/crud).
 
@@ -75,14 +74,14 @@
 Задать пороговое значение для времени выполнения запроса можно с помощью опции [slow_log.threshold](configuration_reference-slow_log-threshold).
 При превышении этого значения запрос будет записан в журнал:
 
-```{literalinclude} bootstrap/config.yml
-:start-at: slow_log
-:end-at: 0.01
-:language: yaml
-:dedent:
+```yaml
+app.roles.slow_log:
+  enable: true
+  threshold: 0
 ```
+По умолчанию, значение `threshold` равно `0.5`.
 
-По умолчанию, значение `threshold` равно ``0.5``.
+Чтобы гарантированно получить сообщение в логе, для опции `slow_log.threshold` в конфигурационном файле задано значение `0`.
 
 (user_guide-slow_log-set_config-namespace)=
 ### Добавление функции для логирования
@@ -94,17 +93,40 @@
 * для персистентных функций с префиксом ``app.``.
 
 ```yaml
-slow_log:
+app.roles.slow_log:
   enable: true
-  threshold: 0.01
+  threshold: 0
   namespaces:
     - "app"
 ```
 
+Конфигурацию можно также изменить в интерфейсе TCM.
+После задания всех опций конфигурация slow log будет выглядеть так:
+
+```yaml
+roles_cfg:
+  app.roles.slow_log:
+    enable: true
+    threshold: 0
+    namespaces:
+      - "app"
+```
 Полное описание опций конфигурации `slow_log` приведено в [Справочнике по конфигурации](/reference/configuration_reference.md).
 
 (user_guide-slow_log-start_example)=
-## Запуск стенда и подключение к узлу
+## Запуск стенда
+
+Для запуска и настройки кластера используются файлы из папки ``slow_log``:
+
+* `docker-compose.yml` -- описание узлов кластера;
+* `config.yml` -- конфигурация и топология кластера;
+* `migrations/scenario` -- директория, содержащая файлы с описанием миграций;
+* `tcm.yml` -- конфигурация для запуска [Tarantool Cluster Manager](https://www.tarantool.io/ru/doc/latest/reference/tooling/tcm/).
+
+
+Для успешного запуска должны быть свободны следующие порты:
+* 3301--3304
+* 8081
 
 Перейдите в директорию примера `slow_log`:
 
@@ -118,20 +140,44 @@ cd ./doc/examples/slow_log/
 docker compose up -d`.
 ```
 
-Команда поднимает кластер с двумя хранилищами и одним роутером.
-Роль ``slow_log`` задана на роутере.
+Команда развернет стенд, состоящий из:
+* кластера Tarantool DB (1 роутер, 4 хранилища, 1 TCM);
+* клиентского приложения, подающего нагрузку.
 
-Чтобы гарантированно получить сообщение в логе, задайте для опции `slow_log.threshold` значение `0` в конфигурационном файле:
+После запуска должны работать все контейнеры. Также после запуска становится доступен пользовательский интерфейс [http://localhost:8081](http://localhost:8081) -- веб-интерфейс кластера Tarantool DB (TCM).
 
-```yaml
-threshold: 0
+Получите пароль для входа в веб-интерфейс Tarantool DB:
+```shell
+docker compose logs tcm-1 | grep "super admin"
 ```
+
+Откройте в браузере веб-интерфейс TCM по адресу [http://localhost:8081](http://localhost:8081).
+Для входа используйте логин `admin` и пароль, полученный с помощью предыдущей команды.
+
+Чтобы настроить кластер:
+
+1. В веб-интерфейсе перейдите на вкладку **Clusters**.
+2. В строке с кластером `Default cluster` нажмите кнопку **...** (**Actions**) справа и выберите **Edit** в выпадающем меню.
+3. Переключитесь на второй экран настройки, используя кнопку **Next**.
+4. На втором экране укажите в поле **Prefix** значение `/tdb` и нажмите  **Next**.
+5. На третьем экране укажите следующие значения:
+    - в поле **Username** -- `admin`;
+    - в поле **Password** --  `secret-cluster-cookie`.
+
+6. Нажмите **Update**, чтобы сохранить новые настройки кластера. При успешном обновлении в веб-интерфейсе появится сообщение `Cluster updated successfully`.
+7. В веб-интерфейсе перейдите на вкладку **Stateboard**.
+8. Выберите любой роутер из списка (например, `router-1`) и в открывшемся окне перейдите на вкладку **Terminal**.
+9. В терминале введите команду `box.space`.  Проверьте, что в выводе есть спейс `data` -- этот спейс создается при запуске кластера.
+
+Роль ``slow_log`` задана на роутере.
 
 Подключитесь к роутеру с помощью команды `tt connect`:
 
 ```shell
-tt connect admin:secret-cluster-cookie@localhost:3300
+tt connect admin:secret-cluster-cookie@localhost:3301
 ```
+
+Также можно просто открыть терминал в веб-интерфейсе Tarantool DB (TCM).
 
 Команда открывает интерактивную консоль Tarantool, позволяющую работать с базой данных.
 
@@ -140,9 +186,9 @@ tt connect admin:secret-cluster-cookie@localhost:3300
 
 В примере данные хранятся в спейсе ``data`` со следующим форматом:
 
-```{literalinclude} bootstrap/migrations/source/001_test.lua
-:start-after: if is_storage
-:end-before: box.space.data:create_index
+```{literalinclude} migrations/sсenario/001_test.lua
+:start-at: box.schema.space.create
+:end-before: helpers.register_sharding_key
 :language: lua
 :dedent:
 ```
@@ -188,16 +234,17 @@ box.schema.func.create('app.wait_for',  {
 Чтобы включить запись в журнал для функции `app.wait_for`, обновите секцию ``slow_log`` в файле конфигурации:
 
 ```yaml
-enable: true
-threshold: 3
-namespaces:
-- app
+app.roles.slow_log:
+  enable: true
+  threshold: 3
+  namespaces:
+    - app
 ```
 
 Далее подключитесь к роутеру с помощью утилиты ``tt``:
 
 ```shell
-tt connect admin:secret-cluster-cookie@localhost:3300
+tt connect admin:secret-cluster-cookie@localhost:3301
 ```
 
 Вызовите функцию `app.wait_for`, задав для нее значение в 3 секунды:

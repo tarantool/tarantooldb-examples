@@ -1,11 +1,6 @@
-local utils = require('migrator.utils')
-
-local function is_storage()
-    return utils.check_roles_enabled({'crud-storage'})
-end
+local helpers = require('tt-migrations.helpers')
 
 local function up()
-    if is_storage() then
         box.schema.space.create('data', {if_not_exists = true})
         box.space.data:format({
             { name = 'id', type = 'number' },
@@ -15,8 +10,7 @@ local function up()
         box.space.data:create_index('pk', { parts = {'id'}, if_not_exists = true})
         box.space.data:create_index('bucket_id', { parts = {'bucket_id'}, unique = false, if_not_exists = true})
     
-        utils.register_sharding_key('data', {'id'})
-    end
+        helpers.register_sharding_key('data', {'id'})
 
     box.schema.func.create('app.wait_for',  {
         language = 'LUA',
@@ -36,5 +30,7 @@ local function up()
 end
 
 return {
-    up = up,
+    up = {
+        scenario = up,
+    },
 }
