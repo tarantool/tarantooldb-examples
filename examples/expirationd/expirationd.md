@@ -128,7 +128,7 @@ localhost:3300> box.schema.func.call('__stop_messages_stream')
 * в веб-интерфейсе во вкладке **Cluster** открыть окно редактирования хранилищ (**Edit replica set**) и выбрать эту роль в секции **Roles**.
 
 Теперь задайте конфигурацию для `expirationd`.
-Сделать это можно через [веб-интерфейс](http://localhost:8081/admin/cluster/code) Tarantool DB:
+Сделать это можно через веб-интерфейс Tarantool DB ([http://localhost:8081/admin/cluster/code](http://localhost:8081/admin/cluster/code)):
 
 1. В веб-интерфейсе Tarantool DB перейдите на вкладку **Code**.
 2. Создайте файл `expiration.yml`. В нем будет задана конфигурация устаревания данных.
@@ -211,7 +211,7 @@ tt connect admin:secret-cluster-cookie@localhost:3300
 localhost:3300> box.schema.func.call('__start_messages_stream')
 ```
 
-Если открыть в [веб-интерфейсе](http://localhost:8081/admin/space-explorer/hosts) во вкладке **Space explorer** произвольное хранилище
+Если открыть в веб-интерфейсе во вкладке **Space explorer** ([http://localhost:8081/admin/space-explorer/hosts](http://localhost:8081/admin/space-explorer/hosts)) произвольное хранилище
 и обновлять страницу браузера, видно, что количество записей в спейсе не растет, а также периодически уменьшается.
 Это означает, что все записи старше 5 секунд удаляются.
 
