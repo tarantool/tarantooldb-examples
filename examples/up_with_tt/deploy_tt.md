@@ -17,7 +17,7 @@
 
 * архив для развёртывания Tarantool DB.
   Архив можно скачать в личном кабинете tarantool.io, в разделе [tarantooldb/release/for_deploy/](https://www.tarantool.io/ru/accounts/customer_zone/packages/tarantooldb/release/for_deploy);
-* утилита [TT CLI](https://www.tarantool.io/ru/doc/latest/reference/tooling/tt_cli/);
+* утилита [TT CLI](https://www.tarantool.io/ru/doc/2.11/reference/tooling/tt_cli/);
 * исходные файлы примера `up_with_tt`.
 
   ```{admonition} Примечание
@@ -37,7 +37,7 @@
 
 В примере `up_with_tt` для конфигурации кластера используются файлы из директории `./tarantooldb/`:
 
-* `tt.yaml` -- [конфигурация](https://www.tarantool.io/ru/doc/latest/reference/tooling/tt_cli/configuration/) TT CLI.
+* `tt.yaml` -- [конфигурация](https://www.tarantool.io/ru/doc/2.11/reference/tooling/tt_cli/configuration/) TT CLI.
   Чтобы сгенерировать этот файл, используется команда `tt init`;
 
 * `instances.yml` -- список узлов кластера для запуска в текущем окружении;

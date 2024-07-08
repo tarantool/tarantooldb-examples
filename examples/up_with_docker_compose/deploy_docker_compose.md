@@ -87,7 +87,7 @@ docker compose up -d --build
   * `TARANTOOL_ADVERTISE_URI` -- адрес и порт, на котором узел доступен в кластере;
   * `TARANTOOL_ALIAS` -- название узла кластера.
 
-  Полный список опций доступен в документации к модулю [cartridge.argparse](https://www.tarantool.io/ru/doc/latest/book/cartridge/cartridge_api/modules/cartridge.argparse/) и в описании [Docker-образа](/install_and_upgrade/install.md) Tarantool DB.
+  Полный список опций доступен в документации к модулю [cartridge.argparse](https://www.tarantool.io/ru/doc/2.11/book/cartridge/cartridge_api/modules/cartridge.argparse/) и в описании [Docker-образа](/install_and_upgrade/install.md) Tarantool DB.
 
 (admin_guide-deploy_docker_compose-user_host)=
 ## Контейнер user-host
@@ -95,7 +95,7 @@ docker compose up -d --build
 В файле `docker-compose.yml` есть специальный контейнер ``user-host``.
 Он выступает в роли компьютера разработчика, с которого выполняются:
 
-1. Настройка топологии кластера и первоначальный запуск (bootstrap) модуля шардирования [vshard](https://www.tarantool.io/ru/doc/latest/book/admin/vshard_admin/).
+1. Настройка топологии кластера и первоначальный запуск (bootstrap) модуля шардирования [vshard](https://www.tarantool.io/ru/doc/2.11/book/admin/vshard_admin/).
 2. Загрузка клиентского кода в кластер: описание спейсов и функций (миграции)
 
 В примере конфигурация контейнера `user-host` выглядит так:

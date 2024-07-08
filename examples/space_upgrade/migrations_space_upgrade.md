@@ -1,6 +1,6 @@
 # Миграция данных с помощью space:upgrade()
 
-В этом руководстве описана миграция данных в Tarantool DB с помощью метода [space:upgrade()](https://www.tarantool.io/ru/doc/latest/enterprise/space_upgrade/).
+В этом руководстве описана миграция данных в Tarantool DB с помощью метода [space:upgrade()](https://www.tarantool.io/ru/doc/2.11/enterprise/space_upgrade/).
 `space:upgrade()` позволяет вносить несовместимые изменения в формат спейса, например, изменить название спейса или удалить его.
 
 ```{admonition} Ограничения
@@ -136,7 +136,7 @@ space_upgrade-tarantool-router-1    | 2024-02-26 05:49:01.795 [12] main/189/main
 
 `space:upgrade` возвращает объект `future`. По нему можно узнать статус миграции (`future:info`), отменить миграцию (`future:cancel`), или дождаться конца миграции (`future:wait`).
 
-Подробная информация о методе `space:upgrade` приведена в [документации Tarantool Enterprise](https://www.tarantool.io/ru/doc/latest/enterprise/space_upgrade/).
+Подробная информация о методе `space:upgrade` приведена в [документации Tarantool Enterprise](https://www.tarantool.io/ru/doc/2.11/enterprise/space_upgrade/).
 
 (user_guide-space_upgrade-migration_code)=
 ## Определение кода миграций
@@ -146,7 +146,7 @@ space_upgrade-tarantool-router-1    | 2024-02-26 05:49:01.795 [12] main/189/main
 ### Спейс projects
 
 В спейсе `projects` нужно добавить `assigned_manager_id` между полями `name` и `description`. 
-При работе с кортежами используется встроенная библиотека [`box.tuple`](https://www.tarantool.io/ru/doc/latest/reference/reference_lua/box_tuple/).
+При работе с кортежами используется встроенная библиотека [`box.tuple`](https://www.tarantool.io/ru/doc/2.11/reference/reference_lua/box_tuple/).
 
 Определите функцию для изменения кортежей:
 

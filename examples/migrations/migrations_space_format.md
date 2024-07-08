@@ -1,9 +1,9 @@
 # Изменение схемы данных с помощью space:format()
 
 В этом руководстве рассказано, как разработать типовое приложение в Tarantool DB и изменить в нем схему данных, используя
-метод [space:format()](https://www.tarantool.io/ru/doc/latest/reference/reference_lua/box_space/format/).
+метод [space:format()](https://www.tarantool.io/ru/doc/2.11/reference/reference_lua/box_space/format/).
 В качестве примера используется база данных для системы управления проектами.
-Для работы используются модули [migrations](https://github.com/tarantool/migrations), [CRUD](https://github.com/tarantool/crud) и [vshard](https://www.tarantool.io/ru/doc/latest/reference/reference_rock/vshard/).
+Для работы используются модули [migrations](https://github.com/tarantool/migrations), [CRUD](https://github.com/tarantool/crud) и [vshard](https://www.tarantool.io/ru/doc/2.11/reference/reference_rock/vshard/).
 
 Руководство включает следующие шаги:
 
@@ -48,13 +48,13 @@
 
 Здесь:
 
-* Спейсы `projects` и `tasks` имеют одинаковый ключ шардирования `project_id` и находятся на одном экземпляре.
-* Спейс `users` имеет ключ [шардирования](https://www.tarantool.io/ru/doc/latest/concepts/sharding/) `user_id`.
+* Спейсы `projects` и `tasks` имеют одинаковый [ключ шардирования](https://www.tarantool.io/ru/doc/2.11/concepts/sharding/) `project_id` и находятся на одном экземпляре.
+* Спейс `users` имеет ключ шардирования `user_id`.
 
 Особенности базы данных:
 * Задач на проекте больше, чем пользователей.
 * При удалении проекта нужно удалить и связанные с ним задачи.
-  Это удобно сделать, если все записи находятся на одном экземпляре.
+  Это удобно делать, если все записи находятся на одном экземпляре.
 
 ```{admonition} Примечание
 :class: note
@@ -64,14 +64,14 @@
 Для работы с данными в примере используются методы модуля CRUD.
 Дополнительно будет реализовано следующее API:
 
-- `app.delete_user(user_id)` -- удалить пользователя. У всех задач, связанных с этим пользователем, в поле `assigned_user_id` должен быть выставлен `box.NULL`;
-- `app.delete_project(project_id)` -- удалить проект и все связанные с ним задачи;
-- `app.get_project_data(project_id)` -- получить проект и все связанные с ним задачи и пользователей.
+- `app.delete_user(user_id)` -- удаление пользователя. У всех задач, связанных с этим пользователем, в поле `assigned_user_id` должен быть выставлен `box.NULL`;
+- `app.delete_project(project_id)` -- удаление проекта и всех связанных с ним задач;
+- `app.get_project_data(project_id)` -- получение проекта и всех связанных с ним задач и пользователей.
 
 (user_guide-space_format-start_example)=
 ## Запуск стенда
 
-Для запуска и настройки кластера используются файлы из папки ``migrations``:
+Для запуска и настройки кластера используются файлы из папки `migrations`:
 
 * `docker-compose.yml` -- описание узлов кластера;
 * `bootstrap/topology.json` -- топология кластера.
@@ -94,7 +94,7 @@ docker compose up -d
 ```
 
 В запущенном кластере созданы спейсы `projects`, `tasks` и `users`, а также
-функции ``app.delete_user(user_id)`` и ``app.get_project_data(project_id)``.
+функции `app.delete_user(user_id)` и `app.get_project_data(project_id)`.
 
 (user_guide-space_format-load_data)=
 ## Загрузка и проверка данных
@@ -173,7 +173,7 @@ localhost:3300> box.schema.func.call('__create_example_data')
 
 Модуль [CRUD](https://github.com/tarantool/crud) упрощает работу с шардированными данными -- выполнение простых операций
 чтения и записи таких данных прозрачно для пользователя.
-Тем не менее, для задач, реализующих функции базы данных (``app.get_project_data(id)``, ``app.delete_user(id)`` и ``app.delete_project(id)``),
+Тем не менее, для задач, реализующих функции базы данных (`app.get_project_data(id)`, `app.delete_user(id)` и `app.delete_project(id)`),
 модуля CRUD недостаточно.
 Это связано с тем, что эти функции работают с несколькими спейсами и нестандартными операциями чтения и записи.
 
@@ -243,7 +243,7 @@ localhost:3300> crud.get('users', require('uuid').fromstr('04e7f6a2-2979-46e4-8d
 В выводе функции видно, что информации о пользователе нет -- пользователь успешно удален.
 
 Теперь во всех связанных с этим пользователем задачах нужно присвоить полю `assigned_user_id` значение `box.NULL`.
-Для этого на всех хранилищах была объявлена функция ``tasks.set_box_NULL_for_user_id``.
+Для этого на всех хранилищах была объявлена функция `tasks.set_box_NULL_for_user_id`.
 Функция задает `box.NULL` в поле `assigned_user_id` для всех задач, у которых `assigned_user_id == user_id`, где
 `user_id` -- аргумент функции.
 
@@ -265,12 +265,12 @@ function(user_id)
 end
 ```
 
-Особенность ``app.delete_user(id)`` в том, спейсы  ``tasks`` и ``users`` шардируются по разным ключам.
+Особенность `app.delete_user(id)` состоит в том, что спейсы  `tasks` и `users` шардируются по разным ключам.
 В общем случае связанные задачи и пользователи будут находиться на разных шардах. Это значит, что нет узла, на котором бы было известно,
 на каких шардах будут задачи, связанные с удаляемым пользователем.
-Вызывать функцию ``tasks.set_box_NULL_for_user_id`` нужно на каждом мастере шарда., потому что такие задачи будут на всех 
+Вызывать функцию `tasks.set_box_NULL_for_user_id` нужно на каждом мастере шарда, потому что такие задачи будут на всех 
 шардах.
-Для вызова функции на всех шардах используется модуль для горизонтального масштабирования [vshard](https://www.tarantool.io/ru/doc/latest/reference/reference_rock/vshard/).
+Для вызова функции на всех шардах используется модуль для горизонтального масштабирования [vshard](https://www.tarantool.io/ru/doc/2.11/reference/reference_rock/vshard/).
 
 Вызов функции `tasks.set_box_NULL_for_user_id` выглядит так:
 
@@ -351,7 +351,7 @@ localhost:3300> crud.select('tasks')
 Спейсы `projects` и `tasks` шардируются по одинаковым значениям.
 Это означает, что связанные между собой проект и задача находятся на одном экземпляре.
 Такой подход позволяет транзакционно удалить данные из `projects` и `tasks`.
-Для этого на хранилищах реализована API-функция ``'projects.delete_project``.
+Для этого на хранилищах реализована API-функция `projects.delete_project`.
 
 Код функции:
 
@@ -373,7 +373,7 @@ function(project_id)
 end
 ```
 
-Для вызова функции на конкретном мастере используется модуль ``vshard``.
+Для вызова функции на конкретном мастере используется модуль `vshard`.
 Вызов функции `projects.delete_project` выглядит так:
 
 ```lua
@@ -395,7 +395,7 @@ local _, err = vshard_router.callrw(bucket_id, 'projects.delete_project', {id})
 
 По умолчанию в полях `projects.deadline` и `due_date(datetime)` должно быть значение `2999-12-31T00:00:00Z`, а в поле
 `users.role` -- значение `not set`.
-Функцию ``app.get_project_data`` нужно также переписать, чтобы отображались новые поля.
+Функцию `app.get_project_data` нужно также переписать, чтобы отображались новые поля.
 
 Новая схема данных будет выглядеть так:
 
@@ -510,7 +510,7 @@ localhost:3300> crud.select('users')
 ...
 ```
 
-Теперь проверьте функцию ``app.get_project_data``.
+Теперь проверьте функцию `app.get_project_data`.
 В функции должны появиться новые поля в ответе:
 
 ```shell
@@ -533,9 +533,9 @@ localhost:3300> box.schema.func.call('app.get_project_data', require('uuid').fro
 ...
 ```
 
-Теперь нужно изменить функцию ``app.get_project_data``.
+Теперь нужно изменить функцию `app.get_project_data`.
 Для этого транзакционно удалите старую функцию и добавьте новую.
-Такой подход гарантирует, что не произойдет ситуации, когда функции ``app.get_project_data`` не существует.
+Такой подход гарантирует, что не произойдет ситуации, когда функции `app.get_project_data` не существует.
 
 ```lua
  box.atomic(function()
@@ -548,7 +548,7 @@ localhost:3300> box.schema.func.call('app.get_project_data', require('uuid').fro
 end)
 ```
 
-Узнать подробнее о том, как хранятся персистентные функции, можно в спейсе [box.space._func](https://www.tarantool.io/ru/doc/latest/reference/reference_lua/box_space/_func/).
+Узнать подробнее о том, как хранятся персистентные функции, можно в спейсе [box.space._func](https://www.tarantool.io/ru/doc/2.11/reference/reference_lua/box_space/_func/).
 
 (user_guide-space_format-stop_example)=
 ## Остановка стенда

@@ -1,7 +1,7 @@
 (user_guide-slow_log)=
 # Логирование медленных запросов
 
-*Журнал медленных запросов* (*slow log*) -- это запись таких [iproto](https://www.tarantool.io/ru/doc/latest/dev_guide/internals/box_protocol/)-запросов к базе данных,
+*Журнал медленных запросов* (*slow log*) -- это запись таких [iproto](https://www.tarantool.io/ru/doc/2.11/dev_guide/internals/box_protocol/)-запросов к базе данных,
 время выполнения которых превышает заданное пороговое значение.
 Для логирования таких запросов используется модуль `slow_log`.
 В Tarantool DB модуль доступен в виде технологической роли [slow_log](reference-roles-slow_log).

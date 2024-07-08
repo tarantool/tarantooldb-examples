@@ -102,7 +102,9 @@ docker compose -f docker-compose-replicator.yml up --force-recreate -d --build
 
 На запущенном стенде настроена репликация из [**кластера А**](http://localhost:8080) в [**кластер B**](http://localhost:9080).
 Настройки TCF доступны в веб-интерфейсе Tarantool DB по адресу [http://localhost:8081](http://localhost:8081) на вкладке **TCF**.
-Подробная информация о доступных [опциях конфигурации TCF](https://www.tarantool.io/ru/clustersfederation/doc/latest/references/configuration_reference_cluster_yaml/) и [настройке TCF через веб-интерфейс]() приведена в документации Tarantool Clusters Federation.
+Подробная информация о доступных [опциях конфигурации TCF](https://www.tarantool.io/ru/clustersfederation/doc/latest/references/configuration_reference_cluster_yaml/)
+и [настройке TCF через веб-интерфейс](https://www.tarantool.io/ru/clustersfederation/doc/latest/references/configuration_reference_cluster_ui/)
+приведена в документации Tarantool Clusters Federation.
 
 (admin_guide-tcf-example-replication)=
 ## Репликация

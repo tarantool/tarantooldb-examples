@@ -5,7 +5,7 @@ Tarantool DB позволяет шифровать трафик по IPROTO пр
 В этом руководстве описано, как включить шифрование на стороне кластера Tarantool DB,
 а также создать шифрованные соединения из коннекторов на Go и Python.
 
-Документацию по шифрованию трафика можно найти в [документации Tarantool Enterprise](https://www.tarantool.io/ru/doc/latest/concepts/configuration/configuration_connections/#securing-connections-with-ssl). 
+Документацию по шифрованию трафика можно найти в [документации Tarantool Enterprise](https://www.tarantool.io/ru/doc/2.11/enterprise/security/#enterprise-iproto-encryption). 
 
 Руководство включает следующие шаги:
 
