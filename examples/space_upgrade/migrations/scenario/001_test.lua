@@ -1,11 +1,23 @@
-local utils = require('migrator.utils')
+local helpers = require('tt-migrations.helpers')
+local rconfig = require('config')
+
+local function has_a_role(role_name)
+    local roles = rconfig:get().roles
+    for _, rname in pairs(roles) do
+        if rname == role_name then
+            return true
+        end
+    end
+
+    return false
+end
 
 local function is_router()
-    return utils.check_roles_enabled({'crud-router'})
+    return has_a_role('roles.crud-router')
 end
 
 local function is_storage()
-    return utils.check_roles_enabled({'crud-storage'})
+    return has_a_role('roles.crud-storage')
 end
 
 local function up()
@@ -22,7 +34,7 @@ local function up()
         box.space.projects:create_index('bucket_id', { parts = {'bucket_id'}, unique = false, if_not_exists = true})
 
         -- указываем ключ шардирования для модуля CRUD
-        utils.register_sharding_key('projects', {'project_id'})
+        helpers.register_sharding_key('projects', {'project_id'})
 
         box.schema.space.create('tasks', { if_not_exists = true })
         box.space.tasks:format({
@@ -39,7 +51,7 @@ local function up()
         box.space.tasks:create_index('project_id', { parts = {'project_id'}, unique = false, if_not_exists = true})
         box.space.tasks:create_index('assigned_user_id', { parts = {'assigned_user_id'}, unique = false, if_not_exists = true})
 
-        utils.register_sharding_key('tasks', {'project_id'})
+        helpers.register_sharding_key('tasks', {'project_id'})
 
         box.schema.space.create('users', { if_not_exists = true })
         box.space.users:format({
@@ -51,7 +63,7 @@ local function up()
         box.space.users:create_index('pk', { parts = {'user_id'}, if_not_exists = true})
         box.space.users:create_index('bucket_id', { parts = {'bucket_id'}, unique = false, if_not_exists = true})
 
-        utils.register_sharding_key('users', {'user_id'})
+        helpers.register_sharding_key('users', {'user_id'})
     end
     if is_router() then
         -- __fill_data используется для заполнения кластера тестовыми данными в большом объеме
@@ -110,5 +122,7 @@ local function up()
 end
 
 return {
-    up = up,
+    up = {
+        scenario = up,
+    },
 }

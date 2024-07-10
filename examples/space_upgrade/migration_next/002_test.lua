@@ -1,8 +1,17 @@
 local utils = require('migrator.utils')
+local rconfig = require('config')
 
-local function is_storage()
-    return utils.check_roles_enabled({'crud-storage'})
-end
+ local function is_storage()
+        local roles = rconfig:get().roles
+        for _, rname in pairs(roles) do
+            if rname == 'roles.crud-storage' then
+                return true
+
+            end
+        end
+
+        return false
+    end
 
 local function up()
     if is_storage() then
@@ -95,5 +104,7 @@ local function up()
 end
 
 return {
-    up = up,
+    up = {
+        scenario = up,
+    },
 }

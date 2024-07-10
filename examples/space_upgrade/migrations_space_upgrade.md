@@ -69,7 +69,14 @@
 Для запуска и настройки кластера используются файлы из папки ``space_upgrade``:
 
 * `docker-compose.yml` -- описание узлов кластера;
-* `installer/topology.json` -- описание топологии кластера.
+* `config.yml` -- конфигурация и топология кластера;
+* `migrations/scenario` -- директория, содержащая файлы с описанием миграций;
+* `tcm.yml` -- конфигурация для запуска [Tarantool Cluster Manager](https://www.tarantool.io/ru/doc/latest/reference/tooling/tcm/).
+
+
+Для успешного запуска должны быть свободны следующие порты:
+* 3301--3304
+* 8081
 
 Перейдите в директорию примера `space_upgrade`:
 
@@ -80,12 +87,44 @@ cd ./doc/examples/space_upgrade/
 Запустите стенд:
 
 ```
-docker compose up --force-recreate`
+docker compose up -d
 ```
 
-Команда развернет кластер с первоначальной схемой данных:
+Команда развернет стенд, состоящий из:
+* кластера Tarantool DB (1 роутер, 2 хранилища, 1 TCM);
+* клиентского приложения, подающего нагрузку.
 
-![схемой данных](images/schema1.drawio.svg)
+После запуска должны работать все контейнеры. Также после запуска становится доступен пользовательский интерфейс [http://localhost:8081](http://localhost:8081) -- веб-интерфейс кластера Tarantool DB (TCM).
+
+Получите пароль для входа в веб-интерфейс Tarantool DB:
+```shell
+docker compose logs tcm-1 | grep "super admin"
+```
+
+Откройте веб-интерфейс в браузере по адресу [http://localhost:8081](http://localhost:8081).
+Для входа используйте логин `admin` и пароль, полученный с помощью предыдущей команды.
+
+Чтобы настроить кластер:
+
+1. В веб-интерфейсе перейдите на вкладку **Clusters**.
+
+2. В строке с кластером `Default cluster` нажмите кнопку **...** (**Actions**) справа и выберите **Edit** в выпадающем меню.
+3. Переключитесь на второй экран настройки, используя кнопку **Next**.
+
+4. На втором экране укажите в поле **Prefix** значение `/tdb` и нажмите  **Next**.
+
+5. На третьем экране укажите следующие значения:
+    - в поле **Username** -- `admin`;
+    - в поле **Password** --  `secret-cluster-cookie`.
+
+6. Нажмите **Update**, чтобы сохранить новые настройки кластера. При успешном обновлении в веб-интерфейсе появится сообщение `Cluster updated successfully`.
+7. В веб-интерфейсе перейдите на вкладку **Stateboard**.
+
+8. Выберите любой роутер из списка (например, `router-1`) и в открывшемся окне перейдите на вкладку **Terminal**.
+9. В терминале введите команду `box.space`.  Проверьте, что в выводе есть спейсы `projects`, `tasks` и `users` -- эти спейсы создаются при запуске кластера.
+В запущенном кластере создана первоначальная схема данных:
+
+   ![схема данных](images/schema1.drawio.svg)
 
 (user_guide-space_upgrade-load_data)=
 ## Подключение к кластеру и загрузка данных
@@ -103,7 +142,7 @@ tt connect admin:secret-cluster-cookie@localhost:3300
 box.schema.func.call('__fill_data')
 ```
 
-Исходный код функции приведен в файле `001_test.lua` в директории `./bootstrap/migrations/source/` примера `migrations_space_upgrade`.
+Исходный код функции приведен в файле `001_test.lua` в директории `./migrations/scenario/` примера `migrations_space_upgrade`.
 
 Дождитесь окончания загрузки данных, это может занять до трех минут.
 В результате на каждом хранилище будет занято по 164 MB данных. 
@@ -300,43 +339,27 @@ rawset(_G, '__users_migration', users_migration)
 (user_guide-space_upgrade-run_migration)=
 ## Запуск миграции
 
-Загрузите файл с миграцией в конфигурацию кластера.
-Подробнее о загрузке миграции в конфигурацию рассказано в разделе [Способы выполнения миграции](user_guide-space_format-change_schema-migrations).
+1. Поместите файл с кодом миграций `002_test.lua` в папку `./migrations/scenario/`:
 
-```bash
-curl -v --raw 'http://localhost:8081/admin/api' -X POST --data '{
-        "query":"mutation($sections: [ConfigSectionInput!]) {
-            cluster {
-                config(sections: $sections) {
-                    filename
-                    content
-                }
-            }
-        }",
-        "variables": {
-            "sections": [{
-                "filename":"migrations/source/002_test.lua",
-                "content":"'"$(cat 002_test.lua | sed 's/"/\\"/g' )"'"
-            }]
-        }
-}'
-```
+   ```shell
+   cp -a ./migration_next/* ./migrations/scenario/ 
+   ```
 
-Запустите миграцию:
+2. Загрузите миграции в [централизованное хранилище](https://www.tarantool.io/ru/doc/latest/reference/tooling/tt_cli/cluster/#tt-cluster-publish):
 
-```
-curl -X POST localhost:8081/migrations/up
-```
+   ```shell
+   tt migrations publish http://admin:secret-cluster-cookie@localhost:2379/tdb/ migrations
+   ```
 
-Ответ выглядит так:
+3. Примените миграции:
 
-```
-`{"applied":["002_test.lua"]}
-```
+   ```shell
+   docker exec migrations-tarantool-router-1-1  tt migrations up http://etcd1:2379/tdb --tarantool-cluster-username=admin --tarantool-cluster-password=secret-cluster-cookie
+   ```
 
 После подключитесь к узлу хранилища, используя команду `tt connect`:
 
-```
+```shell
 tt connect admin:secret-cluster-cookie@localhost:3301
 ```
 
@@ -450,8 +473,6 @@ space_upgrade-tarantool-storage3-1  | 2024-02-26 09:13:43.048 [12] main/172/spac
 space_upgrade-tarantool-storage3-1  | 2024-02-26 09:13:43.133 [12] main/173/space_upgrade_513 I> space upgrade completed
 space_upgrade-tarantool-storage3-1  | 2024-02-26 09:13:43.163 [12] main/174/space_upgrade_515 I> space upgrade completed
 ```
-
-Проверить выполнение миграции и изменение формата можно в веб-интерфейсе во вкладке [Space explorer](http://localhost:8081/admin/space-explorer/hosts).
 
 (user_guide-space_upgrade-stop_example)=
 ## Остановка стенда
