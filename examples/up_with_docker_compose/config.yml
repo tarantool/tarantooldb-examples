@@ -45,6 +45,7 @@ groups:
       roles: [router]
     roles:
       - roles.crud-router
+#      - dictionary.roles.router
     roles_cfg:
       roles.crud-router:
         stats: true
@@ -77,6 +78,7 @@ groups:
       roles: [storage]
     roles:
       - roles.crud-storage
+      - dictionary.roles.storage
     replicasets: 
       storage-1:
         instances: 
