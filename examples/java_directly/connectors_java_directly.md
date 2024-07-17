@@ -79,7 +79,7 @@ docker compose up -d
 ## Запуск приложения
 
 Откройте вторую вкладку терминала.
-В этой вкладке перейдите в директорию `go_directly/go`:
+В этой вкладке перейдите в директорию `java_directly`:
 
 ```shell
 cd ./doc/examples/java_directly
