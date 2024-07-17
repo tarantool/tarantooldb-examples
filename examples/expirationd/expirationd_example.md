@@ -1,37 +1,22 @@
-(user_guide-expirationd)=
-# Устаревание данных
-
-Модуль [`expirationd`](https://github.com/tarantool/expirationd) позволяет контролировать время жизни кортежей в спейсе и
-обрабатывать кортежи, время жизни которых истекло.
-
-Модуль работает в фоновом режиме в рамках одного спейса:
-- обходит спейс по индексу с заданной периодичностью;
-- проверяет срок жизни кортежа с помощью функции `is_expired`;
-- применяет к кортежу функцию `process_expired_tuple`, заданную пользователем.
-
-В Tarantool DB модуль доступен в виде технологической роли [expirationd](reference-roles-expirationd).
-
-```{admonition} Важно
-:class: warning
-
-Персистентные функции, которые нужны для работы модуля, нужно объявить перед применением конфигурации для роли `expirationd`.
-Это означает, что сначала применяют миграции с функциями, а затем включают роли. 
-```
+(user_guide-expirationd_example)=
+# Проверка устаревших кортежей в спейсе
 
 В этом руководстве описано, как включить роль `expirationd` и настроить параметры устаревания данных в конфигурации,
 чтобы удалять все кортежи в спейсе, которые старше заданного времени.
 
+Подробнее о модуле `expirationd` можно узнать в разделе [Устаревание данных](user_guide-expirationd).
+
 Руководство включает следующие шаги:
 
-* [](user_guide-expirationd-prereq)
-* [](user_guide-expirationd-start_example)
-* [](user_guide-expirationd-migration)
-* [](user_guide-expirationd-add_data)
-* [](user_guide-expirationd-config)
-* [](user_guide-expirationd-functions)
-* [](user_guide-expirationd-stop_example)
+* [](user_guide-expirationd_example-prereq)
+* [](user_guide-expirationd_example-start_example)
+* [](user_guide-expirationd_example-migration)
+* [](user_guide-expirationd_example-add_data)
+* [](user_guide-expirationd_example-config)
+* [](user_guide-expirationd_example-functions)
+* [](user_guide-expirationd_example-stop_example)
 
-(user_guide-expirationd-prereq)=
+(user_guide-expirationd_example-prereq)=
 ## Пререквизиты
 
 Для выполнения примера требуются:
@@ -52,34 +37,36 @@
   * Отдельный архив [expirationd.tar.gz](https://tarantool.io/ru/tarantooldb/doc/1.x/examples/expirationd/expirationd.tar.gz), скачанный c сайта Tarantool.
   ```
   
-(user_guide-expirationd-start_example)=
-## Запуск кластера и подключение к узлу
+(user_guide-expirationd_example-start_example)=
+## Запуск кластера
 
 Для успешного запуска кластера должны быть свободны следующие порты:
 
 * 3300 .. 3304
 * 8080 .. 8084
 
-Перейдите в папку с примером `expirationd` и запустите кластер:
+Перейдите в папку с примером `expirationd`:
 
-``` shell
+```shell
 cd ./doc/examples/expirationd/
+```
+
+Запустите кластер:
+
+```shell
 docker compose up -d
 ```
 
-Подключитесь к экземпляру, используя команду `tt connect`.
-Команда открывает интерактивную консоль Tarantool, позволяющую работать с базой данных:
-
-``tt connect admin:secret-cluster-cookie@localhost:3300``
-
-(user_guide-expirationd-migration)=
+(user_guide-expirationd_example-migration)=
 ## Описание миграции
 
 В руководстве используется миграция из файла `./bootstrap/migrations/source/001_test.lua` примера `expirationd`.
 В этой миграции:
 - создан спейс `messages`;
 - созданы персистентные функции с логикой устаревания данных -- `messages_is_tuple_expired`, `messages_iterate_with`, `messages_process_expired_tuple`;
-- созданы тестовые функции для генерации данных -- `__start_messages_stream`, `__stop_messages_stream`.
+- созданы тестовые функции для генерации данных:
+  - `__start_messages_stream` -- запуск фоновой записи тестовых данных в спейс `messages`;
+  - `__stop_messages_stream` -- остановка фоновой записи тестовых данных в спейс.
 
 В примере создан спейс `messages` со следующим форматом:
 
@@ -92,30 +79,34 @@ docker compose up -d
 
 Необходимо удалять все записи в спейсе старше заданного количества секунд. Количество секунд задается в конфигурации.
 
-(user_guide-expirationd-add_data)=
-## Загрузка тестовых данных
+Смотрите также: [](user_guide-expirationd_universal_func).
 
-Для демонстрации работы модуля `expirationd` используются следующие функции:
+(user_guide-expirationd_example-add_data)=
+## Подключение к узлу и загрузка тестовых данных
 
-* `__start_messages_stream` -- запуск фоновой записи тестовых данных в спейс `messages`;
-* `__stops_messages_stream` -- остановка фоновой записи тестовых данных в спейс.
+Подключитесь к экземпляру, используя команду `tt connect`.
+Команда открывает интерактивную консоль Tarantool, позволяющую работать с базой данных:
 
-После подключения к узлу добавьте тестовые данные, вызвав функцию `_start_messages_stream`:
+```shell
+tt connect admin:secret-cluster-cookie@localhost:3300
+```
+
+Загрузите тестовые данные в спейс, используя функцию `_start_messages_stream`:
 
 ```lua
 localhost:3300> box.schema.func.call('__start_messages_stream')
 ```
 
 Для примера достаточно 100-200 записей в спейсе.
-Посмотреть количество записей можно с помощью модуля [space-explorer](http://localhost:8081/admin/space-explorer/hosts).
+Посмотреть количество записей можно в веб-интерфейсе во вкладке **Space explorer** ([http://localhost:8081/admin/space-explorer/hosts](http://localhost:8081/admin/space-explorer/hosts)).
 
-После отключите генерацию данных с помощью функции `_stop_messages_stream`:
+Когда записей в спейсе станет достаточно, отключите генерацию данных с помощью функции `_stop_messages_stream`:
 
 ```lua
 localhost:3300> box.schema.func.call('__stop_messages_stream')
 ```
 
-(user_guide-expirationd-config)=
+(user_guide-expirationd_example-config)=
 ## Конфигурация устаревания данных
 
 Включите роль `expirationd` на хранилищах. Это можно сделать двумя способами:
@@ -125,15 +116,16 @@ localhost:3300> box.schema.func.call('__stop_messages_stream')
   ```bash
   curl -sd @activate_expirationd.json http://localhost:8081/admin/api | jq
   ```
-* в веб-интерфейсе во вкладке **Cluster** открыть окно редактирования хранилищ (**Edit replica set**) и выбрать эту роль в секции **Roles**.
+* в веб-интерфейсе Tarantool DB.
+  Для этого перейдите на вкладку **Cluster**, выберите нужный набор реплик (например, `tarantool-storage1`) и нажмите на значок карандаша (**Edit replica set**).
+  В открывшемся окне редактирования выберите роль `expirationd` в секции **Roles**.
 
-Теперь задайте конфигурацию для `expirationd`.
-Сделать это можно через веб-интерфейс Tarantool DB по адресу [http://localhost:8081/admin/cluster/code](http://localhost:8081/admin/cluster/code):
+Теперь задайте конфигурацию для `expirationd`. Для этого:
 
-1. В веб-интерфейсе Tarantool DB перейдите на вкладку **Code**.
+1. В веб-интерфейсе Tarantool DB перейдите на вкладку **Code** ([http://localhost:8081/admin/cluster/code](http://localhost:8081/admin/cluster/code)).
 2. Создайте файл `expiration.yml`. В нем будет задана конфигурация устаревания данных.
 
-    ![add_config](expirationd_config.png)
+   ![add_config](expirationd_config.png)
 
 3. Добавьте в файл следующую конфигурацию:
    
@@ -199,7 +191,7 @@ localhost:3300> box.schema.func.call('__stop_messages_stream')
     ```
 
 После применения конфигурации можно увидеть, что сгенерированные ранее данные были удалены.
-Подключитесь снова к узлу кластера:
+Подключитесь повторно к узлу кластера:
 
 ```shell
 tt connect admin:secret-cluster-cookie@localhost:3300
@@ -211,11 +203,12 @@ tt connect admin:secret-cluster-cookie@localhost:3300
 localhost:3300> box.schema.func.call('__start_messages_stream')
 ```
 
-Если открыть в веб-интерфейсе ([http://localhost:8081/admin/space-explorer/hosts](http://localhost:8081/admin/space-explorer/hosts)) во вкладке **Space explorer** произвольное хранилище
-и обновлять страницу браузера, видно, что количество записей в спейсе не растет, а также периодически уменьшается.
-Это означает, что все записи старше 5 секунд удаляются.
+Теперь откройте в веб-интерфейсе вкладку **Space explorer** ([http://localhost:8081/admin/space-explorer/hosts](http://localhost:8081/admin/space-explorer/hosts)) и выберите произвольное хранилище.
+Начните обновлять страницу браузера.
+Видно, что количество записей в спейсе не растет и периодически уменьшается.
+Это означает, что удаляются все записи старше 5 секунд.
 
-(user_guide-expirationd-functions)=
+(user_guide-expirationd_example-functions)=
 ## Функции для экспирации и конфигурация expirationd
 
 В функции для обработки устаревших кортежей (`process_expired_tuple`) можно не только удалять, но и выполнять любые
@@ -226,11 +219,11 @@ localhost:3300> box.schema.func.call('__start_messages_stream')
 Поскольку миграции будут выполнена после применения конфигурации для роли `expirationd`,
 при начальном развертывании это может привести к ошибке `OperationError`.
 
-Чтобы избежать этого, создайте функции на экземпляре перед этими шагами:
-- на экземпляре активирована роль `expirationd` в случае, если конфиг с функциями уже применен. Такая ситуация возможна при расширении кластера.
-- применен конфиг для `expirationd`.
+Чтобы избежать этого, создайте функции на экземпляре **перед этими шагами**:
+- На экземпляре активирована роль `expirationd` в случае, если конфигурация с функциями уже применена. Такая ситуация возможна при расширении кластера.
+- Применена конфигурация для `expirationd`.
 
-(user_guide-expirationd-stop_example)=
+(user_guide-expirationd_example-stop_example)=
 ## Остановка кластера
 
 Чтобы остановить кластер, выполните следующую команду:
