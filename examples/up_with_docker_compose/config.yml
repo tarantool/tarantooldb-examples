@@ -34,7 +34,7 @@ iproto:
       login: storage
 
 replication:
-  failover: election
+  failover: manual
 
 sharding:
   bucket_count: 30000
@@ -58,6 +58,7 @@ groups:
       module: app.vshard_bootstrapper
     replicasets:
       router-msk:
+        leader: router-msk
         instances:
           router-msk:
             iproto:
@@ -66,6 +67,7 @@ groups:
               advertise:
                 client: tarantool-router-msk:3301
       router-spb:
+        leader: router-spb
         instances:
           router-spb:
             iproto:
@@ -81,6 +83,7 @@ groups:
       - dictionary.roles.storage
     replicasets: 
       storage-1:
+        leader: storage-1-msk
         instances: 
           storage-1-msk:
             iproto:
@@ -101,6 +104,7 @@ groups:
               advertise:
                 client: tarantool-storage-1-brn:3301
       storage-2:
+        leader: storage-2-msk
         instances: 
           storage-2-msk:
             iproto:
