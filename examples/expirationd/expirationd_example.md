@@ -155,7 +155,7 @@ localhost:3300> box.schema.func.call('__stop_messages_stream')
         * `args` -- аргументы, доступные в функциях `message_iterate_with` и `message_process_expired_tuple`, `seconds` --
           время жизни кортежа.
     
-    Полное описание опций конфигурации `expirationd` приведено в соответствующем разделе [Cправочника по конфигурации](configuration_reference-expirationd).
+    Полное описание опций конфигурации `expirationd` приведено в соответствующем разделе [Справочника по конфигурации](configuration_reference-expirationd).
 
 4. Нажмите кнопку **Apply**:
 

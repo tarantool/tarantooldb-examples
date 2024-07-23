@@ -9,8 +9,8 @@
 Руководство включает следующие шаги:
 
 * [](user_guide-tracing_jaeger-prereq)
-* [](user_guide-tracing_jaeger-set_config)
 * [](user_guide-tracing_jaeger-start_example)
+* [](user_guide-tracing_jaeger-set_config)
 * [](user_guide-tracing_jaeger-tracing_result)
 * [](user_guide-tracing_jaeger-stop_example)
 
@@ -36,22 +36,39 @@
     
   * Отдельный архив [tracing.tar.gz](https://tarantool.io/ru/tarantooldb/doc/1.x/examples/tracing/tracing.tar.gz), скачанный c сайта Tarantool.
   ```
+
+(user_guide-tracing_jaeger-start_example)=
+## Запуск стенда и подключение к узлу
+
+Перейдите в директорию примера `tracing`:
+
+```
+cd ./doc/examples/tracing/
+```
+
+Запустите стенд:
+
+```shell
+   docker compose up -d
+```
+
+Подключитесь к роутеру с помощью команды `tt connect`.
+Команда открывает интерактивную консоль Tarantool, позволяющую работать с базой данных:
+
+```shell
+tt connect admin:secret-cluster-cookie@localhost:3300
+```
+
 (user_guide-tracing_jaeger-set_config)=
 ## Определение конфигурации
 
-В примере указаны следующие параметры трассировки:
+В конфигурации примера указаны следующие параметры трассировки:
 
-```yaml
-tracing:
-  enabled: true
-  global_sample_rate: 0
-  sample_rates:
-    get_token_router: 2
-    debug_1: 1
-  base_url: 'http://tracing:9411/api/v2/spans'
-  api_method: 'POST'
-  report_interval: 1
-  spans_limit: 1000
+```{literalinclude} bootstrap/config.yml
+:start-at: tracing
+:end-at: spans_limit
+:language: yaml
+:dedent:
 ```
 
 Здесь:
@@ -68,36 +85,14 @@ tracing:
 По умолчанию сегменты (span) трассировки не засекают время выполнения участков кода.
 Время выполнения участков кода засекается, если выполнено одно из следующих условий:
 
-* В контексте указан параметр `sample: true`.
-* Название родительского сегмента трассировки будет `get_token_router` или `debug_1`.
+* в контексте указан параметр `sample: true`;
+* название родительского сегмента трассировки будет `get_token_router` или `debug_1`.
 Вероятность замера времени для нового сегмента при этом будет равна 1/N (1/2 и 1 соответственно).
 
-Параметры `tracing.base_url`, `tracing.api_method`, `tracing.report_interval` и tracing.`spans_limit` отвечают за
+Параметры `tracing.base_url`, `tracing.api_method`, `tracing.report_interval` и `tracing.spans_limit` отвечают за
 отправку результатов трассировки в сторонний сервис Jaeger.
 
 Полное описание опций конфигурации `tracing` приведено в соответствующем разделе [Справочника по конфигурации](configuration_reference-tracing).
-
-(user_guide-tracing_jaeger-start_example)=
-## Запуск стенда и подключение к узлу
-
-Перейдите в директорию примера `tracing`:
-
-```
-cd ./doc/examples/migrations/
-```
-
-Запустите стенд:
-
-```shell
-   docker compose up -d
-```
-
-Подключитесь к роутеру с помощью команды `tt connect`.
-Команда открывает интерактивную консоль Tarantool, позволяющую работать с базой данных:
-
-   ```shell
-   tt connect admin:secret-cluster-cookie@localhost:3300
-   ```
 
 (user_guide-tracing_jaeger-tracing_result)=
 ## Оценка результатов трассировки
@@ -112,7 +107,7 @@ box.func.debug_func:call({"debug_1"})
 box.func.debug_func:call({"debug_2"})
 ```
 
-После этого зайдите в веб-интерфейс Jaeger на [http://127.0.0.1:16686](http://127.0.0.1:16686).
+После этого зайдите в веб-интерфейс Jaeger по адресу [http://127.0.0.1:16686](http://127.0.0.1:16686).
 В поле `Service` выберите `default@tarantool-router:3301` и нажмите кнопку `Find Traces`.
 В результате вы увидите примерно 5 результатов трассировки для функции `get_token()` и ровно 1 результат для функции `debug_func()` с сегментом `debug_1`.
 
