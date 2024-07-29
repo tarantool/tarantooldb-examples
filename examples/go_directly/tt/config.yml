@@ -34,14 +34,15 @@ iproto:
       login: storage
 
 replication:
-  failover: election
+  failover: manual
 
 groups:
-  routers:
+  router-storage-1:
     sharding:
-      roles: [ router ]
+      roles: [router, storage]
     roles:
       - roles.crud-router
+      - roles.crud-storage
     roles_cfg:
       roles.crud-router:
         stats: true
@@ -50,28 +51,13 @@ groups:
         stats_quantile_tolerated_error: 0.001
         stats_quantile_age_buckets_count: 5
         stats_quantile_max_age_time: 180
-    app:
-      module: app.vshard_bootstrapper
     replicasets:
-      router-1:
+      router-storage-1:
+        leader: router-1
         instances:
           router-1:
             iproto:
               listen:
-                - uri: tarantool-router-1:3301
+                - uri: tarantool-router-storage-1:3301
               advertise:
-                client: tarantool-router-1:3301
-  storages:
-    sharding:
-      roles: [ storage ]
-    roles:
-      - roles.crud-storage
-    replicasets: 
-      storage:
-        instances: 
-          storage-1:
-            iproto:
-              listen:
-                - uri: tarantool-storage-1:3301
-              advertise:
-                client: tarantool-storage-1:3301
+                client: tarantool-router-storage-1:3301

@@ -1,6 +1,6 @@
 version: '3'
 services:
-  tarantool-router-1:
+  tarantool-router-storage-1:
     image: tarantooldb:latest
     networks:
       - tarantooldb_network
@@ -11,22 +11,6 @@ services:
       - ./migrations:/tmp/migrations
     environment:
       - TT_INSTANCE_NAME=router-1
-      - TT_CONFIG=/usr/share/tarantool/tarantooldb/config.yml
-    depends_on:
-      - etcd1
-      - etcd2
-      - etcd3
-
-  tarantool-storage-1:
-    image: tarantooldb:latest
-    networks:
-      - tarantooldb_network
-    ports:
-      - "3303:3301"
-    volumes:
-      - ./config.yml:/usr/share/tarantool/tarantooldb/config.yml
-    environment:
-      - TT_INSTANCE_NAME=storage-1
       - TT_CONFIG=/usr/share/tarantool/tarantooldb/config.yml
     depends_on:
       - etcd1
@@ -61,8 +45,7 @@ services:
       - etcd1
       - etcd2
       - etcd3
-      - tarantool-router-1
-      - tarantool-storage-1
+      - tarantool-router-storage-1
     working_dir: /usr/share/tarantool/stand
     command: /bin/sh -c "\
       sleep 3 \
@@ -87,17 +70,6 @@ services:
     environment:
       - TCM_SECURITY_BOOTSTRAP_API_TOKEN=admin-token
     command: ./tcm -c tcm.yml
-
-  failover-coordinator-1:
-    image: tarantooldb:latest
-    networks:
-      - tarantooldb_network
-    volumes:
-      - ./config.yml:/usr/share/tarantool/tarantooldb/config.yml
-    depends_on:
-      - init_host
-    working_dir: /usr/share/tarantool/tarantooldb/
-    command: tarantool --failover -c config.yml
 
 networks:
   tarantooldb_network:
