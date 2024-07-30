@@ -1,7 +1,7 @@
 (admin_guide-deploy_one_node)=
-# Запуск кластера из одного узла через Docker compose
+# Запуск кластера из одного узла через Docker Compose
 
-В этом руководстве показано, как развернуть кластер Tarantool DB из одного узла с помощью Docker compose.
+В этом руководстве показано, как развернуть кластер Tarantool DB из одного узла с помощью Docker Compose.
 
 Содержание:
 
@@ -17,7 +17,7 @@
 Для выполнения примера требуются:
 
 * установленный [Docker-образ](install_docker-image) Tarantool DB;
-* приложение Docker compose;
+* приложение Docker Compose;
 * исходные файлы примера `all_in_one`.
 
   ```{admonition} Примечание
@@ -41,18 +41,30 @@
 cd ./doc/examples/all_in_one/
 ```
 
-Запустите кластер Tarantool DB:
+Запустите стенд:
 
 ```shell
 docker compose up -d --build 
 ```
 
-Получите пароль для входа в веб-интерфейс Tarantool DB (TCM):
+Запущенный стенд состоит из:
+
+- кластера Tarantool DB:
+  - 1 роутер-хранилище;
+  - 1 [Tarantool Cluster Manager](getting_started-tcm) (TCM);
+  - 1 координатор автоматического восстановления после сбоев (*failover coordinator*);
+- кластера etcd из 3 узлов.
+
+После запуска должны работать все контейнеры, кроме `init_host`.
+
+Также после запуска кластера становится доступен веб-интерфейс TCM.
+Получить пароль для входа в TCM можно так:
+
 ```shell
 docker compose logs tcm-1 | grep "super admin"
 ```
 
-Откройте в браузере веб-интерфейс TCM по адресу [http://localhost:8081](http://localhost:8081).
+Откройте TCM в браузере по адресу [http://localhost:8081](http://localhost:8081).
 Для входа используйте логин `admin` и пароль, полученный с помощью предыдущей команды.
 
 (admin_guide-deploy_one_node-files)=
@@ -60,13 +72,13 @@ docker compose logs tcm-1 | grep "super admin"
 
 В руководстве используются следующие файлы примера `all_in_one`:
 
-* `docker-compose.yml` -- описание узлов кластера. Узнать больше: [](admin_guide-deploy_docker_compose).
-* `config.yml` -- топология и конфигурация кластера;
-* `migrations/scenario` -- директория, содержащая файлы с описанием миграций; 
-* `tcm.yml` -- конфигурация для запуска [Tarantool Cluster Manager](https://www.tarantool.io/ru/doc/latest/reference/tooling/tcm/).
+- `docker-compose.yml` -- описание узлов кластера. Узнать больше: [](admin_guide-deploy_docker_compose).
+- `config.yml` -- топология и конфигурация кластера;
+- `migrations/scenario` -- директория, содержащая файлы с описанием миграций; 
+- `tcm.yml` -- конфигурация для запуска [Tarantool Cluster Manager](https://www.tarantool.io/ru/doc/latest/reference/tooling/tcm/).
 
 Кроме того, при запуске примера скрипт `make_config_tcm_yml.lua` создает файл `config.tcm.yml`.
-Это файл содержит конфигурацию для загрузки в Tarantool Cluster Manager, сгенерированную на основе конфигурации кластера.
+Это файл содержит конфигурацию для загрузки в TCM, сгенерированную на основе конфигурации кластера.
 
 (admin_guide-deploy_one_node-config)=
 
@@ -82,14 +94,14 @@ docker compose logs tcm-1 | grep "super admin"
 ```
 
 Здесь:
-* `image` --  название Docker-образа, используемого для создания контейнера;
-* `networks`-- название подсети;
-* `ports` -- используемые порты;
-* `volumes` -- логические тома, заданные для контейнера;
-* `environment` -- переменные окружения для опций Tarantool:
-  * `TT_INSTANCE_NAME` -- имя экземпляра в кластере;
-  * `TT_CONFIG` -- ссылка на конфигурацию кластера.
-* `depends on` -- последовательность загрузки контейнеров. Контейнер `tarantool-router-storage-1` запускается только после запуска узлов `etcd1`, `etcd2` и `etcd3`;
+- `image` --  название Docker-образа, используемого для создания контейнера;
+- `networks`-- название подсети;
+- `ports` -- используемые порты;
+- `volumes` -- логические тома, заданные для контейнера;
+- `environment` -- переменные окружения для опций Tarantool:
+  - `TT_INSTANCE_NAME` -- имя экземпляра в кластере;
+  - `TT_CONFIG` -- ссылка на конфигурацию кластера.
+- `depends on` -- последовательность загрузки контейнеров. Контейнер `tarantool-router-storage-1` запускается только после запуска узлов `etcd1`, `etcd2` и `etcd3`;
 
   Полный список опций доступен в документации к модулю [cartridge.argparse](https://www.tarantool.io/ru/doc/latest/book/cartridge/cartridge_api/modules/cartridge.argparse/) и в описании [Docker-образа](/install_and_upgrade/install.md) Tarantool DB.
 

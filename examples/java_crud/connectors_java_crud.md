@@ -17,7 +17,7 @@
 Для выполнения примера требуются:
 
 * установленный [Docker-образ](/install_and_upgrade/install/install_docker.md) Tarantool DB;
-* приложение Docker compose;
+* приложение Docker Compose;
 * Maven;
 * Java версии 8+;
 * исходные файлы примера `java_crud`.

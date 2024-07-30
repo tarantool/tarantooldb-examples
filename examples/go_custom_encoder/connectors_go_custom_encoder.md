@@ -20,7 +20,7 @@
 Для выполнения примера требуются:
 
 * установленный [Docker-образ](/install_and_upgrade/install/install_docker.md) Tarantool DB;
-* приложение Docker compose;
+* приложение Docker Compose;
 * исходные файлы примера `go_custom_encoder`.
 
   ```{admonition} Примечание
@@ -40,25 +40,25 @@
 
 Формат спейса в приложении и в кластере отличается.
 В приложении указаны только пользовательские поля:
-```go
-type TestRecord struct {
-    Id  uint64 `json:"id"`
-    Too uint64 `json:"too"`
-    Foo string `json:"foo"`
-}
+
+```{literalinclude} go/main.go
+:start-at: type TestRecord
+:end-before: func (c *TestRecord) EncodeMsgpack
+:language: go
+:dedent:
 ```
 
-В базе данных в этом спейсе есть дополнительное поле `bucket_id`, используемое для шардинга:
-```lua
-box.space.test:format({
-    { name = 'id', type = 'number' },
-    { name = 'bucket_id', type = 'unsigned' }, -- << --
-    { name = 'too', type = 'number' },
-    { name = 'foo', type = 'string' },
-})
+В базе данных в этом спейсе есть дополнительное поле `bucket_id` -- ключ шардирования:
+
+```{literalinclude} tt/migrations/scenario/001_test.lua
+:start-at: box.schema.space.create
+:end-before: helpers.register_sharding_key
+:language: lua
+:dedent:
 ```
 
-При кодировании данных во втором поле записывается `nil`, а при декодировании это поле пропускается.
+При кодировании данных в поле `bucket_id` записывается `nil`.
+При декодировании поле `bucket_id` пропускается.
 
 (user_guide-go_encoder-start_example)=
 ## Запуск стенда
@@ -73,18 +73,12 @@ box.space.test:format({
 cd ./doc/examples/go_custom_encoder/tt
 ```
 
-Запустите стенд:
-
-```shell
-docker compose up -d
-```
-
 Стенд состоит из:
 
 - кластера Tarantool DB:
   - 2 роутера;
   - 1 набор реплик на 2 хранилища;
-  - 1 Tarantool Cluster Manager;
+  - 1 [Tarantool Cluster Manager](getting_started-tcm) (TCM);
   - 2 координатора автоматического восстановления после сбоев (*failover coordinator*);
 
 - кластера etcd из 3 узлов;
@@ -92,17 +86,20 @@ docker compose up -d
 
 Запустите всё, кроме клиентского приложения, следующей командой:
 
-``docker compose up -d``
+```shell
+docker compose up -d
+```
 
 После запуска должны работать все контейнеры, кроме `init_host`.
-Также после запуска становится доступен пользовательский интерфейс http://localhost:8081 -- веб-интерфейс кластера Tarantool DB (TCM).
 
-Получите пароль для входа в веб-интерфейс Tarantool DB (TCM):
+Также после запуска кластера становится доступен веб-интерфейс TCM.
+Получить пароль для входа в TCM можно так:
+
 ```shell
 docker compose logs tcm-1 | grep "super admin"
 ```
 
-Откройте веб-интерфейс в браузер по адресу [http://localhost:8081](http://localhost:8081).
+Откройте TCM в браузере по адресу [http://localhost:8081](http://localhost:8081).
 Для входа используйте логин `admin` и пароль, полученный с помощью предыдущей команды.
 
 Чтобы настроить кластер:
@@ -118,10 +115,10 @@ docker compose logs tcm-1 | grep "super admin"
 6. Нажмите **Update**, чтобы сохранить новые настройки кластера. При успешном обновлении в веб-интерфейсе появится сообщение `Cluster updated successfully`.
 7. В веб-интерфейсе перейдите на вкладку **Stateboard**. После применения настроек кластер будет выглядеть так:
 
-   ![](images/tcm-dashboard.png)
+   ![](images/tcm-stateboard.png)
 
 8. Выберите любой роутер из списка (например, `router-1`) и в открывшемся окне перейдите на вкладку **Terminal**.
-9. В терминале введите команду `box.space`. Проверьте, что в выводе есть спейс `test` -- этот спейс создается при запуске кластера.
+9. Во вкладке **Terminal** введите команду `box.space`. Проверьте, что в выводе есть спейс `test` -- этот спейс создается при запуске кластера.
 
 (user_guide-go_encoder-run_application)=
 ## Запуск приложения
@@ -152,7 +149,10 @@ Recorded via crud in batches of 10000 records in 96.016347ms - custom-encoder
 Rows verified
 ```
 
-Необходимо убедиться, что в спейсе `test` появились данные.
+Теперь проверьте, что в спейсе `test` появились данные. Для этого:
+
+1. В TCM перейдите на вкладку **Tuples**.
+2. Выберите в списке спейс `test`. Откроется новая вкладка с содержимым кортежей спейса `test`.
 
 (user_guide-go_encoder-stop_example)=
 ## Остановка стенда
@@ -161,9 +161,9 @@ Rows verified
 
 * В первом терминале выполните команду:
 
-    ```shell
-    docker compose down
-    ```
+  ```shell
+  docker compose down
+  ```
   
 * Во втором терминале выполните команду `Ctrl + Z`.
 

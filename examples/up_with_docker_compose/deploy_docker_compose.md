@@ -1,7 +1,7 @@
 (admin_guide-deploy_docker_compose)=
-# Запуск кластера через Docker compose
+# Запуск кластера через Docker Compose
 
-В этом руководстве показано, как развернуть кластер Tarantool DB с помощью Docker compose.
+В этом руководстве показано, как развернуть кластер Tarantool DB с помощью Docker Compose.
 
 ```{admonition} Примечание
 :class: note
@@ -25,7 +25,7 @@
 Для выполнения примера требуются:
 
 * установленный [Docker-образ](/install_and_upgrade/install.md) Tarantool DB;
-* приложение Docker compose;
+* приложение Docker Compose;
 * исходные файлы примера `up_with_docker_compose`.
 
   ```{admonition} Примечание
@@ -57,17 +57,26 @@ docker compose up -d
 
 Запущенный стенд состоит из:
 
-* кластера Tarantool DB, двух роутеров и двух шардов;
-* кластера etcd из трех узлов;
-* средств мониторинга (Prometheus, Grafana).
+- кластера Tarantool DB:
+  - 2 роутера;
+  - 2 набора реплик по 3 хранилища;
+  - 1 [Tarantool Cluster Manager](getting_started-tcm) (TCM);
+  - 2 координатора автоматического восстановления после сбоев (*failover coordinator*);
+- кластера etcd из 3 узлов;
+- средств мониторинга ([Prometheus](https://prometheus.io/), [Grafana](https://grafana.com/)).
 
-Получите пароль для входа в веб-интерфейс Tarantool DB (TCM):
+После запуска должны работать все контейнеры, кроме `init_host`.
+Также после запуска доступны следующие пользовательские интерфейсы:
+* http://localhost:8081 -- веб-интерфейс TCM;
+* http://localhost:3000 -- веб-интерфейс Grafana.
+
+Получите пароль для входа в TCM:
 
 ```shell
 docker compose logs tcm-1 | grep "super admin"
 ```
 
-Откройте в браузере веб-интерфейс TCM по адресу [http://localhost:8081](http://localhost:8081).
+Откройте в браузере TCM по адресу [http://localhost:8081](http://localhost:8081).
 Для входа используйте логин `admin` и пароль, полученный с помощью предыдущей команды.
 
 (admin_guide-deploy_docker_compose-files)=
@@ -83,7 +92,7 @@ docker compose logs tcm-1 | grep "super admin"
 * `tcm.yml` -- конфигурация для запуска [Tarantool Cluster Manager](https://www.tarantool.io/ru/doc/latest/reference/tooling/tcm/).
 
 Кроме того, при запуске примера скрипт `make_config_tcm_yml.lua` создает файл `config.tcm.yml`.
-Это файл содержит конфигурацию для загрузки в Tarantool Cluster Manager, сгенерированную на основе конфигурации кластера.
+Это файл содержит конфигурацию для загрузки в TCM, сгенерированную на основе конфигурации кластера.
 
 (admin_guide-deploy_docker_compose-config)=
 ## Конфигурация контейнера для узла Tarantool DB

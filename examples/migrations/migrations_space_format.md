@@ -21,7 +21,7 @@
 Для выполнения примера требуются:
 
 * установленный [Docker-образ](/install_and_upgrade/install/install_docker.md) Tarantool DB;
-* приложение Docker compose;
+* приложение Docker Compose;
 * утилита [TT CLI](install-install_tt);
 * исходные файлы примера `migrations`.
 
@@ -44,7 +44,7 @@
 `users` (пользователи).
 Схема этой базы данных выглядит так:
 
-![Cхема данных](images/schema1.drawio.svg)
+![Схема данных](images/schema1.drawio.svg)
 
 Здесь:
 
@@ -96,17 +96,22 @@ docker compose up -d
 ```
 
 Команда развернет стенд, состоящий из:
-* кластера Tarantool DB (1 роутер, 4 хранилища, 1 TCM);
-* клиентского приложения, подающего нагрузку.
+- кластера Tarantool DB:
+  - 1 роутер;
+  - 1 набор реплик на 2 хранилища;
+  - 1 [Tarantool Cluster Manager](getting_started-tcm) (TCM);
+  - 2 координатора автоматического восстановления после сбоев (*failover coordinator*);
+- кластера etcd из 3 узлов.
 
-После запуска должны работать все контейнеры. Также после запуска становится доступен пользовательский интерфейс [http://localhost:8081](http://localhost:8081) -- веб-интерфейс кластера Tarantool DB (TCM).
+После запуска должны работать все контейнеры, кроме `init_host`.
 
-Получите пароль для входа в веб-интерфейс Tarantool DB:
+Также после запуска кластера становится доступен веб-интерфейс TCM.
+Получить пароль для входа в TCM можно так:
 ```shell
 docker compose logs tcm-1 | grep "super admin"
 ```
 
-Откройте веб-интерфейс в браузере по адресу [http://localhost:8081](http://localhost:8081).
+Откройте TCM в браузере по адресу [http://localhost:8081](http://localhost:8081).
 Для входа используйте логин `admin` и пароль, полученный с помощью предыдущей команды.
 
 Чтобы настроить кластер:
@@ -129,21 +134,28 @@ docker compose logs tcm-1 | grep "super admin"
 
 6. Нажмите **Update**, чтобы сохранить новые настройки кластера. При успешном обновлении в веб-интерфейсе появится сообщение `Cluster updated successfully`.
 7. В веб-интерфейсе перейдите на вкладку **Stateboard**.
-   ![tcm](images/tcm5.png)
-
 8. Выберите любой роутер из списка (например, `router-1`) и в открывшемся окне перейдите на вкладку **Terminal**.
-9. В терминале введите команду `box.space`.  Проверьте, что в выводе есть спейсы `projects`, `tasks` и `users` -- эти спейсы создаются при запуске кластера.
+9. Во вкладке **Terminal** введите команду `box.space`.  Проверьте, что в выводе есть спейсы `projects`, `tasks` и `users` -- эти спейсы создаются при запуске кластера.
 10. Проверьте, что в запущенном кластере созданы функции `app.delete_user(user_id)` и `app.get_project_data(project_id)`.
 
 (user_guide-space_format-load_data)=
 ## Загрузка и проверка данных
 
-Подключитесь к роутеру с помощью команды `tt connect`.
-Команда открывает интерактивную консоль Tarantool, позволяющую работать с базой данных:
+Чтобы начать работу с базой данных через интерактивную консоль Tarantool, нужно подключиться к узлу кластера.
+Сделать это можно двумя способами:
 
-```shell
-tt connect admin:secret-cluster-cookie@localhost:3301
-```
+- В терминале на вашем ПК с помощью команды `tt connect`:
+
+  ```shell
+  tt connect admin:secret-cluster-cookie@localhost:3301
+  ```
+
+- В веб-интерфейсе TCM.
+
+Подключитесь к роутеру `router-1`, используя **первый способ** -- через TCM. Для этого:
+	
+1. Перейдите на вкладку **Stateboard**.
+2. Выберите роутер `router-1` и в открывшемся окне перейдите на вкладку **Terminal**.
 
 Исходный код миграции приведен в файле `001_test.lua` в директории `./migrations/scenario/` примера `migrations`.
 
@@ -212,7 +224,7 @@ localhost:3301> box.schema.func.call('__create_example_data')
 
 Модуль [CRUD](https://github.com/tarantool/crud) упрощает работу с шардированными данными -- выполнение простых операций
 чтения и записи таких данных прозрачно для пользователя.
-Тем не менее, для задач, реализующих функции базы данных (``app.get_project_data(id)``, ``app.delete_user(id)`` и ``app.delete_project(id)``),
+Тем не менее, для задач, реализующих функции базы данных (`app.get_project_data(id)`, `app.delete_user(id)` и `app.delete_project(id)`),
 модуля CRUD недостаточно.
 Это связано с тем, что эти функции работают с несколькими спейсами и нестандартными операциями чтения и записи.
 
@@ -440,7 +452,7 @@ local _, err = vshard_router.callrw(bucket_id, 'projects.delete_project', {id})
 
 ![Схема данных](images/schema2.drawio.svg)
 
-Код миграции приведен в файле `./002_test.lua` примера `migrations`.
+Код миграции приведен в файле `./migration_next/002_test.lua` примера `migrations`.
 
 Миграции выполняются в лексикографическом порядке, поэтому им даны нумерованные названия: (`0001_my_migr.lua`, `2023_12_24_migr.lua`).
 
@@ -455,7 +467,7 @@ localhost:3301> box.schema.func.call('__create_example_data')
 
 Выполнить миграцию можно с помощью утилиты [tt CLI](https://www.tarantool.io/ru/doc/latest/reference/tooling/tt_cli/). Для этого:
 
-1. Поместите файлы с кодом миграций `002_test.lua` и `002_test_upgrade.lua` в папку `./migrations/scenario/`:
+1. В терминале поместите файлы с кодом миграций `002_test.lua` и `002_test_upgrade.lua` в папку `./migrations/scenario/`:
 
    ```shell
    cp -a ./migration_next/* ./migrations/scenario/ 
@@ -492,7 +504,7 @@ localhost:3301> box.schema.func.call('__create_example_data')
    Status: applied
    ```
 
-4. Проверьте, что миграция прошла успешно, выполнив операцию `crud.select()`. Видно, что добавлены новые поля со значениями по умолчанию:
+4. Проверьте, что миграция прошла успешно, выполнив операцию `crud.select()` в TCM во вкладке **Terminal**. Видно, что добавлены новые поля со значениями по умолчанию:
 
    ```shell
    localhost:3301> crud.select('projects')

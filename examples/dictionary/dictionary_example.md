@@ -19,7 +19,7 @@
 Для выполнения примера требуются:
 
 * установленный [Docker-образ](/install_and_upgrade/install/install_docker.md) Tarantool DB;
-* приложение Docker compose;
+* приложение Docker Compose;
 * утилита [TT CLI](install-install_tt);
 * исходные файлы примера `dictionary`.
 
@@ -51,7 +51,7 @@ docker compose up -d
 ```
 
 Команда развернет стенд, который состоит из:
-* кластера Tarantool DB из двух шардов и двух роутеров;
+* кластера Tarantool DB из двух наборов реплик и двух роутеров;
 * кластера etcd для работы восстановления после сбоев (failover) кластера Tarantool DB.
 
 После запуска должны работать все контейнеры, кроме `user-host`. 

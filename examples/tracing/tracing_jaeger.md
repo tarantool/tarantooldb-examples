@@ -20,7 +20,7 @@
 Для выполнения примера требуются:
 
 * установленный [Docker-образ](/install_and_upgrade/install/install_docker.md) Tarantool DB;
-* приложение Docker compose;
+* приложение Docker Compose;
 * утилита [TT CLI](install-install_tt);
 * сервис для сбора данных трассировки [Jaeger](https://www.jaegertracing.io/);
 * исходные файлы примера `tracing`.

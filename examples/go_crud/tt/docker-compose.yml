@@ -34,7 +34,7 @@ services:
       - etcd2
       - etcd3
 
-  tarantool-storage-1:
+  tarantool-storage-1-msk:
     image: tarantooldb:latest
     networks:
       - tarantooldb_network
@@ -43,14 +43,14 @@ services:
     volumes:
       - ./config.yml:/usr/share/tarantool/tarantooldb/config.yml
     environment:
-      - TT_INSTANCE_NAME=storage-1
+      - TT_INSTANCE_NAME=storage-1-msk
       - TT_CONFIG=/usr/share/tarantool/tarantooldb/config.yml
     depends_on:
       - etcd1
       - etcd2
       - etcd3
 
-  tarantool-storage-2:
+  tarantool-storage-1-spb:
     image: tarantooldb:latest
     networks:
       - tarantooldb_network
@@ -59,14 +59,14 @@ services:
     volumes:
       - ./config.yml:/usr/share/tarantool/tarantooldb/config.yml
     environment:
-      - TT_INSTANCE_NAME=storage-2
+      - TT_INSTANCE_NAME=storage-1-spb
       - TT_CONFIG=/usr/share/tarantool/tarantooldb/config.yml
     depends_on:
       - etcd1
       - etcd2
       - etcd3
 
-  tarantool-storage-3:
+  tarantool-storage-2-msk:
     image: tarantooldb:latest
     networks:
       - tarantooldb_network
@@ -75,14 +75,14 @@ services:
     volumes:
       - ./config.yml:/usr/share/tarantool/tarantooldb/config.yml
     environment:
-      - TT_INSTANCE_NAME=storage-3
+      - TT_INSTANCE_NAME=storage-2-msk
       - TT_CONFIG=/usr/share/tarantool/tarantooldb/config.yml
     depends_on:
       - etcd1
       - etcd2
       - etcd3
 
-  tarantool-storage-4:
+  tarantool-storage-2-spb:
     image: tarantooldb:latest
     networks:
       - tarantooldb_network
@@ -91,7 +91,7 @@ services:
     volumes:
       - ./config.yml:/usr/share/tarantool/tarantooldb/config.yml
     environment:
-      - TT_INSTANCE_NAME=storage-4
+      - TT_INSTANCE_NAME=storage-2-spb
       - TT_CONFIG=/usr/share/tarantool/tarantooldb/config.yml
     depends_on:
       - etcd1
@@ -128,10 +128,10 @@ services:
       - etcd3
       - tarantool-router-1
       - tarantool-router-2
-      - tarantool-storage-1
-      - tarantool-storage-2
-      - tarantool-storage-3
-      - tarantool-storage-4
+      - tarantool-storage-1-msk
+      - tarantool-storage-1-spb
+      - tarantool-storage-2-msk
+      - tarantool-storage-2-spb
     working_dir: /usr/share/tarantool/stand
     command: /bin/sh -c "\
       sleep 3 \

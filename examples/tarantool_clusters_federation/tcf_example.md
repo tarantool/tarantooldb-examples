@@ -36,7 +36,7 @@ TCF поддерживает репликацию шардированных д�
 Для выполнения примера требуются:
 
 * установленный [Docker-образ](/install_and_upgrade/install/install_docker.md) Tarantool DB;
-* приложение Docker compose;
+* приложение Docker Compose;
 * исходные файлы примера `tarantool_clusters_federation`.
 
   ```{admonition} Примечание

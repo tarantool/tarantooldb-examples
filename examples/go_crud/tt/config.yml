@@ -54,6 +54,7 @@ groups:
       module: app.vshard_bootstrapper
     replicasets:
       router-1:
+        leader: router-1
         instances:
           router-1:
             iproto:
@@ -62,6 +63,7 @@ groups:
               advertise:
                 client: tarantool-router-1:3301
       router-2:
+        leader: router-2
         instances:
           router-2:
             iproto:

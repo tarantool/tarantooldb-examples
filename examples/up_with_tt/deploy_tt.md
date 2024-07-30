@@ -40,7 +40,7 @@
 * `tt.yaml` -- [конфигурация](https://www.tarantool.io/ru/doc/latest/reference/tooling/tt_cli/configuration/) TT CLI.
   Чтобы сгенерировать этот файл, используется команда `tt init`;
 
-Обратите внимание на опцию ``instances_enabled``. На нашем случае оно говорит tt о том, что текущая директория может сордержать `config.yml` и `instances.yml` или содержит символьную ссылку на приложение Tarantool 3 с этими файлами.
+Обратите внимание на опцию ``instances_enabled``. На нашем случае опция говорит tt о том, что текущая директория может содержать `config.yml` и `instances.yml` или содержит символьную ссылку на приложение Tarantool 3 с этими файлами.
 
 (admin_guide-deploy_tt-start_example)=
 ## Запуск стенда

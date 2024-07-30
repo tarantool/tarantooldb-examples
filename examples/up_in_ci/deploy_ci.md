@@ -16,7 +16,7 @@
 Для выполнения примера требуются:
 
 * установленный [Docker-образ](/install_and_upgrade/install.md) Tarantool DB;
-* приложение Docker compose;
+* приложение Docker Compose;
 * исходные файлы примера `up_in_ci`.
 
   ```{admonition} Примечание
@@ -50,7 +50,7 @@ docker compose up -d --build
 ## Контейнер user-host
 
 Контейнер `user-host` указывается в файле `docker-compose.yml`.
-Подробное описание контейнера приводится в руководстве по запуску кластера через Docker compose в разделе [](admin_guide-deploy_docker_compose-user_host).
+Подробное описание контейнера приводится в руководстве по запуску кластера через Docker Compose в разделе [](admin_guide-deploy_docker_compose-user_host).
 
 В примере конфигурация контейнера `user-host` выглядит так:
 

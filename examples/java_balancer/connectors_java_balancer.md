@@ -10,12 +10,12 @@
 
 * Telegraf -- сбор метрик;
 * InfluxDB -- хранение метрик;
-* Grafana -- визуализация метрик.
+* [Grafana](https://grafana.com/) -- визуализация метрик.
 
 ```{admonition} Примечание
 :class: note
 
-Пример стенда с Prometheus приведен в разделе [Балансировщик запросов к роутерам через Go-коннектор](/examples/go_balancer/connectors_go_balancer.md).
+Пример стенда с [Prometheus](https://prometheus.io/) приведен в разделе [Балансировщик запросов к роутерам через Go-коннектор](/examples/go_balancer/connectors_go_balancer.md).
 ```
 
 Содержание:
@@ -34,7 +34,7 @@
 Для выполнения примера требуются:
 
 * установленный [Docker-образ](/install_and_upgrade/install/install_docker.md) Tarantool DB;
-* приложение Docker compose;
+* приложение Docker Compose;
 * Maven;
 * Java версии 8+;
 * исходные файлы примера `java_balancer`.

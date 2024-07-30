@@ -3,18 +3,19 @@
 В примере демонстрируется работа с повреждённым кластером под нагрузкой.
 Приложение непрерывно записывает кортежи пачками через все роутеры по очереди.
 Для записи используется операция `replace`.
-Если какой-либо роутер упал, трафик с него переключается на остальные роутеры.
-Если роутер поднялся, трафик на него возвращается.
+Если какой-либо роутер стал недоступен, трафик с него переключается на другие роутеры. 
+Если роутер снова стал доступен, трафик на него возвращается.
 
 Для мониторинга используются:
 
-* Prometheus -- сбор и хранение метрик;
-* Grafana -- визуализация метрик.
+* [Prometheus](https://prometheus.io/) -- сбор и хранение метрик;
+* [Grafana](https://grafana.com/) -- визуализация метрик.
 
 ```{admonition} Примечание
 :class: note
 
-Пример стенда с Telegraf и InfluxDB приведен в разделе [Балансировщик запросов к роутерам через Go-коннектор](/examples/java_balancer/connectors_java_balancer.md).
+Пример стенда с [Telegraf](https://www.influxdata.com/time-series-platform/telegraf/) и [InfluxDB](https://www.influxdata.com/)
+приведен в разделе [Балансировщик запросов к роутерам через Go-коннектор](/examples/java_balancer/connectors_java_balancer.md).
 ```
 
 Содержание:
@@ -33,7 +34,7 @@
 Для выполнения примера требуются:
 
 * установленный [Docker-образ](/install_and_upgrade/install/install_docker.md) Tarantool DB;
-* приложение Docker compose;
+* приложение Docker Compose;
 * Go;
 * исходные файлы примера `go_balancer`.
 
@@ -58,7 +59,6 @@
 * 8081
 * 3000
 
-
 Перейдите в директорию `go_balancer/tt`:
 
 ```shell
@@ -66,12 +66,16 @@ cd ./doc/examples/go_balancer/tt
 ```
 
 Стенд состоит из:
-* кластера Tarantool DB (2 роутера, 2 шарда, 1 TCM, 2 фейловер-координатора);
-* кластера ETCD;
-* клиентского приложения, подающего нагрузку;
-* средств мониторинга (Prometheus, Grafana).
+- кластера Tarantool DB:
+  - 2 роутера;
+  - 2 набора реплик по 2 хранилища;
+  - 1 [Tarantool Cluster Manager](getting_started-tcm) (TCM);
+  - 2 координатора автоматического восстановления после сбоев (*failover coordinator*);
+- кластера etcd из 3 узлов;
+- клиентского приложения, подающего нагрузку;
+- средств мониторинга -- [Prometheus](https://prometheus.io/), [Grafana](https://grafana.com/).
 
-Запустите всё, кроме клиентского приложения, командой:
+Запустите всё, кроме клиентского приложения, следующей командой:
 
 ```shell
 docker compose up -d
@@ -79,15 +83,15 @@ docker compose up -d
 
 После запуска должны работать все контейнеры, кроме `init_host`. Также
 после запуска доступны следующие пользовательские интерфейсы:
-* http://localhost:8081 -- веб-интерфейс кластера Tarantool DB ([TCM](https://www.tarantool.io/ru/doc/latest/reference/tooling/tcm/));
+* http://localhost:8081 -- веб-интерфейс TCM;
 * http://localhost:3000 -- веб-интерфейс Grafana.
 
-Получите пароль для входа в веб-интерфейс Tarantool DB:
+Получить пароль для входа в TCM можно так:
 ```shell
 docker compose logs tcm-1 | grep "super admin"
 ```
 
-Откройте веб-интерфейс в браузере по адресу [http://localhost:8081](http://localhost:8081).
+Откройте в TCM браузере по адресу [http://localhost:8081](http://localhost:8081).
 Для входа используйте логин `admin` и пароль, полученный с помощью предыдущей команды.
 
 Чтобы настроить кластер:
@@ -103,37 +107,36 @@ docker compose logs tcm-1 | grep "super admin"
 6. Нажмите **Update**, чтобы сохранить новые настройки кластера. При успешном обновлении в веб-интерфейсе появится сообщение `Cluster updated successfully`.
 7. В веб-интерфейсе перейдите на вкладку **Stateboard**. После применения настроек кластер будет выглядеть так:
 
-   ![](images/tcm-example.png)
+   ![](images/tcm-stateboard.png)
 
 8. Выберите любой роутер из списка (например, `router-1`) и в открывшемся окне перейдите на вкладку **Terminal**.
-9. В терминале введите команду `box.space`. Проверьте, что в выводе есть спейс `test` -- этот спейс создается при запуске кластера.
+9. Во вкладке **Terminal** введите команду `box.space`. Проверьте, что в выводе есть спейс `test` -- этот спейс создается при запуске кластера.
 
 (user_guide-go_balancer-grafana)=
 ## Панель Grafana
 
-Откройте в Grafana панель
-[Tarantool dashboard](http://localhost:8080/dashboards).
+Откройте в браузере веб-интерфейс Grafana по адресу [http://localhost:3000/dashboards](http://localhost:3000/dashboards).
+В списке **Dashboards** откройте папку **General** и выберите панель **Tarantool dashboard** в выпадающем списке.
 Проверьте, что графики показывают данные за последние 5 минут, а частота обновления равна 5 секундам:
 
 ![](images/grafana-panel.png)
 
-В панели `Tarantool Network activity` откройте график `Processed requests`:
+Разверните панель **Tarantool network activity** и откройте график **Processed requests**.
+Чтобы развернуть график на полный экран, нажмите на графике кнопку **...** (**Menu**) в правом верхнем углу и нажмите в выпадающем меню
+кнопку **View**.
+Выберите роутеры на графике, используя один из способов ниже:
+
+* Нажмите на название `router-1` и, зажав `Shift`, нажмите на `router-2`.
+* Используйте переключатель сверху (**Instances**), чтобы выбрать роутеры на уровне всего дашборда.
 
 ![](images/processed-requests-1.png)
 
-Выделите роутеры. Есть два способа это сделать:
-
-* Нажмите на название `router-1` и, зажав `Shift`, нажмите на `router-2`.
-* Используйте переключатель сверху, чтобы выбрать роутеры на уровне всего дашборда:
-
-![](images/select.png)
-
-В панели `Tarantool operations statistics` откройте график `REPLACE space requests`.
+После перейдите на панель **Tarantool operations statistics** и откройте график **REPLACE space requests**.
 Выберите все узлы, кроме роутеров:
 
 ![](images/replace-1.png)
 
-В панели `CRUD module statistics"` откройте график `REPLACE success requests`:
+Затем перейдите на панель **CRUD module statistics** и откройте график **REPLACE success requests**:
 
 ![](images/crud-replace-1.png)
 
@@ -171,7 +174,10 @@ go run -tags go_tarantool_ssl_disable main.go
 
 ![](images/crud-replace-2.png)
 
-В веб-интерфейсе Tarantool DB откройте вкладку **Space Explorer** и проверьте, что в хранилищах появились данные.
+Теперь проверьте, что в спейсе `test` появились данные. Для этого:
+
+1. В TCM перейдите на вкладку **Tuples**.
+2. Выберите в списке спейс `test`. Откроется новая вкладка с содержимым кортежей спейса `test`.
 
 (user_guide-go_balancer-stop_router)=
 ## Имитация отказа роутера
@@ -181,7 +187,7 @@ go run -tags go_tarantool_ssl_disable main.go
 docker compose stop tarantool-router-1
 ```
 
-Теперь в веб-интерфейсе Tarantool DB во вкладке **Cluster** узел `tarantool-router1` помечается как нездоровый (`unhealthy`).
+Теперь в TCM во вкладке **Stateboard** узел `router-1` помечается как нездоровый (`unhealthy`).
 График запросов изменится так:
 
 ![](images/processed-requests-3.png)
@@ -210,7 +216,7 @@ docker compose stop tarantool-router-1
 docker compose start tarantool-router-1
 ```
 
-В веб-интерфейсе Tarantool DB во вкладке **Cluster** видно, что узел `tarantool-router1` восстановлен.
+В TCM во вкладке **Stateboard** видно, что узел `router-1` восстановлен.
 Нагрузка на второй роутер уменьшилась вдвое, появились данные по нагрузке с первого:
 
 ![](images/processed-requests-5.png)

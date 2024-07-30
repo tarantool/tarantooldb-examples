@@ -27,7 +27,7 @@
 
 Для выполнения примера требуются:
 * установленный [Docker-образ](/install_and_upgrade/install/install_docker.md) Tarantool DB;
-* приложение Docker compose;
+* приложение Docker Compose;
 * утилита [TT CLI](install-install_tt);
 * исходные файлы примера `space_upgrade`. 
 
@@ -49,7 +49,7 @@
 В примере используется база данных для системы управления проектами, которая состоит из трех спейсов: `projects` (проекты), `tasks` (задачи),
 `users` (пользователи). Изначально схема этой базы данных выглядит так:
 
-![Cхема_данных](images/schema1.drawio.svg)
+![Схема_данных](images/schema1.drawio.svg)
 
 После прохождения руководства схема данных будет изменена следующим образом:
 
@@ -61,7 +61,7 @@
 
 После изменений схема данных будет выглядеть так:
 
-![Cхема данных 2](images/schema2.drawio.svg)
+![Схема данных 2](images/schema2.drawio.svg)
 
 (user_guide-space_upgrade-start_example)=
 ## Запуск стенда
@@ -91,37 +91,38 @@ docker compose up -d
 ```
 
 Команда развернет стенд, состоящий из:
-* кластера Tarantool DB (1 роутер, 2 хранилища, 1 TCM);
-* клиентского приложения, подающего нагрузку.
+- кластера Tarantool DB:
+  - 1 роутер;
+  - 1 набор реплик на 2 хранилища;
+  - 1 [Tarantool Cluster Manager](getting_started-tcm) (TCM);
+  - 2 координатора автоматического восстановления после сбоев (*failover coordinator*);
+- кластера etcd из 3 узлов.
 
-После запуска должны работать все контейнеры. Также после запуска становится доступен пользовательский интерфейс [http://localhost:8081](http://localhost:8081) -- веб-интерфейс кластера Tarantool DB (TCM).
+После запуска должны работать все контейнеры, кроме `init_host`.
 
-Получите пароль для входа в веб-интерфейс Tarantool DB:
+Также после запуска кластера становится доступен веб-интерфейс TCM.
+Получить пароль для входа в TCM можно так:
 ```shell
 docker compose logs tcm-1 | grep "super admin"
 ```
 
-Откройте веб-интерфейс в браузере по адресу [http://localhost:8081](http://localhost:8081).
+Откройте TCM в браузере по адресу [http://localhost:8081](http://localhost:8081).
 Для входа используйте логин `admin` и пароль, полученный с помощью предыдущей команды.
 
 Чтобы настроить кластер:
 
 1. В веб-интерфейсе перейдите на вкладку **Clusters**.
-
 2. В строке с кластером `Default cluster` нажмите кнопку **...** (**Actions**) справа и выберите **Edit** в выпадающем меню.
 3. Переключитесь на второй экран настройки, используя кнопку **Next**.
-
 4. На втором экране укажите в поле **Prefix** значение `/tdb` и нажмите  **Next**.
-
 5. На третьем экране укажите следующие значения:
     - в поле **Username** -- `admin`;
     - в поле **Password** --  `secret-cluster-cookie`.
 
 6. Нажмите **Update**, чтобы сохранить новые настройки кластера. При успешном обновлении в веб-интерфейсе появится сообщение `Cluster updated successfully`.
 7. В веб-интерфейсе перейдите на вкладку **Stateboard**.
-
 8. Выберите любой роутер из списка (например, `router-1`) и в открывшемся окне перейдите на вкладку **Terminal**.
-9. В терминале введите команду `box.space`.  Проверьте, что в выводе есть спейсы `projects`, `tasks` и `users` -- эти спейсы создаются при запуске кластера.
+9. Во вкладке **Terminal** введите команду `box.space`.  Проверьте, что в выводе есть спейсы `projects`, `tasks` и `users` -- эти спейсы создаются при запуске кластера.
 В запущенном кластере создана первоначальная схема данных:
 
    ![схема данных](images/schema1.drawio.svg)
@@ -129,14 +130,23 @@ docker compose logs tcm-1 | grep "super admin"
 (user_guide-space_upgrade-load_data)=
 ## Подключение к кластеру и загрузка данных
 
-Подключитесь к роутеру с помощью команды `tt connect`.
-Команда открывает интерактивную консоль Tarantool, позволяющую работать с базой данных:
+Чтобы начать работу с базой данных через интерактивную консоль Tarantool, нужно подключиться к узлу кластера.
+Сделать это можно двумя способами:
 
-```bash
-tt connect admin:secret-cluster-cookie@localhost:3300
-```
+- В терминале на вашем ПК с помощью команды `tt connect`:
 
-Загрузить данные в кластер можно с помощью функции `__fill_data`:
+  ```shell
+  tt connect admin:secret-cluster-cookie@localhost:3301
+  ```
+
+- В веб-интерфейсе TCM.
+
+Подключитесь к роутеру `router-1`, используя **первый способ** -- через TCM. Для этого:
+	
+1. Перейдите на вкладку **Stateboard**.
+2. Выберите роутер `router-1` и в открывшемся окне перейдите на вкладку **Terminal**.
+
+Загрузите данные в кластер с помощью функции `__fill_data`:
 
 ```lua
 box.schema.func.call('__fill_data')
@@ -173,18 +183,18 @@ space_upgrade-tarantool-router-1    | 2024-02-26 05:49:01.795 [12] main/189/main
     - `dryrun+upgrade` -- запуск проверки миграции, после которой при отсутствии ошибок выполняется `upgrade`.
 - `is_async` - булевый флаг неблокируемого выполнения `space:upgrade`.
 
-`space:upgrade` возвращает объект `future`. По нему можно узнать статус миграции (`future:info`), отменить миграцию (`future:cancel`), или дождаться конца миграции (`future:wait`).
+`space:upgrade` возвращает объект `future`. По нему можно узнать статус миграции (`future:info`), отменить миграцию (`future:cancel`) или дождаться окончания миграции (`future:wait`).
 
 Подробная информация о методе `space:upgrade` приведена в [документации Tarantool Enterprise](https://www.tarantool.io/ru/doc/latest/enterprise/space_upgrade/).
 
 (user_guide-space_upgrade-migration_code)=
 ## Определение кода миграций
 
-Исходный код миграции приведен в файле `002_test.lua` в корневой директории примера `migrations_space_upgrade`.
+Исходный код миграции приведен в файле `002_test.lua` в директории `./migration_next/` примера `migrations_space_upgrade`.
 
 ### Спейс projects
 
-В спейсе `projects` нужно добавить `assigned_manager_id` между полями `name` и `description`. 
+В спейсе `projects` нужно добавить поле `assigned_manager_id` между полями `name` и `description`. 
 При работе с кортежами используется встроенная библиотека [`box.tuple`](https://www.tarantool.io/ru/doc/latest/reference/reference_lua/box_tuple/).
 
 Определите функцию для изменения кортежей:
@@ -302,7 +312,7 @@ box.schema.func.create('__migrator_users_002',  {
         function(t)
             -- проверяем, что поле `role` еще не добавлено
             if #t == 4 then
-                -- добавлем новое поле на 4-ю позицию, между `name` и `contact`
+                -- добавляем новое поле на 4-ю позицию, между `name` и `contact`
                 return t:update({{'!', 4, 'not set'}})
             end
             return t
@@ -357,33 +367,28 @@ rawset(_G, '__users_migration', users_migration)
    docker exec migrations-tarantool-router-1-1  tt migrations up http://etcd1:2379/tdb --tarantool-cluster-username=admin --tarantool-cluster-password=secret-cluster-cookie
    ```
 
-После подключитесь к узлу хранилища, используя команду `tt connect`:
+4. Подключитесь к узлу хранилища в TCM на вкладке **Stateboard** и откройте вкладку **Terminal**.
+   Чтобы просмотреть статусы миграции спейса, вызовите соответствующую глобальную переменную, заданную в конфигурации:
 
-```shell
-tt connect admin:secret-cluster-cookie@localhost:3301
-```
-
-Чтобы просмотреть статусы миграции спейса, вызовите соответствующую глобальную переменную, заданную в конфигурации:
-
-```shell
-localhost:3301> __projects_migration
-- owner: baf5b6ba-d594-4b80-856e-02e1f05de5c7
-  func: __migrator_projects_002
-  progress: 74%
-  status: inprogress
-  dryrun: true
-localhost:3301> __tasks_migration
-- status: inprogress
-  progress: 1%
-  owner: baf5b6ba-d594-4b80-856e-02e1f05de5c7
-  func: __migrator_tasks_002
-localhost:3301> __users_migration
-- status: inprogress
-  progress: 32%
-  owner: baf5b6ba-d594-4b80-856e-02e1f05de5c7
-  func: __migrator_users_002
-...
-```
+    ```shell
+    localhost:3301> __projects_migration
+    - owner: baf5b6ba-d594-4b80-856e-02e1f05de5c7
+      func: __migrator_projects_002
+      progress: 74%
+      status: inprogress
+      dryrun: true
+    localhost:3301> __tasks_migration
+    - status: inprogress
+      progress: 1%
+      owner: baf5b6ba-d594-4b80-856e-02e1f05de5c7
+      func: __migrator_tasks_002
+    localhost:3301> __users_migration
+    - status: inprogress
+      progress: 32%
+      owner: baf5b6ba-d594-4b80-856e-02e1f05de5c7
+      func: __migrator_users_002
+    ...
+    ```
 
 В `space:upgrade` в режиме `dryrun+upgrade` сначала выполняется проверка (`dryrun`) данных без их изменений.
 Если ошибок нет, начинается обновление данных.
