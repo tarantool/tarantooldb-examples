@@ -1,0 +1,17 @@
+global:
+  scrape_interval: 2s
+  scrape_timeout: 1s
+
+scrape_configs:
+  - job_name: "tarantooldb"
+    static_configs:
+      - targets:
+          - 'tarantool-router-msk:8081'
+          - 'tarantool-router-spb:8081'
+          - 'tarantool-storage-1-msk:8081'
+          - 'tarantool-storage-1-spb:8081'
+          - 'tarantool-storage-1-brn:8081'
+          - 'tarantool-storage-2-msk:8081'
+          - 'tarantool-storage-2-spb:8081'
+          - 'tarantool-storage-2-brn:8081'
+    metrics_path: /metrics

@@ -1,0 +1,116 @@
+version: '3'
+services:
+  tarantool-router-msk:
+    image: tarantooldb:latest
+    networks:
+      - tarantooldb_network
+    ports:
+      - "3301:3301"
+    volumes:
+      - ./config.yml:/usr/share/tarantool/tarantooldb/config.yml
+    environment:
+      - TT_INSTANCE_NAME=router-msk
+      - TT_CONFIG=/usr/share/tarantool/tarantooldb/config.yml
+  tarantool-router-spb:
+    image: tarantooldb:latest
+    networks:
+      - tarantooldb_network
+    ports:
+      - "3302:3301"
+    volumes:
+      - ./config.yml:/usr/share/tarantool/tarantooldb/config.yml
+    environment:
+      - TT_INSTANCE_NAME=router-spb
+      - TT_CONFIG=/usr/share/tarantool/tarantooldb/config.yml
+  tarantool-storage-1-msk:
+    image: tarantooldb:latest
+    networks:
+      - tarantooldb_network
+    ports:
+      - "3303:3301"
+    volumes:
+      - ./config.yml:/usr/share/tarantool/tarantooldb/config.yml
+    environment:
+      - TT_INSTANCE_NAME=storage-1-msk
+      - TT_CONFIG=/usr/share/tarantool/tarantooldb/config.yml
+  tarantool-storage-1-spb:
+    image: tarantooldb:latest
+    networks:
+      - tarantooldb_network
+    ports:
+      - "3304:3301"
+    volumes:
+      - ./config.yml:/usr/share/tarantool/tarantooldb/config.yml
+    environment:
+      - TT_INSTANCE_NAME=storage-1-spb
+      - TT_CONFIG=/usr/share/tarantool/tarantooldb/config.yml
+  tarantool-storage-1-brn:
+    image: tarantooldb:latest
+    networks:
+      - tarantooldb_network
+    ports:
+      - "3305:3301"
+    volumes:
+      - ./config.yml:/usr/share/tarantool/tarantooldb/config.yml
+    environment:
+      - TT_INSTANCE_NAME=storage-1-brn
+      - TT_CONFIG=/usr/share/tarantool/tarantooldb/config.yml
+  tarantool-storage-2-msk:
+    image: tarantooldb:latest
+    networks:
+      - tarantooldb_network
+    ports:
+      - "3306:3301"
+    volumes:
+      - ./config.yml:/usr/share/tarantool/tarantooldb/config.yml
+    environment:
+      - TT_INSTANCE_NAME=storage-2-msk
+      - TT_CONFIG=/usr/share/tarantool/tarantooldb/config.yml
+  tarantool-storage-2-spb:
+    image: tarantooldb:latest
+    networks:
+      - tarantooldb_network
+    ports:
+      - "3307:3301"
+    volumes:
+      - ./config.yml:/usr/share/tarantool/tarantooldb/config.yml
+    environment:
+      - TT_INSTANCE_NAME=storage-2-spb
+      - TT_CONFIG=/usr/share/tarantool/tarantooldb/config.yml
+  tarantool-storage-2-brn:
+    image: tarantooldb:latest
+    networks:
+      - tarantooldb_network
+    ports:
+      - "3308:3301"
+    volumes:
+      - ./config.yml:/usr/share/tarantool/tarantooldb/config.yml
+    environment:
+      - TT_INSTANCE_NAME=storage-2-brn
+      - TT_CONFIG=/usr/share/tarantool/tarantooldb/config.yml
+
+  prometheus:
+    image: prom/prometheus:v2.30.3
+    networks:
+      - tarantooldb_network
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+
+  grafana:
+    image: grafana/grafana:9.5.14
+    networks:
+      - tarantooldb_network
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_BASIC_ENABLED=false
+    volumes:
+      - ./grafana:/etc/grafana/provisioning
+
+networks:
+  tarantooldb_network:
+    driver: bridge
