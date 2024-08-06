@@ -1,3 +1,4 @@
+(user_guide-read_view-example-crud)=
 # Фильтрация и итерация в read view с помощью CRUD
 
 В этом разделе приведены подробные примеры использования операций `select` и `pairs` для read view с помощью
@@ -19,9 +20,9 @@
 
 Для выполнения примера требуются:
 
-* установленный [Docker-образ](/install_and_upgrade/install/install_docker.md) Tarantool DB;
+* установленный [Docker-образ](install_docker-image) Tarantool DB;
 * приложение Docker Compose;
-* утилита [TT CLI](install-install_tt);
+* утилита [tt CLI](install-install_tt);
 * исходные файлы примера `read_view`.
 
   ```{admonition} Примечание
@@ -106,7 +107,7 @@ docker compose logs tcm-1 | grep "super admin"
 ## Создание спейса и подключение к узлу
 
 На завершающем этапе поднятия кластера выполняется публикация YAML-конфигурации кластера в [централизованное хранилище](https://www.tarantool.io/ru/doc/latest/reference/tooling/tt_cli/cluster/#tt-cluster-publish)
-и применяются [миграции](../migrations/migrations_space_format.md).
+и применяются [миграции](user_guide-migrations).
 Миграции создают спейс `customers` (файл `./migrations/scenario/001_create_space.lua`) и
 загружают в него данные (файл `./migrations/scenario/002_data.lua`).
 

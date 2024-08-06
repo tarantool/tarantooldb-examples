@@ -4,7 +4,7 @@
 В этом руководстве описано, как настроить трассировку функций, а также просмотреть и оценить результаты трассировки
 в веб-интерфейсе [Jaeger](https://www.jaegertracing.io/).
 
-Подробнее о модуле `tracing` можно узнать в разделе [Оценка производительности](/user_guide/troubleshooting/tracing.md).
+Подробнее о модуле `tracing` можно узнать в разделе [Оценка производительности](user_guide-tracing).
 
 Руководство включает следующие шаги:
 
@@ -19,9 +19,9 @@
 
 Для выполнения примера требуются:
 
-* установленный [Docker-образ](/install_and_upgrade/install/install_docker.md) Tarantool DB;
+* установленный [Docker-образ](install_docker-image) Tarantool DB;
 * приложение Docker Compose;
-* утилита [TT CLI](install-install_tt);
+* утилита [tt CLI](install-install_tt);
 * сервис для сбора данных трассировки [Jaeger](https://www.jaegertracing.io/);
 * исходные файлы примера `tracing`.
 

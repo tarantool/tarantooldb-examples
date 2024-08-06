@@ -20,9 +20,9 @@ Tarantool DB позволяет шифровать трафик по IPROTO пр
 
 Для выполнения примера требуются:
 
-* установленный [Docker-образ](/install_and_upgrade/install.md) Tarantool DB;
+* установленный [Docker-образ](install_docker-image) Tarantool DB;
 * приложение Docker Compose;
-* утилита [TT CLI](install-install_tt);
+* утилита [tt CLI](install-install_tt);
 * Go версии 1.13 или выше;
 * python3;
 * исходные файлы примера `traffic_encryption`.

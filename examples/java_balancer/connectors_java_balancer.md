@@ -1,4 +1,5 @@
-# Балансировка запросов к роутерам через Java-коннектор
+(connectors-java_balancer)=
+# Баavaлансировка запросов к роутерам через Java-коннектор
 
 В примере демонстрируется работа с повреждённым кластером под нагрузкой.
 Приложение непрерывно записывает кортежи пачками через все роутеры по очереди.
@@ -15,7 +16,7 @@
 ```{admonition} Примечание
 :class: note
 
-Пример стенда с [Prometheus](https://prometheus.io/) приведен в разделе [Балансировщик запросов к роутерам через Go-коннектор](/examples/go_balancer/connectors_go_balancer.md).
+Пример стенда с [Prometheus](https://prometheus.io/) приведен в разделе [Балансировщик запросов к роутерам через Go-коннектор](connectors-go_balancer).
 ```
 
 Содержание:
@@ -33,7 +34,7 @@
 
 Для выполнения примера требуются:
 
-* установленный [Docker-образ](/install_and_upgrade/install/install_docker.md) Tarantool DB;
+* установленный [Docker-образ](install_docker-image) Tarantool DB;
 * приложение Docker Compose;
 * Maven;
 * Java версии 8+;
@@ -52,7 +53,7 @@
   ```
 
 Кроме того, для загрузки Java-коннектора нужно настроить конфигурацию Maven.
-Чтобы задать эту конфигурацию, используйте инструкцию [Установка клиента tarantool-java-ee](/user_guide/connectors/java/java_install.md).
+Чтобы задать эту конфигурацию, используйте инструкцию [Установка клиента tarantool-java-ee](user_guide-connectors-install_java).
 
 (user_guide-java_balancer-start_example)=
 ## Запуск стенда

@@ -19,9 +19,9 @@
 
 Для выполнения примера требуются:
 
-* установленный [Docker-образ](/install_and_upgrade/install/install_docker.md) Tarantool DB;
+* установленный [Docker-образ](install_docker-image) Tarantool DB;
 * приложение Docker Compose;
-* утилита [TT CLI](install-install_tt);
+* утилита [tt CLI](install-install_tt);
 * исходные файлы примера `slow_log`.
 
   ```{admonition} Примечание
@@ -132,7 +132,7 @@ docker compose logs tcm-1 | grep "super admin"
 1. Перейдите на вкладку **Stateboard**.
 2. Выберите роутер `router-1` и в открывшемся окне перейдите на вкладку **Terminal**.
   
-Добавьте кортеж в спейс `data`, используя функцию из модуля CRUD:
+На вкладке **Terminal** добавьте кортеж в спейс `data`, используя функцию из модуля CRUD:
 
 ```lua
 require('crud').replace("data", {1, box.NULL, {}})
@@ -155,21 +155,13 @@ slow_log-tarantool-router-1    | 2023-11-30 14:02:35.599 [12] main/176/main/tara
 
 В примере создана персистентная функция `app.wait_for`, которая ждет заданное количество секунд:
 
-```lua
-box.schema.func.create('app.wait_for',  {
-    language = 'LUA',
-    if_not_exists = true,
-    body = [[
-        function(sleep_time)
-            local log = require('log')
-            local fiber = require('fiber')
-            log.info("start wait_for " .. sleep_time)
-            fiber.sleep(sleep_time)
-            log.info("stop wait_for " .. sleep_time)
-        end
-    ]],
-})
+```{literalinclude} migrations/scenario/001_test.lua
+:start-at: box.schema.func.create
+:end-before: return true
+:language: lua
+:dedent:
 ```
+
 Чтобы включить запись в журнал для функции `app.wait_for`, обновите секцию `app.roles.slow_log` в файле конфигурации:
 
 ```yaml

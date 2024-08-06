@@ -17,7 +17,6 @@ Docker Compose. Если использовать этот способ, веб-
 * [](admin_guide-up_without_etcd-start_example)
 * [](admin_guide-up_without_etcd-files)
 * [](admin_guide-up_without_etcd-migrations)
-* [](admin_guide-up_without_etcd-init_host)
 * [](admin_guide-up_without_etcd-stop_example)
 
 (admin_guide-up_without_etcd-prereq)=
@@ -25,7 +24,7 @@ Docker Compose. Если использовать этот способ, веб-
 
 Для выполнения примера требуются:
 
-* установленный [Docker-образ](/install_and_upgrade/install.md) Tarantool DB;
+* установленный [Docker-образ](install_docker-image) Tarantool DB;
 * приложение Docker Compose;
 * исходные файлы примера `up_without_etcd`.
 
@@ -58,7 +57,7 @@ docker compose up -d
 
 Запущенный стенд состоит из:
 
-- кластера Tarantool DB (2 два роутера, 2 набора реплик по 3 хранилища);
+- кластера Tarantool DB (2 роутера, 2 набора реплик по 3 хранилища);
 - средств мониторинга (Prometheus, Grafana).
 
 (admin_guide-up_without_etcd-files)=
@@ -73,75 +72,89 @@ docker compose up -d
 
 (admin_guide-up_without_etcd-migrations)=
 ## Миграции
+
 Создать необходимые объекты (спейсы и индексы) в этом примере можно двумя способами:
+
 - через [коннектор](user_guide-connectors);
 - с помощью утилиты [tt CLI](install-install_tt).
 
 В этом примере для создания объектов используется tt CLI:
 
 1. Подключитесь к узлу `storage-1-msk` -- лидеру набора реплик `storage-1`:
-```shell
-tt connect admin:secret-cluster-cookie@0.0.0.0:3303
-```
+
+   ```shell
+   tt connect admin:secret-cluster-cookie@0.0.0.0:3303
+   ```
 
 2. Выполните на узле `storage-1-msk` следующий код:
-```lua
-function migrate()
-    local sharding_space = box.schema.space.create('_ddl_sharding_key', {
-        format = {
-            {name = 'space_name', type = 'string', is_nullable = false},
-            {name = 'sharding_key', type = 'array', is_nullable = false},
-        },
-        if_not_exists = true,
-    })
 
-    sharding_space:create_index('space_name', {
-        type = 'TREE',
-        unique = true,
-        parts = {{'space_name', 'string', is_nullable = false}},
-        if_not_exists = true,
-    })
+    ```lua
+    function migrate()
+        local sharding_space = box.schema.space.create('_ddl_sharding_key', {
+            format = {
+                {name = 'space_name', type = 'string', is_nullable = false},
+                {name = 'sharding_key', type = 'array', is_nullable = false},
+            },
+            if_not_exists = true,
+        })
+    
+        sharding_space:create_index('space_name', {
+            type = 'TREE',
+            unique = true,
+            parts = {{'space_name', 'string', is_nullable = false}},
+            if_not_exists = true,
+        })
+    
+        local s = box.schema.space.create('space_for_crud', {
+            if_not_exists = true,
+            format = {
+                { name = 'id', type = 'integer' },
+                { name = 'bucket_id', type = 'unsigned' },
+                { name = 'data', type = 'any' },
+            },
+        })
+    
+        s:create_index('pk', { parts = {'id'}, if_not_exists = true})
+        s:create_index('bucket_id', { parts = {'bucket_id'}, unique = false, if_not_exists = true})
+    
+        box.space._ddl_sharding_key:replace{s.name, {'id'}}
+    end
+    
+    migrate()
+    ```
 
-    local s = box.schema.space.create('space_for_crud', {
-        if_not_exists = true,
-        format = {
-            { name = 'id', type = 'integer' },
-            { name = 'bucket_id', type = 'unsigned' },
-            { name = 'data', type = 'any' },
-        },
-    })
-
-    s:create_index('pk', { parts = {'id'}, if_not_exists = true})
-    s:create_index('bucket_id', { parts = {'bucket_id'}, unique = false, if_not_exists = true})
-
-    box.space._ddl_sharding_key:replace{s.name, {'id'}}
-end
-
-migrate()
-```
-
-Этот код создаст спейс `space_for_crud`, с которым можно взаимодействовать через модуль [crud](reference-roles-crud).
+   Этот код создаст спейс `space_for_crud`, с которым можно взаимодействовать через модуль [crud](reference-roles-crud).
 
 3. Выйдите из консоли:
-    `\quit`
+
+   ```shell
+   \quit
+   ```
+
 4. Теперь подключитесь к узлу `storage-2-msk` -- лидеру набора реплик `storage-2`:
 
-    `tt connect admin:secret-cluster-cookie@0.0.0.0:3306`
+   ```shell
+   tt connect admin:secret-cluster-cookie@0.0.0.0:3306
+   ```
+
 5. Выполните код миграций из п.2 на узле `storage-2-msk`, а затем выйдите из консоли.
 6. Подключитесь к роутеру `router-msk-1`:
-```shell
-tt connect admin:secret-cluster-cookie@0.0.0.0:3301
-```
+
+   ```shell
+   tt connect admin:secret-cluster-cookie@0.0.0.0:3301
+   ```
 
 7. Добавьте запись в спейс:
-```lua
-crud.replace('space_for_crud', {1, nil, 'Too foo bar'})
-```
+
+   ```lua
+   crud.replace('space_for_crud', {1, nil, 'Data'})
+   ```
 
 8. Теперь выполните чтение из спейса:
-```lua
-crud.get('space_for_crud', {1})
-```
+
+   ```lua
+   crud.get('space_for_crud', {1})
+   ```
 
 (admin_guide-up_without_etcd-stop_example)=
 ## Остановка стенда

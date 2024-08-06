@@ -1,3 +1,4 @@
+(connectors-go_balancer)=
 # Балансировка запросов к роутерам через Go-коннектор
 
 В примере демонстрируется работа с повреждённым кластером под нагрузкой.
@@ -15,7 +16,7 @@
 :class: note
 
 Пример стенда с [Telegraf](https://www.influxdata.com/time-series-platform/telegraf/) и [InfluxDB](https://www.influxdata.com/)
-приведен в разделе [Балансировщик запросов к роутерам через Go-коннектор](/examples/java_balancer/connectors_java_balancer.md).
+приведен в разделе [Балансировщик запросов к роутерам через Java-коннектор](connectors-java_balancer).
 ```
 
 Содержание:
@@ -33,7 +34,7 @@
 
 Для выполнения примера требуются:
 
-* установленный [Docker-образ](/install_and_upgrade/install/install_docker.md) Tarantool DB;
+* установленный [Docker-образ](install_docker-image) Tarantool DB;
 * приложение Docker Compose;
 * Go;
 * исходные файлы примера `go_balancer`.
@@ -91,7 +92,7 @@ docker compose up -d
 docker compose logs tcm-1 | grep "super admin"
 ```
 
-Откройте в TCM браузере по адресу [http://localhost:8081](http://localhost:8081).
+Откройте TCM в браузере по адресу [http://localhost:8081](http://localhost:8081).
 Для входа используйте логин `admin` и пароль, полученный с помощью предыдущей команды.
 
 Чтобы настроить кластер:

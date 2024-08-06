@@ -103,7 +103,7 @@ docker compose logs tcm-1 | grep "super admin"
   - `TT_CONFIG` -- ссылка на конфигурацию кластера.
 - `depends on` -- последовательность загрузки контейнеров. Контейнер `tarantool-router-storage-1` запускается только после запуска узлов `etcd1`, `etcd2` и `etcd3`;
 
-  Полный список опций доступен в документации к модулю [cartridge.argparse](https://www.tarantool.io/ru/doc/latest/book/cartridge/cartridge_api/modules/cartridge.argparse/) и в описании [Docker-образа](/install_and_upgrade/install.md) Tarantool DB.
+  Полный список опций доступен в описании [Docker-образа](install_docker-image-description) Tarantool DB.
 
 (admin_guide-deploy_one_node-stop_example)=
 

@@ -24,7 +24,7 @@
 
 Для выполнения примера требуются:
 
-* установленный [Docker-образ](/install_and_upgrade/install.md) Tarantool DB;
+* установленный [Docker-образ](install_docker-image) Tarantool DB;
 * приложение Docker Compose;
 * исходные файлы примера `up_with_docker_compose`.
 
@@ -115,7 +115,7 @@ docker compose logs tcm-1 | grep "super admin"
   * `TT_INSTANCE_NAME` -- имя экземпляра в кластере;
   * `TT_CONFIG` -- ссылка на конфигурацию кластера.
 
-  Полный список опций доступен в описании [Docker-образа](/install_and_upgrade/install.md) Tarantool DB.
+  Полный список опций доступен в описании [Docker-образа](install_docker-image-description) Tarantool DB.
 
 * `depends on` -- последовательность запуска контейнеров. Контейнер `tarantool-router-msk` запускается только после запуска узлов `etcd1`, `etcd2` и `etcd3`;
 

@@ -18,9 +18,9 @@
 
 Для выполнения примера требуются:
 
-* установленный [Docker-образ](/install_and_upgrade/install/install_docker.md) Tarantool DB;
+* установленный [Docker-образ](install_docker-image) Tarantool DB;
 * приложение Docker Compose;
-* утилита [TT CLI](install-install_tt);
+* утилита [tt CLI](install-install_tt);
 * исходные файлы примера `dictionary`.
 
   ```{admonition} Примечание
@@ -51,7 +51,7 @@ docker compose up -d
 ```
 
 Команда развернет стенд, который состоит из:
-* кластера Tarantool DB из двух наборов реплик и двух роутеров;
+* кластера Tarantool DB (2 роутера, 2 набора реплик по 2 хранилища);
 * кластера etcd для работы восстановления после сбоев (failover) кластера Tarantool DB.
 
 После запуска должны работать все контейнеры, кроме `user-host`. 
@@ -77,7 +77,7 @@ tt connect admin:secret-cluster-cookie@localhost:3301
 ```
  
 В примере ниже задается словарь с названием `categories`, который содержит категории денежных трат.
-С помощью функции [dictionary_router.set()](reference_lua-dictionary_router-set) запишите несколько элементов ('Shops','Med' и другие) с соответствующими им ключами в словарь:
+С помощью функции [dictionary_router_set()](reference_lua-dictionary-set) запишите несколько элементов ('Shops','Med' и другие) с соответствующими им ключами в словарь:
 
 ```lua
 dictionary_router.set('categories', '1', 'Shops')
@@ -93,7 +93,7 @@ dictionary_router.set('categories', '5', 'Med')
 Ключ элемента в словаре может быть только строкой.
 ```
 
-Чтобы проверить записанные в словарь данные, используйте метод [dictionary_router.get()](reference_lua-dictionary_router-get), например:
+Чтобы проверить записанные в словарь данные, используйте метод [dictionary_router_get()](reference_lua-dictionary-get), например:
 
 ```lua
 dictionary_router.get('categories', '1')
