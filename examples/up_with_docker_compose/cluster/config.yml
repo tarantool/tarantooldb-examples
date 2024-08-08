@@ -1,10 +1,8 @@
-# simple config for demo purposes
-
 credentials:
   users:
     admin:
       password: 'secret-cluster-cookie'
-      roles: [ super ]
+      roles: [super]
     client:
       password: 'secret'
       roles: [super]
@@ -15,17 +13,6 @@ credentials:
       password: 'secret'
       roles: [sharding]
 
-config:
-  etcd:
-    endpoints:
-      - http://etcd1:2379
-      - http://etcd2:2379
-      - http://etcd3:2379
-    prefix: /tdb
-    http:
-      request:
-        timeout: 3
-
 iproto:
   advertise:
     peer:
@@ -33,19 +20,29 @@ iproto:
     sharding:
       login: storage
 
-replication:
-  failover: manual
-
 sharding:
   bucket_count: 30000
 
+roles_cfg:
+  roles.metrics-export:
+    http:
+    - endpoints:
+      - format: prometheus
+        path: /metrics
+      listen: 8081
+
 groups:
   routers:
+    app:
+      module: app.vshard_bootstrapper
+    replication:
+      failover: manual
     sharding:
       roles: [router]
     roles:
       - roles.crud-router
-#      - dictionary.roles.router
+      - roles.metrics-export
+      - dictionary.roles.router
     roles_cfg:
       roles.crud-router:
         stats: true
@@ -54,8 +51,6 @@ groups:
         stats_quantile_tolerated_error: 0.001
         stats_quantile_age_buckets_count: 5
         stats_quantile_max_age_time: 180
-    app:
-      module: app.vshard_bootstrapper
     replicasets:
       router-msk:
         leader: router-msk
@@ -76,15 +71,19 @@ groups:
               advertise:
                 client: tarantool-router-spb:3301
   storages:
+    replication:
+      failover: election
     sharding:
       roles: [storage]
     roles:
       - roles.crud-storage
+      - roles.metrics-export
       - dictionary.roles.storage
-    replicasets: 
+    roles_cfg:
+      roles.expirationd: [ ]
+    replicasets:
       storage-1:
-        leader: storage-1-msk
-        instances: 
+        instances:
           storage-1-msk:
             iproto:
               listen:
@@ -104,8 +103,7 @@ groups:
               advertise:
                 client: tarantool-storage-1-brn:3301
       storage-2:
-        leader: storage-2-msk
-        instances: 
+        instances:
           storage-2-msk:
             iproto:
               listen:

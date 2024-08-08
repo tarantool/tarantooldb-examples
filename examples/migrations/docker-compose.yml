@@ -7,11 +7,11 @@ services:
     ports:
       - "3301:3301"
     volumes:
-      - ./config.yml:/usr/share/tarantool/tarantooldb/config.yml
+      - ./config.yml:/app/tarantooldb/config.yml
       - ./migrations:/tmp/migrations
     environment:
       - TT_INSTANCE_NAME=router-1
-      - TT_CONFIG=/usr/share/tarantool/tarantooldb/config.yml
+      - TT_CONFIG=/app/tarantooldb/config.yml
     depends_on:
       - etcd1
       - etcd2
@@ -24,10 +24,10 @@ services:
     ports:
       - "3303:3301"
     volumes:
-      - ./config.yml:/usr/share/tarantool/tarantooldb/config.yml
+      - ./config.yml:/app/tarantooldb/config.yml
     environment:
       - TT_INSTANCE_NAME=storage-1
-      - TT_CONFIG=/usr/share/tarantool/tarantooldb/config.yml
+      - TT_CONFIG=/app/tarantooldb/config.yml
     depends_on:
       - etcd1
       - etcd2
@@ -40,10 +40,10 @@ services:
     ports:
       - "3304:3301"
     volumes:
-      - ./config.yml:/usr/share/tarantool/tarantooldb/config.yml
+      - ./config.yml:/app/tarantooldb/config.yml
     environment:
       - TT_INSTANCE_NAME=storage-2
-      - TT_CONFIG=/usr/share/tarantool/tarantooldb/config.yml
+      - TT_CONFIG=/app/tarantooldb/config.yml
     depends_on:
       - etcd1
       - etcd2
@@ -56,10 +56,10 @@ services:
     ports:
       - "3305:3301"
     volumes:
-      - ./config.yml:/usr/share/tarantool/tarantooldb/config.yml
+      - ./config.yml:/app/tarantooldb/config.yml
     environment:
       - TT_INSTANCE_NAME=storage-3
-      - TT_CONFIG=/usr/share/tarantool/tarantooldb/config.yml
+      - TT_CONFIG=/app/tarantooldb/config.yml
     depends_on:
       - etcd1
       - etcd2
@@ -72,10 +72,10 @@ services:
     ports:
       - "3306:3301"
     volumes:
-      - ./config.yml:/usr/share/tarantool/tarantooldb/config.yml
+      - ./config.yml:/app/tarantooldb/config.yml
     environment:
       - TT_INSTANCE_NAME=storage-4
-      - TT_CONFIG=/usr/share/tarantool/tarantooldb/config.yml
+      - TT_CONFIG=/app/tarantooldb/config.yml
     depends_on:
       - etcd1
       - etcd2
@@ -117,7 +117,7 @@ services:
     working_dir: /usr/share/tarantool/stand
     command: /bin/sh -c "\
       sleep 7 \
-      && SRC_FILE=config.yml DST_FILE=/tmp/config.tcm.yml tarantool /usr/share/tarantool/tarantooldb/tools/make_config_tcm_yml.lua
+      && SRC_FILE=config.yml DST_FILE=/tmp/config.tcm.yml tarantool /app/tarantooldb/tools/make_config_tcm_yml.lua
       && tt cluster publish http://etcd1:2379/tdb /tmp/config.tcm.yml \
       && tt migrations publish http://etcd1:2379/tdb migrations \
       && tt migrations up http://etcd1:2379/tdb --tarantool-cluster-username=admin --tarantool-cluster-password=secret-cluster-cookie \
@@ -130,10 +130,10 @@ services:
     ports:
       - "8081:8080"
     volumes:
-      - ./tcm.yml:/usr/share/tarantool/tarantooldb/tcm.yml
+      - ./tcm.yml:/app/tarantooldb/tcm.yml
     depends_on:
       - init_host
-    working_dir: /usr/share/tarantool/tarantooldb/
+    working_dir: /app/tarantooldb/
     environment:
       - TCM_SECURITY_BOOTSTRAP_API_TOKEN=admin-token
     command: ./tcm -c tcm.yml
@@ -143,10 +143,10 @@ services:
     networks:
       - tarantooldb_network
     volumes:
-      - ./config.yml:/usr/share/tarantool/tarantooldb/config.yml
+      - ./config.yml:/app/tarantooldb/config.yml
     depends_on:
       - init_host
-    working_dir: /usr/share/tarantool/tarantooldb/
+    working_dir: /app/tarantooldb/
     command: tarantool --failover -c config.yml
 
   failover-coordinator-2:
@@ -154,10 +154,10 @@ services:
     networks:
       - tarantooldb_network
     volumes:
-      - ./config.yml:/usr/share/tarantool/tarantooldb/config.yml
+      - ./config.yml:/app/tarantooldb/config.yml
     depends_on:
       - init_host
-    working_dir: /usr/share/tarantool/tarantooldb/
+    working_dir: /app/tarantooldb/
     command: tarantool --failover -c config.yml
 
 networks:

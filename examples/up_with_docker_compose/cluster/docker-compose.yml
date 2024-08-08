@@ -1,0 +1,131 @@
+services:
+  tarantool-router-msk:
+    image: tarantooldb:latest
+    networks:
+      - tarantooldb_network
+    ports:
+      - "3301:3301"
+    environment:
+      - TT_INSTANCE_NAME=router-msk
+      - TT_CONFIG_ETCD_ENDPOINTS=http://etcd1:2379,http://etcd2:2379,http://etcd3:2379
+      - TT_CONFIG_ETCD_PREFIX=/tdb
+      - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
+  tarantool-router-spb:
+    image: tarantooldb:latest
+    networks:
+      - tarantooldb_network
+    ports:
+      - "3302:3301"
+    environment:
+      - TT_INSTANCE_NAME=router-spb
+      - TT_CONFIG_ETCD_ENDPOINTS=http://etcd1:2379,http://etcd2:2379,http://etcd3:2379
+      - TT_CONFIG_ETCD_PREFIX=/tdb
+      - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
+  tarantool-storage-1-msk:
+    image: tarantooldb:latest
+    networks:
+      - tarantooldb_network
+    ports:
+      - "3303:3301"
+    environment:
+      - TT_INSTANCE_NAME=storage-1-msk
+      - TT_CONFIG_ETCD_ENDPOINTS=http://etcd1:2379,http://etcd2:2379,http://etcd3:2379
+      - TT_CONFIG_ETCD_PREFIX=/tdb
+      - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
+  tarantool-storage-1-spb:
+    image: tarantooldb:latest
+    networks:
+      - tarantooldb_network
+    ports:
+      - "3304:3301"
+    environment:
+      - TT_INSTANCE_NAME=storage-1-spb
+      - TT_CONFIG_ETCD_ENDPOINTS=http://etcd1:2379,http://etcd2:2379,http://etcd3:2379
+      - TT_CONFIG_ETCD_PREFIX=/tdb
+      - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
+  tarantool-storage-1-brn:
+    image: tarantooldb:latest
+    networks:
+      - tarantooldb_network
+    ports:
+      - "3305:3301"
+    environment:
+      - TT_INSTANCE_NAME=storage-1-brn
+      - TT_CONFIG_ETCD_ENDPOINTS=http://etcd1:2379,http://etcd2:2379,http://etcd3:2379
+      - TT_CONFIG_ETCD_PREFIX=/tdb
+      - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
+  tarantool-storage-2-msk:
+    image: tarantooldb:latest
+    networks:
+      - tarantooldb_network
+    ports:
+      - "3306:3301"
+    environment:
+      - TT_INSTANCE_NAME=storage-2-msk
+      - TT_CONFIG_ETCD_ENDPOINTS=http://etcd1:2379,http://etcd2:2379,http://etcd3:2379
+      - TT_CONFIG_ETCD_PREFIX=/tdb
+      - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
+  tarantool-storage-2-spb:
+    image: tarantooldb:latest
+    networks:
+      - tarantooldb_network
+    ports:
+      - "3307:3301"
+    environment:
+      - TT_INSTANCE_NAME=storage-2-spb
+      - TT_CONFIG_ETCD_ENDPOINTS=http://etcd1:2379,http://etcd2:2379,http://etcd3:2379
+      - TT_CONFIG_ETCD_PREFIX=/tdb
+      - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
+  tarantool-storage-2-brn:
+    image: tarantooldb:latest
+    networks:
+      - tarantooldb_network
+    ports:
+      - "3308:3301"
+    environment:
+      - TT_INSTANCE_NAME=storage-2-brn
+      - TT_CONFIG_ETCD_ENDPOINTS=http://etcd1:2379,http://etcd2:2379,http://etcd3:2379
+      - TT_CONFIG_ETCD_PREFIX=/tdb
+      - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
+
+  init_host:
+    image: tarantooldb:latest
+    networks:
+      - tarantooldb_network
+    volumes:
+      - ./:/app/tarantooldb/stand
+    depends_on:
+      - tarantool-router-msk
+      - tarantool-router-spb
+      - tarantool-storage-1-msk
+      - tarantool-storage-1-spb
+      - tarantool-storage-1-brn
+      - tarantool-storage-2-msk
+      - tarantool-storage-2-spb
+      - tarantool-storage-2-brn
+    working_dir: /app/tarantooldb/stand
+    command: /bin/sh -c "\
+        sleep 3 \
+        && tt migrations publish http://etcd1:2379/tdb migrations \
+        && tt migrations up http://etcd1:2379/tdb --tarantool-cluster-username=admin --tarantool-cluster-password=secret-cluster-cookie \
+        && tcm add-cluster \
+               --storage.provider=etcd --storage.etcd.endpoints="http://etcd1:2379" --storage.etcd.endpoints="http://etcd2:2379" \
+               --storage.etcd.endpoints="http://etcd3:2379" --storage.etcd.prefix="/tdb" \
+               --name="Tarantool DB" -description="Example cluster" --tarantool.username="admin" --tarantool.password="secret-cluster-cookie" \
+        && echo Done."
+
+  tcm-1:
+    image: tarantooldb:latest
+    networks:
+      - tarantooldb_network
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./tcm.yml:/app/tarantooldb/tcm.yml
+    depends_on:
+      - init_host
+    command: ./tcm -c tcm.yml
+
+networks:
+  tarantooldb_network:
+    external: true

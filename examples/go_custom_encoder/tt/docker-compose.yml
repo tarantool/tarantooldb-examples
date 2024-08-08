@@ -7,11 +7,11 @@ services:
     ports:
       - "3301:3301"
     volumes:
-      - ./config.yml:/usr/share/tarantool/tarantooldb/config.yml
+      - ./config.yml:/app/tarantooldb/config.yml
       - ./migrations:/tmp/migrations
     environment:
       - TT_INSTANCE_NAME=router-1
-      - TT_CONFIG=/usr/share/tarantool/tarantooldb/config.yml
+      - TT_CONFIG=/app/tarantooldb/config.yml
     depends_on:
       - etcd1
       - etcd2
@@ -24,11 +24,11 @@ services:
     ports:
       - "3302:3301"
     volumes:
-      - ./config.yml:/usr/share/tarantool/tarantooldb/config.yml
+      - ./config.yml:/app/tarantooldb/config.yml
       - ./migrations:/tmp/migrations
     environment:
       - TT_INSTANCE_NAME=router-2
-      - TT_CONFIG=/usr/share/tarantool/tarantooldb/config.yml
+      - TT_CONFIG=/app/tarantooldb/config.yml
     depends_on:
       - etcd1
       - etcd2
@@ -41,7 +41,7 @@ services:
     ports:
       - "3303:3301"
     volumes:
-      - ./config.yml:/usr/share/tarantool/tarantooldb/config.yml
+      - ./config.yml:/app/tarantooldb/config.yml
     environment:
       - TT_INSTANCE_NAME=storage-1
       - TT_CONFIG=/usr/share/tarantool/tarantooldb/config.yml

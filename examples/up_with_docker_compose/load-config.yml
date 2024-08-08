@@ -1,0 +1,12 @@
+services:
+  load_config:
+    image: tarantooldb:latest
+    networks:
+      - tarantooldb_network
+    volumes:
+      - ./cluster/config.yml:/app/tarantooldb/config.yml
+    command: /bin/sh -c "tt cluster publish http://etcd1:2379/tdb config.yml --force && ./tt cluster show http://etcd1:2379/tdb"
+
+networks:
+  tarantooldb_network:
+    external: true

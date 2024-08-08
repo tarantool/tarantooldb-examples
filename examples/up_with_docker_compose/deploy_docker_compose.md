@@ -16,6 +16,7 @@
 * [](admin_guide-deploy_docker_compose-start_example)
 * [](admin_guide-deploy_docker_compose-files)
 * [](admin_guide-deploy_docker_compose-config)
+* [](admin_guide-deploy_docker_compose-load_config)
 * [](admin_guide-deploy_docker_compose-init_host)
 * [](admin_guide-deploy_ci-stop_example)
 
@@ -52,8 +53,11 @@ cd ./doc/examples/up_with_docker_compose/
 Запустите кластер Tarantool DB:
 
 ```shell
-docker compose up -d
+make start
 ```
+
+Команда запускает централизованное хранилище конфигурации -- кластер 
+etcd, затем загружает в него конфигурацию и после запускает кластер Tarantool DB.
 
 Запущенный стенд состоит из:
 
@@ -61,45 +65,44 @@ docker compose up -d
   - 2 роутера;
   - 2 набора реплик по 3 хранилища;
   - 1 [Tarantool Cluster Manager](getting_started-tcm) (TCM);
-  - 2 координатора автоматического восстановления после сбоев (*failover coordinator*);
 - кластера etcd из 3 узлов;
 - средств мониторинга ([Prometheus](https://prometheus.io/), [Grafana](https://grafana.com/)).
 
-После запуска должны работать все контейнеры, кроме `init_host`.
+После запуска должны работать все контейнеры, кроме [load_config](admin_guide-deploy_docker_compose-load_config) и [init_host](admin_guide-deploy_docker_compose-init_host).
 Также после запуска доступны следующие пользовательские интерфейсы:
 * http://localhost:8081 -- веб-интерфейс TCM;
+* http://localhost:9090 -- веб-интерфейс Prometheus;
 * http://localhost:3000 -- веб-интерфейс Grafana.
 
-Получите пароль для входа в TCM:
+Для входа в веб-интерфейс TCM откройте в браузере адрес [http://localhost:8081](http://localhost:8081). Логин и пароль для входа:
 
-```shell
-docker compose logs tcm-1 | grep "super admin"
-```
-
-Откройте в браузере TCM по адресу [http://localhost:8081](http://localhost:8081).
-Для входа используйте логин `admin` и пароль, полученный с помощью предыдущей команды.
+- **Username**: `admin`
+- **Password**: `secret`
 
 (admin_guide-deploy_docker_compose-files)=
 ## Используемые файлы
 
 В руководстве используются следующие файлы примера `up_with_docker_compose`:
 
-* `config.yml` -- конфигурация и топология кластера;
-* `docker-compose.yml` -- описание узлов кластера;
-* `migrations/scenario` -- директория, содержащая файлы с описанием миграций;
-* `grafana` -- директория, содержащая настройки для ведения мониторинга;
-* `prometheus` -- директория, содержащая настройки Prometheus для сбора и передачи метрик в Grafana;
-* `tcm.yml` -- конфигурация для запуска [Tarantool Cluster Manager](https://www.tarantool.io/ru/doc/latest/reference/tooling/tcm/).
+* `cluster/` -- директория, содержащая файлы, необходимые для запуска кластера Tarantool DB:
+  * `migrations/scenario` -- директория, содержащая файлы с описанием миграций;
+  * `config.yml` -- конфигурация и топология кластера;
+  * `docker-compose.yml` -- описание узлов кластера Tarantool DB;
+  * `tcm.yml` -- конфигурация для запуска [Tarantool Cluster Manager](https://www.tarantool.io/ru/doc/latest/reference/tooling/tcm/).
+* `tools/` -- директория, содержащая файлы, необходимые для запуска кластера etcd и средств мониторинга:
+  * `grafana/` -- директория, содержащая настройки для ведения мониторинга;
+  * `prometheus/` -- директория, содержащая настройки Prometheus для сбора и передачи метрик в Grafana;
+  * `docker-compose.yml` -- описание узлов кластера etcd и средств мониторинга.
+* `load-config.yml` -- команды загрузки конфигурации в централизованное хранилище;
+* `Makefile` -- инструкции для утилиты `make` для запуска и остановки всего стенда;
 
-Кроме того, при запуске примера скрипт `make_config_tcm_yml.lua` создает файл `config.tcm.yml`.
-Это файл содержит конфигурацию для загрузки в TCM, сгенерированную на основе конфигурации кластера.
 
 (admin_guide-deploy_docker_compose-config)=
 ## Конфигурация контейнера для узла Tarantool DB
 
 Конфигурация контейнера для узла Tarantool DB задается в файле `docker-compose.yml`:
 
-```{literalinclude} docker-compose.yml
+```{literalinclude} cluster/docker-compose.yml
 :start-at: tarantool-router-msk
 :end-before: tarantool-router-spb
 :language: yaml
@@ -110,46 +113,34 @@ docker compose logs tcm-1 | grep "super admin"
 * `image` --  название Docker-образа, используемого для создания контейнера;
 * `networks`-- название подсети;
 * `ports` -- используемые порты;
-* `volumes` -- директории с настройками кластера и пользовательской логикой, переданные в контейнер;
 * `environment` -- переменные окружения для опций Tarantool:
   * `TT_INSTANCE_NAME` -- имя экземпляра в кластере;
-  * `TT_CONFIG` -- ссылка на конфигурацию кластера.
+  * `TT_CONFIG_ETCD_ENDPOINTS` -- адреса централизованного хранилища конфигурации;
+  * `TT_CONFIG_ETCD_PREFIX` -- адрес данных кластера Tarantool DB в централизованном хранилище конфигурации;
+  * `TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT` -- таймаут запроса для получения конфигурации.
 
   Полный список опций доступен в описании [Docker-образа](install_docker-image-description) Tarantool DB.
 
-* `depends on` -- последовательность запуска контейнеров. Контейнер `tarantool-router-msk` запускается только после запуска узлов `etcd1`, `etcd2` и `etcd3`;
+(admin_guide-deploy_docker_compose-load_config)=
+## Контейнер load_config
+
+В файле `load-config.yml` есть специальный контейнер `load_config`.
+С этого контейнера выполняется публикация YAML-конфигурации кластера в 
+[централизованное хранилище](https://www.tarantool.io/ru/doc/latest/reference/tooling/tt_cli/cluster/#tt-cluster-publish).
 
 (admin_guide-deploy_docker_compose-init_host)=
 ## Контейнер init_host
 
-В файле `docker-compose.yml` есть специальный контейнер `init_host`.
+В файле `cluster/docker-compose.yml` есть специальный контейнер `init_host`.
 С этого контейнера выполняются:
 
-1. Публикация YAML-конфигурации кластера в [централизованное хранилище](https://www.tarantool.io/ru/doc/latest/reference/tooling/tt_cli/cluster/#tt-cluster-publish).
-2. Загрузка клиентского кода (миграций) в кластер и его применение: описание спейсов и функций.
-
-В примере конфигурация контейнера `init_host` выглядит так:
-
-```{literalinclude} docker-compose.yml
-:start-at: init_host
-:end-before: tcm-1
-:language: yaml
-:dedent:
-```
-
-Здесь:
-
-* `image` -- название Docker-образа, используемого для создания контейнера;
-* `networks`-- название подсети;
-* `volumes` -- директории с настройками кластера и пользовательской логикой, переданные в контейнер;
-* `depends_on` -- секция определяет, что контейнер `user-host` запускается только после запуска всех остальных узлов кластера;
-* `working_dir` -- рабочая директория;
-* `command` -- команды выполняют загрузку миграций и конфигурации кластера.
+1. Загрузка клиентского кода (миграций) в кластер и его применение: описание спейсов и функций.
+2. Добавление кластера в веб-интерфейс.
 
 ## Остановка стенда
 
 Остановить стенд можно так:
 
 ```shell
-docker compose down
+make stop
 ```

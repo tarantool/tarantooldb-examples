@@ -47,9 +47,9 @@
   "annotations": {
     "list": []
   },
-  "description": "Dashboard for Tarantool application and database server monitoring, based on grafonnet library.",
+  "description": "Dashboard for Tarantool 3 application and database server monitoring, based on grafonnet library.",
   "editable": true,
-  "gnetId": 13054,
+  "gnetId": 21474,
   "graphTooltip": 0,
   "hideControls": false,
   "id": null,
@@ -69,7 +69,7 @@
         {
           "columns": [],
           "datasource": "$prometheus",
-          "description": "Overview of Tarantool instances observed by Prometheus job.\n\nIf instance row is *red*, it means Prometheus can't reach\nURI specified in targets or ran into error.\nIf instance row is *green*, it means instance is up and running and\nPrometheus is successfully extracting metrics from it.\n\"Uptime\" column shows time since instant start.\n\nInstance alias filtering is disabled here.\n\nIf Prometheus job filter is not specified, displays running instances\nand ignores unreachable instances (we have no specific source to fetch)\n",
+          "description": "Overview of Tarantool instances observed by Prometheus job.\n\nIf instance row is *red*, it means Prometheus can't reach\nURI specified in targets or ran into error.\nIf instance row is *green*, it means instance is up and running and\nPrometheus is successfully extracting metrics from it.\n\"Uptime\" column shows time since instant start.\n\nInstance alias filtering is disabled here.\n\nIf Prometheus job filter is not specified, displays running instances\nand ignores unreachable instances (we have no specific source to fetch)\n\nThis panel is designed to work with Prometheus client\nset up to have each Tarantool instance as a separate pull target.\n",
           "gridPos": {
             "h": 8,
             "w": 12,
@@ -144,7 +144,7 @@
         },
         {
           "datasource": "$prometheus",
-          "description": "Count of running Tarantool instances observed by Prometheus job.\nIf Prometheus can't reach URI specified in targets\nor ran into error, instance is not counted.\n\nInstance alias filtering is disabled here.\n",
+          "description": "Count of running Tarantool instances observed by Prometheus job.\nIf Prometheus can't reach URI specified in targets\nor ran into error, instance is not counted.\n\nInstance alias filtering is disabled here.\n\nThis panel is designed to work with Prometheus client\nset up to have each Tarantool instance as a separate pull target.\n",
           "gridPos": {
             "h": 3,
             "w": 6,
@@ -467,91 +467,197 @@
           "type": "stat"
         },
         {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
           "datasource": "$prometheus",
-          "description": "Number of \"warning\" issues on each cluster instance.\n\"warning\" issues includes high replication lag, replication long idle,\nfailover and switchover issues, clock issues, memory fragmentation,\nconfiguration issues and alien members warnings.\n\nPanel works with `cartridge >= 2.0.2`, `metrics >= 0.6.0`,\nwhile `metrics >= 0.9.0` is recommended for per instance display.\n",
-          "fill": 0,
+          "description": "Current Tarantool 3 configuration apply status for a cluster instance.\n`uninitialized` decribes uninitialized instance,\n`check_errors` decribes instance with at least one apply error,\n`check_warnings` decribes instance with at least one apply warning,\n`startup_in_progress` decribes instance doing initial configuration apply,\n`reload_in_progress` decribes instance doing configuration apply over existing configuration,\n`ready` describes a healthy instance.\n\nPanel minimal requirements: Grafana 8.\n\nPanel minimal requirements: metrics 1.2.0, Tarantool 3.\n",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [
+                {
+                  "options": {
+                    "1": {
+                      "color": "dark-red",
+                      "index": 0,
+                      "text": "uninitialized"
+                    }
+                  },
+                  "type": "value"
+                },
+                {
+                  "options": {
+                    "from": 1.001,
+                    "result": {
+                      "index": 0,
+                      "text": "-"
+                    },
+                    "to": 1.999
+                  },
+                  "type": "range"
+                },
+                {
+                  "options": {
+                    "2": {
+                      "color": "red",
+                      "index": 0,
+                      "text": "check_errors"
+                    }
+                  },
+                  "type": "value"
+                },
+                {
+                  "options": {
+                    "from": 2.001,
+                    "result": {
+                      "index": 0,
+                      "text": "-"
+                    },
+                    "to": 2.999
+                  },
+                  "type": "range"
+                },
+                {
+                  "options": {
+                    "3": {
+                      "color": "yellow",
+                      "index": 0,
+                      "text": "startup_in_progress"
+                    }
+                  },
+                  "type": "value"
+                },
+                {
+                  "options": {
+                    "from": 3.001,
+                    "result": {
+                      "index": 0,
+                      "text": "-"
+                    },
+                    "to": 3.999
+                  },
+                  "type": "range"
+                },
+                {
+                  "options": {
+                    "4": {
+                      "color": "dark-yellow",
+                      "index": 0,
+                      "text": "reload_in_progress"
+                    }
+                  },
+                  "type": "value"
+                },
+                {
+                  "options": {
+                    "from": 4.001,
+                    "result": {
+                      "index": 0,
+                      "text": "-"
+                    },
+                    "to": 4.999
+                  },
+                  "type": "range"
+                },
+                {
+                  "options": {
+                    "5": {
+                      "color": "dark-orange",
+                      "index": 0,
+                      "text": "check_warnings"
+                    }
+                  },
+                  "type": "value"
+                },
+                {
+                  "options": {
+                    "from": 5.001,
+                    "result": {
+                      "index": 0,
+                      "text": "-"
+                    },
+                    "to": 5.999
+                  },
+                  "type": "range"
+                },
+                {
+                  "options": {
+                    "6": {
+                      "color": "green",
+                      "index": 0,
+                      "text": "ready"
+                    }
+                  },
+                  "type": "value"
+                }
+              ],
+              "max": 6,
+              "min": 1,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": []
+              }
+            },
+            "overrides": []
+          },
           "gridPos": {
-            "h": 6,
+            "h": 8,
             "w": 12,
             "x": 0,
             "y": 9
           },
           "id": 10,
-          "legend": {
-            "alignAsTable": true,
-            "avg": false,
-            "current": true,
-            "max": false,
-            "min": false,
-            "rightSide": false,
-            "show": true,
-            "sideWidth": null,
-            "sort": "current",
-            "sortDesc": true,
-            "total": false,
-            "values": true
+          "options": {
+            "legend": {
+              "calcs": [
+                "last"
+              ],
+              "displayMode": "table",
+              "placement": "right"
+            },
+            "tooltip": {
+              "mode": "multi"
+            }
           },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "repeat": null,
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
           "targets": [
             {
-              "expr": "tnt_cartridge_issues{alias=~\"$alias\",job=~\"$job\",level=\"warning\"}",
+              "expr": "1 * tnt_config_status{alias=~\"$alias\",job=~\"$job\",status=\"uninitialized\"} + on(alias)\n2 * tnt_config_status{alias=~\"$alias\",job=~\"$job\",status=\"check_errors\"} + on(alias)\n3 * tnt_config_status{alias=~\"$alias\",job=~\"$job\",status=\"startup_in_progress\"} + on(alias)\n4 * tnt_config_status{alias=~\"$alias\",job=~\"$job\",status=\"reload_in_progress\"} + on(alias)\n5 * tnt_config_status{alias=~\"$alias\",job=~\"$job\",status=\"check_warnings\"} + on(alias)\n6 * tnt_config_status{alias=~\"$alias\",job=~\"$job\",status=\"ready\"}\n",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "{{alias}}",
               "refId": "A"
             }
           ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Cartridge warning issues",
-          "tooltip": {
-            "shared": true,
-            "sort": 2,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "none",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": 0,
-              "show": true
-            },
-            {
-              "format": "none",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": 0,
-              "show": true
-            }
-          ]
+          "title": "Tarantool configuration status",
+          "type": "timeseries"
         },
         {
           "aliasColors": {},
@@ -559,11 +665,11 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "Number of \"critical\" issues on each cluster instance.\n\"critical\" issues includes replication process critical fails and\nrunning out of available memory.\n\nPanel works with `cartridge >= 2.0.2`, `metrics >= 0.6.0`,\nwhile `metrics >= 0.9.0` is recommended for per instance display.\n",
+          "description": "Number of \"warn\" alerts on Tarantool 3 configuration apply on a cluster instance.\n\"warn\" alerts cover non-critical issues which do not result in apply failure,\nlike missing a role to grant for a user.\n\nPanel minimal requirements: metrics 1.2.0, Tarantool 3.\n",
           "fill": 0,
           "gridPos": {
-            "h": 6,
-            "w": 12,
+            "h": 8,
+            "w": 6,
             "x": 12,
             "y": 9
           },
@@ -597,7 +703,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "tnt_cartridge_issues{alias=~\"$alias\",job=~\"$job\",level=\"critical\"}",
+              "expr": "tnt_config_alerts{alias=~\"$alias\",job=~\"$job\",level=\"warn\"}",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "{{alias}}",
@@ -607,7 +713,7 @@
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Cartridge critical issues",
+          "title": "Tarantool configuration warnings",
           "tooltip": {
             "shared": true,
             "sort": 2,
@@ -646,20 +752,20 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "Displays the count of failover triggers in a replicaset.\nGraph shows average per second.\n\nPanel works with `metrics >= 0.15.0`.\n",
+          "description": "Number of \"error\" alerts on Tarantool 3 configuration apply on a cluster instance.\n\"error\" alerts cover critical issues which results in apply failure,\nlike instance missing itself in configuration.\n\nPanel minimal requirements: metrics 1.2.0, Tarantool 3.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
-            "w": 12,
-            "x": 0,
-            "y": 15
+            "w": 6,
+            "x": 18,
+            "y": 9
           },
           "id": 12,
           "legend": {
             "alignAsTable": true,
-            "avg": true,
+            "avg": false,
             "current": true,
-            "max": true,
+            "max": false,
             "min": false,
             "rightSide": false,
             "show": true,
@@ -684,7 +790,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "rate(tnt_cartridge_failover_trigger_total{alias=~\"$alias\",job=~\"$job\"}[$__rate_interval])",
+              "expr": "tnt_config_alerts{alias=~\"$alias\",job=~\"$job\",level=\"error\"}",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "{{alias}}",
@@ -694,7 +800,7 @@
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Failovers triggered",
+          "title": "Tarantool configuration errors",
           "tooltip": {
             "shared": true,
             "sort": 2,
@@ -711,10 +817,10 @@
           "yaxes": [
             {
               "format": "none",
-              "label": "failovers per second",
+              "label": null,
               "logBase": 1,
               "max": null,
-              "min": null,
+              "min": 0,
               "show": true
             },
             {
@@ -722,14 +828,14 @@
               "label": null,
               "logBase": 1,
               "max": null,
-              "min": null,
+              "min": 0,
               "show": true
             }
           ]
         },
         {
           "datasource": "$prometheus",
-          "description": "`master` status means instance is available for read and\nwrite operations. `replica` status means instance is\navailable only for read operations.\n\nPanel works with `metrics >= 0.11.0` and Grafana 8.x.\n",
+          "description": "`master` status means instance is available for read and\nwrite operations. `replica` status means instance is\navailable only for read operations.\n\nPanel minimal requirements: metrics 0.11.0, Grafana 8.\n",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -807,9 +913,9 @@
           },
           "gridPos": {
             "h": 8,
-            "w": 12,
-            "x": 12,
-            "y": 15
+            "w": 24,
+            "x": 0,
+            "y": 17
           },
           "id": 13,
           "options": {
@@ -838,7 +944,7 @@
         },
         {
           "datasource": "$prometheus",
-          "description": "Election state (mode) of the node.\nWhen election is enabled, the node is writable only in the leader state.\n\nAll the non-leader nodes are called `follower`s.\n`candidate`s are nodes that start a new election round.\n`leader` is a node that collected a quorum of votes.\n\nPanel works with Grafana 8.x.\n\nPanel works with metrics 0.15.0 or newer, Tarantool 2.6.1 or newer.\n",
+          "description": "Election state (mode) of the node.\nWhen election is enabled, the node is writable only in the leader state.\n\nAll the non-leader nodes are called `follower`s.\n`candidate`s are nodes that start a new election round.\n`leader` is a node that collected a quorum of votes.\n\nPanel minimal requirements: Grafana 8.\n\nPanel minimal requirements: metrics 0.15.0, Tarantool 2.6.1.\n",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -939,7 +1045,7 @@
             "h": 8,
             "w": 6,
             "x": 0,
-            "y": 23
+            "y": 25
           },
           "id": 14,
           "options": {
@@ -973,13 +1079,13 @@
           "dashes": false,
           "datasource": "$prometheus",
           "decimals": 0,
-          "description": "ID of a node the current node votes for.\nIf the value is 0, it means the node hasn’t\nvoted in the current term yet.\n\nPanel works with metrics 0.15.0 or newer, Tarantool 2.6.1 or newer.\n",
+          "description": "ID of a node the current node votes for.\nIf the value is 0, it means the node hasn’t\nvoted in the current term yet.\n\nPanel minimal requirements: metrics 0.15.0, Tarantool 2.6.1.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 6,
             "x": 6,
-            "y": 23
+            "y": 25
           },
           "id": 15,
           "legend": {
@@ -1063,13 +1169,13 @@
           "dashes": false,
           "datasource": "$prometheus",
           "decimals": 0,
-          "description": "Leader node ID in the current term.\nIf the value is 0, it means the node doesn’t know which\nnode is the leader in the current term.\n\nPanel works with metrics 0.15.0 or newer, Tarantool 2.6.1 or newer.\n",
+          "description": "Leader node ID in the current term.\nIf the value is 0, it means the node doesn’t know which\nnode is the leader in the current term.\n\nPanel minimal requirements: metrics 0.15.0, Tarantool 2.6.1.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 6,
             "x": 12,
-            "y": 23
+            "y": 25
           },
           "id": 16,
           "legend": {
@@ -1153,13 +1259,13 @@
           "dashes": false,
           "datasource": "$prometheus",
           "decimals": 0,
-          "description": "Current election term.\n\nPanel works with metrics 0.15.0 or newer, Tarantool 2.6.1 or newer.\n",
+          "description": "Current election term.\n\nPanel minimal requirements: metrics 0.15.0, Tarantool 2.6.1.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 6,
             "x": 18,
-            "y": 23
+            "y": 25
           },
           "id": 17,
           "legend": {
@@ -1252,13 +1358,13 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 31
+        "y": 33
       },
       "id": 18,
       "panels": [
         {
           "datasource": "$prometheus",
-          "description": "`follows` status means replication is running.\nOtherwise, `not running` is displayed.\n\nPanel works with `metrics >= 0.13.0` and Grafana 8.x.\n",
+          "description": "`follows` status means replication is running.\nOtherwise, `not running` is displayed.\n\nPanel minimal requirements: metrics 0.13.0, Grafana 8.\n",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -1336,9 +1442,9 @@
           },
           "gridPos": {
             "h": 8,
-            "w": 8,
+            "w": 12,
             "x": 0,
-            "y": 32
+            "y": 34
           },
           "id": 19,
           "options": {
@@ -1371,13 +1477,13 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "Replication lag value for Tarantool instance.\n\nPanel works with `metrics >= 0.13.0`.\n",
+          "description": "Replication lag value for Tarantool instance.\n\nPanel minimal requirements: metrics 0.13.0.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
-            "w": 8,
-            "x": 8,
-            "y": 32
+            "w": 12,
+            "x": 12,
+            "y": 34
           },
           "id": 20,
           "legend": {
@@ -1458,103 +1564,16 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "Clock drift across the cluster.\nmax shows difference with the fastest clock (always positive),\nmin shows difference with the slowest clock (always negative).\n\nPanel works with `metrics >= 0.10.0`.\n",
-          "fill": 1,
-          "gridPos": {
-            "h": 8,
-            "w": 8,
-            "x": 16,
-            "y": 32
-          },
-          "id": 21,
-          "legend": {
-            "alignAsTable": true,
-            "avg": false,
-            "current": true,
-            "max": false,
-            "min": false,
-            "rightSide": false,
-            "show": true,
-            "sideWidth": null,
-            "sort": "current",
-            "sortDesc": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "repeat": null,
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "tnt_clock_delta{alias=~\"$alias\",job=~\"$job\"}",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "{{alias}} ({{delta}})",
-              "refId": "A"
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Instances clock delta",
-          "tooltip": {
-            "shared": true,
-            "sort": 2,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "s",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            },
-            {
-              "format": "s",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            }
-          ]
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "$prometheus",
           "decimals": 0,
-          "description": "Instance ID of the current synchronous replication master.\n\nPanel works with metrics 0.15.0 or newer, Tarantool 2.8.1 or newer.\n",
+          "description": "Instance ID of the current synchronous replication master.\n\nPanel minimal requirements: metrics 0.15.0, Tarantool 2.8.1.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 6,
             "x": 0,
-            "y": 40
+            "y": 42
           },
-          "id": 22,
+          "id": 21,
           "legend": {
             "alignAsTable": true,
             "avg": false,
@@ -1636,15 +1655,15 @@
           "dashes": false,
           "datasource": "$prometheus",
           "decimals": 0,
-          "description": "Current queue term.\n\nPanel works with metrics 0.15.0 or newer, Tarantool 2.8.1 or newer.\n",
+          "description": "Current queue term.\n\nPanel minimal requirements: metrics 0.15.0, Tarantool 2.8.1.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 6,
             "x": 6,
-            "y": 40
+            "y": 42
           },
-          "id": 23,
+          "id": 22,
           "legend": {
             "alignAsTable": true,
             "avg": false,
@@ -1725,15 +1744,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "Count of transactions collecting confirmations now.\n\nPanel works with metrics 0.15.0 or newer, Tarantool 2.8.1 or newer.\n",
+          "description": "Count of transactions collecting confirmations now.\n\nPanel minimal requirements: metrics 0.15.0, Tarantool 2.8.1.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 6,
             "x": 12,
-            "y": 40
+            "y": 42
           },
-          "id": 24,
+          "id": 23,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -1808,7 +1827,7 @@
         },
         {
           "datasource": "$prometheus",
-          "description": "Whether the queue is processing any system entry (CONFIRM/ROLLBACK/PROMOTE/DEMOTE).\n\nPanel works with Grafana 8.x.\n\nPanel works with metrics 0.15.0 or newer, Tarantool 2.8.1 or newer.\n",
+          "description": "Whether the queue is processing any system entry (CONFIRM/ROLLBACK/PROMOTE/DEMOTE).\n\nPanel minimal requirements: Grafana 8.\n\nPanel minimal requirements: metrics 0.15.0, Tarantool 2.8.1.\n",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -1888,9 +1907,9 @@
             "h": 8,
             "w": 6,
             "x": 18,
-            "y": 40
+            "y": 42
           },
-          "id": 25,
+          "id": 24,
           "options": {
             "legend": {
               "calcs": [
@@ -1931,551 +1950,9 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 48
+        "y": 67
       },
-      "id": 26,
-      "panels": [
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "$prometheus",
-          "description": "Requests, processed with success (code 2xx) on Tarantool's side.\nGraph shows mean count per second.\n",
-          "fill": 0,
-          "gridPos": {
-            "h": 8,
-            "w": 8,
-            "x": 0,
-            "y": 49
-          },
-          "id": 27,
-          "legend": {
-            "alignAsTable": true,
-            "avg": true,
-            "current": true,
-            "max": true,
-            "min": false,
-            "rightSide": false,
-            "show": true,
-            "sideWidth": null,
-            "sort": "current",
-            "sortDesc": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "repeat": null,
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "rate(http_server_request_latency_count{alias=~\"$alias\",job=~\"$job\",status=~\"^2\\\\d{2}$\"}[$__rate_interval])",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "{{alias}} — {{method}} {{path}} (code {{status}})",
-              "refId": "A"
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Success requests (code 2xx)",
-          "tooltip": {
-            "shared": true,
-            "sort": 2,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "none",
-              "label": "requests per second",
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            },
-            {
-              "format": "none",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            }
-          ]
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "$prometheus",
-          "description": "Requests, processed with 4xx error on Tarantool's side.\nGraph shows mean count per second.\n",
-          "fill": 0,
-          "gridPos": {
-            "h": 8,
-            "w": 8,
-            "x": 8,
-            "y": 49
-          },
-          "id": 28,
-          "legend": {
-            "alignAsTable": true,
-            "avg": true,
-            "current": true,
-            "max": true,
-            "min": false,
-            "rightSide": false,
-            "show": true,
-            "sideWidth": null,
-            "sort": "current",
-            "sortDesc": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "repeat": null,
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "rate(http_server_request_latency_count{alias=~\"$alias\",job=~\"$job\",status=~\"^4\\\\d{2}$\"}[$__rate_interval])",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "{{alias}} — {{method}} {{path}} (code {{status}})",
-              "refId": "A"
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Error requests (code 4xx)",
-          "tooltip": {
-            "shared": true,
-            "sort": 2,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "none",
-              "label": "requests per second",
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            },
-            {
-              "format": "none",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            }
-          ]
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "$prometheus",
-          "description": "Requests, processed with 5xx error on Tarantool's side.\nGraph shows mean count per second.\n",
-          "fill": 0,
-          "gridPos": {
-            "h": 8,
-            "w": 8,
-            "x": 16,
-            "y": 49
-          },
-          "id": 29,
-          "legend": {
-            "alignAsTable": true,
-            "avg": true,
-            "current": true,
-            "max": true,
-            "min": false,
-            "rightSide": false,
-            "show": true,
-            "sideWidth": null,
-            "sort": "current",
-            "sortDesc": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "repeat": null,
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "rate(http_server_request_latency_count{alias=~\"$alias\",job=~\"$job\",status=~\"^5\\\\d{2}$\"}[$__rate_interval])",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "{{alias}} — {{method}} {{path}} (code {{status}})",
-              "refId": "A"
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Error requests (code 5xx)",
-          "tooltip": {
-            "shared": true,
-            "sort": 2,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "none",
-              "label": "requests per second",
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            },
-            {
-              "format": "none",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            }
-          ]
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "$prometheus",
-          "description": "99th percentile of requests latency.\nIncludes only requests processed with success\n(code 2xx) on Tarantool's side.\n",
-          "fill": 0,
-          "gridPos": {
-            "h": 8,
-            "w": 8,
-            "x": 0,
-            "y": 57
-          },
-          "id": 30,
-          "legend": {
-            "alignAsTable": true,
-            "avg": true,
-            "current": true,
-            "max": true,
-            "min": false,
-            "rightSide": false,
-            "show": true,
-            "sideWidth": null,
-            "sort": "current",
-            "sortDesc": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "repeat": null,
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "http_server_request_latency{alias=~\"$alias\",job=~\"$job\",quantile=\"0.99\",status=~\"^2\\\\d{2}$\"}",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "{{alias}} — {{method}} {{path}} (code {{status}})",
-              "refId": "A"
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Success requests latency (code 2xx)",
-          "tooltip": {
-            "shared": true,
-            "sort": 2,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "s",
-              "label": "99th percentile",
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            },
-            {
-              "format": "s",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            }
-          ]
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "$prometheus",
-          "description": "99th percentile of requests latency.\nIncludes only requests processed with\n4xx error on Tarantool's side.\n",
-          "fill": 0,
-          "gridPos": {
-            "h": 8,
-            "w": 8,
-            "x": 8,
-            "y": 57
-          },
-          "id": 31,
-          "legend": {
-            "alignAsTable": true,
-            "avg": true,
-            "current": true,
-            "max": true,
-            "min": false,
-            "rightSide": false,
-            "show": true,
-            "sideWidth": null,
-            "sort": "current",
-            "sortDesc": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "repeat": null,
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "http_server_request_latency{alias=~\"$alias\",job=~\"$job\",quantile=\"0.99\",status=~\"^4\\\\d{2}$\"}",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "{{alias}} — {{method}} {{path}} (code {{status}})",
-              "refId": "A"
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Error requests latency (code 4xx)",
-          "tooltip": {
-            "shared": true,
-            "sort": 2,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "s",
-              "label": "99th percentile",
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            },
-            {
-              "format": "s",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            }
-          ]
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "$prometheus",
-          "description": "99th percentile of requests latency.\nIncludes only requests processed with\n5xx error on Tarantool's side.\n",
-          "fill": 0,
-          "gridPos": {
-            "h": 8,
-            "w": 8,
-            "x": 16,
-            "y": 57
-          },
-          "id": 32,
-          "legend": {
-            "alignAsTable": true,
-            "avg": true,
-            "current": true,
-            "max": true,
-            "min": false,
-            "rightSide": false,
-            "show": true,
-            "sideWidth": null,
-            "sort": "current",
-            "sortDesc": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "repeat": null,
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "http_server_request_latency{alias=~\"$alias\",job=~\"$job\",quantile=\"0.99\",status=~\"^5\\\\d{2}$\"}",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "{{alias}} — {{method}} {{path}} (code {{status}})",
-              "refId": "A"
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Error requests latency (code 5xx)",
-          "tooltip": {
-            "shared": true,
-            "sort": 2,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "s",
-              "label": "99th percentile",
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            },
-            {
-              "format": "s",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            }
-          ]
-        }
-      ],
-      "repeat": null,
-      "repeatIteration": null,
-      "repeatRowId": null,
-      "showTitle": true,
-      "title": "Tarantool HTTP statistics",
-      "titleSize": "h6",
-      "type": "row"
-    },
-    {
-      "collapse": true,
-      "collapsed": true,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 65
-      },
-      "id": 33,
+      "id": 32,
       "panels": [
         {
           "aliasColors": {},
@@ -2489,9 +1966,9 @@
             "h": 8,
             "w": 8,
             "x": 0,
-            "y": 66
+            "y": 68
           },
-          "id": 34,
+          "id": 33,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -2576,9 +2053,9 @@
             "h": 8,
             "w": 8,
             "x": 8,
-            "y": 66
+            "y": 68
           },
-          "id": 35,
+          "id": 34,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -2663,9 +2140,9 @@
             "h": 8,
             "w": 8,
             "x": 16,
-            "y": 66
+            "y": 68
           },
-          "id": 36,
+          "id": 35,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -2750,9 +2227,9 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 74
+            "y": 76
           },
-          "id": 37,
+          "id": 36,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -2838,9 +2315,9 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 74
+            "y": 76
           },
-          "id": 38,
+          "id": 37,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -2921,15 +2398,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "Average number of requests processed by tx thread per second.\n\nPanel works with `metrics >= 0.13.0` and `Tarantool >= 2.10-beta2`.\n",
+          "description": "Average number of requests processed by tx thread per second.\n\nPanel minimal requirements: metrics 0.13.0, Tarantool 2.10-beta2.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 6,
             "x": 0,
-            "y": 82
+            "y": 84
           },
-          "id": 39,
+          "id": 38,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -3009,15 +2486,15 @@
           "dashes": false,
           "datasource": "$prometheus",
           "decimals": 0,
-          "description": "Number of requests currently being processed in the tx thread.\n\nPanel works with `metrics >= 0.13.0` and `Tarantool >= 2.10-beta2`.\n",
+          "description": "Number of requests currently being processed in the tx thread.\n\nPanel minimal requirements: metrics 0.13.0, Tarantool 2.10-beta2.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 6,
             "x": 6,
-            "y": 82
+            "y": 84
           },
-          "id": 40,
+          "id": 39,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -3098,15 +2575,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "Average number of requests which was placed in queues\nof streams per second.\n\nPanel works with `metrics >= 0.13.0` and `Tarantool >= 2.10-beta2`.\n",
+          "description": "Average number of requests which was placed in queues\nof streams per second.\n\nPanel minimal requirements: metrics 0.13.0, Tarantool 2.10-beta2.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 6,
             "x": 12,
-            "y": 82
+            "y": 84
           },
-          "id": 41,
+          "id": 40,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -3186,15 +2663,15 @@
           "dashes": false,
           "datasource": "$prometheus",
           "decimals": 0,
-          "description": "Number of requests currently waiting in queues of streams.\n\nPanel works with `metrics >= 0.13.0` and `Tarantool >= 2.10-beta2`.\n",
+          "description": "Number of requests currently waiting in queues of streams.\n\nPanel minimal requirements: metrics 0.13.0, Tarantool 2.10-beta2.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 6,
             "x": 18,
-            "y": 82
+            "y": 84
           },
-          "id": 42,
+          "id": 41,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -3281,9 +2758,9 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 90
+            "y": 92
           },
-          "id": 43,
+          "id": 42,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -3369,9 +2846,9 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 90
+            "y": 92
           },
-          "id": 44,
+          "id": 43,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -3452,15 +2929,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "Data sent by instance with binary protocol connections,\nseparated per thread.\nGraph shows average bytes per second.\n\nPanel works with metrics 0.15.0 or newer, Tarantool 2.10 or newer.\n",
+          "description": "Data sent by instance with binary protocol connections,\nseparated per thread.\nGraph shows average bytes per second.\n\nPanel minimal requirements: metrics 0.15.0, Tarantool 2.10.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 98
+            "y": 100
           },
-          "id": 45,
+          "id": 44,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -3539,15 +3016,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "Data received by instance from binary protocol connections,\nseparated per thread.\nGraph shows average bytes per second.\n\nPanel works with metrics 0.15.0 or newer, Tarantool 2.10 or newer.\n",
+          "description": "Data received by instance from binary protocol connections,\nseparated per thread.\nGraph shows average bytes per second.\n\nPanel minimal requirements: metrics 0.15.0, Tarantool 2.10.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 98
+            "y": 100
           },
-          "id": 46,
+          "id": 45,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -3626,15 +3103,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "Average number of new binary protocol connections per second,\nseparated per thread.\n\nPanel works with metrics 0.15.0 or newer, Tarantool 2.10 or newer.\n",
+          "description": "Average number of new binary protocol connections per second,\nseparated per thread.\n\nPanel minimal requirements: metrics 0.15.0, Tarantool 2.10.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 106
+            "y": 108
           },
-          "id": 47,
+          "id": 46,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -3714,15 +3191,15 @@
           "dashes": false,
           "datasource": "$prometheus",
           "decimals": 0,
-          "description": "Number of current active binary protocol connections,\nseparated per thread.\n\nPanel works with metrics 0.15.0 or newer, Tarantool 2.10 or newer.\n",
+          "description": "Number of current active binary protocol connections,\nseparated per thread.\n\nPanel minimal requirements: metrics 0.15.0, Tarantool 2.10.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 106
+            "y": 108
           },
-          "id": 48,
+          "id": 47,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -3803,15 +3280,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "Number of network requests this instance has handled,\nseparated per thread.\nGraph shows mean rps.\n\nPanel works with metrics 0.15.0 or newer, Tarantool 2.10 or newer.\n",
+          "description": "Number of network requests this instance has handled,\nseparated per thread.\nGraph shows mean rps.\n\nPanel minimal requirements: metrics 0.15.0, Tarantool 2.10.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 8,
             "x": 0,
-            "y": 114
+            "y": 116
           },
-          "id": 49,
+          "id": 48,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -3890,15 +3367,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "Average number of requests processed per second,\nseparated per thread.\n\nPanel works with metrics 0.15.0 or newer, Tarantool 2.10 or newer.\n",
+          "description": "Average number of requests processed per second,\nseparated per thread.\n\nPanel minimal requirements: metrics 0.15.0, Tarantool 2.10.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 8,
             "x": 8,
-            "y": 114
+            "y": 116
           },
-          "id": 50,
+          "id": 49,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -3977,15 +3454,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "Average number of requests which was placed in queues\nof streams per second, separated per thread.\n\nPanel works with metrics 0.15.0 or newer, Tarantool 2.10 or newer.\n",
+          "description": "Average number of requests which was placed in queues\nof streams per second, separated per thread.\n\nPanel minimal requirements: metrics 0.15.0, Tarantool 2.10.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 8,
             "x": 16,
-            "y": 114
+            "y": 116
           },
-          "id": 51,
+          "id": 50,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -4065,15 +3542,15 @@
           "dashes": false,
           "datasource": "$prometheus",
           "decimals": 0,
-          "description": "Number of pending network requests,\nseparated per thread.\n\nPanel works with metrics 0.15.0 or newer, Tarantool 2.10 or newer.\n",
+          "description": "Number of pending network requests,\nseparated per thread.\n\nPanel minimal requirements: metrics 0.15.0, Tarantool 2.10.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 8,
             "x": 0,
-            "y": 122
+            "y": 124
           },
-          "id": 52,
+          "id": 51,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -4155,15 +3632,15 @@
           "dashes": false,
           "datasource": "$prometheus",
           "decimals": 0,
-          "description": "Number of requests currently being processed,\nseparated per thread.\n\nPanel works with metrics 0.15.0 or newer, Tarantool 2.10 or newer.\n",
+          "description": "Number of requests currently being processed,\nseparated per thread.\n\nPanel minimal requirements: metrics 0.15.0, Tarantool 2.10.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 8,
             "x": 8,
-            "y": 122
+            "y": 124
           },
-          "id": 53,
+          "id": 52,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -4245,15 +3722,15 @@
           "dashes": false,
           "datasource": "$prometheus",
           "decimals": 0,
-          "description": "Number of requests currently waiting in queues of streams,\nseparated per thread.\n\nPanel works with metrics 0.15.0 or newer, Tarantool 2.10 or newer.\n",
+          "description": "Number of requests currently waiting in queues of streams,\nseparated per thread.\n\nPanel minimal requirements: metrics 0.15.0, Tarantool 2.10.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 8,
             "x": 16,
-            "y": 122
+            "y": 124
           },
-          "id": 54,
+          "id": 53,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -4344,9 +3821,9 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 130
+        "y": 132
       },
-      "id": 55,
+      "id": 54,
       "panels": [
         {
           "content": "`quota_used_ratio` > 90%, `arena_used_ratio` > 90%, 50% < `items_used_ratio` < 90% – your memory is highly fragmented. See [docs](https://www.tarantool.io/en/doc/1.10/reference/reference_lua/box_slab/#lua-function.box.slab.info) for more info.\n\n`quota_used_ratio` > 90%, `arena_used_ratio` > 90%, `items_used_ratio` > 90% – you are running out of memory. You should consider increasing Tarantool’s memory limit (*box.cfg.memtx_memory*).\n",
@@ -4355,9 +3832,9 @@
             "h": 3,
             "w": 24,
             "x": 0,
-            "y": 131
+            "y": 133
           },
-          "id": 56,
+          "id": 55,
           "mode": "markdown",
           "title": "Slab allocator monitoring information",
           "type": "text"
@@ -4374,9 +3851,9 @@
             "h": 8,
             "w": 8,
             "x": 0,
-            "y": 134
+            "y": 136
           },
-          "id": 57,
+          "id": 56,
           "legend": {
             "alignAsTable": true,
             "avg": false,
@@ -4461,9 +3938,9 @@
             "h": 8,
             "w": 8,
             "x": 8,
-            "y": 134
+            "y": 136
           },
-          "id": 58,
+          "id": 57,
           "legend": {
             "alignAsTable": true,
             "avg": false,
@@ -4548,9 +4025,9 @@
             "h": 8,
             "w": 8,
             "x": 16,
-            "y": 134
+            "y": 136
           },
-          "id": 59,
+          "id": 58,
           "legend": {
             "alignAsTable": true,
             "avg": false,
@@ -4635,9 +4112,9 @@
             "h": 8,
             "w": 8,
             "x": 0,
-            "y": 142
+            "y": 144
           },
-          "id": 60,
+          "id": 59,
           "legend": {
             "alignAsTable": true,
             "avg": false,
@@ -4722,9 +4199,9 @@
             "h": 8,
             "w": 8,
             "x": 8,
-            "y": 142
+            "y": 144
           },
-          "id": 61,
+          "id": 60,
           "legend": {
             "alignAsTable": true,
             "avg": false,
@@ -4809,9 +4286,9 @@
             "h": 8,
             "w": 8,
             "x": 16,
-            "y": 142
+            "y": 144
           },
-          "id": 62,
+          "id": 61,
           "legend": {
             "alignAsTable": true,
             "avg": false,
@@ -4896,9 +4373,9 @@
             "h": 8,
             "w": 8,
             "x": 0,
-            "y": 150
+            "y": 152
           },
-          "id": 63,
+          "id": 62,
           "legend": {
             "alignAsTable": true,
             "avg": false,
@@ -4983,9 +4460,9 @@
             "h": 8,
             "w": 8,
             "x": 8,
-            "y": 150
+            "y": 152
           },
-          "id": 64,
+          "id": 63,
           "legend": {
             "alignAsTable": true,
             "avg": false,
@@ -5070,9 +4547,9 @@
             "h": 8,
             "w": 8,
             "x": 16,
-            "y": 150
+            "y": 152
           },
-          "id": 65,
+          "id": 64,
           "legend": {
             "alignAsTable": true,
             "avg": false,
@@ -5161,9 +4638,9 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 158
+        "y": 160
       },
-      "id": 66,
+      "id": 65,
       "panels": [
         {
           "aliasColors": {},
@@ -5171,15 +4648,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "Each operation like `space:replace{}` turns into ``statement``\nfor the current transaction.\n\nGraph shows the number of bytes that are allocated\nfor the statements of all current transactions.\n\nPanel works with metrics 0.15.1 or newer, Tarantool 2.10 or newer.\n",
+          "description": "Each operation like `space:replace{}` turns into ``statement``\nfor the current transaction.\n\nGraph shows the number of bytes that are allocated\nfor the statements of all current transactions.\n\nPanel minimal requirements: metrics 0.15.1, Tarantool 2.10.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 8,
             "x": 0,
-            "y": 159
+            "y": 161
           },
-          "id": 67,
+          "id": 66,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -5258,15 +4735,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "Each operation like `space:replace{}` turns into ``statement``\nfor the current transaction.\n\nGraph shows average bytes used by transactions for statements\n(`txn.statements.total` bytes / number of open transactions).\n\nPanel works with metrics 0.15.1 or newer, Tarantool 2.10 or newer.\n",
+          "description": "Each operation like `space:replace{}` turns into ``statement``\nfor the current transaction.\n\nGraph shows average bytes used by transactions for statements\n(`txn.statements.total` bytes / number of open transactions).\n\nPanel minimal requirements: metrics 0.15.1, Tarantool 2.10.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 8,
             "x": 8,
-            "y": 159
+            "y": 161
           },
-          "id": 68,
+          "id": 67,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -5345,15 +4822,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "Each operation like `space:replace{}` turns into ``statement``\nfor the current transaction.\n\nGraph shows the maximum number of bytes used by one\nthe current transaction for statements.\n\nPanel works with metrics 0.15.1 or newer, Tarantool 2.10 or newer.\n",
+          "description": "Each operation like `space:replace{}` turns into ``statement``\nfor the current transaction.\n\nGraph shows the maximum number of bytes used by one\nthe current transaction for statements.\n\nPanel minimal requirements: metrics 0.15.1, Tarantool 2.10.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 8,
             "x": 16,
-            "y": 159
+            "y": 161
           },
-          "id": 69,
+          "id": 68,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -5432,15 +4909,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "User may allocate memory for the current transaction with\nTarantool C APIfunction `box_txn_alloc()`.\n\nGraph shows memory allocated for all current transactions.\n\nPanel works with metrics 0.15.1 or newer, Tarantool 2.10 or newer.\n",
+          "description": "User may allocate memory for the current transaction with\nTarantool C APIfunction `box_txn_alloc()`.\n\nGraph shows memory allocated for all current transactions.\n\nPanel minimal requirements: metrics 0.15.1, Tarantool 2.10.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 8,
             "x": 0,
-            "y": 167
+            "y": 169
           },
-          "id": 70,
+          "id": 69,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -5519,15 +4996,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "User may allocate memory for the current transaction with\nTarantool C APIfunction `box_txn_alloc()`.\n\nGraph shows transaction average\n(total allocated bytes / number of all current transactions).\n\nPanel works with metrics 0.15.1 or newer, Tarantool 2.10 or newer.\n",
+          "description": "User may allocate memory for the current transaction with\nTarantool C APIfunction `box_txn_alloc()`.\n\nGraph shows transaction average\n(total allocated bytes / number of all current transactions).\n\nPanel minimal requirements: metrics 0.15.1, Tarantool 2.10.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 8,
             "x": 8,
-            "y": 167
+            "y": 169
           },
-          "id": 71,
+          "id": 70,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -5606,15 +5083,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "User may allocate memory for the current transaction with\nTarantool C APIfunction `box_txn_alloc()`.\n\nGraph shows the maximum number of bytes allocated over all current transactions.\n\nPanel works with metrics 0.15.1 or newer, Tarantool 2.10 or newer.\n",
+          "description": "User may allocate memory for the current transaction with\nTarantool C APIfunction `box_txn_alloc()`.\n\nGraph shows the maximum number of bytes allocated over all current transactions.\n\nPanel minimal requirements: metrics 0.15.1, Tarantool 2.10.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 8,
             "x": 16,
-            "y": 167
+            "y": 169
           },
-          "id": 72,
+          "id": 71,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -5693,15 +5170,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "System may store utility things like logs and savepoints\nfor each transaction.\n\nGraph shows memory allocated for all current transactions.\n\nPanel works with metrics 0.15.1 or newer, Tarantool 2.10 or newer.\n",
+          "description": "System may store utility things like logs and savepoints\nfor each transaction.\n\nGraph shows memory allocated for all current transactions.\n\nPanel minimal requirements: metrics 0.15.1, Tarantool 2.10.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 8,
             "x": 0,
-            "y": 175
+            "y": 177
           },
-          "id": 73,
+          "id": 72,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -5780,15 +5257,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "System may store utility things like logs and savepoints\nfor each transaction.\n\nGraph shows transaction average\n(total allocated bytes / number of all current transactions).\n\nPanel works with metrics 0.15.1 or newer, Tarantool 2.10 or newer.\n",
+          "description": "System may store utility things like logs and savepoints\nfor each transaction.\n\nGraph shows transaction average\n(total allocated bytes / number of all current transactions).\n\nPanel minimal requirements: metrics 0.15.1, Tarantool 2.10.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 8,
             "x": 8,
-            "y": 175
+            "y": 177
           },
-          "id": 74,
+          "id": 73,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -5867,15 +5344,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "System may store utility things like logs and savepoints\nfor each transaction.\n\nGraph shows the maximum number of bytes allocated over all current transactions.\n\nPanel works with metrics 0.15.1 or newer, Tarantool 2.10 or newer.\n",
+          "description": "System may store utility things like logs and savepoints\nfor each transaction.\n\nGraph shows the maximum number of bytes allocated over all current transactions.\n\nPanel minimal requirements: metrics 0.15.1, Tarantool 2.10.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 8,
             "x": 16,
-            "y": 175
+            "y": 177
           },
-          "id": 75,
+          "id": 74,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -5954,15 +5431,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "Tarantool allocates memory for trackers\nthat keep track of transaction reads.\n\nGraph shows memory allocated for trackers of all current transactions.\n\nPanel works with metrics 0.15.1 or newer, Tarantool 2.10 or newer.\n",
+          "description": "Tarantool allocates memory for trackers\nthat keep track of transaction reads.\n\nGraph shows memory allocated for trackers of all current transactions.\n\nPanel minimal requirements: metrics 0.15.1, Tarantool 2.10.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 8,
             "x": 0,
-            "y": 183
+            "y": 185
           },
-          "id": 76,
+          "id": 75,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -6041,15 +5518,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "Tarantool allocates memory for trackers\nthat keep track of transaction reads.\n\nGraph shows transaction tracker average\n(total allocated bytes / number of all current transactions).\n\nPanel works with metrics 0.15.1 or newer, Tarantool 2.10 or newer.\n",
+          "description": "Tarantool allocates memory for trackers\nthat keep track of transaction reads.\n\nGraph shows transaction tracker average\n(total allocated bytes / number of all current transactions).\n\nPanel minimal requirements: metrics 0.15.1, Tarantool 2.10.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 8,
             "x": 8,
-            "y": 183
+            "y": 185
           },
-          "id": 77,
+          "id": 76,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -6128,15 +5605,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "Tarantool allocates memory for trackers\nthat keep track of transaction reads.\n\nGraph shows the maximum number of bytes allocated for a tracker\nover all current transactions.\n\nPanel works with metrics 0.15.1 or newer, Tarantool 2.10 or newer.\n",
+          "description": "Tarantool allocates memory for trackers\nthat keep track of transaction reads.\n\nGraph shows the maximum number of bytes allocated for a tracker\nover all current transactions.\n\nPanel minimal requirements: metrics 0.15.1, Tarantool 2.10.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 8,
             "x": 16,
-            "y": 183
+            "y": 185
           },
-          "id": 78,
+          "id": 77,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -6215,15 +5692,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "Tarantool allocates memory in case of conflicts.\n\nGraph shows memory allocated for all current conflicts.\n\nPanel works with metrics 0.15.1 or newer, Tarantool 2.10 or newer.\n",
+          "description": "Tarantool allocates memory in case of conflicts.\n\nGraph shows memory allocated for all current conflicts.\n\nPanel minimal requirements: metrics 0.15.1, Tarantool 2.10.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 8,
             "x": 0,
-            "y": 191
+            "y": 193
           },
-          "id": 79,
+          "id": 78,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -6302,15 +5779,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "Tarantool allocates memory in case of conflicts.\n\nGraph shows transaction conflict average\n(total allocated bytes / number of all current conflict).\n\nPanel works with metrics 0.15.1 or newer, Tarantool 2.10 or newer.\n",
+          "description": "Tarantool allocates memory in case of conflicts.\n\nGraph shows transaction conflict average\n(total allocated bytes / number of all current conflict).\n\nPanel minimal requirements: metrics 0.15.1, Tarantool 2.10.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 8,
             "x": 8,
-            "y": 191
+            "y": 193
           },
-          "id": 80,
+          "id": 79,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -6389,15 +5866,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "Tarantool allocates memory in case of conflicts.\n\nGraph shows the maximum number of bytes allocated for a transaction conflict.\n\nPanel works with metrics 0.15.1 or newer, Tarantool 2.10 or newer.\n",
+          "description": "Tarantool allocates memory in case of conflicts.\n\nGraph shows the maximum number of bytes allocated for a transaction conflict.\n\nPanel minimal requirements: metrics 0.15.1, Tarantool 2.10.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 8,
             "x": 16,
-            "y": 191
+            "y": 193
           },
-          "id": 81,
+          "id": 80,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -6477,15 +5954,15 @@
           "dashes": false,
           "datasource": "$prometheus",
           "decimals": 0,
-          "description": "MVCC is based on the tuple story mechanism.\n\nThis graph shows tuples that are used by active read-write transactions.\n\nGraph shows the number of tuples.\nPanel works with metrics 0.15.1 or newer, Tarantool 2.10 or newer.\n",
+          "description": "MVCC is based on the tuple story mechanism.\n\nThis graph shows tuples that are used by active read-write transactions.\n\nGraph shows the number of tuples.\nPanel minimal requirements: metrics 0.15.1, Tarantool 2.10.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 6,
             "x": 0,
-            "y": 199
+            "y": 201
           },
-          "id": 82,
+          "id": 81,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -6566,15 +6043,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "MVCC is based on the tuple story mechanism.\n\nThis graph shows tuples that are used by active read-write transactions.\n\nGraph shows total size of tuples.\nPanel works with metrics 0.15.1 or newer, Tarantool 2.10 or newer.\n",
+          "description": "MVCC is based on the tuple story mechanism.\n\nThis graph shows tuples that are used by active read-write transactions.\n\nGraph shows total size of tuples.\nPanel minimal requirements: metrics 0.15.1, Tarantool 2.10.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 6,
             "x": 6,
-            "y": 199
+            "y": 201
           },
-          "id": 83,
+          "id": 82,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -6654,15 +6131,15 @@
           "dashes": false,
           "datasource": "$prometheus",
           "decimals": 0,
-          "description": "Retained tuples are no longer in the index,\nbut MVCC does not allow them to be removed.\n\nThis graph shows tuples that are used by active read-write transactions.\n\nGraph shows the number of tuples.\nPanel works with metrics 0.15.1 or newer, Tarantool 2.10 or newer.\n",
+          "description": "Retained tuples are no longer in the index,\nbut MVCC does not allow them to be removed.\n\nThis graph shows tuples that are used by active read-write transactions.\n\nGraph shows the number of tuples.\nPanel minimal requirements: metrics 0.15.1, Tarantool 2.10.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 6,
             "x": 12,
-            "y": 199
+            "y": 201
           },
-          "id": 84,
+          "id": 83,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -6743,15 +6220,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "Retained tuples are no longer in the index,\nbut MVCC does not allow them to be removed.\n\nThis graph shows tuples that are used by active read-write transactions.\n\nGraph shows total size of tuples.\nPanel works with metrics 0.15.1 or newer, Tarantool 2.10 or newer.\n",
+          "description": "Retained tuples are no longer in the index,\nbut MVCC does not allow them to be removed.\n\nThis graph shows tuples that are used by active read-write transactions.\n\nGraph shows total size of tuples.\nPanel minimal requirements: metrics 0.15.1, Tarantool 2.10.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 6,
             "x": 18,
-            "y": 199
+            "y": 201
           },
-          "id": 85,
+          "id": 84,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -6831,15 +6308,15 @@
           "dashes": false,
           "datasource": "$prometheus",
           "decimals": 0,
-          "description": "MVCC is based on the tuple story mechanism.\n\nThis graph shows tuples that are used by read-only transactions (i.e. in read view).\n\nGraph shows the number of tuples.\nPanel works with metrics 0.15.1 or newer, Tarantool 2.10 or newer.\n",
+          "description": "MVCC is based on the tuple story mechanism.\n\nThis graph shows tuples that are used by read-only transactions (i.e. in read view).\n\nGraph shows the number of tuples.\nPanel minimal requirements: metrics 0.15.1, Tarantool 2.10.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 6,
             "x": 0,
-            "y": 207
+            "y": 209
           },
-          "id": 86,
+          "id": 85,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -6920,15 +6397,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "MVCC is based on the tuple story mechanism.\n\nThis graph shows tuples that are used by read-only transactions (i.e. in read view).\n\nGraph shows total size of tuples.\nPanel works with metrics 0.15.1 or newer, Tarantool 2.10 or newer.\n",
+          "description": "MVCC is based on the tuple story mechanism.\n\nThis graph shows tuples that are used by read-only transactions (i.e. in read view).\n\nGraph shows total size of tuples.\nPanel minimal requirements: metrics 0.15.1, Tarantool 2.10.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 6,
             "x": 6,
-            "y": 207
+            "y": 209
           },
-          "id": 87,
+          "id": 86,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -7008,15 +6485,15 @@
           "dashes": false,
           "datasource": "$prometheus",
           "decimals": 0,
-          "description": "Retained tuples are no longer in the index,\nbut MVCC does not allow them to be removed.\n\nThis graph shows tuples that are used by read-only transactions (i.e. in read view).\n\nGraph shows the number of tuples.\nPanel works with metrics 0.15.1 or newer, Tarantool 2.10 or newer.\n",
+          "description": "Retained tuples are no longer in the index,\nbut MVCC does not allow them to be removed.\n\nThis graph shows tuples that are used by read-only transactions (i.e. in read view).\n\nGraph shows the number of tuples.\nPanel minimal requirements: metrics 0.15.1, Tarantool 2.10.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 6,
             "x": 12,
-            "y": 207
+            "y": 209
           },
-          "id": 88,
+          "id": 87,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -7097,15 +6574,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "Retained tuples are no longer in the index,\nbut MVCC does not allow them to be removed.\n\nThis graph shows tuples that are used by read-only transactions (i.e. in read view).\n\nGraph shows total size of tuples.\nPanel works with metrics 0.15.1 or newer, Tarantool 2.10 or newer.\n",
+          "description": "Retained tuples are no longer in the index,\nbut MVCC does not allow them to be removed.\n\nThis graph shows tuples that are used by read-only transactions (i.e. in read view).\n\nGraph shows total size of tuples.\nPanel minimal requirements: metrics 0.15.1, Tarantool 2.10.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 6,
             "x": 18,
-            "y": 207
+            "y": 209
           },
-          "id": 89,
+          "id": 88,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -7185,15 +6662,15 @@
           "dashes": false,
           "datasource": "$prometheus",
           "decimals": 0,
-          "description": "MVCC is based on the tuple story mechanism.\n\nThis graph shows tuples that are not used by current transactions,\nbut are used by MVCC to track reads.\n\nGraph shows the number of tuples.\nPanel works with metrics 0.15.1 or newer, Tarantool 2.10 or newer.\n",
+          "description": "MVCC is based on the tuple story mechanism.\n\nThis graph shows tuples that are not used by current transactions,\nbut are used by MVCC to track reads.\n\nGraph shows the number of tuples.\nPanel minimal requirements: metrics 0.15.1, Tarantool 2.10.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 6,
             "x": 0,
-            "y": 215
+            "y": 217
           },
-          "id": 90,
+          "id": 89,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -7274,15 +6751,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "MVCC is based on the tuple story mechanism.\n\nThis graph shows tuples that are not used by current transactions,\nbut are used by MVCC to track reads.\n\nGraph shows total size of tuples.\nPanel works with metrics 0.15.1 or newer, Tarantool 2.10 or newer.\n",
+          "description": "MVCC is based on the tuple story mechanism.\n\nThis graph shows tuples that are not used by current transactions,\nbut are used by MVCC to track reads.\n\nGraph shows total size of tuples.\nPanel minimal requirements: metrics 0.15.1, Tarantool 2.10.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 6,
             "x": 6,
-            "y": 215
+            "y": 217
           },
-          "id": 91,
+          "id": 90,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -7362,15 +6839,15 @@
           "dashes": false,
           "datasource": "$prometheus",
           "decimals": 0,
-          "description": "Retained tuples are no longer in the index,\nbut MVCC does not allow them to be removed.\n\nThis graph shows tuples that are not used by current transactions,\nbut are used by MVCC to track reads.\n\nGraph shows the number of tuples.\nPanel works with metrics 0.15.1 or newer, Tarantool 2.10 or newer.\n",
+          "description": "Retained tuples are no longer in the index,\nbut MVCC does not allow them to be removed.\n\nThis graph shows tuples that are not used by current transactions,\nbut are used by MVCC to track reads.\n\nGraph shows the number of tuples.\nPanel minimal requirements: metrics 0.15.1, Tarantool 2.10.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 6,
             "x": 12,
-            "y": 215
+            "y": 217
           },
-          "id": 92,
+          "id": 91,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -7451,15 +6928,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "Retained tuples are no longer in the index,\nbut MVCC does not allow them to be removed.\n\nThis graph shows tuples that are not used by current transactions,\nbut are used by MVCC to track reads.\n\nGraph shows total size of tuples.\nPanel works with metrics 0.15.1 or newer, Tarantool 2.10 or newer.\n",
+          "description": "Retained tuples are no longer in the index,\nbut MVCC does not allow them to be removed.\n\nThis graph shows tuples that are not used by current transactions,\nbut are used by MVCC to track reads.\n\nGraph shows total size of tuples.\nPanel minimal requirements: metrics 0.15.1, Tarantool 2.10.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 6,
             "x": 18,
-            "y": 215
+            "y": 217
           },
-          "id": 93,
+          "id": 92,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -7548,9 +7025,9 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 223
+        "y": 225
       },
-      "id": 94,
+      "id": 93,
       "panels": [
         {
           "aliasColors": {},
@@ -7565,9 +7042,9 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 224
+            "y": 226
           },
-          "id": 95,
+          "id": 94,
           "legend": {
             "alignAsTable": true,
             "avg": false,
@@ -7649,15 +7126,15 @@
           "dashes": false,
           "datasource": "$prometheus",
           "decimals": 0,
-          "description": "Number of records in the space (vinyl engine).\nName of space is specified after dash.\nBy default this metrics is disabled,\nto enable it you must set global variable\ninclude_vinyl_count to true. Beware that\ncount() operation scans the space and may\nslow down your app. \n\nPanel works with `metrics >= 0.13.0`.\n",
+          "description": "Number of records in the space (vinyl engine).\nName of space is specified after dash.\nBy default this metrics is disabled,\nto enable it you must set global variable\ninclude_vinyl_count to true. Beware that\ncount() operation scans the space and may\nslow down your app.\n\nPanel minimal requirements: metrics 0.13.0.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 224
+            "y": 226
           },
-          "id": 96,
+          "id": 95,
           "legend": {
             "alignAsTable": true,
             "avg": false,
@@ -7744,9 +7221,9 @@
             "h": 8,
             "w": 8,
             "x": 0,
-            "y": 232
+            "y": 234
           },
-          "id": 97,
+          "id": 96,
           "legend": {
             "alignAsTable": true,
             "avg": false,
@@ -7831,9 +7308,9 @@
             "h": 8,
             "w": 8,
             "x": 8,
-            "y": 232
+            "y": 234
           },
-          "id": 98,
+          "id": 97,
           "legend": {
             "alignAsTable": true,
             "avg": false,
@@ -7918,9 +7395,9 @@
             "h": 8,
             "w": 8,
             "x": 16,
-            "y": 232
+            "y": 234
           },
-          "id": 99,
+          "id": 98,
           "legend": {
             "alignAsTable": true,
             "avg": false,
@@ -8009,9 +7486,9 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 240
+        "y": 291
       },
-      "id": 100,
+      "id": 119,
       "panels": [
         {
           "aliasColors": {},
@@ -8019,1691 +7496,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "The amount of data stored in the `.run` files located in the `vinyl_dir` directory.\n\nPanel works with `metrics >= 0.8.0`.\n",
+          "description": "This is the average share of time\nspent by instance process executing in user mode.\nMetrics obtained using `getrusage()` call.\n\nPanel minimal requirements: metrics 0.8.0.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 241
+            "y": 292
           },
-          "id": 101,
-          "legend": {
-            "alignAsTable": true,
-            "avg": false,
-            "current": true,
-            "max": false,
-            "min": false,
-            "rightSide": false,
-            "show": true,
-            "sideWidth": null,
-            "sort": "current",
-            "sortDesc": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "repeat": null,
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "tnt_vinyl_disk_data_size{alias=~\"$alias\",job=~\"$job\"}",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "{{alias}}",
-              "refId": "A"
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Vinyl disk data",
-          "tooltip": {
-            "shared": true,
-            "sort": 2,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "bytes",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            },
-            {
-              "format": "bytes",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            }
-          ]
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "$prometheus",
-          "description": "The amount of data stored in the `.index` files located in the `vinyl_dir` directory.\n\nPanel works with `metrics >= 0.8.0`.\n",
-          "fill": 0,
-          "gridPos": {
-            "h": 8,
-            "w": 12,
-            "x": 12,
-            "y": 241
-          },
-          "id": 102,
-          "legend": {
-            "alignAsTable": true,
-            "avg": false,
-            "current": true,
-            "max": false,
-            "min": false,
-            "rightSide": false,
-            "show": true,
-            "sideWidth": null,
-            "sort": "current",
-            "sortDesc": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "repeat": null,
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "tnt_vinyl_disk_index_size{alias=~\"$alias\",job=~\"$job\"}",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "{{alias}}",
-              "refId": "A"
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Vinyl disk index",
-          "tooltip": {
-            "shared": true,
-            "sort": 2,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "bytes",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            },
-            {
-              "format": "bytes",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            }
-          ]
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "$prometheus",
-          "description": "Amount of memory in bytes currently used to store tuples (data).\n\nPanel works with `metrics >= 0.8.0`.\n",
-          "fill": 0,
-          "gridPos": {
-            "h": 8,
-            "w": 8,
-            "x": 0,
-            "y": 249
-          },
-          "id": 103,
-          "legend": {
-            "alignAsTable": true,
-            "avg": true,
-            "current": true,
-            "max": true,
-            "min": false,
-            "rightSide": false,
-            "show": true,
-            "sideWidth": null,
-            "sort": "current",
-            "sortDesc": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "repeat": null,
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "tnt_vinyl_memory_tuple_cache{alias=~\"$alias\",job=~\"$job\"}",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "{{alias}}",
-              "refId": "A"
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Tuples cache memory",
-          "tooltip": {
-            "shared": true,
-            "sort": 2,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "bytes",
-              "label": "in bytes",
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            },
-            {
-              "format": "bytes",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            }
-          ]
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "$prometheus",
-          "description": "Amount of memory in bytes currently used to store indexes.\nIf the metric value is close to box.cfg.vinyl_memory, this\nindicates that vinyl_page_size was chosen incorrectly.\n\nPanel works with `metrics >= 0.8.0`.\n",
-          "fill": 0,
-          "gridPos": {
-            "h": 8,
-            "w": 8,
-            "x": 8,
-            "y": 249
-          },
-          "id": 104,
-          "legend": {
-            "alignAsTable": true,
-            "avg": true,
-            "current": true,
-            "max": true,
-            "min": false,
-            "rightSide": false,
-            "show": true,
-            "sideWidth": null,
-            "sort": "current",
-            "sortDesc": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "repeat": null,
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "tnt_vinyl_memory_page_index{alias=~\"$alias\",job=~\"$job\"}",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "{{alias}}",
-              "refId": "A"
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Index memory",
-          "tooltip": {
-            "shared": true,
-            "sort": 2,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "bytes",
-              "label": "in bytes",
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            },
-            {
-              "format": "bytes",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            }
-          ]
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "$prometheus",
-          "description": "Amount of memory in bytes used by bloom filters.\n",
-          "fill": 0,
-          "gridPos": {
-            "h": 8,
-            "w": 8,
-            "x": 16,
-            "y": 249
-          },
-          "id": 105,
-          "legend": {
-            "alignAsTable": true,
-            "avg": true,
-            "current": true,
-            "max": true,
-            "min": false,
-            "rightSide": false,
-            "show": true,
-            "sideWidth": null,
-            "sort": "current",
-            "sortDesc": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "repeat": null,
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "tnt_vinyl_memory_bloom_filter{alias=~\"$alias\",job=~\"$job\"}",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "{{alias}}",
-              "refId": "A"
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Bloom filter memory",
-          "tooltip": {
-            "shared": true,
-            "sort": 2,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "bytes",
-              "label": "in bytes",
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            },
-            {
-              "format": "bytes",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            }
-          ]
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "$prometheus",
-          "description": "The estimated average rate of taking dumps, bytes per second.\nInitially, the rate value is 10 megabytes per second\nand being recalculated depending on the the actual rate.\nOnly significant dumps that are larger than one megabyte\nare used for the estimate.\n\nPanel works with `metrics >= 0.8.0`.\n",
-          "fill": 0,
-          "gridPos": {
-            "h": 8,
-            "w": 8,
-            "x": 0,
-            "y": 257
-          },
-          "id": 106,
-          "legend": {
-            "alignAsTable": true,
-            "avg": true,
-            "current": true,
-            "max": true,
-            "min": false,
-            "rightSide": false,
-            "show": true,
-            "sideWidth": null,
-            "sort": "current",
-            "sortDesc": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "repeat": null,
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "tnt_vinyl_regulator_dump_bandwidth{alias=~\"$alias\",job=~\"$job\"}",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "{{alias}}",
-              "refId": "A"
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Vinyl regulator dump bandwidth",
-          "tooltip": {
-            "shared": true,
-            "sort": 2,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "Bps",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            },
-            {
-              "format": "Bps",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            }
-          ]
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "$prometheus",
-          "description": "The actual average rate of performing the write operations, bytes per second.\nThe rate is calculated as a 5-second moving average.\nIf the metric value is gradually going down, this can indicate some disk issues.\n\nPanel works with `metrics >= 0.8.0`.\n",
-          "fill": 0,
-          "gridPos": {
-            "h": 8,
-            "w": 8,
-            "x": 8,
-            "y": 257
-          },
-          "id": 107,
-          "legend": {
-            "alignAsTable": true,
-            "avg": true,
-            "current": true,
-            "max": true,
-            "min": false,
-            "rightSide": false,
-            "show": true,
-            "sideWidth": null,
-            "sort": "current",
-            "sortDesc": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "repeat": null,
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "tnt_vinyl_regulator_write_rate{alias=~\"$alias\",job=~\"$job\"}",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "{{alias}}",
-              "refId": "A"
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Vinyl regulator write rate",
-          "tooltip": {
-            "shared": true,
-            "sort": 2,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "Bps",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            },
-            {
-              "format": "Bps",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            }
-          ]
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "$prometheus",
-          "description": "The write rate limit, bytes per second.\nThe regulator imposes the limit on transactions based on the observed dump/compaction performance.\nIf the metric value is down to approximately 100 Kbps,\nthis indicates issues with the disk or the scheduler.\n\nPanel works with `metrics >= 0.8.0`.\n",
-          "fill": 0,
-          "gridPos": {
-            "h": 8,
-            "w": 8,
-            "x": 16,
-            "y": 257
-          },
-          "id": 108,
-          "legend": {
-            "alignAsTable": true,
-            "avg": true,
-            "current": true,
-            "max": true,
-            "min": false,
-            "rightSide": false,
-            "show": true,
-            "sideWidth": null,
-            "sort": "current",
-            "sortDesc": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "repeat": null,
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "tnt_vinyl_regulator_rate_limit{alias=~\"$alias\",job=~\"$job\"}",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "{{alias}}",
-              "refId": "A"
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Vinyl regulator rate limit",
-          "tooltip": {
-            "shared": true,
-            "sort": 2,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "Bps",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            },
-            {
-              "format": "Bps",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            }
-          ]
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "$prometheus",
-          "description": "«Level 0» (L0) memory area in bytes. L0 is the area that\nvinyl can use for in-memory storage of an LSM tree.\nBy monitoring this metric, you can see when L0 is getting\nclose to its maximum (tnt_vinyl_regulator_dump_watermark),\nat which time a dump will occur. You can expect L0 = 0\nimmediately after the dump operation is completed.\n\nPanel works with `metrics >= 0.8.0`.\n",
-          "fill": 0,
-          "gridPos": {
-            "h": 8,
-            "w": 8,
-            "x": 0,
-            "y": 265
-          },
-          "id": 109,
-          "legend": {
-            "alignAsTable": true,
-            "avg": false,
-            "current": true,
-            "max": true,
-            "min": false,
-            "rightSide": false,
-            "show": true,
-            "sideWidth": null,
-            "sort": "current",
-            "sortDesc": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "repeat": null,
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "tnt_vinyl_memory_level0{alias=~\"$alias\",job=~\"$job\"}",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "{{alias}}",
-              "refId": "A"
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Level 0 memory",
-          "tooltip": {
-            "shared": true,
-            "sort": 2,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "bytes",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            },
-            {
-              "format": "bytes",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            }
-          ]
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "$prometheus",
-          "description": "The maximum amount of memory used for in-memory storing of a vinyl LSM tree.\nWhen accessing this maximum, the dumping must occur.\nFor details, see https://www.tarantool.io/en/doc/latest/book/box/engines/#engines-algorithm-filling-lsm.\nThe value is slightly smaller than the amount of memory allocated for vinyl trees,\nwhich is the `vinyl_memory` parameter.\n\nPanel works with `metrics >= 0.8.0`.\n",
-          "fill": 0,
-          "gridPos": {
-            "h": 8,
-            "w": 8,
-            "x": 8,
-            "y": 265
-          },
-          "id": 110,
-          "legend": {
-            "alignAsTable": true,
-            "avg": false,
-            "current": true,
-            "max": false,
-            "min": false,
-            "rightSide": false,
-            "show": true,
-            "sideWidth": null,
-            "sort": "current",
-            "sortDesc": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "repeat": null,
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "tnt_vinyl_regulator_dump_watermark{alias=~\"$alias\",job=~\"$job\"}",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "{{alias}}",
-              "refId": "A"
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Vinyl regulator dump watermark",
-          "tooltip": {
-            "shared": true,
-            "sort": 2,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "bytes",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            },
-            {
-              "format": "bytes",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            }
-          ]
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "$prometheus",
-          "description": "The number of fibers that are blocked waiting for Vinyl level0 memory quota.\n\nPanel works with `metrics >= 0.13.0` and `Tarantool >= 2.8.3`.\n",
-          "fill": 0,
-          "gridPos": {
-            "h": 8,
-            "w": 8,
-            "x": 16,
-            "y": 265
-          },
-          "id": 111,
-          "legend": {
-            "alignAsTable": true,
-            "avg": false,
-            "current": true,
-            "max": false,
-            "min": false,
-            "rightSide": false,
-            "show": true,
-            "sideWidth": null,
-            "sort": "current",
-            "sortDesc": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "repeat": null,
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "tnt_vinyl_regulator_blocked_writers{alias=~\"$alias\",job=~\"$job\"}",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "{{alias}}",
-              "refId": "A"
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Vinyl regulator blocked writers",
-          "tooltip": {
-            "shared": true,
-            "sort": 2,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "none",
-              "label": "fibers",
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            },
-            {
-              "format": "none",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            }
-          ]
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "$prometheus",
-          "description": "Average per second rate of commits (successful transaction ends).\nIt includes implicit commits: for example, any insert operation causes a commit\nunless it is within a `box.begin()`–`box.commit()` block.\n\nPanel works with `metrics >= 0.8.0`.\n",
-          "fill": 0,
-          "gridPos": {
-            "h": 8,
-            "w": 6,
-            "x": 0,
-            "y": 273
-          },
-          "id": 112,
-          "legend": {
-            "alignAsTable": true,
-            "avg": true,
-            "current": true,
-            "max": true,
-            "min": false,
-            "rightSide": false,
-            "show": true,
-            "sideWidth": null,
-            "sort": "current",
-            "sortDesc": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "repeat": null,
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "rate(tnt_vinyl_tx_commit{alias=~\"$alias\",job=~\"$job\"}[$__rate_interval])",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "{{alias}}",
-              "refId": "A"
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Vinyl tx commit rate",
-          "tooltip": {
-            "shared": true,
-            "sort": 2,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "none",
-              "label": "transactions per second",
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            },
-            {
-              "format": "none",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            }
-          ]
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "$prometheus",
-          "description": "Average per second rate of rollbacks (unsuccessful transaction ends).\nThis is not merely a count of explicit `box.rollback()` requests — it includes requests\nthat ended with errors.\nPanel works with `metrics >= 0.8.0`.\n",
-          "fill": 0,
-          "gridPos": {
-            "h": 8,
-            "w": 6,
-            "x": 6,
-            "y": 273
-          },
-          "id": 113,
-          "legend": {
-            "alignAsTable": true,
-            "avg": true,
-            "current": true,
-            "max": true,
-            "min": false,
-            "rightSide": false,
-            "show": true,
-            "sideWidth": null,
-            "sort": "current",
-            "sortDesc": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "repeat": null,
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "rate(tnt_vinyl_tx_rollback{alias=~\"$alias\",job=~\"$job\"}[$__rate_interval])",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "{{alias}}",
-              "refId": "A"
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Vinyl tx rollback rate",
-          "tooltip": {
-            "shared": true,
-            "sort": 2,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "none",
-              "label": "transactions per second",
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            },
-            {
-              "format": "none",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            }
-          ]
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "$prometheus",
-          "description": "Average per second rate of conflicts that caused transactions to roll back.\nThe ratio `tx conflicts` / `tx commits` above 5% indicates that vinyl is not healthy.\nAt this moment you’ll probably see a lot of other problems with vinyl.\n\nPanel works with `metrics >= 0.8.0`.\n",
-          "fill": 0,
-          "gridPos": {
-            "h": 8,
-            "w": 6,
-            "x": 12,
-            "y": 273
-          },
-          "id": 114,
-          "legend": {
-            "alignAsTable": true,
-            "avg": true,
-            "current": true,
-            "max": true,
-            "min": false,
-            "rightSide": false,
-            "show": true,
-            "sideWidth": null,
-            "sort": "current",
-            "sortDesc": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "repeat": null,
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "rate(tnt_vinyl_tx_conflict{alias=~\"$alias\",job=~\"$job\"}[$__rate_interval])",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "{{alias}}",
-              "refId": "A"
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Vinyl tx conflict rate",
-          "tooltip": {
-            "shared": true,
-            "sort": 2,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "none",
-              "label": "transactions per second",
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            },
-            {
-              "format": "none",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            }
-          ]
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "$prometheus",
-          "decimals": 0,
-          "description": "Number of current read views, that is, transactions entered a read-only state\nto avoid conflict temporarily.\nIf the value stays non-zero for a long time, it indicates of a memory leak.\n\nPanel works with `metrics >= 0.8.0`.\n",
-          "fill": 0,
-          "gridPos": {
-            "h": 8,
-            "w": 6,
-            "x": 18,
-            "y": 273
-          },
-          "id": 115,
-          "legend": {
-            "alignAsTable": true,
-            "avg": true,
-            "current": true,
-            "max": true,
-            "min": false,
-            "rightSide": false,
-            "show": true,
-            "sideWidth": null,
-            "sort": "current",
-            "sortDesc": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "repeat": null,
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "tnt_vinyl_tx_read_views{alias=~\"$alias\",job=~\"$job\"}",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "{{alias}}",
-              "refId": "A"
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Vinyl read views",
-          "tooltip": {
-            "shared": true,
-            "sort": 2,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "decimals": 0,
-              "format": "none",
-              "label": "current",
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            },
-            {
-              "decimals": 0,
-              "format": "none",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            }
-          ]
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "$prometheus",
-          "description": "The number of the scheduler dump/compaction tasks in progress now.\n\nPanel works with `metrics >= 0.8.0`.\n",
-          "fill": 0,
-          "gridPos": {
-            "h": 8,
-            "w": 6,
-            "x": 0,
-            "y": 281
-          },
-          "id": 116,
-          "legend": {
-            "alignAsTable": true,
-            "avg": false,
-            "current": true,
-            "max": true,
-            "min": false,
-            "rightSide": false,
-            "show": true,
-            "sideWidth": null,
-            "sort": "current",
-            "sortDesc": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "repeat": null,
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "tnt_vinyl_scheduler_tasks{alias=~\"$alias\",job=~\"$job\",status=\"inprogress\"}",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "{{alias}}",
-              "refId": "A"
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Vinyl scheduler tasks in progress",
-          "tooltip": {
-            "shared": true,
-            "sort": 2,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "none",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            },
-            {
-              "format": "none",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            }
-          ]
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "$prometheus",
-          "description": "Scheduler dump/compaction tasks failed.\nAverage per second rate is shown.\n\nPanel works with `metrics >= 0.8.0`.\n",
-          "fill": 0,
-          "gridPos": {
-            "h": 8,
-            "w": 6,
-            "x": 6,
-            "y": 281
-          },
-          "id": 117,
-          "legend": {
-            "alignAsTable": true,
-            "avg": false,
-            "current": true,
-            "max": true,
-            "min": false,
-            "rightSide": false,
-            "show": true,
-            "sideWidth": null,
-            "sort": "current",
-            "sortDesc": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "repeat": null,
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "rate(tnt_vinyl_scheduler_tasks{alias=~\"$alias\",job=~\"$job\",status=\"failed\"}[$__rate_interval])",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "{{alias}}",
-              "refId": "A"
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Vinyl scheduler failed tasks rate",
-          "tooltip": {
-            "shared": true,
-            "sort": 2,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "none",
-              "label": "per second rate",
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            },
-            {
-              "format": "none",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            }
-          ]
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "$prometheus",
-          "description": "Time spent by all worker threads performing dumps.\nAverage per second rate is shown.\n\nPanel works with `metrics >= 0.8.0`.\n",
-          "fill": 0,
-          "gridPos": {
-            "h": 8,
-            "w": 6,
-            "x": 12,
-            "y": 281
-          },
-          "id": 118,
-          "legend": {
-            "alignAsTable": true,
-            "avg": true,
-            "current": true,
-            "max": true,
-            "min": false,
-            "rightSide": false,
-            "show": true,
-            "sideWidth": null,
-            "sort": "current",
-            "sortDesc": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "repeat": null,
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "rate(tnt_vinyl_scheduler_dump_time{alias=~\"$alias\",job=~\"$job\"}[$__rate_interval])",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "{{alias}}",
-              "refId": "A"
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Vinyl scheduler dump time rate",
-          "tooltip": {
-            "shared": true,
-            "sort": 2,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "s",
-              "label": "per second rate",
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            },
-            {
-              "format": "s",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            }
-          ]
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "$prometheus",
-          "description": "Scheduler dumps completed average per second rate.\n\nPanel works with `metrics >= 0.13.0`.\n",
-          "fill": 0,
-          "gridPos": {
-            "h": 8,
-            "w": 6,
-            "x": 18,
-            "y": 281
-          },
-          "id": 119,
-          "legend": {
-            "alignAsTable": true,
-            "avg": true,
-            "current": true,
-            "max": true,
-            "min": false,
-            "rightSide": false,
-            "show": true,
-            "sideWidth": null,
-            "sort": "current",
-            "sortDesc": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "repeat": null,
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "expr": "rate(tnt_vinyl_scheduler_dump_total{alias=~\"$alias\",job=~\"$job\"}[$__rate_interval])",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "{{alias}}",
-              "refId": "A"
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Vinyl scheduler dump count rate",
-          "tooltip": {
-            "shared": true,
-            "sort": 2,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "none",
-              "label": "per second rate",
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            },
-            {
-              "format": "none",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            }
-          ]
-        }
-      ],
-      "repeat": null,
-      "repeatIteration": null,
-      "repeatRowId": null,
-      "showTitle": true,
-      "title": "Tarantool vinyl statistics",
-      "titleSize": "h6",
-      "type": "row"
-    },
-    {
-      "collapse": true,
-      "collapsed": true,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 289
-      },
-      "id": 120,
-      "panels": [
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "$prometheus",
-          "description": "This is the average share of time\nspent by instance process executing in user mode.\nMetrics obtained using `getrusage()` call.\n\nPanel works with `metrics >= 0.8.0`.\n",
-          "fill": 0,
-          "gridPos": {
-            "h": 8,
-            "w": 12,
-            "x": 0,
-            "y": 290
-          },
-          "id": 121,
+          "id": 120,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -9783,15 +7584,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "This is the average share of time\nspent by instance process executing in kernel mode.\nMetrics obtained using `getrusage()` call.\n\nPanel works with `metrics >= 0.8.0`.\n",
+          "description": "This is the average share of time\nspent by instance process executing in kernel mode.\nMetrics obtained using `getrusage()` call.\n\nPanel minimal requirements: metrics 0.8.0.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 290
+            "y": 292
           },
-          "id": 122,
+          "id": 121,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -9881,9 +7682,9 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 298
+        "y": 300
       },
-      "id": 123,
+      "id": 122,
       "panels": [
         {
           "aliasColors": {},
@@ -9897,9 +7698,9 @@
             "h": 8,
             "w": 8,
             "x": 0,
-            "y": 299
+            "y": 301
           },
-          "id": 124,
+          "id": 123,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -9984,9 +7785,9 @@
             "h": 8,
             "w": 8,
             "x": 8,
-            "y": 299
+            "y": 301
           },
-          "id": 125,
+          "id": 124,
           "legend": {
             "alignAsTable": true,
             "avg": false,
@@ -10071,9 +7872,9 @@
             "h": 8,
             "w": 8,
             "x": 16,
-            "y": 299
+            "y": 301
           },
-          "id": 126,
+          "id": 125,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -10158,9 +7959,9 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 307
+            "y": 309
           },
-          "id": 127,
+          "id": 126,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -10239,15 +8040,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "Duration of last event loop iteration (tx thread).\nHigh duration results in longer responses,\npossible bad health signals and may be the\nreason of \"Too long WAL write\" errors.\n\nPanel works with `metrics >= 0.13.0`.\n",
+          "description": "Duration of last event loop iteration (tx thread).\nHigh duration results in longer responses,\npossible bad health signals and may be the\nreason of \"Too long WAL write\" errors.\n\nPanel minimal requirements: metrics 0.13.0.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 307
+            "y": 309
           },
-          "id": 128,
+          "id": 127,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -10327,15 +8128,15 @@
           "dashes": false,
           "datasource": "$prometheus",
           "decimals": 0,
-          "description": "Current number of fibers in tx thread. \n\nPanel works with `metrics >= 0.13.0`.\n",
+          "description": "Current number of fibers in tx thread.\n\nPanel minimal requirements: metrics 0.13.0.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 8,
             "x": 0,
-            "y": 315
+            "y": 317
           },
-          "id": 129,
+          "id": 128,
           "legend": {
             "alignAsTable": true,
             "avg": false,
@@ -10422,9 +8223,9 @@
             "h": 8,
             "w": 8,
             "x": 8,
-            "y": 315
+            "y": 317
           },
-          "id": 130,
+          "id": 129,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -10509,9 +8310,9 @@
             "h": 8,
             "w": 8,
             "x": 16,
-            "y": 315
+            "y": 317
           },
-          "id": 131,
+          "id": 130,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -10600,9 +8401,9 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 323
+        "y": 325
       },
-      "id": 132,
+      "id": 131,
       "panels": [
         {
           "aliasColors": {},
@@ -10610,15 +8411,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "Average number of snap restores (guard assertions\nleading to stopping trace executions) per second.\n\n\nPanel works with `metrics >= 0.15.0` and `Tarantool >= 2.6`.",
+          "description": "Average number of snap restores (guard assertions\nleading to stopping trace executions) per second.\n\n\nPanel minimal requirements: metrics 0.15.0, Tarantool 2.6.",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 6,
             "x": 0,
-            "y": 324
+            "y": 326
           },
-          "id": 133,
+          "id": 132,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -10697,15 +8498,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "Average number of new JIT traces per second.\n\n\nPanel works with `metrics >= 0.6.0` and `Tarantool >= 2.6`.",
+          "description": "Average number of new JIT traces per second.\n\n\nPanel minimal requirements: metrics 0.6.0, Tarantool 2.6.",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 6,
             "x": 6,
-            "y": 324
+            "y": 326
           },
-          "id": 134,
+          "id": 133,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -10784,15 +8585,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "Average number of JIT trace aborts per second.\n\n\nPanel works with `metrics >= 0.15.0` and `Tarantool >= 2.6`.",
+          "description": "Average number of JIT trace aborts per second.\n\n\nPanel minimal requirements: metrics 0.15.0, Tarantool 2.6.",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 6,
             "x": 12,
-            "y": 324
+            "y": 326
           },
-          "id": 135,
+          "id": 134,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -10871,15 +8672,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "Total size of allocated machine code areas.\n\n\nPanel works with `metrics >= 0.6.0` and `Tarantool >= 2.6`.",
+          "description": "Total size of allocated machine code areas.\n\n\nPanel minimal requirements: metrics 0.6.0, Tarantool 2.6.",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 6,
             "x": 18,
-            "y": 324
+            "y": 326
           },
-          "id": 136,
+          "id": 135,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -10958,15 +8759,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "Average number of strings being extracted from hash instead of allocating per second.\n\n\nPanel works with `metrics >= 0.15.0` and `Tarantool >= 2.6`.",
+          "description": "Average number of strings being extracted from hash instead of allocating per second.\n\n\nPanel minimal requirements: metrics 0.15.0, Tarantool 2.6.",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 332
+            "y": 334
           },
-          "id": 137,
+          "id": 136,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -11045,15 +8846,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "Average number of strings being allocated due to hash miss per second.\n\n\nPanel works with `metrics >= 0.15.0` and `Tarantool >= 2.6`.",
+          "description": "Average number of strings being allocated due to hash miss per second.\n\n\nPanel minimal requirements: metrics 0.15.0, Tarantool 2.6.",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 332
+            "y": 334
           },
-          "id": 138,
+          "id": 137,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -11132,15 +8933,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "Average count of incremental GC steps (atomic state) per second.\n\n\nPanel works with `metrics >= 0.15.0` and `Tarantool >= 2.6`.",
+          "description": "Average count of incremental GC steps (atomic state) per second.\n\n\nPanel minimal requirements: metrics 0.15.0, Tarantool 2.6.",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 8,
             "x": 0,
-            "y": 340
+            "y": 342
           },
-          "id": 139,
+          "id": 138,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -11219,15 +9020,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "Average count of incremental GC steps (sweepstring state) per second.\n\n\nPanel works with `metrics >= 0.15.0` and `Tarantool >= 2.6`.",
+          "description": "Average count of incremental GC steps (sweepstring state) per second.\n\n\nPanel minimal requirements: metrics 0.15.0, Tarantool 2.6.",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 8,
             "x": 8,
-            "y": 340
+            "y": 342
           },
-          "id": 140,
+          "id": 139,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -11306,15 +9107,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "Average count of incremental GC steps (finalize state) per second.\n\n\nPanel works with `metrics >= 0.15.0` and `Tarantool >= 2.6`.",
+          "description": "Average count of incremental GC steps (finalize state) per second.\n\n\nPanel minimal requirements: metrics 0.15.0, Tarantool 2.6.",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 8,
             "x": 16,
-            "y": 340
+            "y": 342
           },
-          "id": 141,
+          "id": 140,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -11393,15 +9194,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "Average count of incremental GC steps (sweep state) per second.\n\n\nPanel works with `metrics >= 0.15.0` and `Tarantool >= 2.6`.",
+          "description": "Average count of incremental GC steps (sweep state) per second.\n\n\nPanel minimal requirements: metrics 0.15.0, Tarantool 2.6.",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 8,
             "x": 0,
-            "y": 348
+            "y": 350
           },
-          "id": 142,
+          "id": 141,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -11480,15 +9281,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "Average count of incremental GC steps (propagate state) per second.\n\n\nPanel works with `metrics >= 0.15.0` and `Tarantool >= 2.6`.",
+          "description": "Average count of incremental GC steps (propagate state) per second.\n\n\nPanel minimal requirements: metrics 0.15.0, Tarantool 2.6.",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 8,
             "x": 8,
-            "y": 348
+            "y": 350
           },
-          "id": 143,
+          "id": 142,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -11567,15 +9368,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "Average count of incremental GC steps (pause state) per second.\n\n\nPanel works with `metrics >= 0.15.0` and `Tarantool >= 2.6`.",
+          "description": "Average count of incremental GC steps (pause state) per second.\n\n\nPanel minimal requirements: metrics 0.15.0, Tarantool 2.6.",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 8,
             "x": 16,
-            "y": 348
+            "y": 350
           },
-          "id": 144,
+          "id": 143,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -11655,15 +9456,15 @@
           "dashes": false,
           "datasource": "$prometheus",
           "decimals": 0,
-          "description": "Number of allocated string objects.\n\n\nPanel works with `metrics >= 0.6.0` and `Tarantool >= 2.6`.",
+          "description": "Number of allocated string objects.\n\n\nPanel minimal requirements: metrics 0.6.0, Tarantool 2.6.",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 6,
             "x": 0,
-            "y": 356
+            "y": 358
           },
-          "id": 145,
+          "id": 144,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -11745,15 +9546,15 @@
           "dashes": false,
           "datasource": "$prometheus",
           "decimals": 0,
-          "description": "Number of allocated table objects.\n\n\nPanel works with `metrics >= 0.6.0` and `Tarantool >= 2.6`.",
+          "description": "Number of allocated table objects.\n\n\nPanel minimal requirements: metrics 0.6.0, Tarantool 2.6.",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 6,
             "x": 6,
-            "y": 356
+            "y": 358
           },
-          "id": 146,
+          "id": 145,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -11835,15 +9636,15 @@
           "dashes": false,
           "datasource": "$prometheus",
           "decimals": 0,
-          "description": "Number of allocated cdata objects.\n\n\nPanel works with `metrics >= 0.6.0` and `Tarantool >= 2.6`.",
+          "description": "Number of allocated cdata objects.\n\n\nPanel minimal requirements: metrics 0.6.0, Tarantool 2.6.",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 6,
             "x": 12,
-            "y": 356
+            "y": 358
           },
-          "id": 147,
+          "id": 146,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -11925,15 +9726,15 @@
           "dashes": false,
           "datasource": "$prometheus",
           "decimals": 0,
-          "description": "Number of allocated userdata objects.\n\n\nPanel works with `metrics >= 0.6.0` and `Tarantool >= 2.6`.",
+          "description": "Number of allocated userdata objects.\n\n\nPanel minimal requirements: metrics 0.6.0, Tarantool 2.6.",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 6,
             "x": 18,
-            "y": 356
+            "y": 358
           },
-          "id": 148,
+          "id": 147,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -12014,15 +9815,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "Current allocated Lua memory.\n\n\nPanel works with `metrics >= 0.6.0` and `Tarantool >= 2.6`.",
+          "description": "Current allocated Lua memory.\n\n\nPanel minimal requirements: metrics 0.6.0, Tarantool 2.6.",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 8,
             "x": 0,
-            "y": 364
+            "y": 366
           },
-          "id": 149,
+          "id": 148,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -12101,15 +9902,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "Average amount of freed Lua memory per second.\n\n\nPanel works with `metrics >= 0.15.0` and `Tarantool >= 2.6`.",
+          "description": "Average amount of freed Lua memory per second.\n\n\nPanel minimal requirements: metrics 0.15.0, Tarantool 2.6.",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 8,
             "x": 8,
-            "y": 364
+            "y": 366
           },
-          "id": 150,
+          "id": 149,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -12188,15 +9989,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "Average amount of allocated Lua memory per second.\n\n\nPanel works with `metrics >= 0.15.0` and `Tarantool >= 2.6`.",
+          "description": "Average amount of allocated Lua memory per second.\n\n\nPanel minimal requirements: metrics 0.15.0, Tarantool 2.6.",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 8,
             "x": 16,
-            "y": 364
+            "y": 366
           },
-          "id": 151,
+          "id": 150,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -12285,9 +10086,9 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 372
+        "y": 374
       },
-      "id": 152,
+      "id": 151,
       "panels": [
         {
           "aliasColors": {},
@@ -12301,9 +10102,9 @@
             "h": 8,
             "w": 8,
             "x": 0,
-            "y": 373
+            "y": 375
           },
-          "id": 153,
+          "id": 152,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -12388,9 +10189,9 @@
             "h": 8,
             "w": 8,
             "x": 8,
-            "y": 373
+            "y": 375
           },
-          "id": 154,
+          "id": 153,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -12475,9 +10276,9 @@
             "h": 8,
             "w": 8,
             "x": 16,
-            "y": 373
+            "y": 375
           },
-          "id": 155,
+          "id": 154,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -12562,9 +10363,9 @@
             "h": 8,
             "w": 8,
             "x": 0,
-            "y": 381
+            "y": 383
           },
-          "id": 156,
+          "id": 155,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -12649,9 +10450,9 @@
             "h": 8,
             "w": 8,
             "x": 8,
-            "y": 381
+            "y": 383
           },
-          "id": 157,
+          "id": 156,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -12736,9 +10537,9 @@
             "h": 8,
             "w": 8,
             "x": 16,
-            "y": 381
+            "y": 383
           },
-          "id": 158,
+          "id": 157,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -12823,9 +10624,9 @@
             "h": 8,
             "w": 8,
             "x": 0,
-            "y": 389
+            "y": 391
           },
-          "id": 159,
+          "id": 158,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -12910,9 +10711,9 @@
             "h": 8,
             "w": 8,
             "x": 8,
-            "y": 389
+            "y": 391
           },
-          "id": 160,
+          "id": 159,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -12997,9 +10798,9 @@
             "h": 8,
             "w": 8,
             "x": 16,
-            "y": 389
+            "y": 391
           },
-          "id": 161,
+          "id": 160,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -13084,9 +10885,9 @@
             "h": 8,
             "w": 8,
             "x": 0,
-            "y": 397
+            "y": 399
           },
-          "id": 162,
+          "id": 161,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -13165,15 +10966,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "SQL prepare calls.\nGraph shows average calls per second.\n\nPanel works with Tarantool 2.x.\n",
+          "description": "SQL prepare calls.\nGraph shows average calls per second.\n\nPanel minimal requirements: Tarantool 2.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 8,
             "x": 8,
-            "y": 397
+            "y": 399
           },
-          "id": 163,
+          "id": 162,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -13252,15 +11053,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "SQL execute calls.\nGraph shows average calls per second.\n\nPanel works with Tarantool 2.x.\n",
+          "description": "SQL execute calls.\nGraph shows average calls per second.\n\nPanel minimal requirements: Tarantool 2.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 8,
             "x": 16,
-            "y": 397
+            "y": 399
           },
-          "id": 164,
+          "id": 163,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -13339,15 +11140,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "Panel displays the count of IPROTO_CALL and\nIPROTO_EVAL operations with `box.begin()`, IPROTO_EXECUTE\noperations with `TRANSACTION START` and IPROTO_BEGIN operations.\nGraph shows average calls per second.\n\nPanel works with Tarantool 2.10 or newer.\n",
+          "description": "Panel displays the count of IPROTO_CALL and\nIPROTO_EVAL operations with `box.begin()`, IPROTO_EXECUTE\noperations with `TRANSACTION START` and IPROTO_BEGIN operations.\nGraph shows average calls per second.\n\nPanel minimal requirements: Tarantool 2.10.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 8,
             "x": 0,
-            "y": 405
+            "y": 407
           },
-          "id": 165,
+          "id": 164,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -13426,15 +11227,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "Panel displays the count of IPROTO_CALL and\nIPROTO_EVAL operations with `box.commit()`, IPROTO_EXECUTE\noperations with `COMMIT` and IPROTO_COMMIT operations.\nGraph shows average calls per second.\n\nPanel works with Tarantool 2.10 or newer.\n",
+          "description": "Panel displays the count of IPROTO_CALL and\nIPROTO_EVAL operations with `box.commit()`, IPROTO_EXECUTE\noperations with `COMMIT` and IPROTO_COMMIT operations.\nGraph shows average calls per second.\n\nPanel minimal requirements: Tarantool 2.10.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 8,
             "x": 8,
-            "y": 405
+            "y": 407
           },
-          "id": 166,
+          "id": 165,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -13513,15 +11314,15 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "$prometheus",
-          "description": "Panel displays the count of IPROTO_CALL and\nIPROTO_EVAL operations with `box.rollback()`, IPROTO_EXECUTE\noperations with `ROLLBACK` and IPROTO_ROLLBACK operations.\nGraph shows average calls per second.\n\nPanel works with Tarantool 2.10 or newer.\n",
+          "description": "Panel displays the count of IPROTO_CALL and\nIPROTO_EVAL operations with `box.rollback()`, IPROTO_EXECUTE\noperations with `ROLLBACK` and IPROTO_ROLLBACK operations.\nGraph shows average calls per second.\n\nPanel minimal requirements: Tarantool 2.10.\n",
           "fill": 0,
           "gridPos": {
             "h": 8,
             "w": 8,
             "x": 16,
-            "y": 405
+            "y": 407
           },
-          "id": 167,
+          "id": 166,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -13610,9 +11411,9 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 413
+        "y": 415
       },
-      "id": 168,
+      "id": 167,
       "panels": [
         {
           "aliasColors": {},
@@ -13626,9 +11427,9 @@
             "h": 8,
             "w": 6,
             "x": 0,
-            "y": 414
+            "y": 416
           },
-          "id": 169,
+          "id": 168,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -13713,9 +11514,9 @@
             "h": 8,
             "w": 6,
             "x": 6,
-            "y": 414
+            "y": 416
           },
-          "id": 170,
+          "id": 169,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -13800,9 +11601,9 @@
             "h": 8,
             "w": 6,
             "x": 12,
-            "y": 414
+            "y": 416
           },
-          "id": 171,
+          "id": 170,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -13887,9 +11688,9 @@
             "h": 8,
             "w": 6,
             "x": 18,
-            "y": 414
+            "y": 416
           },
-          "id": 172,
+          "id": 171,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -13974,9 +11775,9 @@
             "h": 8,
             "w": 8,
             "x": 0,
-            "y": 422
+            "y": 424
           },
-          "id": 173,
+          "id": 172,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -14061,9 +11862,9 @@
             "h": 8,
             "w": 8,
             "x": 8,
-            "y": 422
+            "y": 424
           },
-          "id": 174,
+          "id": 173,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -14148,9 +11949,9 @@
             "h": 8,
             "w": 8,
             "x": 16,
-            "y": 422
+            "y": 424
           },
-          "id": 175,
+          "id": 174,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -14235,9 +12036,9 @@
             "h": 8,
             "w": 6,
             "x": 0,
-            "y": 430
+            "y": 432
           },
-          "id": 176,
+          "id": 175,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -14322,9 +12123,9 @@
             "h": 8,
             "w": 6,
             "x": 6,
-            "y": 430
+            "y": 432
           },
-          "id": 177,
+          "id": 176,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -14409,9 +12210,9 @@
             "h": 8,
             "w": 6,
             "x": 12,
-            "y": 430
+            "y": 432
           },
-          "id": 178,
+          "id": 177,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -14496,9 +12297,9 @@
             "h": 8,
             "w": 6,
             "x": 18,
-            "y": 430
+            "y": 432
           },
-          "id": 179,
+          "id": 178,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -14583,9 +12384,9 @@
             "h": 8,
             "w": 6,
             "x": 0,
-            "y": 438
+            "y": 440
           },
-          "id": 180,
+          "id": 179,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -14670,9 +12471,9 @@
             "h": 8,
             "w": 6,
             "x": 6,
-            "y": 438
+            "y": 440
           },
-          "id": 181,
+          "id": 180,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -14757,9 +12558,9 @@
             "h": 8,
             "w": 6,
             "x": 12,
-            "y": 438
+            "y": 440
           },
-          "id": 182,
+          "id": 181,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -14844,9 +12645,9 @@
             "h": 8,
             "w": 6,
             "x": 18,
-            "y": 438
+            "y": 440
           },
-          "id": 183,
+          "id": 182,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -14931,9 +12732,9 @@
             "h": 8,
             "w": 6,
             "x": 0,
-            "y": 446
+            "y": 448
           },
-          "id": 184,
+          "id": 183,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -15018,9 +12819,9 @@
             "h": 8,
             "w": 6,
             "x": 6,
-            "y": 446
+            "y": 448
           },
-          "id": 185,
+          "id": 184,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -15105,9 +12906,9 @@
             "h": 8,
             "w": 6,
             "x": 12,
-            "y": 446
+            "y": 448
           },
-          "id": 186,
+          "id": 185,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -15192,9 +12993,9 @@
             "h": 8,
             "w": 6,
             "x": 18,
-            "y": 446
+            "y": 448
           },
-          "id": 187,
+          "id": 186,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -15279,9 +13080,9 @@
             "h": 8,
             "w": 6,
             "x": 0,
-            "y": 454
+            "y": 456
           },
-          "id": 188,
+          "id": 187,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -15366,9 +13167,9 @@
             "h": 8,
             "w": 6,
             "x": 6,
-            "y": 454
+            "y": 456
           },
-          "id": 189,
+          "id": 188,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -15453,9 +13254,9 @@
             "h": 8,
             "w": 6,
             "x": 12,
-            "y": 454
+            "y": 456
           },
-          "id": 190,
+          "id": 189,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -15540,9 +13341,9 @@
             "h": 8,
             "w": 6,
             "x": 18,
-            "y": 454
+            "y": 456
           },
-          "id": 191,
+          "id": 190,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -15627,9 +13428,9 @@
             "h": 8,
             "w": 6,
             "x": 0,
-            "y": 462
+            "y": 464
           },
-          "id": 192,
+          "id": 191,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -15714,9 +13515,9 @@
             "h": 8,
             "w": 6,
             "x": 6,
-            "y": 462
+            "y": 464
           },
-          "id": 193,
+          "id": 192,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -15801,9 +13602,9 @@
             "h": 8,
             "w": 6,
             "x": 12,
-            "y": 462
+            "y": 464
           },
-          "id": 194,
+          "id": 193,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -15888,9 +13689,9 @@
             "h": 8,
             "w": 6,
             "x": 18,
-            "y": 462
+            "y": 464
           },
-          "id": 195,
+          "id": 194,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -15975,9 +13776,9 @@
             "h": 8,
             "w": 6,
             "x": 0,
-            "y": 470
+            "y": 472
           },
-          "id": 196,
+          "id": 195,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -16062,9 +13863,9 @@
             "h": 8,
             "w": 6,
             "x": 6,
-            "y": 470
+            "y": 472
           },
-          "id": 197,
+          "id": 196,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -16149,9 +13950,9 @@
             "h": 8,
             "w": 6,
             "x": 12,
-            "y": 470
+            "y": 472
           },
-          "id": 198,
+          "id": 197,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -16236,9 +14037,9 @@
             "h": 8,
             "w": 6,
             "x": 18,
-            "y": 470
+            "y": 472
           },
-          "id": 199,
+          "id": 198,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -16323,9 +14124,9 @@
             "h": 8,
             "w": 6,
             "x": 0,
-            "y": 478
+            "y": 480
           },
-          "id": 200,
+          "id": 199,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -16410,9 +14211,9 @@
             "h": 8,
             "w": 6,
             "x": 6,
-            "y": 478
+            "y": 480
           },
-          "id": 201,
+          "id": 200,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -16497,9 +14298,9 @@
             "h": 8,
             "w": 6,
             "x": 12,
-            "y": 478
+            "y": 480
           },
-          "id": 202,
+          "id": 201,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -16584,9 +14385,9 @@
             "h": 8,
             "w": 6,
             "x": 18,
-            "y": 478
+            "y": 480
           },
-          "id": 203,
+          "id": 202,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -16671,9 +14472,9 @@
             "h": 8,
             "w": 6,
             "x": 0,
-            "y": 486
+            "y": 488
           },
-          "id": 204,
+          "id": 203,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -16758,9 +14559,9 @@
             "h": 8,
             "w": 6,
             "x": 6,
-            "y": 486
+            "y": 488
           },
-          "id": 205,
+          "id": 204,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -16845,9 +14646,9 @@
             "h": 8,
             "w": 6,
             "x": 12,
-            "y": 486
+            "y": 488
           },
-          "id": 206,
+          "id": 205,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -16932,9 +14733,9 @@
             "h": 8,
             "w": 6,
             "x": 18,
-            "y": 486
+            "y": 488
           },
-          "id": 207,
+          "id": 206,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -17019,9 +14820,9 @@
             "h": 8,
             "w": 6,
             "x": 0,
-            "y": 494
+            "y": 496
           },
-          "id": 208,
+          "id": 207,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -17106,9 +14907,9 @@
             "h": 8,
             "w": 6,
             "x": 6,
-            "y": 494
+            "y": 496
           },
-          "id": 209,
+          "id": 208,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -17193,9 +14994,9 @@
             "h": 8,
             "w": 6,
             "x": 12,
-            "y": 494
+            "y": 496
           },
-          "id": 210,
+          "id": 209,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -17280,9 +15081,9 @@
             "h": 8,
             "w": 6,
             "x": 18,
-            "y": 494
+            "y": 496
           },
-          "id": 211,
+          "id": 210,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -17367,9 +15168,9 @@
             "h": 8,
             "w": 6,
             "x": 0,
-            "y": 502
+            "y": 504
           },
-          "id": 212,
+          "id": 211,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -17454,9 +15255,9 @@
             "h": 8,
             "w": 6,
             "x": 6,
-            "y": 502
+            "y": 504
           },
-          "id": 213,
+          "id": 212,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -17541,9 +15342,9 @@
             "h": 8,
             "w": 6,
             "x": 12,
-            "y": 502
+            "y": 504
           },
-          "id": 214,
+          "id": 213,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -17628,9 +15429,9 @@
             "h": 8,
             "w": 6,
             "x": 18,
-            "y": 502
+            "y": 504
           },
-          "id": 215,
+          "id": 214,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -17715,9 +15516,9 @@
             "h": 8,
             "w": 6,
             "x": 0,
-            "y": 510
+            "y": 512
           },
-          "id": 216,
+          "id": 215,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -17802,9 +15603,9 @@
             "h": 8,
             "w": 6,
             "x": 6,
-            "y": 510
+            "y": 512
           },
-          "id": 217,
+          "id": 216,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -17889,9 +15690,9 @@
             "h": 8,
             "w": 6,
             "x": 12,
-            "y": 510
+            "y": 512
           },
-          "id": 218,
+          "id": 217,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -17976,9 +15777,9 @@
             "h": 8,
             "w": 6,
             "x": 18,
-            "y": 510
+            "y": 512
           },
-          "id": 219,
+          "id": 218,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -18063,9 +15864,9 @@
             "h": 8,
             "w": 6,
             "x": 0,
-            "y": 518
+            "y": 520
           },
-          "id": 220,
+          "id": 219,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -18150,9 +15951,9 @@
             "h": 8,
             "w": 6,
             "x": 6,
-            "y": 518
+            "y": 520
           },
-          "id": 221,
+          "id": 220,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -18237,9 +16038,9 @@
             "h": 8,
             "w": 6,
             "x": 12,
-            "y": 518
+            "y": 520
           },
-          "id": 222,
+          "id": 221,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -18324,9 +16125,9 @@
             "h": 8,
             "w": 6,
             "x": 18,
-            "y": 518
+            "y": 520
           },
-          "id": 223,
+          "id": 222,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -18411,9 +16212,9 @@
             "h": 8,
             "w": 6,
             "x": 0,
-            "y": 526
+            "y": 528
           },
-          "id": 224,
+          "id": 223,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -18498,9 +16299,9 @@
             "h": 8,
             "w": 6,
             "x": 6,
-            "y": 526
+            "y": 528
           },
-          "id": 225,
+          "id": 224,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -18585,9 +16386,9 @@
             "h": 8,
             "w": 6,
             "x": 12,
-            "y": 526
+            "y": 528
           },
-          "id": 226,
+          "id": 225,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -18672,9 +16473,9 @@
             "h": 8,
             "w": 6,
             "x": 18,
-            "y": 526
+            "y": 528
           },
-          "id": 227,
+          "id": 226,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -18763,9 +16564,9 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 534
+        "y": 536
       },
-      "id": 228,
+      "id": 227,
       "panels": [
         {
           "aliasColors": {},
@@ -18779,9 +16580,9 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 535
+            "y": 537
           },
-          "id": 229,
+          "id": 228,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -18866,9 +16667,9 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 535
+            "y": 537
           },
-          "id": 230,
+          "id": 229,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -18954,9 +16755,9 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 543
+            "y": 545
           },
-          "id": 231,
+          "id": 230,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -19043,9 +16844,9 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 543
+            "y": 545
           },
-          "id": 232,
+          "id": 231,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -19223,6 +17024,6 @@
     ]
   },
   "timezone": "browser",
-  "title": "Tarantool dashboard",
+  "title": "Tarantool 3 dashboard",
   "version": 0
 }
