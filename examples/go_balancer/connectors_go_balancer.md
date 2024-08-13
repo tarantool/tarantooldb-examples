@@ -14,7 +14,7 @@
 ```{admonition} Примечание
 :class: note
 
-Пример стенда с Telegraf и InfluxDB приведен в разделе [Балансировщик запросов к роутерам через Go-коннектор](/examples/java_balancer/connectors_java_balancer.md).
+Пример стенда с Telegraf и InfluxDB приведен в разделе [Балансировщик запросов к роутерам через Java-коннектор](/examples/java_balancer/connectors_java_balancer.md).
 ```
 
 Содержание:
