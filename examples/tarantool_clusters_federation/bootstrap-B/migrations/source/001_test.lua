@@ -4,7 +4,7 @@ local function is_storage()
     return utils.check_roles_enabled({'crud-storage'})
 end
 
-local function up()
+local function apply()
     if is_storage() then
         box.schema.space.create('test', {if_not_exists = true})
         box.space.test:format({
@@ -20,5 +20,7 @@ local function up()
 end
 
 return {
-    up = up,
+    apply = {
+        scenario = apply,
+    }
 }

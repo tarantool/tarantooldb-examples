@@ -1,6 +1,6 @@
 local helpers = require('tt-migrations.helpers')
 
-local function up()
+local function apply()
     local space_test = box.schema.space.create('test', {if_not_exists = true})
     space_test:format({
         { name = 'id', type = 'integer' },
@@ -23,7 +23,7 @@ local function up()
 end
 
 return {
-    up = {
-        scenario = up,
-    },
+    apply = {
+        scenario = apply,
+    }
 }

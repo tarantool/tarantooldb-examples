@@ -2,7 +2,7 @@ local helpers = require('tt-migrations.helpers')
 local rconfig = require('config')
 
 
-local function up()
+local function apply()
     local function is_router()
         local roles = rconfig:get().roles
         for _, rname in pairs(roles) do
@@ -328,7 +328,7 @@ local function up()
 end
 
 return {
-    up = {
-        scenario = up,
-    },
+    apply = {
+        scenario = apply,
+    }
 }

@@ -4,7 +4,7 @@ local function is_router()
     return utils.check_roles_enabled({'crud-router'})
 end
 
-local function up()
+local function apply()
 
     if is_router() then
         box.schema.func.create('get_money_move', {
@@ -56,5 +56,7 @@ local function up()
 end
 
 return {
-    up = up,
+    apply = {
+        scenario = apply,
+    }
 }

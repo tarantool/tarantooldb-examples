@@ -1,6 +1,6 @@
 local utils = require('migrator.utils')
 
-local function up()
+local function apply()
     box.schema.space.create('test2', {if_not_exists = true})
     box.space.test2:format({
         { name = 'id', type = 'integer' },
@@ -16,5 +16,7 @@ local function up()
 end
 
 return {
-    up = up,
+    apply = {
+        scenario = apply,
+    }
 }

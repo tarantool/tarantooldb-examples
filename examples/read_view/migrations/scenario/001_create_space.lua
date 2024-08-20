@@ -1,6 +1,6 @@
 local helpers = require('tt-migrations.helpers')
 
-local function up()
+local function apply()
      -- Создание спейса customers
     box.schema.space.create('customers', {if_not_exists = true})
     box.space.customers:format({
@@ -21,7 +21,7 @@ local function up()
 end
 
 return {
-    up = {
-        scenario = up,
-    },
+    apply = {
+        scenario = apply,
+    }
 }

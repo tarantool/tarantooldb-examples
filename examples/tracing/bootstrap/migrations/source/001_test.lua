@@ -8,7 +8,7 @@ local function is_storage()
     return utils.check_roles_enabled({'crud-storage'})
 end
 
-local function up()
+local function apply()
     if is_router() then
         box.schema.func.create('get_token',  {
             language = 'LUA',
@@ -62,5 +62,7 @@ local function up()
 end
 
 return {
-    up = up,
+    apply = {
+        scenario = apply,
+    }
 }

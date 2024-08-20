@@ -8,7 +8,7 @@ local function is_router()
     return utils.check_roles_enabled({'crud-router'})
 end
 
-local function up()
+local function apply()
     if is_storage() then
         -- создание спейса messages
         box.schema.space.create('messages', {if_not_exists = true})
@@ -111,5 +111,7 @@ local function up()
 end
 
 return {
-    up = up,
+    apply = {
+        scenario = apply,
+    }
 }

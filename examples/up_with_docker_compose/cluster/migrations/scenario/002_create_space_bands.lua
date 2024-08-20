@@ -1,6 +1,6 @@
 local helpers = require('tt-migrations.helpers')
 
-local function up()
+local function apply()
 
     local space_bands = box.schema.space.create('bands', {
         if_not_exists = true,
@@ -20,7 +20,7 @@ local function up()
 end
 
 return {
-    up = {
-        scenario = up,
-    },
+    apply = {
+        scenario = apply,
+    }
 }

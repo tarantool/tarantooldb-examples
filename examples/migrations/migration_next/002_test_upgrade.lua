@@ -22,7 +22,7 @@ local function is_storage()
     return false
 end
 
-local function up()
+local function apply()
     if is_storage() then
         box.schema.func.create('__migrator_projects_002', {
             language = 'lua',
@@ -187,8 +187,8 @@ local function up()
 end
 
 return {
-    up = {
-        scenario = up,
-    },
+    apply = {
+        scenario = apply,
+    }
 }
 

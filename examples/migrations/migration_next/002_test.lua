@@ -40,7 +40,7 @@ local function set_default_value(space_name, pk_name, field_name, value)
     end
 end
 
-local function up()
+local function apply()
     if is_storage() then
         -- обновляем форматы спейсов
         -- новые поля необходимо добавлять в конец, если добавить их в середину, то формат не применится
@@ -149,7 +149,7 @@ local function up()
 end
 
 return {
-    up = {
-        scenario = up,
-    },
+    apply = {
+        scenario = apply,
+    }
 }

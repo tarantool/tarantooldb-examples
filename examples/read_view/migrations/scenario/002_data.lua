@@ -1,6 +1,6 @@
 local crud = require('crud')
 
-local function up()
+local function apply()
     crud.insert_many('customers', {
         { 1, box.NULL, 'Elizabeth', 'Bagnall', 12 },
         { 2, box.NULL, 'Mary', 'Bowman', 46 },
@@ -48,7 +48,7 @@ local function up()
 end
 
 return {
-    up = {
-        scenario = up,
-    },
+    apply = {
+        scenario = apply,
+    }
 }

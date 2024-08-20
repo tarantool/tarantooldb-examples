@@ -1,0 +1,13 @@
+services:
+  load_config:
+    image: tarantooldb:latest
+    networks:
+      - tarantooldb_network
+    volumes:
+      - ./:/usr/share/tarantool/stand
+    working_dir: /usr/share/tarantool/stand
+    command: /bin/sh -c "tt cluster publish http://etcd1:2379/tdb config.yml --force"
+
+networks:
+  tarantooldb_network:
+    driver: bridge

@@ -1,0 +1,62 @@
+credentials:
+  users:
+    admin:
+      password: 'secret-cluster-cookie'
+      roles: [ super ]
+    client:
+      password: 'secret'
+      privileges:
+        - permissions: [ read, write ]
+          spaces: [ config_storage, config_storage_meta ]
+        - permissions: [ execute ]
+          universe: true
+    replicator:
+      password: 'secret'
+      roles: [ replication ]
+
+iproto:
+  advertise:
+    peer:
+      login: replicator
+
+replication:
+  failover: election
+
+database:
+  use_mvcc_engine: true
+
+groups:
+  storages:
+    roles:
+      - config.storage
+      - roles.metrics-export
+    roles_cfg:
+      config.storage:
+        status_check_interval: 3
+      roles.metrics-export:
+        http:
+          - endpoints:
+              - format: prometheus
+                path: /metrics
+            listen: 8081
+    replicasets:
+      config-storage:
+        instances:
+          config-storage-1:
+            iproto:
+              listen:
+                - uri: tarantool-config-storage-1:3301
+              advertise:
+                client: tarantool-config-storage-1:3301
+          config-storage-2:
+            iproto:
+              listen:
+                - uri: tarantool-config-storage-2:3301
+              advertise:
+                client: tarantool-config-storage-2:3301
+          config-storage-3:
+            iproto:
+              listen:
+                - uri: tarantool-config-storage-3:3301
+              advertise:
+                client: tarantool-config-storage-3:3301

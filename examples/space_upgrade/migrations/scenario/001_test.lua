@@ -20,7 +20,7 @@ local function is_storage()
     return has_a_role('roles.crud-storage')
 end
 
-local function up()
+local function apply()
     if is_storage() then
         -- задаем спейсы и индексы для них
         box.schema.space.create('projects', { if_not_exists = true })
@@ -122,7 +122,7 @@ local function up()
 end
 
 return {
-    up = {
-        scenario = up,
-    },
+    apply = {
+        scenario = apply,
+    }
 }
