@@ -8,7 +8,9 @@ credentials:
       roles: [super]
     replicator:
       password: 'secret'
-      roles: [replication]
+      roles:
+        - replication
+        - dictionary_api_service
     storage:
       password: 'secret'
       roles: [sharding]
@@ -42,7 +44,7 @@ groups:
     roles:
       - roles.crud-router
       - roles.metrics-export
-      - dictionary.roles.router
+      - roles.dictionary-router
     roles_cfg:
       roles.crud-router:
         stats: true
@@ -78,7 +80,7 @@ groups:
     roles:
       - roles.crud-storage
       - roles.metrics-export
-      - dictionary.roles.storage
+      - roles.dictionary-storage
     roles_cfg:
       roles.expirationd: [ ]
     replicasets:
