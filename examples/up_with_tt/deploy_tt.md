@@ -1,7 +1,9 @@
 (admin_guide-deploy_tt)=
 #  Запуск Tarantool DB с помощью tt CLI
 
-В этом руководстве показано, как развернуть Tarantool DB локально, используя утилиту [tt CLI](install-install_tt) (`tt`).
+В этом руководстве показано, как развернуть Tarantool DB локально, используя утилиту [tt CLI](https://www.tarantool.io/ru/doc/latest/reference/tooling/tt_cli/) (`tt`).
+Утилита tt CLI есть в составе архива Tarantool DB для развертывания, ее отдельная установка не требуется.
+Если нужно скачать утилиту отдельно, обратитесь к разделу [](install-install_tt).
 
 Содержание:
 
@@ -17,7 +19,7 @@
 
 * архив для развёртывания Tarantool DB.
   Архив можно скачать в личном кабинете tarantool.io, в разделе [tarantooldb/release/for_deploy/](https://www.tarantool.io/ru/accounts/customer_zone/packages/tarantooldb/release/for_deploy);
-* утилита [tt CLI](https://www.tarantool.io/ru/doc/latest/reference/tooling/tt_cli/);
+* утилита tt CLI;
 * исходные файлы примера `up_with_tt`.
 
   ```{admonition} Примечание

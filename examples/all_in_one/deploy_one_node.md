@@ -77,9 +77,6 @@ docker compose logs tcm-1 | grep "super admin"
 - `migrations/scenario` -- директория, содержащая файлы с описанием миграций; 
 - `tcm.yml` -- конфигурация для запуска [Tarantool Cluster Manager](https://www.tarantool.io/ru/doc/latest/reference/tooling/tcm/).
 
-Кроме того, при запуске примера скрипт `make_config_tcm_yml.lua` создает файл `config.tcm.yml`.
-Это файл содержит конфигурацию для загрузки в TCM, сгенерированную на основе конфигурации кластера.
-
 (admin_guide-deploy_one_node-config)=
 
 ## Конфигурация контейнера для узла Tarantool DB
