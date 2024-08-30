@@ -1,9 +1,8 @@
-(user_guide-expirationd_user_logic_example)=
-# Проверка устаревших кортежей в спейсе
+(user_guide-expirationd_user_logic)=
+# Проверка устаревших кортежей в спейсе с помощью пользовательских функций
 
-В этом руководстве описано, как удалять все кортежи в спейсе, которые старше заданного времени,
-где признак устаревания определяется пользовательской логикой.
-
+В этом руководстве описано, как удалять все кортежи в спейсе старше заданного времени.
+Определение устаревших кортежей и их обработка определяется пользовательскими функциями.
 Подробнее о модуле `expirationd` можно узнать в разделе [Устаревание данных](user_guide-expirationd).
 
 Руководство включает следующие шаги:
@@ -48,7 +47,7 @@
 Перейдите в папку с примером `expirationd`:
 
 ```shell
-cd ./doc/examples/expirationd/
+cd ./doc/examples/expirationd_user_logic/
 ```
 
 Запустите кластер:
@@ -60,7 +59,7 @@ docker compose up -d
 (user_guide-expirationd_user_logic_example-migration)=
 ## Описание миграции
 
-В руководстве используется миграция из файла `./bootstrap/migrations/source/001_test.lua` примера `expirationd`.
+В руководстве используется миграция из файла `./bootstrap/migrations/source/001_test.lua` примера `expirationd_user_logic`.
 В этой миграции:
 - создан спейс `messages`;
 - созданы персистентные функции с логикой устаревания данных -- `messages_is_tuple_expired`, `messages_iterate_with`, `messages_process_expired_tuple`;
@@ -110,17 +109,12 @@ localhost:3300> box.schema.func.call('__stop_messages_stream')
 ## Конфигурация устаревания данных
 
 В конфигурации кластера присутствует следующая секция:
-```yaml
-messages_expiration:
-    space: messages
-    is_expired: messages_is_tuple_expired
-    is_master_only: true
-    options:
-        tuples_per_iteration: 100
-        iterate_with: messages_iterate_with
-        process_expired_tuple: messages_process_expired_tuple
-        args:
-            seconds: 5
+
+```{literalinclude} bootstrap/config.yml
+:start-at: expirationd
+:end-at: seconds
+:language: yaml
+:dedent:
 ```
 
 Здесь:
@@ -140,7 +134,7 @@ messages_expiration:
 
 Согласно этой конфигурации, задачи по устареванию данных `messages_expiration` выполняются так:
 
-1. Запускается файбер для фоновой экспирации спейса `messages`.
+1. Запускается файбер для фоновой проверки спейса `messages`.
 2. Файбер обходит спейс `messages` по итератору из функции `messages_iterate_with`.
    Функция `messages_iterate_with` выглядит так:
 

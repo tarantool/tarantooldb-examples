@@ -1,9 +1,10 @@
 (user_guide-expirationd_example)=
-# Проверка устаревших кортежей в спейсе
+# Автоматическое удаление устаревших кортежей из спейса
+
+Доступно с версии 1.2.0.
 
 В этом руководстве описано, как настроить параметры устаревания данных в конфигурации,
-чтобы удалять все кортежи в спейсе, которые старше заданного времени.
-
+чтобы автоматически удалять все кортежи в спейсе, которые старше заданного времени.
 Подробнее о модуле `expirationd` можно узнать в разделе [Устаревание данных](user_guide-expirationd).
 
 Руководство включает следующие шаги:
@@ -13,7 +14,6 @@
 * [](user_guide-expirationd_example-migration)
 * [](user_guide-expirationd_example-add_data)
 * [](user_guide-expirationd_example-config)
-* [](user_guide-expirationd_example-functions)
 * [](user_guide-expirationd_example-stop_example)
 
 (user_guide-expirationd_example-prereq)=
@@ -72,7 +72,7 @@ docker compose up -d
 
 Необходимо удалять все записи в спейсе старше заданного количества секунд. Количество секунд задается в конфигурации.
 
-Смотрите также: [](user_guide-expirationd_user_logic).
+Смотрите также: [](user_guide-expirationd_user_logic)
 
 (user_guide-expirationd_example-add_data)=
 ## Подключение к узлу и загрузка тестовых данных
@@ -84,7 +84,7 @@ docker compose up -d
 tt connect admin:secret-cluster-cookie@localhost:3300
 ```
 
-Создайте тестовые данные в спейсе:
+Добавьте тестовые данные в спейс:
 
 ```lua
 crud.insert_object('test', {id = 1, dt = require('datetime').now(), data = 'too'})
@@ -93,20 +93,18 @@ crud.insert_object('test', {id = 3, dt = require('datetime').now(), data = 'bar'
 ```
 
 Посмотреть записи можно в веб-интерфейсе во вкладке **Space explorer** ([http://localhost:8081/admin/space-explorer/hosts](http://localhost:8081/admin/space-explorer/hosts)).
-Через заданное в настройках время (15 секунд) записи будут удалены.
+Записи будут удалены спустя заданное в настройках время -- 15 секунд.
 
 (user_guide-expirationd_example-config)=
 ## Конфигурация устаревания данных
 
 В конфигурации кластера присутствует следующая секция:
-   
-```yaml
-task_name1:
-  space: test
-  options:
-    args:
-      lifetime_in_seconds: 5
-      time_create_field: dt
+
+```{literalinclude} bootstrap/config.yml
+:start-at: expirationd
+:end-at: time_create_field
+:language: yaml
+:dedent:
 ```
 
 Здесь:
@@ -114,8 +112,8 @@ task_name1:
 * `task_name1` -- название задачи по устареванию данных;
   * `space` -- название спейса, по которому идет поиск устаревших кортежей;
   * `options.args` -- дополнительные опции конфигурации:
-    * `lifetime_in_seconds` -- время жизни записи (кортежа) в секундах;
-    * `time_create_field` -- проверяемое поле.
+    * `lifetime_in_seconds` -- время жизни кортежа в секундах;
+    * `time_create_field` -- название поля, по которому проверяется время жизни кортежа.
     
 Полное описание опций конфигурации `expirationd` приведено в соответствующем разделе [Справочника по конфигурации](configuration_reference-expirationd).
 
