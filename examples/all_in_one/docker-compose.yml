@@ -1,7 +1,7 @@
 version: '3'
 services:
   tarantool-instance:
-    image: tarantooldb:latest
+    image: tarantooldb:1x-latest
     networks:
       - tarantooldb_network
     ports:
@@ -10,7 +10,7 @@ services:
     environment:
       - TARANTOOL_ADVERTISE_URI=tarantool-instance:3301
   user-host:
-    image: tarantooldb:latest
+    image: tarantooldb:1x-latest
     networks:
       - tarantooldb_network
     environment:

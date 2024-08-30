@@ -1,7 +1,7 @@
 version: '3'
 services:
   tarantool-router1:
-    image: tarantooldb:latest
+    image: tarantooldb:1x-latest
     networks:
       - tarantooldb_network
     ports:
@@ -12,7 +12,7 @@ services:
       - TARANTOOL_ALIAS=router-1
       - TARANTOOL_CLUSTER_COOKIE=secret-cluster-cookie
   tarantool-router2:
-    image: tarantooldb:latest
+    image: tarantooldb:1x-latest
     networks:
       - tarantooldb_network
     ports:
@@ -23,7 +23,7 @@ services:
       - TARANTOOL_ALIAS=router-2
       - TARANTOOL_CLUSTER_COOKIE=secret-cluster-cookie
   tarantool-storage1:
-    image: tarantooldb:latest
+    image: tarantooldb:1x-latest
     networks:
       - tarantooldb_network
     ports:
@@ -34,7 +34,7 @@ services:
       - TARANTOOL_ALIAS=storage-A-1
       - TARANTOOL_CLUSTER_COOKIE=secret-cluster-cookie
   tarantool-storage2:
-    image: tarantooldb:latest
+    image: tarantooldb:1x-latest
     networks:
       - tarantooldb_network
     ports:
@@ -45,7 +45,7 @@ services:
       - TARANTOOL_ALIAS=storage-A-2
       - TARANTOOL_CLUSTER_COOKIE=secret-cluster-cookie
   tarantool-storage3:
-    image: tarantooldb:latest
+    image: tarantooldb:1x-latest
     networks:
       - tarantooldb_network
     ports:
@@ -56,7 +56,7 @@ services:
       - TARANTOOL_ALIAS=storage-B-1
       - TARANTOOL_CLUSTER_COOKIE=secret-cluster-cookie
   tarantool-storage4:
-    image: tarantooldb:latest
+    image: tarantooldb:1x-latest
     networks:
       - tarantooldb_network
     ports:
@@ -67,7 +67,7 @@ services:
       - TARANTOOL_ALIAS=storage-B-2
       - TARANTOOL_CLUSTER_COOKIE=secret-cluster-cookie
   tarantool-db-init:
-    image: tarantooldb:latest
+    image: tarantooldb:1x-latest
     networks:
       - tarantooldb_network
     environment:

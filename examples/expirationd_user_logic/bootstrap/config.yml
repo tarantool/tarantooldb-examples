@@ -1,0 +1,18 @@
+metrics:
+  export:
+    - path: '/myapp/metrics'
+      format: 'json'
+    - path: '/myapp/health'
+      format: 'health'
+
+expirationd:
+  messages_expiration:
+    space: messages
+    is_expired: messages_is_tuple_expired
+    is_master_only: true
+    options:
+      tuples_per_iteration: 100
+      iterate_with: messages_iterate_with
+      process_expired_tuple: messages_process_expired_tuple
+      args:
+        seconds: 5

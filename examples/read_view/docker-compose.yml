@@ -1,7 +1,7 @@
 version: '3'
 services:
   tarantool-router:
-    image: tarantooldb:latest
+    image: tarantooldb:1x-latest
     networks:
       - tarantooldb_network
     ports:
@@ -11,7 +11,7 @@ services:
       - TARANTOOL_ADVERTISE_URI=tarantool-router:3301
 
   tarantool-storage1:
-    image: tarantooldb:latest
+    image: tarantooldb:1x-latest
     networks:
       - tarantooldb_network
     ports:
@@ -21,7 +21,7 @@ services:
       - TARANTOOL_ADVERTISE_URI=tarantool-storage1:3301
 
   tarantool-storage2:
-    image: tarantooldb:latest
+    image: tarantooldb:1x-latest
     networks:
       - tarantooldb_network
     ports:
@@ -31,7 +31,7 @@ services:
       - TARANTOOL_ADVERTISE_URI=tarantool-storage2:3301
 
   tarantool-storage3:
-    image: tarantooldb:latest
+    image: tarantooldb:1x-latest
     networks:
       - tarantooldb_network
     ports:
@@ -41,7 +41,7 @@ services:
       - TARANTOOL_ADVERTISE_URI=tarantool-storage3:3301
 
   tarantool-storage4:
-    image: tarantooldb:latest
+    image: tarantooldb:1x-latest
     networks:
       - tarantooldb_network
     ports:
@@ -51,7 +51,7 @@ services:
       - TARANTOOL_ADVERTISE_URI=tarantool-storage4:3301
 
   tarantool-db-init:
-    image: tarantooldb:latest
+    image: tarantooldb:1x-latest
     networks:
       - tarantooldb_network
     environment:

@@ -1,7 +1,7 @@
 version: '3'
 services:
   tarantool-storage1:
-    image: tarantooldb:latest
+    image: tarantooldb:1x-latest
     networks:
       - tarantooldb_network
     ports:
@@ -13,7 +13,7 @@ services:
       - TARANTOOL_CLUSTER_COOKIE=secret
       - TARANTOOL_HTTP_PORT=8081
   tarantool-db-init:
-    image: tarantooldb:latest
+    image: tarantooldb:1x-latest
     networks:
       - tarantooldb_network
     environment:
