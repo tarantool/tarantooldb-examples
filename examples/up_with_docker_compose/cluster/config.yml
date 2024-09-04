@@ -35,8 +35,6 @@ roles_cfg:
 
 groups:
   routers:
-    app:
-      module: app.vshard_bootstrapper
     replication:
       failover: manual
     sharding:
@@ -109,15 +107,15 @@ groups:
           storage-2-msk:
             iproto:
               listen:
-                - uri: tarantool-storage-2-msk:3303
+                - uri: tarantool-storage-2-msk:3301
               advertise:
-                client: tarantool-storage-2-msk:3303
+                client: tarantool-storage-2-msk:3301
           storage-2-spb:
             iproto:
               listen:
-                - uri: tarantool-storage-2-spb:3304
+                - uri: tarantool-storage-2-spb:3301
               advertise:
-                client: tarantool-storage-2-spb:3304
+                client: tarantool-storage-2-spb:3301
           storage-2-brn:
             iproto:
               listen:

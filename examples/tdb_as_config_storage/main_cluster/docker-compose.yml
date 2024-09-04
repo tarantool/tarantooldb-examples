@@ -1,6 +1,6 @@
 services:
   tarantool-router-msk:
-    image: tarantooldb:latest
+    image: tarantooldb:2x-latest
     networks:
       - tarantooldb_network
     ports:
@@ -10,7 +10,7 @@ services:
       - TT_CONFIG_STORAGE_ENDPOINTS=[{"uri":"tarantool-config-storage-1:3301","login":"client","password":"secret"},{"uri":"tarantool-config-storage-2:3301","login":"client","password":"secret"},{"uri":"tarantool-config-storage-3:3301","login":"client","password":"secret"}]
       - TT_CONFIG_STORAGE_PREFIX=/tdb
   tarantool-router-spb:
-    image: tarantooldb:latest
+    image: tarantooldb:2x-latest
     networks:
       - tarantooldb_network
     ports:
@@ -20,7 +20,7 @@ services:
       - TT_CONFIG_STORAGE_ENDPOINTS=[{"uri":"tarantool-config-storage-1:3301","login":"client","password":"secret"},{"uri":"tarantool-config-storage-2:3301","login":"client","password":"secret"},{"uri":"tarantool-config-storage-3:3301","login":"client","password":"secret"}]
       - TT_CONFIG_STORAGE_PREFIX=/tdb
   tarantool-storage-1-msk:
-    image: tarantooldb:latest
+    image: tarantooldb:2x-latest
     networks:
       - tarantooldb_network
     ports:
@@ -30,7 +30,7 @@ services:
       - TT_CONFIG_STORAGE_ENDPOINTS=[{"uri":"tarantool-config-storage-1:3301","login":"client","password":"secret"},{"uri":"tarantool-config-storage-2:3301","login":"client","password":"secret"},{"uri":"tarantool-config-storage-3:3301","login":"client","password":"secret"}]
       - TT_CONFIG_STORAGE_PREFIX=/tdb
   tarantool-storage-1-spb:
-    image: tarantooldb:latest
+    image: tarantooldb:2x-latest
     networks:
       - tarantooldb_network
     ports:
@@ -40,7 +40,7 @@ services:
       - TT_CONFIG_STORAGE_ENDPOINTS=[{"uri":"tarantool-config-storage-1:3301","login":"client","password":"secret"},{"uri":"tarantool-config-storage-2:3301","login":"client","password":"secret"},{"uri":"tarantool-config-storage-3:3301","login":"client","password":"secret"}]
       - TT_CONFIG_STORAGE_PREFIX=/tdb
   tarantool-storage-1-brn:
-    image: tarantooldb:latest
+    image: tarantooldb:2x-latest
     networks:
       - tarantooldb_network
     ports:
@@ -50,7 +50,7 @@ services:
       - TT_CONFIG_STORAGE_ENDPOINTS=[{"uri":"tarantool-config-storage-1:3301","login":"client","password":"secret"},{"uri":"tarantool-config-storage-2:3301","login":"client","password":"secret"},{"uri":"tarantool-config-storage-3:3301","login":"client","password":"secret"}]
       - TT_CONFIG_STORAGE_PREFIX=/tdb
   tarantool-storage-2-msk:
-    image: tarantooldb:latest
+    image: tarantooldb:2x-latest
     networks:
       - tarantooldb_network
     ports:
@@ -60,7 +60,7 @@ services:
       - TT_CONFIG_STORAGE_ENDPOINTS=[{"uri":"tarantool-config-storage-1:3301","login":"client","password":"secret"},{"uri":"tarantool-config-storage-2:3301","login":"client","password":"secret"},{"uri":"tarantool-config-storage-3:3301","login":"client","password":"secret"}]
       - TT_CONFIG_STORAGE_PREFIX=/tdb
   tarantool-storage-2-spb:
-    image: tarantooldb:latest
+    image: tarantooldb:2x-latest
     networks:
       - tarantooldb_network
     ports:
@@ -70,7 +70,7 @@ services:
       - TT_CONFIG_STORAGE_ENDPOINTS=[{"uri":"tarantool-config-storage-1:3301","login":"client","password":"secret"},{"uri":"tarantool-config-storage-2:3301","login":"client","password":"secret"},{"uri":"tarantool-config-storage-3:3301","login":"client","password":"secret"}]
       - TT_CONFIG_STORAGE_PREFIX=/tdb
   tarantool-storage-2-brn:
-    image: tarantooldb:latest
+    image: tarantooldb:2x-latest
     networks:
       - tarantooldb_network
     ports:

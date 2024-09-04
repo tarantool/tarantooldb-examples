@@ -1,4 +1,4 @@
-FROM tarantooldb:latest as tt
+FROM tarantooldb:2x-latest as tt
 
 FROM alpine:3.18.4
 

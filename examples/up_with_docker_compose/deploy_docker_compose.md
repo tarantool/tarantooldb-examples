@@ -16,7 +16,6 @@
 * [](admin_guide-deploy_docker_compose-start_example)
 * [](admin_guide-deploy_docker_compose-files)
 * [](admin_guide-deploy_docker_compose-config)
-* [](admin_guide-deploy_docker_compose-load_config)
 * [](admin_guide-deploy_docker_compose-init_host)
 * [](admin_guide-deploy_ci-stop_example)
 
@@ -56,8 +55,12 @@ cd ./doc/examples/up_with_docker_compose/
 make start
 ```
 
-Команда запускает централизованное хранилище конфигурации -- кластер 
-etcd, затем загружает в него конфигурацию и после запускает кластер Tarantool DB.
+Данная команда выполняет серию шагов:
+1. Команда запускает централизованное хранилище конфигурации -- кластер 
+etcd.
+2. Загружает в него конфигурацию кластера.
+3. Запускает кластер Tarantool DB.
+4. Загружает миграции в кластер и выполняет их.
 
 Запущенный стенд состоит из:
 
@@ -87,13 +90,12 @@ etcd, затем загружает в него конфигурацию и по
 * `cluster/` -- директория, содержащая файлы, необходимые для запуска кластера Tarantool DB:
   * `migrations/scenario` -- директория, содержащая файлы с описанием миграций;
   * `config.yml` -- конфигурация и топология кластера;
-  * `docker-compose.yml` -- описание узлов кластера Tarantool DB;
-  * `tcm.yml` -- конфигурация для запуска [Tarantool Cluster Manager](https://www.tarantool.io/ru/doc/latest/reference/tooling/tcm/).
+  * `docker-compose.yml` -- описание узлов кластера Tarantool DB.
 * `tools/` -- директория, содержащая файлы, необходимые для запуска кластера etcd и средств мониторинга:
   * `grafana/` -- директория, содержащая настройки для ведения мониторинга;
   * `prometheus/` -- директория, содержащая настройки Prometheus для сбора и передачи метрик в Grafana;
   * `docker-compose.yml` -- описание узлов кластера etcd и средств мониторинга.
-* `load-config.yml` -- команды загрузки конфигурации в централизованное хранилище;
+  * `tcm.yml` -- конфигурация для запуска [Tarantool Cluster Manager](https://www.tarantool.io/ru/doc/latest/reference/tooling/tcm/).
 * `Makefile` -- инструкции для утилиты `make` для запуска и остановки всего стенда;
 
 
@@ -120,13 +122,6 @@ etcd, затем загружает в него конфигурацию и по
   * `TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT` -- таймаут запроса для получения конфигурации.
 
   Полный список опций доступен в описании [Docker-образа](install_docker-image-description) Tarantool DB.
-
-(admin_guide-deploy_docker_compose-load_config)=
-## Контейнер load_config
-
-В файле `load-config.yml` есть специальный контейнер `load_config`.
-С этого контейнера выполняется публикация YAML-конфигурации кластера в 
-[централизованное хранилище](https://www.tarantool.io/ru/doc/latest/reference/tooling/tt_cli/cluster/#tt-cluster-publish).
 
 (admin_guide-deploy_docker_compose-init_host)=
 ## Контейнер init_host

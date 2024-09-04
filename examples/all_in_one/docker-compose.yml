@@ -1,7 +1,7 @@
 version: '3'
 services:
   tarantool-router-storage-1:
-    image: tarantooldb:latest
+    image: tarantooldb:2x-latest
     networks:
       - tarantooldb_network
     ports:
@@ -35,7 +35,7 @@ services:
       - tarantooldb_network
 
   init_host:
-    image: tarantooldb:latest
+    image: tarantooldb:2x-latest
     networks:
       - tarantooldb_network
     volumes:
@@ -56,7 +56,7 @@ services:
       && echo Done."
 
   tcm-1:
-    image: tarantooldb:latest
+    image: tarantooldb:2x-latest
     networks:
       - tarantooldb_network
     ports:
@@ -71,7 +71,7 @@ services:
     command: ./tcm -c tcm.yml
 
   failover-coordinator-1:
-    image: tarantooldb:latest
+    image: tarantooldb:2x-latest
     networks:
       - tarantooldb_network
     volumes:
