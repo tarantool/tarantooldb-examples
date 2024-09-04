@@ -1,10 +1,8 @@
-# simple config for demo purposes
-
 credentials:
   users:
     admin:
       password: 'secret-cluster-cookie'
-      roles: [ super ]
+      roles: [super]
     client:
       password: 'secret'
       roles: [super]
@@ -14,17 +12,6 @@ credentials:
     storage:
       password: 'secret'
       roles: [sharding]
-
-config:
-  etcd:
-    endpoints:
-      - http://etcd1:2379
-      - http://etcd2:2379
-      - http://etcd3:2379
-    prefix: /tdb
-    http:
-      request:
-        timeout: 3
 
 iproto:
   advertise:
@@ -40,7 +27,9 @@ sharding:
   bucket_count: 30000
 
 groups:
-  router-storage-1:
+  all_in_one:
+    app:
+      module: app.vshard_bootstrapper
     sharding:
       roles: [router, storage]
     roles:
@@ -54,12 +43,10 @@ groups:
         stats_quantile_tolerated_error: 0.001
         stats_quantile_age_buckets_count: 5
         stats_quantile_max_age_time: 180
-    app:
-      module: app.vshard_bootstrapper
     replicasets:
       router-storage-1:
         instances:
-          router:
+          router-storage-1:
             iproto:
               listen:
                 - uri: tarantool-router-storage-1:3301
