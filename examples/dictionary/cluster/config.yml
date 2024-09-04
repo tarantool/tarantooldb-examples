@@ -1,0 +1,107 @@
+credentials:
+  users:
+    admin:
+      password: 'secret-cluster-cookie'
+      roles: [super]
+    client:
+      password: 'secret'
+      roles: [super]
+    replicator:
+      password: 'secret'
+      roles:
+        - replication
+        - dictionary_api_service
+    storage:
+      password: 'secret'
+      roles: [sharding]
+
+iproto:
+  advertise:
+    peer:
+      login: replicator
+    sharding:
+      login: storage
+
+sharding:
+  bucket_count: 30000
+
+groups:
+  routers:
+    replication:
+      failover: manual
+    sharding:
+      roles: [router]
+    roles:
+      - roles.crud-router
+      - roles.metrics-export
+      - roles.dictionary-router
+      - roles.dictionary-storage
+    replicasets:
+      router-msk:
+        leader: router-msk
+        instances:
+          router-msk:
+            iproto:
+              listen:
+                - uri: tarantool-router-msk:3301
+              advertise:
+                client: tarantool-router-msk:3301
+      router-spb:
+        leader: router-spb
+        instances:
+          router-spb:
+            iproto:
+              listen:
+                - uri: tarantool-router-spb:3301
+              advertise:
+                client: tarantool-router-spb:3301
+  storages:
+    replication:
+      failover: election
+    sharding:
+      roles: [storage]
+    roles:
+      - roles.crud-storage
+      - roles.metrics-export
+      - roles.dictionary-storage
+    replicasets:
+      storage-1:
+        instances:
+          storage-1-msk:
+            iproto:
+              listen:
+                - uri: tarantool-storage-1-msk:3301
+              advertise:
+                client: tarantool-storage-1-msk:3301
+          storage-1-spb:
+            iproto:
+              listen:
+                - uri: tarantool-storage-1-spb:3301
+              advertise:
+                client: tarantool-storage-1-spb:3301
+          storage-1-brn:
+            iproto:
+              listen:
+                - uri: tarantool-storage-1-brn:3301
+              advertise:
+                client: tarantool-storage-1-brn:3301
+      storage-2:
+        instances:
+          storage-2-msk:
+            iproto:
+              listen:
+                - uri: tarantool-storage-2-msk:3301
+              advertise:
+                client: tarantool-storage-2-msk:3301
+          storage-2-spb:
+            iproto:
+              listen:
+                - uri: tarantool-storage-2-spb:3301
+              advertise:
+                client: tarantool-storage-2-spb:3301
+          storage-2-brn:
+            iproto:
+              listen:
+                - uri: tarantool-storage-2-brn:3301
+              advertise:
+                client: tarantool-storage-2-brn:3301
