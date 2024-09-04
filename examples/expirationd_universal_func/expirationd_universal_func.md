@@ -1,9 +1,11 @@
 (user_guide-expirationd_universal_func)=
 # Проверка устаревших кортежей с помощью универсальной функции
 
+Доступно с версии [1.2.0](releases-changelog_1.2.0).
+
 В этом руководстве описано, как включить роль `expirationd` и настроить параметры устаревания данных в конфигурации,
-чтобы удалять все кортежи в спейсах, которые старше заданного времени.
-В отличие от примера [expirationd](user_guide-expirationd_example), здесь для проверки устаревших кортежей во всех спейсах используется одна универсальная функция `is_tuple_expired`.
+чтобы удалять из спейсов все кортежи, которые старше заданного времени.
+В отличие от примера [expirationd](user_guide-expirationd_example), здесь для проверки и обработки устаревших кортежей во всех спейсах используется одна универсальная функция `is_tuple_expired`.
 
 Подробнее о модуле `expirationd` можно узнать в разделе [Устаревание данных](user_guide-expirationd).
 
@@ -105,7 +107,7 @@ localhost:3300> box.schema.func.call('generate_data_stop')
   curl -sd @activate_expirationd.json http://localhost:8081/admin/api | jq
   ```
 * в веб-интерфейсе Tarantool DB.
-  Для этого перейдите на вкладку **Cluster**, выберите нужный набор реплик (например, `tarantool-storage1`) и нажмите на значок карандаша (**Edit replica set**).
+  Для этого перейдите на вкладку **Cluster**, выберите нужный набор реплик, например `tarantool-storage1`, и нажмите на значок карандаша (**Edit replica set**).
   В открывшемся окне редактирования выберите роль `expirationd` в секции **Roles**.
 
 Теперь задайте конфигурацию для `expirationd`.
@@ -163,7 +165,8 @@ localhost:3300> box.schema.func.call('generate_data_stop')
     Полное описание опций конфигурации `expirationd` приведено в соответствующем разделе [Справочника по конфигурации](configuration_reference-expirationd).
 
 4. Нажмите кнопку **Apply**.
-5. Убедитесь, что количество сгенерированных кортежей начинает сокращаться, открыв в веб-интерфейсе Tarantool DB во вкладке **Space explorer** ([http://localhost:8081/admin/space-explorer/hosts](http://localhost:8081/admin/space-explorer/hosts)) произвольное хранилище.
+5. Убедитесь, что количество сгенерированных кортежей начинает сокращаться.
+   Для этого откройте веб-интерфейс Tarantool DB на вкладке **Space explorer** ([http://localhost:8081/admin/space-explorer/hosts](http://localhost:8081/admin/space-explorer/hosts)) и выберите произвольное хранилище.
 
 (user_guide-expirationd_universal_func-stop_example)=
 ## Остановка кластера

@@ -1,7 +1,7 @@
 local utils = require('migrator.utils')
 
 local function up()
-    -- создание спейса messages
+    -- создание спейса test
     local s = box.schema.space.create('test', {if_not_exists = true})
     s:format({
         { name = 'id', type = 'number' },

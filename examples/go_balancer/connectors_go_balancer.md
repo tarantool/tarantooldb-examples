@@ -86,7 +86,7 @@ docker compose up -d
 В примере не используется [шардирование](https://www.tarantool.io/ru/doc/2.11/concepts/sharding/), поэтому модуль
 `vshard` не запущен.
 
-После этого перейдите на вкладку **Space Explorer** и выберите любой узел, например, `storage1`.
+После этого перейдите на вкладку **Space Explorer** и выберите любой узел, например `storage1`.
 Проверьте, что на узле есть спейс `test`.
 
 (user_guide-go_balancer-grafana)=

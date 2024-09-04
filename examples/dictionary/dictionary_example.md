@@ -60,7 +60,7 @@ docker compose up -d
 Перейдите во вкладку **Cluster** и проверьте, что отсутствуют ошибки или предупреждения.
 В течение нескольких секунд после старта кластер еще поднимается, так что могут появиться предупреждения.
 
-Перейдите на вкладку **Space Explorer** и выберите любой узел, например, `storage-1-msk`.
+Перейдите на вкладку **Space Explorer** и выберите любой узел, например `storage-1-msk`.
 Проверьте, что на узле есть следующие спейсы:
 
 * `dictionary_data`;
@@ -93,7 +93,7 @@ dictionary_router.set('categories', '5', 'Med')
 Ключ элемента в словаре может быть только строкой.
 ```
 
-Чтобы проверить записанные в словарь данные, используйте метод [dictionary_router.get()](reference_lua-dictionary_router-get), например:
+Чтобы проверить записанные в словарь данные, используйте метод [dictionary_router.get()](reference_lua-dictionary_router-get):
 
 ```lua
 dictionary_router.get('categories', '1')
@@ -118,7 +118,7 @@ crud.replace('money_moves', {9, box.NULL, 123, require('datetime').now(), '1', f
 crud.replace('money_moves', {10, box.NULL, 123, require('datetime').now(), '2', false, 890.99})
 ```
 
-Чтобы проверить записанные данные, используйте метод `crud.get()`, например:
+Чтобы проверить записанные данные, используйте метод `crud.get()`:
 
 ```lua
 crud.get('money_moves', 1)

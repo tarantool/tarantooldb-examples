@@ -103,7 +103,7 @@ tarantooldb:stateboard        RUNNING     118249
 tt cartridge replicasets setup --bootstrap-vshard --name tarantooldb
 ```
 
-Теперь кластер доступен по адресу одного из узлов (кроме `stateboard`), например, [http://localhost:8081](http://localhost:8081).
+Теперь кластер доступен по адресу одного из узлов (кроме `stateboard`), например [http://localhost:8081](http://localhost:8081).
 
 (admin_guide-deploy_tt-stop_example)=
 ## Остановка кластера

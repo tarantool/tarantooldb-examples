@@ -17,7 +17,7 @@
 * [](admin_guide-deploy_docker_compose-files)
 * [](admin_guide-deploy_docker_compose-config)
 * [](admin_guide-deploy_docker_compose-user_host)
-* [](admin_guide-deploy_ci-stop_example)
+* [](admin_guide-deploy_docker_compose-stop_example)
 
 (admin_guide-deploy_docker_compose-prereq)=
 ## Пререквизиты
@@ -123,6 +123,7 @@ docker compose up -d --build
 * `depends_on` -- секция определяет, что контейнер `user-host` запускается только после запуска всех остальных узлов кластера;
 * `volumes` -- передача в контейнер директории с настройками кластера и пользовательской логикой, чтобы они стали доступны для скриптов.
 
+(admin_guide-deploy_docker_compose-stop_example)=
 ## Остановка стенда
 
 Остановить кластер можно так:

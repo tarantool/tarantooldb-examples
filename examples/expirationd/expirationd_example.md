@@ -61,10 +61,10 @@ docker compose up -d
 ## Описание миграции
 
 В руководстве используется миграция из файла `./bootstrap/migrations/source/001_test.lua` примера `expirationd`.
-В этой миграции создан спейс `messages` со следующим форматом:
+В этой миграции создан спейс `test` со следующим форматом:
 
 ```{literalinclude} bootstrap/migrations/source/001_test.lua
-:start-after: -- создание спейса messages
+:start-after: -- создание спейса test
 :end-before: utils.register_sharding_key
 :language: lua
 :dedent:
