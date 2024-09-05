@@ -87,7 +87,7 @@ cd ./doc/examples/go_custom_encoder/tt
 Запустите всё, кроме клиентского приложения, следующей командой:
 
 ```shell
-docker compose up -d
+make start
 ```
 
 После запуска должны работать все контейнеры, кроме `init_host`.
@@ -162,7 +162,7 @@ Rows verified
 * В первом терминале выполните команду:
 
   ```shell
-  docker compose down
+  make stop
   ```
   
 * Во втором терминале выполните команду `Ctrl + Z`.
