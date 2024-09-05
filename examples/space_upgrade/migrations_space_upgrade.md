@@ -87,7 +87,7 @@ cd ./doc/examples/space_upgrade/
 Запустите стенд:
 
 ```
-docker compose up -d
+make start
 ```
 
 Команда развернет стенд, состоящий из:
@@ -485,5 +485,5 @@ space_upgrade-tarantool-storage3-1  | 2024-02-26 09:13:43.163 [12] main/174/spac
 Чтобы остановить стенд, выполните следующую команду:
 
 ```shell
-docker compose down
+make stop
 ```
