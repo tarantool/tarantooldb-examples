@@ -60,7 +60,7 @@ cd ./doc/examples/go_directly/tt
 Запустите всё, кроме клиентского приложения, следующей командой:
 
 ```shell
-docker compose up -d
+make start
 ```
 
 После запуска должны работать все контейнеры, кроме `init_host`.
@@ -130,7 +130,7 @@ Tuples [{{} 1 77 WjishcEWgbUGSerPYtkmAhtSrRYXmyYaXDyScIFcRCpFwIMYpGZwrZbYRSBUdPA
 * В первом терминале выполните команду:
 
     ```shell
-    docker compose down
+    make stop
     ```
   
 * Во втором терминале выполните команду `Ctrl + Z`.
