@@ -52,6 +52,14 @@
 cd ./doc/examples/up_with_tt/
 ```
 
+Скопируйте в папку примера из архива папку `tarantooldb/`.
+Поместите файл `tt.yml` в папку `tarantooldb/`.
+Перейдите в папку `tarantooldb/`:
+```shell
+cd tarantooldb
+```
+
+
 Запустите экземпляры Tarantool DB с помощью команды `tt start`:
 
 ```shell
