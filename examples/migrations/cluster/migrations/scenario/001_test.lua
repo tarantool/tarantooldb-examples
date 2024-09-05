@@ -22,8 +22,7 @@ local function apply()
     box.space.projects:create_index('pk', { parts = {'project_id'}, if_not_exists = true})
     box.space.projects:create_index('bucket_id', { parts = {'bucket_id'}, unique = false, if_not_exists = true})
 
-    -- указываем ключ шардирования для модуля CRUD
-    helpers.register_sharding_key('projects', {'project_id'})
+    helpers.register_sharding_key('projects', {'project_id'}) -- указываем ключ шардирования для модуля CRUD
 
     box.schema.space.create('tasks', { if_not_exists = true })
     box.space.tasks:format({
@@ -56,17 +55,17 @@ local function apply()
 
     if is_storage() then
         -- задаем функции, вызываемые через vshard
-        -- tasks.set_box_NULL_for_user_id задает сохраняет в поле `assigned_user_id` box.NULL для всех
+        -- tasks.replace_user заменяет одного пользователя на другого по всем задачам на сторадже
         -- tasks у которых assigned_user_id == user_id
-        box.schema.func.create('tasks.set_box_NULL_for_user_id', {
+        box.schema.func.create('tasks.replace_user', {
             language = 'LUA',
             if_not_exists = true,
             body = [[
-                function(user_id)
+                function(current_user_id, new_user_id)
                     local fiber = require('fiber')
                     local every_100 = 0
-                    for _, t in box.space.tasks.index.assigned_user_id:pairs({user_id}, 'EQ') do
-                        box.space.tasks:update(t.task_id, {{'=', 'assigned_user_id', box.NULL}})
+                    for _, t in box.space.tasks.index.assigned_user_id:pairs({current_user_id}, 'EQ') do
+                        box.space.tasks:update(t.task_id, {{'=', 'assigned_user_id', new_user_id}})
                         every_100 = every_100 + 1
                         if every_100 == 100 then
                             every_100 = 0
@@ -116,8 +115,8 @@ local function apply()
                         return {err = err, res = box.NULL}
                     end
 
-                    -- vshard_router.map_callrw вызовет `tasks.set_box_NULL_for_user_id` на всех стораджах
-                    local _, err, uuid = vshard_router.map_callrw('tasks.set_box_NULL_for_user_id', {user_id})
+                    -- vshard_router.map_callrw вызовет `tasks.replace_user` на всех стораджах
+                    local _, err, uuid = vshard_router.map_callrw('tasks.replace_user', {user_id, box.NULL})
                     if err ~= nil then
                         return {err = err, res = box.NULL, uuid = uuid}
                     end
@@ -206,102 +205,47 @@ local function apply()
                 end
             ]],
         })
-        -- __create_example_data используется для заполнения кластера тестовыми данными
-        box.schema.func.create('__create_example_data', {
+
+         -- __create_example_data_mant используется для заполнения кластера тестовыми данными в большом объеме
+        box.schema.func.create('__generate_data', {
             language = 'LUA',
             if_not_exists = true,
             body = [[
-                function()
+                function(size)
                     local uuid = require('uuid')
-                    -- удаляем потенциально измененные данные, чтобы пример выполнялся корректно
-                    crud.truncate('projects')
-                    crud.truncate('users')
-                    crud.truncate('tasks')
+                    local fiber = require('fiber')
 
-                    -- наполняем наши спейсы данными
-                    crud.replace_object_many('projects', {
-                        {
-                            project_id = uuid.fromstr('46f8e628-d2c2-42ba-984f-29a459a3d0fc'),
-                            name = 'Task Management',
-                            description = 'Development of a task management system',
-                        },
-                        {
-                            project_id = uuid.fromstr('f53392af-30e3-4bfc-bde8-37043951159a'),
-                            name = 'Website Update',
-                            description = 'Making changes to the website design and functionality',
-                        },
-                    })
-
-                    crud.replace_object_many('users', {
-                        {
-                            user_id = uuid.fromstr('04e7f6a2-2979-46e4-8d71-e80217e3aac3'),
-                            name = 'john_doe',
-                            email = 'john.doe@example.com'
-                        },
-                        {
-                            user_id = uuid.fromstr('1e63739a-dad0-4c5d-80e4-cd39594fe302'),
-                            name = 'jane_smith',
-                            email = 'jane.smith@example.com'
-                        },
-                    })
-
-                    crud.replace_object_many('tasks', {
-                        {
-                            task_id = uuid.fromstr('5043a3f6-6ffa-4d90-8b66-4fb623878f8e'),
-                            name = 'Optimize Database',
-                            description = 'Optimize the database to improve performance.',
-                            status = 'In Progress',
-                            project_id = uuid.fromstr('46f8e628-d2c2-42ba-984f-29a459a3d0fc'),
-                            assigned_user_id = uuid.fromstr('04e7f6a2-2979-46e4-8d71-e80217e3aac3'),
-                        },
-                        {
-                            task_id = uuid.fromstr('c57d56ef-33fc-453b-880f-5d3ba4dc9d10'),
+                    local final_size = size or 450000
+                    local projects, tasks, users = {}, {}, {}
+                    local batch_size = 1000
+                    for n = 1, size do
+                        table.insert(projects, {
+                            project_id = uuid.new(),
+                            name = 'Task Management ' .. i,
+                            description = 'Development of a task management system ' .. i,
+                        })
+                        table.insert(users, {
+                            user_id = uuid.new(),
+                            name = 'john_doe ' .. i,
+                            email = 'john.doe' .. i .. "@example.com"
+                        })
+                        table.insert(tasks, {
+                            task_id = uuid.new(),
                             name = 'Create New Logo',
                             description = 'Design a new logo for the website.',
                             status = 'Not Started',
-                            project_id = uuid.fromstr('f53392af-30e3-4bfc-bde8-37043951159a'),
-                            assigned_user_id = uuid.fromstr('1e63739a-dad0-4c5d-80e4-cd39594fe302'),
-                        },
-                    })
-                end
-            ]],
-        })
+                            project_id = uuid.new(),
+                            assigned_user_id = uuid.new(),
+                        })
 
-         -- __create_example_data_mant используется для заполнения кластера тестовыми данными в большом объеме
-        box.schema.func.create('__fill_data', {
-            language = 'LUA',
-            if_not_exists = true,
-            body = [[
-                function()
-                    local uuid = require('uuid')
+                        if (n % batch_size == 0) or (n == size) then
+                            crud.replace_object_many('projects', projects)
+                            crud.replace_object_many('users', users)
+                            crud.replace_object_many('tasks', tasks)
 
-                    local len = 450000
-                    for _ = 1, len / 1000 do
-                        local projects, tasks, users = {}, {}, {}
-
-                        for i = 1, 1000 do
-                            table.insert(projects, {
-                                project_id = uuid.new(),
-                                name = 'Task Management ' .. i,
-                                description = 'Development of a task management system ' .. i,
-                            })
-                            table.insert(users, {
-                                user_id = uuid.new(),
-                                name = 'john_doe ' .. i,
-                                email = 'john.doe' .. i .. "@example.com"
-                            })
-                            table.insert(tasks, {
-                                task_id = uuid.new(),
-                                name = 'Create New Logo',
-                                description = 'Design a new logo for the website.',
-                                status = 'Not Started',
-                                project_id = uuid.new(),
-                                assigned_user_id = uuid.new(),
-                            })
+                            projects, tasks, users = {}, {}, {}
+                            fiber.yield()
                         end
-                        crud.replace_object_many('projects', projects)
-                        crud.replace_object_many('users', users)
-                        crud.replace_object_many('tasks', tasks)
                     end
                 end
             ]],
