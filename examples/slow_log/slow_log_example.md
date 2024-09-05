@@ -62,7 +62,7 @@ cd ./doc/examples/slow_log/
 Запустите стенд Tarantool DB:
 
 ```shell
-docker compose up -d
+make start
 ```
 
 Команда развернет стенд, состоящий из:
@@ -205,5 +205,5 @@ slow_log-tarantool-router-1    | 2023-11-30 14:13:55.740 [12] main/225/main/tara
 Чтобы остановить стенд, выполните следующую команду:
 
 ```shell
-docker compose down
+make stop
 ```
