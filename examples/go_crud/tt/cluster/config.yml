@@ -1,30 +1,19 @@
-# simple config for demo purposes
-
 credentials:
   users:
     admin:
       password: 'secret-cluster-cookie'
-      roles: [ super ]
+      roles: [super]
     client:
       password: 'secret'
       roles: [super]
     replicator:
       password: 'secret'
-      roles: [replication]
+      roles:
+        - replication
+        - dictionary_api_service
     storage:
       password: 'secret'
       roles: [sharding]
-
-config:
-  etcd:
-    endpoints:
-      - http://etcd1:2379
-      - http://etcd2:2379
-      - http://etcd3:2379
-    prefix: /tdb
-    http:
-      request:
-        timeout: 3
 
 iproto:
   advertise:
@@ -33,52 +22,45 @@ iproto:
     sharding:
       login: storage
 
-replication:
-  failover: manual
+sharding:
+  bucket_count: 30000
 
 groups:
   routers:
+    replication:
+      failover: manual
     sharding:
-      roles: [ router ]
+      roles: [router]
     roles:
       - roles.crud-router
-    roles_cfg:
-      roles.crud-router:
-        stats: true
-        stats_driver: metrics
-        stats_quantiles: true
-        stats_quantile_tolerated_error: 0.001
-        stats_quantile_age_buckets_count: 5
-        stats_quantile_max_age_time: 180
-    app:
-      module: app.vshard_bootstrapper
     replicasets:
-      router-1:
-        leader: router-1
+      router-msk:
+        leader: router-msk
         instances:
-          router-1:
+          router-msk:
             iproto:
               listen:
-                - uri: tarantool-router-1:3301
+                - uri: tarantool-router-msk:3301
               advertise:
-                client: tarantool-router-1:3301
-      router-2:
-        leader: router-2
+                client: tarantool-router-msk:3301
+      router-spb:
+        leader: router-spb
         instances:
-          router-2:
+          router-spb:
             iproto:
               listen:
-                - uri: tarantool-router-2:3301
+                - uri: tarantool-router-spb:3301
               advertise:
-                client: tarantool-router-2:3301
+                client: tarantool-router-spb:3301
   storages:
+    replication:
+      failover: election
     sharding:
-      roles: [ storage ]
+      roles: [storage]
     roles:
       - roles.crud-storage
     replicasets:
       storage-1:
-        leader: storage-1-msk
         instances:
           storage-1-msk:
             iproto:
@@ -92,8 +74,13 @@ groups:
                 - uri: tarantool-storage-1-spb:3301
               advertise:
                 client: tarantool-storage-1-spb:3301
+          storage-1-brn:
+            iproto:
+              listen:
+                - uri: tarantool-storage-1-brn:3301
+              advertise:
+                client: tarantool-storage-1-brn:3301
       storage-2:
-        leader: storage-2-msk
         instances:
           storage-2-msk:
             iproto:
@@ -107,3 +94,9 @@ groups:
                 - uri: tarantool-storage-2-spb:3301
               advertise:
                 client: tarantool-storage-2-spb:3301
+          storage-2-brn:
+            iproto:
+              listen:
+                - uri: tarantool-storage-2-brn:3301
+              advertise:
+                client: tarantool-storage-2-brn:3301
