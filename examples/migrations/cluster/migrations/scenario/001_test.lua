@@ -1,31 +1,16 @@
 local helpers = require('tt-migrations.helpers')
-local rconfig = require('config')
+local config = require('config')
+local fun = require('fun')
 
+local function is_router()
+    return fun.index('roles.crud-router', config:get('roles')) ~= nil
+end
+
+local function is_storage()
+    return fun.index('roles.crud-storage', config:get('roles')) ~= nil
+end
 
 local function apply()
-    local function is_router()
-        local roles = rconfig:get().roles
-        for _, rname in pairs(roles) do
-            if rname == 'roles.crud-router' then
-                return true
-            end
-        end
-
-        return false
-    end
-
-    local function is_storage()
-        local roles = rconfig:get().roles
-        for _, rname in pairs(roles) do
-            if rname == 'roles.crud-storage' then
-                return true
-
-            end
-        end
-
-        return false
-    end
-
     -- создание спейсов и индексов для них
     box.schema.space.create('projects', { if_not_exists = true })
     box.space.projects:format({

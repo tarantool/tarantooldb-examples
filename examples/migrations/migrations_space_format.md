@@ -92,7 +92,7 @@ cd ./doc/examples/migrations/
 Запустите стенд:
 
 ```
-docker compose up -d
+make start
 ```
 
 Команда развернет стенд, состоящий из:
@@ -596,5 +596,5 @@ localhost:3301> box.schema.func.call('__create_example_data')
 Чтобы остановить стенд, выполните следующую команду:
 
 ```shell
-docker compose down
+make stop
 ```
