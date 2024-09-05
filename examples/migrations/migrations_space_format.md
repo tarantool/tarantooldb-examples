@@ -76,7 +76,7 @@
 * `docker-compose.yml` -- описание узлов кластера;
 * `config.yml` -- конфигурация и топология кластера;
 * `migrations/scenario` -- директория, содержащая файлы с описанием миграций;
-* `tcm.yml` -- конфигурация для запуска [Tarantool Cluster Manager](https://www.tarantool.io/ru/doc/latest/reference/tooling/tcm/).
+* `tcm.yml` -- конфигурация для запуска [Tarantool Cluster Manager](https://www.tarantool.io/ru/doc/latest/tooling/tcm/).
 
 
 Для успешного запуска должны быть свободны следующие порты:
@@ -405,7 +405,7 @@ local _, err = vshard_router.callrw(bucket_id, 'projects.delete_project', {id})
 (user_guide-space_format-change_schema-migrations)=
 ### Выполнение миграции
 
-Выполнить миграцию можно с помощью утилиты [tt CLI](https://www.tarantool.io/ru/doc/latest/reference/tooling/tt_cli/). Для этого:
+Выполнить миграцию можно с помощью утилиты [tt CLI](https://www.tarantool.io/ru/doc/latest/tooling/tt_cli/). Для этого:
 
 1. В терминале поместите файлы с кодом миграций `002_test.lua` и `002_test_upgrade.lua` в папку `./migrations/scenario/`:
 
@@ -414,7 +414,7 @@ local _, err = vshard_router.callrw(bucket_id, 'projects.delete_project', {id})
    cp -a migration_next/* migrations/scenario/ 
    ```
 
-2. Загрузите миграции в [централизованное хранилище](https://www.tarantool.io/ru/doc/latest/reference/tooling/tt_cli/cluster/#tt-cluster-publish):
+2. Загрузите миграции в [централизованное хранилище](https://www.tarantool.io/ru/doc/latest/tooling/tt_cli/cluster/#publish):
 
    ```shell
    tt migrations publish http://admin:secret-cluster-cookie@localhost:2379/tdb/ migrations

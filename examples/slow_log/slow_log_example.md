@@ -44,7 +44,7 @@
 * `docker-compose.yml` -- описание узлов кластера;
 * `config.yml` -- конфигурация и топология кластера;
 * `migrations/scenario` -- директория, содержащая файлы с описанием [миграций](user_guide-migrations);
-* `tcm.yml` -- конфигурация для запуска [Tarantool Cluster Manager](https://www.tarantool.io/ru/doc/latest/reference/tooling/tcm/).
+* `tcm.yml` -- конфигурация для запуска [Tarantool Cluster Manager](https://www.tarantool.io/ru/doc/latest/tooling/tcm/).
 
 (user_guide-slow_log-start_example)=
 ## Запуск стенда
@@ -99,7 +99,7 @@ docker compose logs tcm-1 | grep "super admin"
 
 6. Нажмите **Update**, чтобы сохранить новые настройки кластера. При успешном обновлении в веб-интерфейсе появится сообщение `Cluster updated successfully`.
 7. В веб-интерфейсе перейдите на вкладку **Stateboard**.
-8. Выберите любой роутер из списка (например, `router-1`) и в открывшемся окне перейдите на вкладку **Terminal**.
+8. Выберите любой роутер из списка, например `router-1`, и в открывшемся окне перейдите на вкладку **Terminal**.
 9. Во вкладке **Terminal** введите команду `box.space`. Проверьте, что в выводе есть спейс `data` -- этот спейс создается при запуске кластера.
 10. Роль `slow_log` задана на роутере. Чтобы проверить это, перейдите в выбранном роутере на вкладку **Details**.
     Видно, что в поле `roles` заданы роли `roles.crud-router` и `app.roles.slow_log`.

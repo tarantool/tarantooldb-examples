@@ -1,7 +1,7 @@
 # Миграция данных с помощью space:upgrade()
 
 В этом руководстве описана миграция данных в Tarantool DB с помощью метода [space:upgrade()](https://www.tarantool.io/ru/doc/latest/enterprise/space_upgrade/).
-`space:upgrade()` позволяет вносить несовместимые изменения в формат спейса, например, изменить название спейса или удалить его.
+`space:upgrade()` позволяет вносить несовместимые изменения в формат спейса, например изменить название спейса или удалить его.
 
 ```{admonition} Ограничения
 :class: note
@@ -71,7 +71,7 @@
 * `docker-compose.yml` -- описание узлов кластера;
 * `config.yml` -- конфигурация и топология кластера;
 * `migrations/scenario` -- директория, содержащая файлы с описанием миграций;
-* `tcm.yml` -- конфигурация для запуска [Tarantool Cluster Manager](https://www.tarantool.io/ru/doc/latest/reference/tooling/tcm/).
+* `tcm.yml` -- конфигурация для запуска [Tarantool Cluster Manager](https://www.tarantool.io/ru/doc/latest/tooling/tcm/).
 
 
 Для успешного запуска должны быть свободны следующие порты:
@@ -121,7 +121,7 @@ docker compose logs tcm-1 | grep "super admin"
 
 6. Нажмите **Update**, чтобы сохранить новые настройки кластера. При успешном обновлении в веб-интерфейсе появится сообщение `Cluster updated successfully`.
 7. В веб-интерфейсе перейдите на вкладку **Stateboard**.
-8. Выберите любой роутер из списка (например, `router-1`) и в открывшемся окне перейдите на вкладку **Terminal**.
+8. Выберите любой роутер из списка, например `router-1`, и в открывшемся окне перейдите на вкладку **Terminal**.
 9. Во вкладке **Terminal** введите команду `box.space`.  Проверьте, что в выводе есть спейсы `projects`, `tasks` и `users` -- эти спейсы создаются при запуске кластера.
 В запущенном кластере создана первоначальная схема данных:
 
@@ -355,7 +355,7 @@ rawset(_G, '__users_migration', users_migration)
    cp -a ./migration_next/* ./migrations/scenario/ 
    ```
 
-2. Загрузите миграции в [централизованное хранилище](https://www.tarantool.io/ru/doc/latest/reference/tooling/tt_cli/cluster/#tt-cluster-publish):
+2. Загрузите миграции в [централизованное хранилище](https://www.tarantool.io/ru/doc/latest/tooling/tt_cli/cluster/#publish):
 
    ```shell
    tt migrations publish http://admin:secret-cluster-cookie@localhost:2379/tdb/ migrations

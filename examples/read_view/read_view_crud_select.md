@@ -45,7 +45,7 @@
 * `config.yml` -- конфигурация и топология кластера;
 * `docker-compose.yml` -- описание узлов кластера;
 * `migrations/scenario` -- директория, содержащая файлы с описанием миграций;
-* `tcm.yml` -- конфигурация для запуска [Tarantool Cluster Manager](https://www.tarantool.io/ru/doc/latest/reference/tooling/tcm/).
+* `tcm.yml` -- конфигурация для запуска [Tarantool Cluster Manager](https://www.tarantool.io/ru/doc/latest/tooling/tcm/).
 
 (user_guide-readview_crud_filter-start_example)=
 ## Запуск стенда
@@ -99,14 +99,14 @@ docker compose logs tcm-1 | grep "super admin"
    
 6. Нажмите **Update**, чтобы сохранить новые настройки кластера. При успешном обновлении в веб-интерфейсе появится сообщение `Cluster updated successfully`.
 7. В веб-интерфейсе перейдите на вкладку **Stateboard**.
-8. Выберите любой роутер из списка (например, `router-1`) и в открывшемся окне перейдите на вкладку **Terminal**.
+8. Выберите любой роутер из списка, например `router-1`, и в открывшемся окне перейдите на вкладку **Terminal**.
 9. Во вкладке **Terminal** введите команду `box.space`. Проверьте, что в выводе есть спейс `customers` -- этот спейс создается при запуске кластера.
 10. Перейдите на вкладку `Tuples`. Проверьте, что во вкладке отображается спейс `customers`, и в этот спейс загружены данные.
 
 (user_guide-readview_crud_filter-migrations)=
 ## Создание спейса и подключение к узлу
 
-На завершающем этапе поднятия кластера выполняется публикация YAML-конфигурации кластера в [централизованное хранилище](https://www.tarantool.io/ru/doc/latest/reference/tooling/tt_cli/cluster/#tt-cluster-publish)
+На завершающем этапе поднятия кластера выполняется публикация YAML-конфигурации кластера в [централизованное хранилище](https://www.tarantool.io/ru/doc/latest/tooling/tt_cli/cluster/#publish)
 и применяются [миграции](user_guide-migrations).
 Миграции создают спейс `customers` (файл `./migrations/scenario/001_create_space.lua`) и
 загружают в него данные (файл `./migrations/scenario/002_data.lua`).
@@ -259,7 +259,7 @@ rv:select('customers', { { '==', 'full_name', 'William' } }, { first = 10 })
 ```{admonition} Примечание
 :class: note
 
-Если указать частичный ключ не для первого параметра -- например, ``{ '==', 'full_name', {nil, 'Griffin'}``, то будет
+Если указать частичный ключ не для первого параметра, например ``{ '==', 'full_name', {nil, 'Griffin'}``, то будет
 выполнено полное сканирование (Map-Reduce).
 ```
 

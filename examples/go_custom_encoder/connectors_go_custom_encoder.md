@@ -117,7 +117,7 @@ docker compose logs tcm-1 | grep "super admin"
 
    ![](images/tcm-stateboard.png)
 
-8. Выберите любой роутер из списка (например, `router-1`) и в открывшемся окне перейдите на вкладку **Terminal**.
+8. Выберите любой роутер из списка, например `router-1`, и в открывшемся окне перейдите на вкладку **Terminal**.
 9. Во вкладке **Terminal** введите команду `box.space`. Проверьте, что в выводе есть спейс `test` -- этот спейс создается при запуске кластера.
 
 (user_guide-go_encoder-run_application)=

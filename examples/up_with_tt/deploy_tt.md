@@ -1,7 +1,7 @@
 (admin_guide-deploy_tt)=
 #  Запуск Tarantool DB с помощью tt CLI
 
-В этом руководстве показано, как развернуть Tarantool DB локально, используя утилиту [tt CLI](https://www.tarantool.io/ru/doc/latest/reference/tooling/tt_cli/) (`tt`).
+В этом руководстве показано, как развернуть Tarantool DB локально, используя утилиту [tt CLI](https://www.tarantool.io/ru/doc/latest/tooling/tt_cli/) (`tt`).
 Утилита tt CLI есть в составе архива Tarantool DB для развертывания, ее отдельная установка не требуется.
 Если нужно скачать утилиту отдельно, обратитесь к разделу [](install-install_tt).
 
@@ -39,7 +39,7 @@
 
 В примере `up_with_tt` для конфигурации кластера используются файлы из директории `./tarantooldb/`:
 
-* `tt.yaml` -- [конфигурация](https://www.tarantool.io/ru/doc/latest/reference/tooling/tt_cli/configuration/) tt CLI.
+* `tt.yaml` -- [конфигурация](https://www.tarantool.io/ru/doc/latest/tooling/tt_cli/configuration/) tt CLI.
   Чтобы сгенерировать этот файл, используется команда `tt init`;
 
 Обратите внимание на опцию ``instances_enabled``. На нашем случае опция говорит tt о том, что текущая директория может содержать `config.yml` и `instances.yml` или содержит символьную ссылку на приложение Tarantool 3 с этими файлами.
