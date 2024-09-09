@@ -1,8 +1,6 @@
 (user_guide-expirationd_example)=
 # Автоматическое удаление устаревших кортежей из спейса
 
-Доступно с версии 1.2.0.
-
 В этом руководстве описано, как настроить параметры устаревания данных в конфигурации,
 чтобы автоматически удалять все кортежи в спейсе, которые старше заданного времени.
 Подробнее о модуле `expirationd` можно узнать в разделе [Устаревание данных](user_guide-expirationd).
@@ -25,16 +23,14 @@
 * утилита [TT CLI](install-install_tt);
 * исходные файлы примера `expirationd`.
 
-  ```{admonition} Примечание
-  :class: note
-
+  ```{note}
   Есть два способа получить исходные файлы примера:
 
   * Архив с полной документацией Tarantool DB, полученный по почте или скачанный в [личном кабинете tarantool.io](https://www.tarantool.io/en/accounts/customer_zone/packages/tarantooldb/release/documentation).
-    Пример архива: `tarantooldb-documentation-1.0.0.tar.gz`.
+    Пример архива: `tarantooldb-documentation-2.0.0.tar.gz`.
     Пример `expirationd` расположен в таком архиве в директории `./doc/examples/expirationd/`.
     
-  * Отдельный архив [expirationd.tar.gz](https://tarantool.io/ru/tarantooldb/doc/1.x/examples/expirationd/expirationd.tar.gz), скачанный c сайта Tarantool.
+  * Отдельный архив [expirationd.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/expirationd/expirationd.tar.gz), скачанный c сайта Tarantool.
   ```
   
 (user_guide-expirationd_example-start_example)=
@@ -58,51 +54,84 @@ cd ./doc/examples/expirationd/
 make start
 ```
 
+Запущенный стенд состоит из:
+- кластера Tarantool DB (2 роутера, 2 набора реплик по 3 хранилища);
+- кластера etcd из 3 узлов;
+- одного узла [Tarantool Cluster Manager](getting_started-tcm) (TCM).
+
+После запуска должны работать все контейнеры, кроме [init_host](admin_guide-deploy_docker_compose-init_host).
+
+Также после запуска кластера становится доступен веб-интерфейс TCM.
+Для входа в TCM откройте в браузере адрес [http://localhost:8081](http://localhost:8081).
+Логин и пароль для входа:
+- **Username**: `admin`
+- **Password**: `secret`
+
+В TCM откройте вкладку **Stateboard**.
+Выберите в наборе реплик `router-msk` узел `router-msk` и в открывшемся окне перейдите на вкладку **Terminal**.
+Во вкладке **Terminal** проверьте наличие спейса `messages`:
+
+```lua
+box.space
+```
+
+Спейс `messages` должен присутствовать в выводе, он создается при запуске кластера.
+
 (user_guide-expirationd_example-migration)=
 ## Описание миграции
 
-В руководстве используется миграция из файла `./bootstrap/migrations/source/001_test.lua` примера `expirationd`.
+В руководстве используется миграция из файла `./cluster/migrations/scenario/001_test.lua` примера `expirationd`.
 В этой миграции создан спейс `messages` со следующим форматом:
 
-```{literalinclude} bootstrap/migrations/source/001_test.lua
-:start-after: -- создание спейса messages
-:end-before: utils.register_sharding_key
+```{literalinclude} cluster/migrations/scenario/001_test.lua
+:start-after: local function apply()
+:end-before: helpers.register_sharding_key
 :language: lua
 :dedent:
 ```
 
 Необходимо удалять все записи в спейсе старше заданного количества секунд. Количество секунд задается в конфигурации.
 
-Смотрите также: [](user_guide-expirationd_user_logic)
+Смотрите также: [](user_guide-expirationd_user_logic).
 
 (user_guide-expirationd_example-add_data)=
 ## Подключение к узлу и загрузка тестовых данных
 
-Подключитесь к экземпляру, используя команду `tt connect`.
-Команда открывает интерактивную консоль Tarantool, позволяющую работать с базой данных:
+Чтобы начать работу с базой данных через интерактивную консоль Tarantool, нужно подключиться к узлу кластера.
+Сделать это можно двумя способами:
+- В терминале с помощью команды `tt connect`:
 
-```shell
-tt connect admin:secret-cluster-cookie@localhost:3301
-```
+  ```shell
+  tt connect admin:secret-cluster-cookie@localhost:3301
+  ```
 
-Добавьте тестовые данные в спейс:
+- В веб-интерфейсе TCM.
+
+Подключитесь к роутеру `router-msk`, используя **первый способ** -- через TCM. Для этого:
+	
+1. Перейдите на вкладку **Stateboard**.
+2. Нажмите на набор реплик `router-msk`.
+3. Выберите узел `router-msk` и в открывшемся окне перейдите на вкладку **Terminal**.
+
+Во вкладке **Terminal** добавьте тестовые данные в спейс:
 
 ```lua
-crud.insert_object('test', {id = 1, dt = require('datetime').now(), data = 'too'})
-crud.insert_object('test', {id = 2, dt = require('datetime').now(), data = 'foo'})
-crud.insert_object('test', {id = 3, dt = require('datetime').now(), data = 'bar'})
+crud.insert_object('messages', {id = 1, dt = require('datetime').now(), data = 'too'})
+crud.insert_object('messages', {id = 2, dt = require('datetime').now(), data = 'foo'})
+crud.insert_object('messages', {id = 3, dt = require('datetime').now(), data = 'bar'})
 ```
 
-Посмотреть записи можно в веб-интерфейсе во вкладке **Space explorer** ([http://localhost:8081/admin/space-explorer/hosts](http://localhost:8081/admin/space-explorer/hosts)).
-Записи будут удалены спустя заданное в настройках время -- 15 секунд.
+Чтобы просмотреть кортежи в спейсе `messages`, в веб-интерфейсе TCM перейдите на вкладку **Tuples** и выберите в списке спейс `messages`.
+Откроется новая вкладка с содержимым кортежей спейса `messages`.
+Кортежи будут удалены спустя заданное в настройках время -- 15 секунд.
 
 (user_guide-expirationd_example-config)=
 ## Конфигурация устаревания данных
 
 В конфигурации кластера присутствует следующая секция:
 
-```{literalinclude} bootstrap/config.yml
-:start-at: expirationd
+```{literalinclude} cluster/config.yml
+:start-at: roles_cfg
 :end-at: time_create_field
 :language: yaml
 :dedent:
@@ -121,7 +150,7 @@ crud.insert_object('test', {id = 3, dt = require('datetime').now(), data = 'bar'
 (user_guide-expirationd_example-stop_example)=
 ## Остановка кластера
 
-Чтобы остановить кластер, выполните следующую команду:
+Чтобы остановить кластер, выполните в локальном терминале следующую команду:
 
 ```shell
 make stop

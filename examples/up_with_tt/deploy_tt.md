@@ -39,10 +39,14 @@
 
 В примере `up_with_tt` для конфигурации кластера используются файлы из директории `./tarantooldb/`:
 
-* `tt.yaml` -- [конфигурация](https://www.tarantool.io/ru/doc/latest/tooling/tt_cli/configuration/) tt CLI.
+- `config.yml` -- конфигурация и топология кластера
+- `instances.yml` -- список узлов кластера для запуска в текущем окружении;
+- `tt.yml` -- [конфигурация](https://www.tarantool.io/ru/doc/latest/tooling/tt_cli/configuration/) tt CLI.
   Чтобы сгенерировать этот файл, используется команда `tt init`;
 
-Обратите внимание на опцию ``instances_enabled``. На нашем случае опция говорит tt о том, что текущая директория может содержать `config.yml` и `instances.yml` или содержит символьную ссылку на приложение Tarantool 3 с этими файлами.
+Обратите внимание на опцию `instances_enabled` в файле `tt.yml`.
+Здесь опция указывает `tt` на то, что текущая директория может содержать `config.yml` и `instances.yml` или
+содержит символьную ссылку на приложение Tarantool 3 с этими файлами.
 
 (admin_guide-deploy_tt-start_example)=
 ## Запуск стенда
@@ -52,13 +56,28 @@
 cd ./doc/examples/up_with_tt/
 ```
 
-Скопируйте в папку примера из архива папку `tarantooldb/`.
-Поместите файл `tt.yml` в папку `tarantooldb/`.
-Перейдите в папку `tarantooldb/`:
+Загрузите в эту директорию архив для развёртывания Tarantool DB и распакуйте его:
+
 ```shell
-cd tarantooldb
+tar -xzvf tarantooldb-<VERSION>.<OS>.<ARCH>.tar.gz
 ```
 
+Здесь:
+
+- `VERSION` -- версия продукта;
+- `OS` -- поддерживаемая операционная система;
+- `ARCH` -- архитектура процессора.
+
+Пример: `tarantooldb-2.0.0.linux.x86_64.tar.gz`.
+
+При распаковке будет создана директория `tarantooldb`.
+Переименовывать её нельзя.
+
+Скопируйте в эту директорию файлы `instances.yml`, `config.yml` и `tt.yml` из директории `up_with_tt`:
+
+```shell
+cp *.yml tarantooldb/
+```
 
 Запустите экземпляры Tarantool DB с помощью команды `tt start`:
 
@@ -66,6 +85,7 @@ cd tarantooldb
 tt start tarantooldb
 ```
 
+Команда развернет кластер Tarantool DB из 1 роутера и 2 наборов реплик по 2 хранилища.
 Проверить состояние узлов можно, используя команду `tt status`:
 
 ```shell
@@ -82,8 +102,8 @@ tarantooldb:storage-002-b     RUNNING     98113
 tarantooldb:router-001-a      RUNNING     98114
 ```
 
-
-Теперь кластер доступен по IPROTO по адресу одного из узлов. Можно также подключиться по названию узла.
+Теперь кластер доступен по IPROTO по адресу одного из узлов.
+Подключиться к узлу можно по его названию:
 
 ``
 tt connect tarantooldb:storage-001-a

@@ -69,10 +69,9 @@ cd ./doc/examples/go_balancer/tt
 Стенд состоит из:
 - кластера Tarantool DB:
   - 2 роутера;
-  - 2 набора реплик по 2 хранилища;
-  - 1 [Tarantool Cluster Manager](getting_started-tcm) (TCM);
-  - 2 координатора автоматического восстановления после сбоев (*failover coordinator*);
+  - 2 набора реплик по 3 хранилища;
 - кластера etcd из 3 узлов;
+- 1 [Tarantool Cluster Manager](getting_started-tcm) (TCM);
 - клиентского приложения, подающего нагрузку;
 - средств мониторинга -- [Prometheus](https://prometheus.io/), [Grafana](https://grafana.com/).
 
@@ -82,28 +81,37 @@ cd ./doc/examples/go_balancer/tt
 make start
 ```
 
-После запуска должны работать все контейнеры, кроме `init_host`. Также
-после запуска доступны следующие пользовательские интерфейсы:
-* http://localhost:8081 -- веб-интерфейс TCM;
-* http://localhost:3000 -- веб-интерфейс Grafana.
+После запуска должны работать все контейнеры, кроме [init_host](admin_guide-deploy_docker_compose-init_host).
 
-Для входа в веб-интерфейс TCM откройте в браузере адрес [http://localhost:8081](http://localhost:8081). Логин и пароль для входа:
+Также после запуска доступны следующие пользовательские интерфейсы:
+* [http://localhost:8081](http://localhost:8081) -- веб-интерфейс TCM;
+* [http://localhost:3000](http://localhost:3000) -- веб-интерфейс Grafana.
+
+Для входа в TCM откройте в браузере адрес [http://localhost:8081](http://localhost:8081).
+Логин и пароль для входа:
 
 - **Username**: `admin`
 - **Password**: `secret`
 
-1. В веб-интерфейсе перейдите на вкладку **Stateboard**. После применения настроек кластер будет выглядеть так:
+В TCM откройте вкладку **Stateboard**.
+После применения настроек кластер будет выглядеть так:
 
-   ![](images/tcm-stateboard.png)
+![](/images/tcm-stateboard.png)
 
-2. Выберите любой роутер из списка (например, `router-1`) и в открывшемся окне перейдите на вкладку **Terminal**.
-3. Во вкладке **Terminal** введите команду `box.space`. Проверьте, что в выводе есть спейс `test` -- этот спейс создается при запуске кластера.
+Выберите в наборе реплик `router-msk` узел `router-msk` и в открывшемся окне перейдите на вкладку **Terminal**.
+Во вкладке **Terminal** проверьте наличие спейса `test`:
+
+```lua
+box.space
+```
+
+Спейс `test` должен присутствовать в выводе, он создается при запуске кластера.
 
 (user_guide-go_balancer-grafana)=
 ## Панель Grafana
 
 Откройте в браузере веб-интерфейс Grafana по адресу [http://localhost:3000/dashboards](http://localhost:3000/dashboards).
-В списке **Dashboards** откройте папку **General** и выберите панель **Tarantool dashboard** в выпадающем списке.
+В списке **Dashboards** откройте папку **General** и выберите панель **Tarantool 3 dashboard** в выпадающем списке.
 Проверьте, что графики показывают данные за последние 5 минут, а частота обновления равна 5 секундам:
 
 ![](images/grafana-panel.png)
@@ -113,7 +121,7 @@ make start
 кнопку **View**.
 Выберите роутеры на графике, используя один из способов ниже:
 
-* Нажмите на название `router-1` и, зажав `Shift`, нажмите на `router-2`.
+* Нажмите на название `router-msk` и, зажав `Shift`, нажмите на `router-spb`.
 * Используйте переключатель сверху (**Instances**), чтобы выбрать роутеры на уровне всего дашборда.
 
 ![](images/processed-requests-1.png)
@@ -130,7 +138,7 @@ make start
 (user_guide-go_balancer-increase_load)=
 ## Увеличение нагрузки
 
-Откройте вторую вкладку терминала.
+Откройте вторую вкладку локального терминала.
 В этой вкладке перейдите в директорию `go_balancer/go`:
 
 ```shell
@@ -148,7 +156,8 @@ go run -tags go_tarantool_ssl_disable main.go
 * `go_tarantool_ssl_disable` -- опция, отключающая поддержку TLS.
   Так как для поддержки TLS требуется установленный OpenSSL 3.x, для простоты в примере поддержка TLS отключена.
 
-На графиках теперь заметно, что нагрузка растет:
+На графиках теперь заметна растущая нагрузка:
+
 * растет число обработанных запросов на роутерах:
 
   ![](images/processed-requests-2.png)
@@ -157,24 +166,30 @@ go run -tags go_tarantool_ssl_disable main.go
 
   ![](images/replace-2.png)
 
-Включите отображение графиков хранилищ и оцените их:
+Включите отображение графиков роутеров и оцените их:
 
 ![](images/crud-replace-2.png)
 
-Теперь проверьте, что в спейсе `test` появились данные. Для этого:
-
-1. В TCM перейдите на вкладку **Tuples**.
-2. Выберите в списке спейс `test`. Откроется новая вкладка с содержимым кортежей спейса `test`.
+Проверьте, что в спейсе `test` появились данные.
+Для этого в веб-интерфейсе TCM перейдите на вкладку **Tuples** и выберите в списке спейс `test`.
+Откроется новая вкладка с содержимым кортежей спейса `test`.
 
 (user_guide-go_balancer-stop_router)=
 ## Имитация отказа роутера
 
-Чтобы имитировать отказ роутера, в первом терминале выполните команду:
+В первом терминале перейдите в директорию `cluster`:
+
 ```shell
-docker compose stop tarantool-router-1
+cd cluster
 ```
 
-Теперь в TCM во вкладке **Stateboard** узел `router-1` помечается как нездоровый (`unhealthy`).
+Чтобы имитировать отказ роутера, выполните следующую команду:
+
+```shell
+docker compose stop tarantool-router-msk
+```
+
+Теперь в TCM во вкладке **Stateboard** узел `router-msk` помечается как нездоровый (`unhealthy`).
 График запросов изменится так:
 
 ![](images/processed-requests-3.png)
@@ -197,13 +212,13 @@ docker compose stop tarantool-router-1
 (user_guide-go_balancer-start_router)=
 ## Восстановление роутера
 
-Для запуска первого роутера выполните следующую команду:
+Для запуска первого роутера выполните следующую команду в директории `cluster`:
 
 ```shell
-docker compose start tarantool-router-1
+docker compose start tarantool-router-msk
 ```
 
-В TCM во вкладке **Stateboard** видно, что узел `router-1` восстановлен.
+В TCM во вкладке **Stateboard** видно, что узел `router-msk` восстановлен.
 Нагрузка на второй роутер уменьшилась вдвое, появились данные по нагрузке с первого:
 
 ![](images/processed-requests-5.png)
@@ -221,10 +236,16 @@ docker compose start tarantool-router-1
 
 Для остановки стенда:
 
-* В первом терминале выполните команду:
+* В первом локальном терминале вернитесь в директорию `go-balancer/tt`:
 
-    ```shell
-    make stop
-    ```
-  
-* Во втором терминале выполните команду `Ctrl + Z`.
+  ```shell
+  cd ./doc/examples/go_balancer/tt
+  ```
+
+  Выполните следующую команду:
+
+  ```shell
+  make stop
+  ```
+
+* Во втором локальном терминале выполните команду `Ctrl + Z`.

@@ -17,7 +17,7 @@
 * [](admin_guide-deploy_docker_compose-files)
 * [](admin_guide-deploy_docker_compose-config)
 * [](admin_guide-deploy_docker_compose-init_host)
-* [](admin_guide-deploy_ci-stop_example)
+* [](admin_guide-deploy_docker_compose-stop_example)
 
 (admin_guide-deploy_docker_compose-prereq)=
 ## Пререквизиты
@@ -55,11 +55,10 @@ cd ./doc/examples/up_with_docker_compose/
 make start
 ```
 
-Данная команда выполняет серию шагов:
-1. Команда запускает централизованное хранилище конфигурации -- кластер 
-etcd.
-2. Загружает в него конфигурацию кластера.
-3. Запускает кластер Tarantool DB.
+Команда последовательно выполняет следующие шаги:
+1. Запускает централизованное хранилище конфигурации -- кластер etcd;
+2. Загружает конфигурацию кластера в централизованное хранилище;
+3. Запускает кластер Tarantool DB;
 4. Загружает миграции в кластер и выполняет их.
 
 Запущенный стенд состоит из:
@@ -71,33 +70,38 @@ etcd.
 - кластера etcd из 3 узлов;
 - средств мониторинга ([Prometheus](https://prometheus.io/), [Grafana](https://grafana.com/)).
 
-После запуска должны работать все контейнеры, кроме [load_config](admin_guide-deploy_docker_compose-load_config) и [init_host](admin_guide-deploy_docker_compose-init_host).
+После запуска должны работать все контейнеры, кроме [init_host](admin_guide-deploy_docker_compose-init_host).
 Также после запуска доступны следующие пользовательские интерфейсы:
 * http://localhost:8081 -- веб-интерфейс TCM;
 * http://localhost:9090 -- веб-интерфейс Prometheus;
 * http://localhost:3000 -- веб-интерфейс Grafana.
 
-Для входа в веб-интерфейс TCM откройте в браузере адрес [http://localhost:8081](http://localhost:8081). Логин и пароль для входа:
+Для входа в веб-интерфейс TCM откройте в браузере адрес [http://localhost:8081](http://localhost:8081).
+Логин и пароль для входа:
 
 - **Username**: `admin`
 - **Password**: `secret`
+
+В TCM откройте вкладку **Stateboard**.
+После применения настроек кластер будет выглядеть так:
+
+![](/images/tcm-stateboard.png)
 
 (admin_guide-deploy_docker_compose-files)=
 ## Используемые файлы
 
 В руководстве используются следующие файлы примера `up_with_docker_compose`:
 
-* `cluster/` -- директория, содержащая файлы, необходимые для запуска кластера Tarantool DB:
-  * `migrations/scenario` -- директория, содержащая файлы с описанием миграций;
+* `cluster/` -- директория c файлами для запуска кластера Tarantool DB:
   * `config.yml` -- конфигурация и топология кластера;
-  * `docker-compose.yml` -- описание узлов кластера Tarantool DB.
-* `tools/` -- директория, содержащая файлы, необходимые для запуска кластера etcd и средств мониторинга:
+  * `docker-compose.yml` -- описание узлов кластера Tarantool DB;
+  * `migrations/scenario` -- директория, содержащая файлы с описанием миграций;
+* `tools/` -- директория с файлами для запуска кластера etcd и средств мониторинга:
   * `grafana/` -- директория, содержащая настройки для ведения мониторинга;
   * `prometheus/` -- директория, содержащая настройки Prometheus для сбора и передачи метрик в Grafana;
-  * `docker-compose.yml` -- описание узлов кластера etcd и средств мониторинга.
-  * `tcm.yml` -- конфигурация для запуска [Tarantool Cluster Manager](https://www.tarantool.io/ru/doc/latest/reference/tooling/tcm/).
+  * `docker-compose.yml` -- описание узлов кластера etcd и средств мониторинга;
+  * `tcm.yml` -- конфигурация для запуска [Tarantool Cluster Manager](https://www.tarantool.io/ru/doc/latest/reference/tooling/tcm/);
 * `Makefile` -- инструкции для утилиты `make` для запуска и остановки всего стенда;
-
 
 (admin_guide-deploy_docker_compose-config)=
 ## Конфигурация контейнера для узла Tarantool DB
@@ -132,6 +136,7 @@ etcd.
 1. Загрузка клиентского кода (миграций) в кластер и его применение: описание спейсов и функций.
 2. Добавление кластера в веб-интерфейс.
 
+(admin_guide-deploy_docker_compose-stop_example)=
 ## Остановка стенда
 
 Остановить стенд можно так:

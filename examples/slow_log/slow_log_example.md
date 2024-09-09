@@ -2,7 +2,6 @@
 # Логирование медленных запросов для функций и CRUD-запросов
 
 В этом руководстве описано, как настроить запись медленных запросов в журнал для функций и CRUD-запросов.
-
 Подробнее о модуле `slow_log` можно узнать в разделе [Логирование медленных запросов](user_guide-slow_log).
 
 Руководство включает следующие шаги:
@@ -41,10 +40,13 @@
 
 Для запуска и настройки кластера используются файлы из папки `slow_log`:
 
-* `docker-compose.yml` -- описание узлов кластера;
-* `config.yml` -- конфигурация и топология кластера;
-* `migrations/scenario` -- директория, содержащая файлы с описанием [миграций](user_guide-migrations);
-* `tcm.yml` -- конфигурация для запуска [Tarantool Cluster Manager](https://www.tarantool.io/ru/doc/latest/tooling/tcm/).
+* `cluster/` -- директория c файлами для запуска кластера Tarantool DB:
+  * `config.yml` -- конфигурация и топология кластера;
+  * `docker-compose.yml` -- описание узлов кластера Tarantool DB;
+  * `migrations/scenario` -- директория, содержащая файлы с описанием [миграций](user_guide-migrations);
+* `tools/` -- директория с файлами для запуска кластера etcd и TCM:
+  * `docker-compose.yml` -- описание узлов кластера etcd;
+  * `tcm.yml` -- конфигурация для запуска [Tarantool Cluster Manager](https://www.tarantool.io/ru/doc/latest/tooling/tcm/).
 
 (user_guide-slow_log-start_example)=
 ## Запуск стенда
@@ -68,48 +70,40 @@ make start
 Команда развернет стенд, состоящий из:
 
 - кластера Tarantool DB:
-  - 1 роутер;
-  - 1 набор реплик на 4 хранилища;
-  - 1 [Tarantool Cluster Manager](getting_started-tcm) (TCM);
-  - 2 координатора автоматического восстановления после сбоев (*failover coordinator*);
-- кластера etcd из 3 узлов.
+  - 2 роутера;
+  - 2 набора реплик по 3 хранилища;
+- кластера etcd из 3 узлов;
+- 1 [Tarantool Cluster Manager](getting_started-tcm) (TCM).
 
-
-После запуска должны работать все контейнеры, кроме `init_host`.
+После запуска должны работать все контейнеры, кроме [init_host](admin_guide-deploy_docker_compose-init_host).
 
 Также после запуска кластера становится доступен веб-интерфейс TCM.
-Получить пароль для входа в TCM можно так:
+Для входа в TCM откройте в браузере адрес [http://localhost:8081](http://localhost:8081).
+Логин и пароль для входа:
 
-```shell
-docker compose logs tcm-1 | grep "super admin"
+- **Username**: `admin`
+- **Password**: `secret`
+
+В TCM откройте вкладку **Stateboard**.
+Выберите в наборе реплик `router-msk` узел `router-msk` и в открывшемся окне перейдите на вкладку **Terminal**.
+Во вкладке **Terminal** проверьте наличие спейса `data`:
+
+```lua
+box.space
 ```
 
-Откройте TCM в браузере по адресу [http://localhost:8081](http://localhost:8081).
-Для входа используйте логин `admin` и пароль, полученный с помощью предыдущей команды.
+Спейс `data` должен присутствовать в выводе, он создается при запуске кластера.
 
-Чтобы настроить кластер:
-
-1. В веб-интерфейсе перейдите на вкладку **Clusters**.
-2. В строке с кластером `Default cluster` нажмите кнопку **...** (**Actions**) справа и выберите **Edit** в выпадающем меню.
-3. Переключитесь на второй экран настройки, используя кнопку **Next**.
-4. На втором экране укажите в поле **Prefix** значение `/tdb` и нажмите  **Next**.
-5. На третьем экране укажите следующие значения:
-    - в поле **Username** -- `admin`;
-    - в поле **Password** --  `secret-cluster-cookie`.
-
-6. Нажмите **Update**, чтобы сохранить новые настройки кластера. При успешном обновлении в веб-интерфейсе появится сообщение `Cluster updated successfully`.
-7. В веб-интерфейсе перейдите на вкладку **Stateboard**.
-8. Выберите любой роутер из списка, например `router-1`, и в открывшемся окне перейдите на вкладку **Terminal**.
-9. Во вкладке **Terminal** введите команду `box.space`. Проверьте, что в выводе есть спейс `data` -- этот спейс создается при запуске кластера.
-10. Роль `slow_log` задана на роутере. Чтобы проверить это, перейдите в выбранном роутере на вкладку **Details**.
-    Видно, что в поле `roles` заданы роли `roles.crud-router` и `app.roles.slow_log`.
+Роль `slow_log` задана на роутере.
+Чтобы проверить это, перейдите в выбранном роутере на вкладку **Details**.
+Видно, что в поле `roles` заданы роли `roles.crud-router` и `app.roles.slow_log`.
 
 (user_guide-slow_log-crud)=
 ## Запись CRUD-запросов в журнал
 
 В примере данные хранятся в спейсе `data`, который имеет следующий формат:
 
-```{literalinclude} migrations/scenario/001_test.lua
+```{literalinclude} cluster/migrations/scenario/001_test.lua
 :start-at: box.schema.space.create
 :end-before: helpers.register_sharding_key
 :language: lua
@@ -127,10 +121,11 @@ docker compose logs tcm-1 | grep "super admin"
 
 - В веб-интерфейсе TCM.
 
-Подключитесь к роутеру `router-1`, используя **первый способ** -- через TCM. Для этого:
-	
+Подключитесь к роутеру, используя **первый способ** -- через TCM. Для этого:
+
 1. Перейдите на вкладку **Stateboard**.
-2. Выберите роутер `router-1` и в открывшемся окне перейдите на вкладку **Terminal**.
+2. Нажмите на набор реплик `router-msk`.
+2. Выберите узел `router-msk` и в открывшемся окне перейдите на вкладку **Terminal**.
   
 На вкладке **Terminal** добавьте кортеж в спейс `data`, используя функцию из модуля CRUD:
 
@@ -155,7 +150,7 @@ slow_log-tarantool-router-1    | 2023-11-30 14:02:35.599 [12] main/176/main/tara
 
 В примере создана персистентная функция `app.wait_for`, которая ждет заданное количество секунд:
 
-```{literalinclude} migrations/scenario/001_test.lua
+```{literalinclude} cluster/migrations/scenario/001_test.lua
 :start-at: box.schema.func.create
 :end-before: return true
 :language: lua
@@ -172,9 +167,9 @@ app.roles.slow_log:
     - app
 ```
 
-Подключитесь к роутеру в TCM на вкладке **Stateboard**, выбрав роутер `router-1` и открыв вкладку **Terminal**.
+В TCM на вкладке **Stateboard** выберите роутер `router-msk` и подключитесь к нему, открыв вкладку **Terminal**.
 
-Вызовите функцию `app.wait_for`, задав для нее значение в 3 секунды:
+Во вкладке **Terminal** вызовите функцию `app.wait_for`, задав для нее значение в 3 секунды:
 
 ```lua
 box.schema.func.call('app.wait_for', 3)
@@ -202,7 +197,7 @@ slow_log-tarantool-router-1    | 2023-11-30 14:13:55.740 [12] main/225/main/tara
 (user_guide-slow_log-stop_example)=
 ## Остановка стенда
 
-Чтобы остановить стенд, выполните следующую команду:
+Чтобы остановить стенд, выполните в локальном терминале следующую команду:
 
 ```shell
 make stop

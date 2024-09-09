@@ -1,7 +1,7 @@
 local helpers = require('tt-migrations.helpers')
 
 local function apply()
-    local s = box.schema.space.create('test', {if_not_exists = true})
+    local s = box.schema.space.create('messages', {if_not_exists = true})
     s:format({
         { name = 'id', type = 'number' },
         { name = 'bucket_id', type = 'unsigned' },

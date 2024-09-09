@@ -43,69 +43,112 @@
 * 3301--3306
 * 8081--8086
 
-Перейдите в папку с примером `dictionary` и запустите стенд:
+Перейдите в папку с примером `dictionary`:
 
 ```shell
 cd ./doc/examples/dictionary
+```
+
+Запустите стенд:
+
+```shell
 make start
 ```
 
 Команда развернет стенд, который состоит из:
-* кластера Tarantool DB (2 роутера, 2 набора реплик по 3 хранилища);
-* кластера etcd из 3 узлов;
-* 1 узла [Tarantool Cluster Manager](getting_started-tcm) (TCM).
+- кластера Tarantool DB:
+  - 2 роутера;
+  - 2 набора реплик по 3 хранилища;
+- кластера etcd из 3 узлов;
+- 1 узла [Tarantool Cluster Manager](getting_started-tcm) (TCM).
 
-После запуска должны работать все контейнеры, кроме `init_host`. 
+После запуска должны работать все контейнеры, кроме [init_host](admin_guide-deploy_docker_compose-init_host). 
 
-Для входа в веб-интерфейс TCM откройте в браузере адрес [http://localhost:8081](http://localhost:8081). Логин и пароль для входа:
+Также после запуска кластера становится доступен веб-интерфейс TCM.
+Для входа в TCM откройте в браузере адрес [http://localhost:8081](http://localhost:8081).
+Логин и пароль для входа:
 
 - **Username**: `admin`
 - **Password**: `secret`
-В течение нескольких секунд после старта кластер еще поднимается, так что могут появиться предупреждения.
 
-Перейдите на вкладку **Space Explorer** и выберите любой узел, например `storage-1-msk`.
-Проверьте, что на узле есть следующие спейсы:
+В TCM откройте вкладку **Stateboard**.
+Выберите в наборе реплик `storage-1` узел `storage-1-msk` и в открывшемся окне перейдите на вкладку **Terminal**.
+Во вкладке **Terminal** проверьте наличие спейсов `money_moves`, `dictionary_data` и `dictionary_vclock`:
 
-* `dictionary_data`;
-* `dictionary_vclock`;
-* `money_moves`.
+```lua
+box.space
+```
+
+Узнать больше о спейсе `dictionary_data` можно в разделе [](user_guide-dictionary_gs).
 
 (user_guide-dictionary_example-write_data)=
 ## Запись данных в словарь
 
-Подключитесь к одному из роутеров с помощью команды `tt connect`:
+Чтобы начать работу с базой данных через интерактивную консоль Tarantool, нужно подключиться к узлу кластера.
+Сделать это можно двумя способами:
+- В терминале с помощью команды `tt connect`:
 
-```shell
-tt connect admin:secret-cluster-cookie@localhost:3301
-```
+  ```shell
+  tt connect admin:secret-cluster-cookie@localhost:3301
+  ```
+
+- В веб-интерфейсе TCM.
+
+Подключитесь к роутеру `router-msk`, используя **первый способ** -- через TCM. Для этого:
+	
+1. Перейдите на вкладку **Stateboard**.
+2. Нажмите на набор реплик `router-msk`.
+3. Выберите узел `router-msk` и в открывшемся окне перейдите на вкладку **Terminal**.
  
 В примере ниже задается словарь с названием `categories`, который содержит категории денежных трат.
-С помощью функции [dictionary_router_set()](reference_lua-dictionary-set) запишите несколько элементов ('Shops','Med' и другие) с соответствующими им ключами в словарь:
+Для записи элементов с соответствующими им ключами в словарь используется метод [dictionary_router_set()](reference_lua-dictionary-set).
 
-```lua
-dictionary_router.set('categories', '1', 'Shops')
-dictionary_router.set('categories', '2', 'Food delivery')
-dictionary_router.set('categories', '3', 'Transport')
-dictionary_router.set('categories', '4', 'Bills')
-dictionary_router.set('categories', '5', 'Med')
-```
-
-```{admonition} Примечание
+(user_guide-dictionary_example-write_data-note_start)=
+```{note}
 :class: note
 
+Tarantool DB 2.x поддерживает как новый формат названий методов dictionary API (`dictionary_router_get()`), так и старый (`dictionary_router.get()`).
+Методы, добавленные в версии 2.x, поддерживают оба формата названий.
+```
+
+Вызвать метод в новом формате через [tt CLI](install-install_tt) или в [TCM](getting_started-tcm) во вкладке **Terminal** (`TT Connect`)
+можно через `box.schema.func.call`, например:
+
+```lua
+box.schema.func.call('dictionary_router_set', 'categories', '1', 'Shops')
+```
+
+Вызвать метод в старом формате можно напрямую, например:
+
+```lua
+dictionary_router_set('categories', '1', 'Shops')
+```
+(user_guide-dictionary_example-write_data-note_end)=
+
+Во вкладке **Terminal** с помощью метода [dictionary_router_set()](reference_lua-dictionary-set) запишите несколько элементов (`Shops`, `Food delivery` и другие) с соответствующими им ключами в словарь:
+
+```lua
+box.schema.func.call('dictionary_router_set', 'categories', '1', 'Shops')
+box.schema.func.call('dictionary_router_set', 'categories', '2', 'Food delivery')
+box.schema.func.call('dictionary_router_set', 'categories', '3', 'Transport')
+box.schema.func.call('dictionary_router_set', 'categories', '4', 'Bills')
+box.schema.func.call('dictionary_router_set', 'categories', '5', 'Med')
+```
+
+```{note}
 Ключ элемента в словаре может быть только строкой.
 ```
 
 Чтобы проверить записанные в словарь данные, используйте метод [dictionary_router_get()](reference_lua-dictionary-get):
 
 ```lua
-dictionary_router.get('categories', '1')
+box.schema.func.call('dictionary_router_get', 'categories', '1')
 ```
 
 (user_guide-dictionary_example-prepare_data)=
 ## Подготовка нормализованных данных
 
-Чтобы записать нормализованные данные, выполните следующий код:
+Чтобы записать нормализованные данные, выполните во вкладке **Terminal** следующий код:
 
 ```lua
 crud.replace('money_moves', {1, box.NULL, 123, require('datetime').now(), '1', false, 260.01})
@@ -121,7 +164,7 @@ crud.replace('money_moves', {9, box.NULL, 123, require('datetime').now(), '1', f
 crud.replace('money_moves', {10, box.NULL, 123, require('datetime').now(), '2', false, 890.99})
 ```
 
-Чтобы проверить записанные данные, используйте метод `crud.get()`:
+Проверьте записанные данные, используйте метод `crud.get()`:
 
 ```lua
 crud.get('money_moves', 1)
@@ -130,7 +173,7 @@ crud.get('money_moves', 1)
 (user_guide-dictionary_example-read_data)=
 ## Чтение данных с обогащением из словаря
 
-Чтобы получить запись с добавленной информацией из словаря, выполните следующую команду:
+Чтобы получить запись с добавленной информацией из словаря, выполните во вкладке **Terminal** следующую команду:
 
 ```lua
 box.schema.func.call('get_money_move', 1)
@@ -139,7 +182,7 @@ box.schema.func.call('get_money_move', 1)
 (user_guide-dictionary_example-stop_example)=
 ## Остановка стенда
 
-Чтобы остановить стенд, выполните следующую команду:
+Чтобы остановить стенд, выполните в локальном терминале следующую команду:
 
 ```shell
 make stop

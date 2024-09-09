@@ -9,8 +9,9 @@
 Руководство включает следующие шаги:
 
 * [](user_guide-tracing_jaeger-prereq)
-* [](user_guide-tracing_jaeger-set_config)
 * [](user_guide-tracing_jaeger-start_example)
+* [](user_guide-tracing_jaeger-set_config)
+* [](user_guide-tracing_jaeger-connect)
 * [](user_guide-tracing_jaeger-tracing_result)
 * [](user_guide-tracing_jaeger-stop_example)
 
@@ -36,6 +37,38 @@
     
   * Отдельный архив [tracing.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/tracing/tracing.tar.gz), скачанный c сайта Tarantool.
   ```
+
+(user_guide-tracing_jaeger-start_example)=
+## Запуск стенда
+
+Перейдите в директорию примера `tracing`:
+
+```
+cd ./doc/examples/tracing/
+```
+
+Запустите стенд:
+
+```shell
+make start
+```
+
+Запущенный стенд состоит из:
+- кластера Tarantool DB:
+   - 1 роутер;
+   - 2 набора реплик по 1 хранилищу;
+- кластера etcd из 3 узлов;
+- 1 узла [Tarantool Cluster Manager](getting_started-tcm) (TCM).
+- сервиса Jaeger для сбора данных трассировки.
+
+После запуска должны работать все контейнеры, кроме  [init_host](admin_guide-deploy_docker_compose-init_host).
+
+Также после запуска кластера становится доступен веб-интерфейс TCM.
+Для входа в TCM откройте в браузере адрес [http://localhost:8081](http://localhost:8081).
+Логин и пароль для входа:
+- **Username**: `admin`
+- **Password**: `secret`
+
 (user_guide-tracing_jaeger-set_config)=
 ## Определение конфигурации
 
@@ -71,44 +104,16 @@
 
 Полное описание опций конфигурации `tracing` приведено в соответствующем разделе [Справочника по конфигурации](configuration_reference-tracing).
 
-(user_guide-tracing_jaeger-start_example)=
-## Запуск стенда и подключение к узлу
-
-Перейдите в директорию примера `tracing`:
-
-```
-cd ./doc/examples/tracing/
-```
-
-
-Запустите стенд:
-
-```shell
-   make start
-```
-
-Запущенный стенд состоит из:
-- кластера Tarantool DB:
-   - 1 роутер;
-   - 2 набора реплик по 1 хранилищу;
-- кластера etcd из 3 узлов;
-- сервиса Jaeger для сбора данных трассировки.
-
-После запуска должны работать все контейнеры, кроме `init_host`.
-
-Также после запуска кластера становится доступен веб-интерфейс TCM.
-Для входа в TCM откройте в браузере адрес [http://localhost:8081](http://localhost:8081).
-Логин и пароль для входа:
-- **Username**: `admin`
-- **Password**: `secret`
+(user_guide-tracing_jaeger-connect)=
+## Подключение к узлу
 
 Чтобы начать работу с базой данных через интерактивную консоль Tarantool, нужно подключиться к узлу кластера.
 Сделать это можно двумя способами:
 - В терминале с помощью команды `tt connect`:
 
-   ```shell
-   tt connect admin:secret-cluster-cookie@localhost:3301
-   ```
+  ```shell
+  tt connect admin:secret-cluster-cookie@localhost:3301
+  ```
 
 - В веб-интерфейсе TCM.
 
@@ -121,7 +126,7 @@ cd ./doc/examples/tracing/
 (user_guide-tracing_jaeger-tracing_result)=
 ## Оценка результатов трассировки
 
-В TCM во вкладке Terminal запустите несколько тестовых функций на роутере:
+В TCM во вкладке **Terminal** запустите несколько тестовых функций на роутере:
 
 ```lua
 for i = 1, 10 do
@@ -152,6 +157,6 @@ box.func.debug_func:call({"debug_2"})
 Чтобы остановить стенд, выполните в локальном терминале следующую команду:
 
 ```shell
-   make stop
+make stop
 ```
 

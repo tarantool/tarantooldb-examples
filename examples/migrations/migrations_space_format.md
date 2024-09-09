@@ -9,8 +9,10 @@
 
 * [](user_guide-space_format-prereq)
 * [](user_guide-space_format-schema)
+* [](user_guide-space_format-files)
 * [](user_guide-space_format-start_example)
 * [](user_guide-space_format-load_data)
+* [](user_guide-space_format-check_data)
 * [](user_guide-space_format-check_functions)
 * [](user_guide-space_format-change_schema)
 * [](user_guide-space_format-stop_example)
@@ -68,16 +70,21 @@
 - `app.delete_project(project_id)` -- удаление проекта и все связанных с ним задач;
 - `app.get_project_data(project_id)` -- получение проекта и всех связанных с ним задач и пользователей.
 
+(user_guide-space_format-files)=
+## Используемые файлы
+
+В руководстве используются следующие файлы примера `migrations`:
+
+* `cluster/` -- директория c файлами для запуска кластера Tarantool DB:
+  * `config.yml` -- конфигурация и топология кластера;
+  * `docker-compose.yml` -- описание узлов кластера Tarantool DB;
+  * `migrations/scenario` -- директория, содержащая файлы с описанием миграций;
+* `tools/` -- директория с файлами для запуска кластера etcd и TCM:
+  * `docker-compose.yml` -- описание узлов кластера etcd и средств мониторинга;
+  * `tcm.yml` -- конфигурация для запуска [Tarantool Cluster Manager](https://www.tarantool.io/ru/doc/latest/reference/tooling/tcm/).
+
 (user_guide-space_format-start_example)=
 ## Запуск стенда
-
-Для запуска и настройки кластера используются файлы из папки ``migrations``:
-
-* `docker-compose.yml` -- описание узлов кластера;
-* `config.yml` -- конфигурация и топология кластера;
-* `migrations/scenario` -- директория, содержащая файлы с описанием миграций;
-* `tcm.yml` -- конфигурация для запуска [Tarantool Cluster Manager](https://www.tarantool.io/ru/doc/latest/tooling/tcm/).
-
 
 Для успешного запуска должны быть свободны следующие порты:
 * 3301--3304
@@ -102,32 +109,31 @@ make start
   - 1 [Tarantool Cluster Manager](getting_started-tcm) (TCM);
 - кластера etcd из 3 узлов.
 
-После запуска должны работать все контейнеры, кроме `init_host`.
-Откройте TCM в браузере по адресу [http://localhost:8081](http://localhost:8081).
-Для входа используйте логин `admin` и пароль `secret`.
+После запуска должны работать все контейнеры, кроме [init_host](admin_guide-deploy_docker_compose-init_host).
+
+Также после запуска кластера становится доступен веб-интерфейс TCM.
+Для входа в TCM откройте в браузере адрес [http://localhost:8081](http://localhost:8081).
+Логин и пароль для входа:
+- **Username**: `admin`
+- **Password**: `secret`
+
+В TCM откройте вкладку **Stateboard**.
+Выберите в наборе реплик `router-msk` узел `router-msk` и в открывшемся окне перейдите на вкладку **Terminal**.
+Во вкладке **Terminal** введите следующую команду:
+
+```lua
+box.space
+```
+
+Проверьте, что в выводе есть спейсы `projects`, `tasks` и `users` -- эти спейсы создаются при запуске кластера.
+Кроме того, проверьте, что в запущенном кластере созданы функции `app.delete_user(user_id)` и `app.get_project_data(project_id)`.
 
 (user_guide-space_format-load_data)=
-## Загрузка и проверка данных
+## Загрузка данных
 
-Чтобы начать работу с базой данных через интерактивную консоль Tarantool, нужно подключиться к узлу кластера.
-Сделать это можно двумя способами:
+Исходный код миграции приведен в файле `001_test.lua` в директории `./cluster/migrations/scenario/` примера `migrations`.
 
-- В терминале на вашем ПК с помощью команды `tt connect`:
-
-  ```shell
-  tt connect admin:secret-cluster-cookie@localhost:3301
-  ```
-
-- В веб-интерфейсе TCM.
-
-Подключитесь к роутеру `router-msk`, используя **первый способ** -- через TCM. Для этого:
-	
-1. Перейдите на вкладку **Stateboard**.
-2. Выберите роутер `router-msk` и в открывшемся окне перейдите на вкладку **Terminal**.
-
-Исходный код миграции приведен в файле `001_test.lua` в директории `./migrations/scenario/` примера `migrations`.
-
-Загрузить тестовые данные можно с помощью утилиты tt CLI:
+Загрузить тестовые данные в спейсы можно с помощью утилиты tt CLI:
 
 ```shell
 tt crud import \
@@ -144,9 +150,29 @@ tt crud import \
 	--header
 ```
 
-Чтобы проверить загруженные данные, выполните несколько базовых операций в спейсе `users`, используя модуль CRUD:
+(user_guide-space_format-check_data)=
+## Проверка загруженных данных
 
-```
+Чтобы начать работу с базой данных через интерактивную консоль Tarantool, нужно подключиться к узлу кластера.
+Сделать это можно двумя способами:
+
+- В терминале на вашем ПК с помощью команды `tt connect`:
+
+  ```shell
+  tt connect admin:secret-cluster-cookie@localhost:3301
+  ```
+
+- В веб-интерфейсе TCM.
+
+Подключитесь к роутеру `router-msk`, используя **первый способ** -- через TCM. Для этого:
+	
+1. Перейдите на вкладку **Stateboard**.
+2. Нажмите на набор реплик `router-msk`.
+3. Выберите узел `router-msk` и в открывшемся окне перейдите на вкладку **Terminal**.
+
+Чтобы проверить загруженные данные, выполните в TCM во вкладке **Terminal** несколько базовых операций в спейсе `users`, используя модуль CRUD:
+
+```shell
 tarantool-router-msk:3301> crud.select('users')
 ---
 - metadata: [{'name': 'user_id', 'type': 'uuid'}, {'name': 'bucket_id', 'type': 'unsigned'},
@@ -223,9 +249,11 @@ ccc-0000-0000-0000-000000000001'))
 модуля CRUD недостаточно.
 Это связано с тем, что эти функции работают с несколькими спейсами и нестандартными операциями чтения и записи.
 
+(user_guide-space_format-check_functions-get)=
 ### Получение данных проекта
 
-Вызовите функцию и оцените результат:
+В TCM во вкладке **Terminal** вызовите функцию и оцените результат:
+
 ```shell
 localhost:3301> box.schema.func.call('app.get_project_data', require('uuid').fromstr('aaaaaaaa-0000-0000-0000-000000000001'))
 ---
@@ -248,13 +276,15 @@ localhost:3301> box.schema.func.call('app.get_project_data', require('uuid').fro
   err: null
 ```
 
-Мы видим данные проекта "Task Management" и двух его задач.
+В выводе видны данные проекта `Task Management` и двух задач из этого проекта.
 Функция `app.get_project_data(project_id)` выполняет `join` из всех спейсов, используются `crud.get`, `crud.pairs`.
 
+(user_guide-space_format-check_functions-replace)=
 ### Замена пользователя
 
-Предположим, что во всех связанных с некоторым пользователем задачах нужно присвоить полю `assigned_user_id` 
-другого пользователя. Для этого на всех хранилищах была объявлена функция `tasks.replace_user`.
+Предположим, что во всех задачах, связанных с некоторым пользователем, нужно присвоить полю `assigned_user_id` 
+другого пользователя.
+Для этой цели на всех хранилищах объявлена функция `tasks.replace_user`.
 Функция задает новое значение в поле `assigned_user_id` для всех задач, у которых `assigned_user_id == user_id`, где
 `user_id` -- аргумент функции.
 
@@ -278,13 +308,12 @@ end
 ```
 
 Особенность такой замены состоит в том, что спейсы  `tasks` и `users` шардируются по разным ключам.
-В общем случае связанные задачи и пользователи будут находиться на разных шардах. Это значит, что нет узла, на котором 
-бы было известно, на каких шардах будут задачи, связанные с удаляемым пользователем.
-Вызывать функцию `tasks.replace_user` нужно на каждом мастере шарда, потому что такие задачи будут на всех 
-шардах.
-Для вызова функции на всех шардах используется модуль для горизонтального масштабирования [vshard](https://www.tarantool.io/ru/doc/latest/reference/reference_rock/vshard/).
+В общем случае связанные задачи и пользователи будут находиться на разных наборах реплик.
+Это значит, что нет узла, на котором бы было известно, на каких наборах реплик будут задачи, связанные с удаляемым пользователем.
+Вызывать функцию `tasks.replace_user` нужно на каждом мастере набора реплик, потому что такие задачи будут на всех наборах реплик.
+Для вызова функции на всех наборах реплик используется модуль для горизонтального масштабирования [vshard](https://www.tarantool.io/ru/doc/latest/reference/reference_rock/vshard/).
 
-Посмотрим вызов функции `tasks.replace_user` на примере замены "Jane Smith" на "Ava Martinez":
+В примере ниже функция `tasks.replace_user` заменяет пользователя `Jane Smith` на `Ava Martinez`:
 
 ```lua
 vshard.router.map_callrw('tasks.replace_user', {
@@ -293,7 +322,8 @@ vshard.router.map_callrw('tasks.replace_user', {
 })
 ```
 
-Посмотрим ещё раз данные проекта "Task Management":
+В TCM во вкладке **Terminal** просмотрите ещё раз данные проекта `Task Management` :
+
 ```shell
 localhost:3301> box.schema.func.call('app.get_project_data', require('uuid').fromstr('aaaaaaaa-0000-0000-0000-000000000001'))
 ---
@@ -316,13 +346,15 @@ localhost:3301> box.schema.func.call('app.get_project_data', require('uuid').fro
   err: null
 ```
 
-Мы видим, что в данном проекте на задачах заменён пользователь "Jane Smith" на "Ava Martinez".
+Видно, что в проекте на задачах пользователь `Jane Smith` изменен на `Ava Martinez`.
 
-Полный исходный код приведен в файле миграции `./migrations/scenario/001_test.lua` примера `migrations`.
+Полный исходный код функции `tasks.replace_user` приведен в файле миграции `./cluster/migrations/scenario/001_test.lua` примера `migrations`.
 
+(user_guide-space_format-check_functions-delete)=
 ### Удаление проекта
 
-Удалим проект "Task Management":
+Удалите проект `Task Management`:
+
 ```shell
 tarantool-router-msk:3301> box.schema.func.call('app.delete_project',
     require('uuid').fromstr('aaaaaaaa-0000-0000-0000-000000000001')
@@ -333,7 +365,9 @@ tarantool-router-msk:3301> box.schema.func.call('app.delete_project',
 ...
 ```
 
-Просмотрите содержимое спейса `projects`. Видно, что проект `Website Update` был удален вместе со всеми задачами:
+Просмотрите содержимое спейса `projects`.
+Видно, что проект `Task Management` был удален вместе со всеми задачами:
+
 ```shell
 tarantool-router-msk:3301> box.schema.func.call('app.get_project_data',
     require('uuid').fromstr('aaaaaaaa-0000-0000-0000-000000000001')
@@ -378,7 +412,7 @@ local bucket_id = vshard_router.bucket_id_strcrc32(id)
 local _, err = vshard_router.callrw(bucket_id, 'projects.delete_project', {id})
 ```
 
-Полный исходный код приведен в файле миграции `./migrations/scenario/001_test.lua` примера `migrations`.
+Полный исходный код функции `projects.delete_project` приведен в файле миграции `./cluster/migrations/scenario/001_test.lua` примера `migrations`.
 
 (user_guide-space_format-change_schema)=
 ## Изменение схемы данных
@@ -397,17 +431,16 @@ local _, err = vshard_router.callrw(bucket_id, 'projects.delete_project', {id})
 
 ![Схема данных](images/schema2.drawio.svg)
 
-Код миграции приведен в файле `./migration_next/002_test.lua` примера `migrations`.
+Код миграции приведен в файле `./cluster/migration_next/002_test.lua` примера `migrations`.
 
 Миграции выполняются в лексикографическом порядке, поэтому им даны нумерованные названия: (`0001_my_migr.lua`, `2023_12_24_migr.lua`).
-
 
 (user_guide-space_format-change_schema-migrations)=
 ### Выполнение миграции
 
 Выполнить миграцию можно с помощью утилиты [tt CLI](https://www.tarantool.io/ru/doc/latest/tooling/tt_cli/). Для этого:
 
-1. В терминале поместите файлы с кодом миграций `002_test.lua` и `002_test_upgrade.lua` в папку `./migrations/scenario/`:
+1. В терминале поместите файлы из папки `migration_next` с кодом миграций `002_test.lua` и `002_test_upgrade.lua` в папку `./cluster/migrations/scenario/`:
 
    ```shell
    cd cluster
@@ -448,10 +481,11 @@ local _, err = vshard_router.callrw(bucket_id, 'projects.delete_project', {id})
    •     002_test_upgrade.lua: successfully applied
    ```
 
-4. Проверьте, что миграция прошла успешно, выполнив операцию `app.get_project_data`. В функции должны появиться новые 
-   поля в ответе:
+4. Проверьте, что миграция прошла успешно.
+   Для этого в TCM во вкладке **Terminal** выполните функцию `app.get_project_data`.
+   В функции должны появиться новые поля в ответе:
 
-    ```
+    ```shell
     tarantool-router-msk:3301> box.schema.func.call('app.get_project_data', require('uuid').fromstr('aaaaaaaa-0000-0000-0000-000000000002'))
     ---
     - res:
@@ -479,9 +513,9 @@ local _, err = vshard_router.callrw(bucket_id, 'projects.delete_project', {id})
     ...
     ```
 
-5. Обратите внимание, что в миграции происходит обновление функции ``app.get_project_data``.
+5. Обратите внимание, что в миграции происходит обновление функции `app.get_project_data`.
    Для этого транзакционно удаляется старая функция и добавляется новая.
-   Такой подход гарантирует, что не произойдет ситуации, когда функции ``app.get_project_data`` не существует:
+   Такой подход гарантирует, что не произойдет ситуации, когда функции `app.get_project_data` не существует:
 
    ```lua
     box.atomic(function()
@@ -499,7 +533,7 @@ local _, err = vshard_router.callrw(bucket_id, 'projects.delete_project', {id})
 (user_guide-space_format-stop_example)=
 ## Остановка стенда
 
-Чтобы остановить стенд, выполните следующую команду:
+Чтобы остановить стенд, выполните в локальном терминале следующую команду:
 
 ```shell
 make stop

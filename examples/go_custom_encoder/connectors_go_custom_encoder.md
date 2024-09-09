@@ -50,7 +50,7 @@
 
 В базе данных в этом спейсе есть дополнительное поле `bucket_id` -- ключ шардирования:
 
-```{literalinclude} tt/migrations/scenario/001_test.lua
+```{literalinclude} tt/cluster/migrations/scenario/001_test.lua
 :start-at: box.schema.space.create
 :end-before: helpers.register_sharding_key
 :language: lua
@@ -77,11 +77,9 @@ cd ./doc/examples/go_custom_encoder/tt
 
 - кластера Tarantool DB:
   - 2 роутера;
-  - 1 набор реплик на 2 хранилища;
-  - 1 [Tarantool Cluster Manager](getting_started-tcm) (TCM);
-  - 2 координатора автоматического восстановления после сбоев (*failover coordinator*);
-
+  - 2 набора реплик по 3 хранилища;
 - кластера etcd из 3 узлов;
+- 1 [Tarantool Cluster Manager](getting_started-tcm) (TCM);
 - клиентского приложения, подающего нагрузку.
 
 Запустите всё, кроме клиентского приложения, следующей командой:
@@ -90,35 +88,27 @@ cd ./doc/examples/go_custom_encoder/tt
 make start
 ```
 
-После запуска должны работать все контейнеры, кроме `init_host`.
+После запуска должны работать все контейнеры, кроме [init_host](admin_guide-deploy_docker_compose-init_host).
 
 Также после запуска кластера становится доступен веб-интерфейс TCM.
-Получить пароль для входа в TCM можно так:
+Для входа в TCM откройте в браузере адрес [http://localhost:8081](http://localhost:8081).
+Логин и пароль для входа:
 
-```shell
-docker compose logs tcm-1 | grep "super admin"
+- **Username**: `admin`
+- **Password**: `secret`
+
+В TCM откройте вкладку **Stateboard**. После применения настроек кластер будет выглядеть так:
+
+![](/images/tcm-stateboard.png)
+
+Выберите в наборе реплик `router-msk` узел `router-msk` и в открывшемся окне перейдите на вкладку **Terminal**.
+Во вкладке **Terminal** проверьте наличие спейса `test`:
+
+```lua
+box.space
 ```
 
-Откройте TCM в браузере по адресу [http://localhost:8081](http://localhost:8081).
-Для входа используйте логин `admin` и пароль, полученный с помощью предыдущей команды.
-
-Чтобы настроить кластер:
-
-1. В веб-интерфейсе перейдите на вкладку **Clusters**.
-2. В строке с кластером `Default cluster` нажмите кнопку **...** (**Actions**) справа и выберите **Edit** в выпадающем меню.
-3. Переключитесь на второй экран настройки, используя кнопку **Next**.
-4. На втором экране укажите в поле **Prefix** значение `/tdb` и нажмите  **Next**.
-5. На третьем экране укажите следующие значения:
-   - в поле **Username** -- `admin`;
-   - в поле **Password** --  `secret-cluster-cookie`.
-    
-6. Нажмите **Update**, чтобы сохранить новые настройки кластера. При успешном обновлении в веб-интерфейсе появится сообщение `Cluster updated successfully`.
-7. В веб-интерфейсе перейдите на вкладку **Stateboard**. После применения настроек кластер будет выглядеть так:
-
-   ![](images/tcm-stateboard.png)
-
-8. Выберите любой роутер из списка, например `router-1`, и в открывшемся окне перейдите на вкладку **Terminal**.
-9. Во вкладке **Terminal** введите команду `box.space`. Проверьте, что в выводе есть спейс `test` -- этот спейс создается при запуске кластера.
+Спейс `test` должен присутствовать в выводе, он создается при запуске кластера.
 
 (user_guide-go_encoder-run_application)=
 ## Запуск приложения
@@ -149,10 +139,9 @@ Recorded via crud in batches of 10000 records in 96.016347ms - custom-encoder
 Rows verified
 ```
 
-Теперь проверьте, что в спейсе `test` появились данные. Для этого:
-
-1. В TCM перейдите на вкладку **Tuples**.
-2. Выберите в списке спейс `test`. Откроется новая вкладка с содержимым кортежей спейса `test`.
+Проверьте, что в спейсе `test` появились данные.
+Для этого в веб-интерфейсе TCM перейдите на вкладку **Tuples** и выберите в списке спейс `test`.
+Откроется новая вкладка с содержимым кортежей спейса `test`.
 
 (user_guide-go_encoder-stop_example)=
 ## Остановка стенда

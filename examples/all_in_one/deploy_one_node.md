@@ -2,13 +2,15 @@
 # Запуск кластера из одного узла через Docker Compose
 
 В этом руководстве показано, как развернуть кластер Tarantool DB из одного узла с помощью Docker Compose.
-Также в примере применяется нестандартный способ бутстрапа шардинга -- с помощью встроенного
-модуля. Данный способ активизируется через конфигурацию кластера:
-```yaml
-groups:
-  all_in_one:
-    app:
-      module: app.vshard_bootstrapper
+В примере применяется нестандартный способ первоначального запуска модуля [шардирования](https://www.tarantool.io/ru/doc/latest/platform/sharding/)
+-- с помощью встроенного модуля.
+Этот способ можно включить через конфигурацию кластера:
+
+```{literalinclude} cluster/config.yml
+:start-at: groups
+:end-at: app.vshard_bootstrapper
+:language: yaml
+:dedent:
 ```
 
 Содержание:
@@ -56,34 +58,36 @@ make start
 
 Запущенный стенд состоит из:
 
-- кластера Tarantool DB из одного узла, выполняющего роль одновременно и роутера, и хранилища;
+- кластера Tarantool DB из одного узла. Этот узел одновременно выполняет роль и роутера, и хранилища;
 - кластера etcd из 3 узлов;
 - одного узла [Tarantool Cluster Manager](getting_started-tcm) (TCM).
 
-После запуска должны работать все контейнеры, кроме `init_host`.
+После запуска должны работать все контейнеры, кроме [init_host](admin_guide-deploy_docker_compose-init_host).
 
-Для входа в веб-интерфейс TCM откройте в браузере адрес [http://localhost:8081](http://localhost:8081). Логин и пароль для входа:
+Также после запуска кластера становится доступен веб-интерфейс TCM.
+Для входа в TCM откройте в браузере адрес [http://localhost:8081](http://localhost:8081).
+Логин и пароль для входа:
 
 - **Username**: `admin`
 - **Password**: `secret`
+
+После применения настроек кластер будет выглядеть так:
+
+![](/images/tcm-stateboard-1_node.png)
 
 (admin_guide-deploy_one_node-files)=
 ## Используемые файлы
 
 В руководстве используются следующие файлы примера `all_in_one`:
 
-В руководстве используются следующие файлы примера `up_with_docker_compose`:
-
-* `cluster/` -- директория, содержащая файлы, необходимые для запуска кластера Tarantool DB:
-  * `migrations/scenario` -- директория, содержащая файлы с описанием миграций;
+* `cluster/` -- директория с файлами для запуска кластера Tarantool DB:
   * `config.yml` -- конфигурация и топология кластера;
-  * `docker-compose.yml` -- описание узлов кластера Tarantool DB.
-* `tools/` -- директория, содержащая файлы, необходимые для запуска кластера etcd и средств мониторинга:
-  * `docker-compose.yml` -- описание узлов кластера etcd и средств мониторинга.
-  * `tcm.yml` -- конфигурация для запуска [Tarantool Cluster Manager](https://www.tarantool.io/ru/doc/latest/reference/tooling/tcm/).
-* `Makefile` -- инструкции для утилиты `make` для запуска и остановки всего стенда;
-
-
+  * `docker-compose.yml` -- описание узлов кластера Tarantool DB;
+  * `migrations/scenario` -- директория, содержащая файлы с описанием миграций;
+* `tools/` -- директория с файлами для запуска кластера etcd и средств мониторинга:
+  * `docker-compose.yml` -- описание узлов кластера etcd и средств мониторинга;
+  * `tcm.yml` -- конфигурация для запуска [Tarantool Cluster Manager](https://www.tarantool.io/ru/doc/latest/reference/tooling/tcm/);
+* `Makefile` -- инструкции для утилиты `make` для запуска и остановки всего стенда.
 
 (admin_guide-deploy_one_node-stop_example)=
 ## Остановка кластера

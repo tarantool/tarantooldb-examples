@@ -59,7 +59,7 @@ make start
 Запущенный стенд состоит из:
 - кластера Tarantool DB (2 роутера, 2 набора реплик по 3 хранилища);
 - кластера etcd из 3 узлов;
-- одного узла [Tarantool Cluster Manager](getting_started-tcm) (TCM).
+- 1 узла [Tarantool Cluster Manager](getting_started-tcm) (TCM).
 
 После запуска должны работать все контейнеры, кроме [init_host](admin_guide-deploy_docker_compose-init_host).
 
@@ -73,7 +73,9 @@ make start
 Выберите в наборе реплик `router-msk` узел `router-msk` и в открывшемся окне перейдите на вкладку **Terminal**.
 Во вкладке **Terminal** проверьте наличие спейса `messages`:
 
-```box.space```
+```lua
+box.space
+```
 
 Спейс `messages` должен присутствовать в выводе, он создается при запуске кластера.
 
@@ -98,7 +100,6 @@ make start
 ```
 
 Необходимо удалять все записи в спейсе старше заданного количества секунд. Количество секунд задается в конфигурации.
-
 
 (user_guide-expirationd_user_logic_example-add_data)=
 ## Подключение к узлу и загрузка тестовых данных
