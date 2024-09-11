@@ -3,6 +3,9 @@
 
 В этом руководстве показано, как развернуть кластер Tarantool DB в качестве централизованного хранилища
 конфигураций.
+Чтобы узлы в наборе реплик Tarantool действовали как хранилище конфигураций, используется технологическая роль [config.storage](configuration_reference-config_storage).
+Узнать больше о хранилище конфигураций на базе Tarantool можно в документации [Tarantool](https://www.tarantool.io/ru/doc/latest/platform/configuration/configuration_etcd/#tarantool-based-storage).
+
 Смотрите также: [](admin_guide-up_without_etcd).
 
 ```{admonition} Примечание

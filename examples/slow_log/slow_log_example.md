@@ -159,12 +159,9 @@ slow_log-tarantool-router-1    | 2023-11-30 14:02:35.599 [12] main/176/main/tara
 
 Чтобы включить запись в журнал для функции `app.wait_for`, обновите секцию `app.roles.slow_log` в файле конфигурации:
 
-```yaml
-app.roles.slow_log:
-  enable: true
-  threshold: 3
-  namespaces:
-    - app
+```{include}  /reference/configuration_reference.md
+:start-after: (configuration_reference-slow_log-example_start)=
+:end-before: (configuration_reference-slow_log-example_end)
 ```
 
 В TCM на вкладке **Stateboard** выберите роутер `router-msk` и подключитесь к нему, открыв вкладку **Terminal**.

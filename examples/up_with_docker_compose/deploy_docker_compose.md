@@ -101,7 +101,7 @@ make start
   * `prometheus/` -- директория, содержащая настройки Prometheus для сбора и передачи метрик в Grafana;
   * `docker-compose.yml` -- описание узлов кластера etcd и средств мониторинга;
   * `tcm.yml` -- конфигурация для запуска [Tarantool Cluster Manager](https://www.tarantool.io/ru/doc/latest/reference/tooling/tcm/);
-* `Makefile` -- инструкции для утилиты `make` для запуска и остановки всего стенда;
+* `Makefile` -- инструкции для утилиты `make` для запуска и остановки всего стенда.
 
 (admin_guide-deploy_docker_compose-config)=
 ## Конфигурация контейнера для узла Tarantool DB
