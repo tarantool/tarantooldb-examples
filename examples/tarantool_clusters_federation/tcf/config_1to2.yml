@@ -1,0 +1,55 @@
+gateway:
+  grpc_server:
+    host: 0.0.0.0
+    port: 10080
+  metrics_enabled: True
+  http_server:
+    host: 0.0.0.0
+    port: 10081
+  replica_type: anonymous
+  max_cpu: 2
+  log_level: debug
+  log_type: plain # plain/json
+  log_path: ""
+
+  stream_instances:
+    - uri: cluster1-storage-1-msk:3301
+      user: tcf-replicator
+      password: secret
+    - uri: cluster1-storage-2-msk:3301
+      user: tcf-replicator
+      password: secret
+
+  # Optional parameters.
+  start_retry_delay: 200 # milliseconds
+  max_retry_delay: 1500 # milliseconds
+  retry_attempts: 10 # count
+
+destination:
+  metrics_enabled: True
+  http_server:
+    host: 0.0.0.0
+    port: 10082
+  gateway:
+    host: localhost
+    port: 10080
+
+  # Size of every channel for replicaset events. Zero will make it unbuffered.
+  buffer_size: 10000
+  log_type: plain # plain/json
+  log_level: debug
+  log_path: ""
+
+  vshard_routers:
+    hosts:
+      - "cluster2-router-msk:3301"
+      - "cluster2-router-spb:3301"
+    user: tcf-replicator
+    password: secret
+
+  # Optional parameters.
+  start_retry_delay: 200 # milliseconds
+  max_retry_delay: 1500 # milliseconds
+  retry_attempts: 10 # count
+
+  max_cpu: 2

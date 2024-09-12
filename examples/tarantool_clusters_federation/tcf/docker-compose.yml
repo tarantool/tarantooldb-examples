@@ -1,0 +1,31 @@
+version: '3'
+services:
+  tcf-replicator-1to2:
+    build:
+      context: .
+      dockerfile: replicator.Dockerfile
+    networks:
+      - tarantooldb_network
+    command:
+    - /bin/sh
+    - -c
+    - |
+      tcf-gateway --config ./config_1to2.yml &
+      tcf-destination --config ./config_1to2.yml
+
+  tcf-replicator-2to1:
+    build:
+      context: .
+      dockerfile: replicator.Dockerfile
+    networks:
+      - tarantooldb_network
+    command:
+    - /bin/sh
+    - -c
+    - |
+      tcf-gateway --config ./config_2to1.yml &
+      tcf-destination --config ./config_2to1.yml
+
+networks:
+  tarantooldb_network:
+    external: true

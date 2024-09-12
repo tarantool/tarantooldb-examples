@@ -1,0 +1,313 @@
+credentials:
+  users:
+    admin:
+      password: 'secret-cluster-cookie'
+      roles:
+        - super
+        - sharding
+    tcf-replicator:
+      password: secret
+      roles: [ super ]
+    tcf-dml:
+      password: secret
+      roles: [ super ]
+
+iproto:
+  advertise:
+    peer:
+      login: admin
+    sharding:
+      login: admin
+
+sharding:
+  bucket_count: 3000
+
+groups:
+  routers:
+    replication:
+      failover: manual
+    sharding:
+      roles: [router]
+    roles:
+      - roles.crud-router
+      - roles.tcf-coordinator
+      - roles.tcf-worker
+    replicasets:
+      router-msk:
+        leader: router-msk
+        instances:
+          router-msk:
+            roles_cfg:
+              roles.tcf-worker:
+                cluster_1: cluster1
+                cluster_2: cluster2
+                initial_status: active
+                dml_users: [ tcf-dml ]
+                replication_user: tcf-replicator
+                replication_password: secret
+                status_ttl: 4
+                enable_system_check: true
+                http:
+                  listen: cluster1-router-msk:8082
+
+                storage: etcd_v3
+                storage_params:
+                  endpoints:
+                    - http://etcd1:2379
+                    - http://etcd2:2379
+                    - http://etcd3:2379
+
+              roles.tcf-coordinator:
+                failover_timeout: 20
+                health_check_delay: 2
+                max_suspect_counts: 3
+                storage: etcd_v3
+                storage_params:
+                  endpoints:
+                    - http://etcd1:2379
+                    - http://etcd2:2379
+                    - http://etcd3:2379
+
+            iproto:
+              listen:
+                - uri: cluster1-router-msk:3301
+              advertise:
+                client: cluster1-router-msk:3301
+      router-spb:
+        leader: router-spb
+        instances:
+          router-spb:
+            roles_cfg:
+              roles.tcf-worker:
+                cluster_1: cluster1
+                cluster_2: cluster2
+                initial_status: active
+
+                dml_users: [ tcf-dml ]
+
+                replication_user: tcf-replicator
+                replication_password: secret
+
+                status_ttl: 4
+                enable_system_check: true
+
+                http:
+                  listen: cluster1-router-spb:8082
+
+                storage: etcd_v3
+                storage_params:
+                  endpoints:
+                    - http://etcd1:2379
+                    - http://etcd2:2379
+                    - http://etcd3:2379
+
+              roles.tcf-coordinator:
+                failover_timeout: 20
+                health_check_delay: 2
+                max_suspect_counts: 3
+                storage: etcd_v3
+                storage_params:
+                  endpoints:
+                    - http://etcd1:2379
+                    - http://etcd2:2379
+                    - http://etcd3:2379
+            iproto:
+              listen:
+                - uri: cluster1-router-spb:3301
+              advertise:
+                client: cluster1-router-spb:3301
+  storages:
+    replication:
+      failover: manual
+    sharding:
+      roles: [storage]
+    roles:
+      - roles.crud-storage
+      - roles.tcf-worker
+    replicasets:
+      storage-1:
+        leader: storage-1-msk
+        instances:
+          storage-1-msk:
+            roles_cfg:
+              roles.tcf-worker:
+                cluster_1: cluster1
+                cluster_2: cluster2
+                initial_status: active
+
+                dml_users: [ tcf-dml ]
+
+                replication_user: tcf-replicator
+                replication_password: secret
+
+                status_ttl: 4
+                enable_system_check: true
+
+                http:
+                  listen: cluster1-storage-1-msk:8082
+
+                storage: etcd_v3
+                storage_params:
+                  endpoints:
+                    - http://etcd1:2379
+                    - http://etcd2:2379
+                    - http://etcd3:2379
+
+            iproto:
+              listen:
+                - uri: cluster1-storage-1-msk:3301
+              advertise:
+                client: cluster1-storage-1-msk:3301
+          storage-1-spb:
+            roles_cfg:
+              roles.tcf-worker:
+                cluster_1: cluster1
+                cluster_2: cluster2
+                initial_status: active
+
+                dml_users: [ tcf-dml ]
+
+                replication_user: tcf-replicator
+                replication_password: secret
+
+                status_ttl: 4
+                enable_system_check: true
+
+                http:
+                  listen: cluster1-storage-1-spb:8082
+
+                storage: etcd_v3
+                storage_params:
+                  endpoints:
+                    - http://etcd1:2379
+                    - http://etcd2:2379
+                    - http://etcd3:2379
+
+            iproto:
+              listen:
+                - uri: cluster1-storage-1-spb:3301
+              advertise:
+                client: cluster1-storage-1-spb:3301
+          storage-1-brn:
+            roles_cfg:
+              roles.tcf-worker:
+                cluster_1: cluster1
+                cluster_2: cluster2
+                initial_status: active
+
+                dml_users: [ tcf-dml ]
+
+                replication_user: tcf-replicator
+                replication_password: secret
+
+                status_ttl: 4
+                enable_system_check: true
+
+                http:
+                  listen: cluster1-storage-1-brn:8082
+
+                storage: etcd_v3
+                storage_params:
+                  endpoints:
+                    - http://etcd1:2379
+                    - http://etcd2:2379
+                    - http://etcd3:2379
+
+            iproto:
+              listen:
+                - uri: cluster1-storage-1-brn:3301
+              advertise:
+                client: cluster1-storage-1-brn:3301
+      storage-2:
+        leader: storage-2-msk
+        instances:
+          storage-2-msk:
+            roles_cfg:
+              roles.tcf-worker:
+                cluster_1: cluster1
+                cluster_2: cluster2
+                initial_status: active
+
+                dml_users: [ tcf-dml ]
+
+                replication_user: tcf-replicator
+                replication_password: secret
+
+                status_ttl: 4
+                enable_system_check: true
+
+                http:
+                  listen: cluster1-storage-2-msk:8082
+
+                storage: etcd_v3
+                storage_params:
+                  endpoints:
+                    - http://etcd1:2379
+                    - http://etcd2:2379
+                    - http://etcd3:2379
+
+            iproto:
+              listen:
+                - uri: cluster1-storage-2-msk:3301
+              advertise:
+                client: cluster1-storage-2-msk:3301
+          storage-2-spb:
+            roles_cfg:
+              roles.tcf-worker:
+                cluster_1: cluster1
+                cluster_2: cluster2
+                initial_status: active
+
+                dml_users: [ tcf-dml ]
+
+                replication_user: tcf-replicator
+                replication_password: secret
+
+                status_ttl: 4
+                enable_system_check: true
+
+                http:
+                  listen: cluster1-storage-2-spb:8082
+
+                storage: etcd_v3
+                storage_params:
+                  endpoints:
+                    - http://etcd1:2379
+                    - http://etcd2:2379
+                    - http://etcd3:2379
+
+            iproto:
+              listen:
+                - uri: cluster1-storage-2-spb:3301
+              advertise:
+                client: cluster1-storage-2-spb:3301
+          storage-2-brn:
+            roles_cfg:
+              roles.tcf-worker:
+                cluster_1: cluster1
+                cluster_2: cluster2
+                initial_status: active
+
+                dml_users: [ tcf-dml ]
+
+                replication_user: tcf-replicator
+                replication_password: secret
+
+                status_ttl: 4
+                enable_system_check: true
+
+                http:
+                  listen: cluster1-storage-2-brn:8082
+
+                storage: etcd_v3
+                storage_params:
+                  endpoints:
+                    - http://etcd1:2379
+                    - http://etcd2:2379
+                    - http://etcd3:2379
+
+            iproto:
+              listen:
+                - uri: cluster1-storage-2-brn:3301
+              advertise:
+                client: cluster1-storage-2-brn:3301
