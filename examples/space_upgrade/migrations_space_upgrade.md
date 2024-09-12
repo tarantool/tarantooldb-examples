@@ -146,24 +146,18 @@ docker compose logs tcm-1 | grep "super admin"
 1. Перейдите на вкладку **Stateboard**.
 2. Выберите роутер `router-1` и в открывшемся окне перейдите на вкладку **Terminal**.
 
-Загрузите данные в кластер с помощью функции `__fill_data`:
+Загрузите данные в кластер с помощью утилиты TT CLI:
 
-```lua
-box.schema.func.call('__fill_data')
-```
-
-Исходный код функции приведен в файле `001_test.lua` в директории `./migrations/scenario/` примера `migrations_space_upgrade`.
-
-Дождитесь окончания загрузки данных, это может занять до трех минут.
-В результате на каждом хранилище будет занято по 164 MB данных. 
-Процесс заполнения кластера можно отследить в логах:
-
-```bash
-space_upgrade-tarantool-router-1    | 2024-02-26 05:46:50.947 [12] main/189/main/tarantool I> start to fill_data
-space_upgrade-tarantool-router-1    | 2024-02-26 05:46:50.947 [12] main/189/main/tarantool I> send batch 1
-...
-space_upgrade-tarantool-router-1    | 2024-02-26 05:49:01.559 [12] main/189/main/tarantool I> send batch 700
-space_upgrade-tarantool-router-1    | 2024-02-26 05:49:01.795 [12] main/189/main/tarantool I> data filled
+```shell
+tt crud import \
+    admin:secret-cluster-cookie@localhost:3301 \
+    projects.csv:projects --header
+tt crud import \
+    admin:secret-cluster-cookie@localhost:3301 \
+    tasks.csv:tasks --header
+tt crud import \
+    admin:secret-cluster-cookie@localhost:3301 \
+    users.csv:users --header
 ```
 
 (user_guide-space_upgrade-description)=

@@ -1,4 +1,3 @@
-local utils = require('migrator.utils')
 local rconfig = require('config')
 
  local function is_storage()
