@@ -1,6 +1,6 @@
 services:
   tarantool-router-msk:
-    image: tarantooldb:2x-latest
+    image: tarantooldb:aeon-latest
     networks:
       - tarantooldb_network
     ports:
@@ -11,7 +11,7 @@ services:
       - TT_CONFIG_ETCD_PREFIX=/tdb
       - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
   tarantool-router-spb:
-    image: tarantooldb:2x-latest
+    image: tarantooldb:aeon-latest
     networks:
       - tarantooldb_network
     ports:
@@ -22,7 +22,7 @@ services:
       - TT_CONFIG_ETCD_PREFIX=/tdb
       - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
   tarantool-storage-1-msk:
-    image: tarantooldb:2x-latest
+    image: tarantooldb:aeon-latest
     networks:
       - tarantooldb_network
     ports:
@@ -33,7 +33,7 @@ services:
       - TT_CONFIG_ETCD_PREFIX=/tdb
       - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
   tarantool-storage-1-spb:
-    image: tarantooldb:2x-latest
+    image: tarantooldb:aeon-latest
     networks:
       - tarantooldb_network
     ports:
@@ -44,7 +44,7 @@ services:
       - TT_CONFIG_ETCD_PREFIX=/tdb
       - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
   tarantool-storage-1-brn:
-    image: tarantooldb:2x-latest
+    image: tarantooldb:aeon-latest
     networks:
       - tarantooldb_network
     ports:
@@ -55,7 +55,7 @@ services:
       - TT_CONFIG_ETCD_PREFIX=/tdb
       - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
   tarantool-storage-2-msk:
-    image: tarantooldb:2x-latest
+    image: tarantooldb:aeon-latest
     networks:
       - tarantooldb_network
     ports:
@@ -66,7 +66,7 @@ services:
       - TT_CONFIG_ETCD_PREFIX=/tdb
       - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
   tarantool-storage-2-spb:
-    image: tarantooldb:2x-latest
+    image: tarantooldb:aeon-latest
     networks:
       - tarantooldb_network
     ports:
@@ -77,7 +77,7 @@ services:
       - TT_CONFIG_ETCD_PREFIX=/tdb
       - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
   tarantool-storage-2-brn:
-    image: tarantooldb:2x-latest
+    image: tarantooldb:aeon-latest
     networks:
       - tarantooldb_network
     ports:
@@ -87,38 +87,39 @@ services:
       - TT_CONFIG_ETCD_ENDPOINTS=http://etcd1:2379,http://etcd2:2379,http://etcd3:2379
       - TT_CONFIG_ETCD_PREFIX=/tdb
       - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
-
-  init_host:
-    image: tarantooldb:2x-latest
+  tarantool-manager-msk:
+    image: tarantooldb:aeon-latest
     networks:
       - tarantooldb_network
-    volumes:
-      - ./migrations/:/app/tarantooldb/migrations/
-    depends_on:
-      - tarantool-router-msk
-      - tarantool-router-spb
-      - tarantool-storage-1-msk
-      - tarantool-storage-1-spb
-      - tarantool-storage-1-brn
-      - tarantool-storage-2-msk
-      - tarantool-storage-2-spb
-      - tarantool-storage-2-brn
+    ports:
+      - "3309:3301"
     environment:
-      - TT_CLI_USERNAME=admin
-      - TT_CLI_PASSWORD=secret-cluster-cookie
-    command: /bin/sh -c "\
-        tools/client/wait_instance_ready.sh 15 tarantool-router-msk:3301 \
-        && tools/client/wait_instance_ready.sh 15 tarantool-router-spb:3301 \
-        && tools/client/wait_instance_ready.sh 15 tarantool-storage-1-msk:3301 \
-        && tools/client/wait_instance_ready.sh 15 tarantool-storage-1-spb:3301 \
-        && tools/client/wait_instance_ready.sh 15 tarantool-storage-1-brn:3301 \
-        && tools/client/wait_instance_ready.sh 15 tarantool-storage-2-msk:3301 \
-        && tools/client/wait_instance_ready.sh 15 tarantool-storage-2-spb:3301 \
-        && tools/client/wait_instance_ready.sh 15 tarantool-storage-2-brn:3301 \
-        && tt replicaset vshard bootstrap tarantool-router-msk:3301 \
-        && tt migrations publish http://etcd1:2379/tdb migrations \
-        && tt migrations apply http://etcd1:2379/tdb \
-        && echo Initialize has completed successfully."
+      - TT_INSTANCE_NAME=manager-msk
+      - TT_CONFIG_ETCD_ENDPOINTS=http://etcd1:2379,http://etcd2:2379,http://etcd3:2379
+      - TT_CONFIG_ETCD_PREFIX=/tdb
+      - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
+  tarantool-manager-spb:
+    image: tarantooldb:aeon-latest
+    networks:
+      - tarantooldb_network
+    ports:
+      - "3310:3301"
+    environment:
+      - TT_INSTANCE_NAME=manager-spb
+      - TT_CONFIG_ETCD_ENDPOINTS=http://etcd1:2379,http://etcd2:2379,http://etcd3:2379
+      - TT_CONFIG_ETCD_PREFIX=/tdb
+      - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
+  tarantool-manager-brn:
+    image: tarantooldb:aeon-latest
+    networks:
+      - tarantooldb_network
+    ports:
+      - "3311:3301"
+    environment:
+      - TT_INSTANCE_NAME=manager-brn
+      - TT_CONFIG_ETCD_ENDPOINTS=http://etcd1:2379,http://etcd2:2379,http://etcd3:2379
+      - TT_CONFIG_ETCD_PREFIX=/tdb
+      - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
 
 networks:
   tarantooldb_network:

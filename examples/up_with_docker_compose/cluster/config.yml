@@ -3,54 +3,47 @@ credentials:
     admin:
       password: 'secret-cluster-cookie'
       roles: [super]
-    client:
-      password: 'secret'
-      roles: [super]
-    replicator:
-      password: 'secret'
-      roles:
-        - replication
-        - dictionary_api_service
-    storage:
-      password: 'secret'
-      roles: [sharding]
 
 iproto:
   advertise:
     peer:
-      login: replicator
+      login: admin
     sharding:
-      login: storage
-
-sharding:
-  bucket_count: 30000
-
-roles_cfg:
-  roles.metrics-export:
-    http:
-    - endpoints:
-      - format: prometheus
-        path: /metrics
-      listen: 8081
+      login: admin
 
 groups:
+  managers:
+    roles:
+      - aeon.manager
+    replication:
+      failover: election
+    replicasets:
+      manager:
+        instances:
+          manager-msk:
+            iproto:
+              listen:
+                - uri: tarantool-manager-msk:3301
+              advertise:
+                client: tarantool-manager-msk:3301
+          manager-spb:
+            iproto:
+              listen:
+                - uri: tarantool-manager-spb:3301
+              advertise:
+                client: tarantool-manager-spb:3301
+          manager-brn:
+            iproto:
+              listen:
+                - uri: tarantool-manager-brn:3301
+              advertise:
+                client: tarantool-manager-brn:3301
+
   routers:
+    roles:
+      - aeon.router
     replication:
       failover: manual
-    sharding:
-      roles: [router]
-    roles:
-      - roles.crud-router
-      - roles.metrics-export
-      - roles.dictionary-router
-    roles_cfg:
-      roles.crud-router:
-        stats: true
-        stats_driver: metrics
-        stats_quantiles: true
-        stats_quantile_tolerated_error: 0.001
-        stats_quantile_age_buckets_count: 5
-        stats_quantile_max_age_time: 180
     replicasets:
       router-msk:
         leader: router-msk
@@ -71,16 +64,10 @@ groups:
               advertise:
                 client: tarantool-router-spb:3301
   storages:
+    roles:
+      - aeon.storage
     replication:
       failover: election
-    sharding:
-      roles: [storage]
-    roles:
-      - roles.crud-storage
-      - roles.metrics-export
-      - roles.dictionary-storage
-    roles_cfg:
-      roles.expirationd: [ ]
     replicasets:
       storage-1:
         instances:
