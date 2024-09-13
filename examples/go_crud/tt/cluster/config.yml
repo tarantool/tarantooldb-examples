@@ -10,7 +10,6 @@ credentials:
       password: 'secret'
       roles:
         - replication
-        - dictionary_api_service
     storage:
       password: 'secret'
       roles: [sharding]
