@@ -1,4 +1,4 @@
-local utils = require('migrator.utils')
+local helpers = require('tt-migrations.helpers')
 
 local function apply()
     box.schema.space.create('test', {if_not_exists = true})
@@ -11,7 +11,7 @@ local function apply()
     box.space.test:create_index('pk', { parts = {'id'}, if_not_exists = true})
     box.space.test:create_index('bucket_id', { parts = {'bucket_id'}, unique = false, if_not_exists = true})
 
-    utils.register_sharding_key('test', {'id'})
+    helpers.register_sharding_key('test', {'id'})
 
     return true
 end
