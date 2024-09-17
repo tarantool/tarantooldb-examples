@@ -20,7 +20,7 @@
 Для выполнения примера требуются:
 * установленный [Docker-образ](/install_and_upgrade/install/install_docker.md) Tarantool DB;
 * приложение Docker compose;
-* утилита [TT CLI](install-install_tt);
+* утилита [tt CLI](install-install_tt);
 * исходные файлы примера `expirationd`.
 
   ```{note}
@@ -99,13 +99,13 @@ box.space
 
 Чтобы начать работу с базой данных через интерактивную консоль Tarantool, нужно подключиться к узлу кластера.
 Сделать это можно двумя способами:
-- В терминале с помощью команды `tt connect`:
+
+- в веб-интерфейсе TCM;
+- в терминале с помощью утилиты tt CLI:
 
   ```shell
   tt connect admin:secret-cluster-cookie@localhost:3301
   ```
-
-- В веб-интерфейсе TCM.
 
 Подключитесь к роутеру `router-msk`, используя **первый способ** -- через TCM. Для этого:
 	

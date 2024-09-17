@@ -133,13 +133,12 @@ docker compose logs tcm-1 | grep "super admin"
 Чтобы начать работу с базой данных через интерактивную консоль Tarantool, нужно подключиться к узлу кластера.
 Сделать это можно двумя способами:
 
-- В терминале на вашем ПК с помощью команды `tt connect`:
+- в веб-интерфейсе TCM;
+- в терминале с помощью утилиты tt CLI:
 
   ```shell
   tt connect admin:secret-cluster-cookie@localhost:3301
   ```
-
-- В веб-интерфейсе TCM.
 
 Подключитесь к роутеру `router-1`, используя **первый способ** -- через TCM. Для этого:
 	
@@ -253,7 +252,7 @@ box.schema.func.create('__migrator_tasks_002', {
             if #t == 7 then
                 -- для смены типа поля необходимо, его удалить и добавить новое
                 -- функция `tuple:transform` подходит для этого.
-                -- https://www.tarantool.io/en/doc/latest/reference/reference_lua/box_tuple/transform/
+                -- https://www.tarantool.io/ru/doc/latest/reference/reference_lua/box_tuple/transform/
                 -- t:transform(5, 1, 0) удалит одно поле начиная с пятого(status) и добавит вместо него число 0
                 -- update({{"!", 8, due_date}}) добавит поле в 8-ю позицию, т.е. в конец и присвоит полю значение due_date
                 return t:transform(5, 1, 0):update({{"!", 8, due_date}})
