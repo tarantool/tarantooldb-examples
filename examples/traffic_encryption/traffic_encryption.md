@@ -11,9 +11,13 @@ Tarantool DB позволяет шифровать трафик по IPROTO пр
 
 * [](admin_guide-traffic_encryption-prereq)
 * [](admin_guide-traffic_encryption-ssl_setup)
-* [](admin_guide-traffic_encryption-connect)
+* [](admin_guide-traffic_encryption-files)
+* [](admin_guide-traffic_encryption-start_example)
+* [](admin_guide-traffic_encryption-tt)
 * [](admin_guide-traffic_encryption-go)
 * [](admin_guide-traffic_encryption-python)
+* [](admin_guide-traffic_encryption-netbox)
+* [](admin_guide-traffic_encryption-stop_example)
 
 (admin_guide-traffic_encryption-prereq)=
 ## Пререквизиты
@@ -38,6 +42,8 @@ Tarantool DB позволяет шифровать трафик по IPROTO пр
 
   * Отдельный архив [traffic_encryption.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/traffic_encryption/traffic_encryption.tar.gz), скачанный c сайта Tarantool.
   ```
+  
+* Файлы сертификатов. Чтобы сгенерировать их, выполните команду `certs/gen.sh`
 
 (admin_guide-traffic_encryption-ssl_setup)=
 ## Настройка SSL-шифрования
@@ -48,9 +54,13 @@ Tarantool DB позволяет шифровать трафик по IPROTO пр
 сервера, так и сертификат клиента.
 Это означает, что для экземпляра кластера всегда нужно передавать как серверные, так и клиентские аргументы.
 
-В примере `traffic_encryption` сертификаты находятся в директории `./bootstrap/` и
+В примере `traffic_encryption` сертификаты находятся в директории `./certs/` и
 должны быть доступны для каждого экземпляра.
-Сертификаты генерируются с помощью скрипта `./bootstrap/gen.sh`.
+Сертификаты генерируются с помощью скрипта `./certs/gen.sh`.
+
+Также в примере используется TCM. В этом случае нужно создавать отдельные сертификаты для каждого экземпляра.
+Сертификаты для экземпляров генерируются с помощью скриптов `./certs/gen_router.sh` и `./certs/gen_storage.sh`.
+Чтобы сертификаты в TCM считывались корректно, в скриптах для генерации сертификатов на хранилище используется CA сертификат роутера.
 
 В примере заданы параметры SSL-шифрования для экземпляра с помощью переменных окружения:
 
@@ -74,39 +84,82 @@ Tarantool DB позволяет шифровать трафик по IPROTO пр
 * `TARANTOOL_SSL_SERVER_PASSWORD` -- пароль для ключа сервера;
 * `TARANTOOL_SSL_CLIENT_PASSWORD` -- пароль для ключа клиента.
 
-(admin_guide-traffic_encryption-connect)=
-## Подключение к узлу с помощью клиентских сертификатов
+Эти переменные окружения необходимы для корректной работы конфигурации при использовании Tarantool из клиентских приложений.
+
+(admin_guide-traffic_encryption-files)=
+## Используемые файлы
+
+Для запуска и настройки кластера используются файлы из папки ``traffic_encryption``:
+
+* `certs/`
+  * `gen.sh` -- скрипт генерации локального набора сертификатов для стенда;
+* `cluster/` -- директория c файлами для запуска кластера Tarantool DB:
+  * `migrations/scenario` -- директория, содержащая файлы с описанием миграций; 
+  * `config.yml` -- конфигурация и топология кластера;
+  * `docker-compose.yml` -- описание узлов кластера Tarantool DB;  
+* `go/` -- директория с файлами для создания подключения через Go-коннектор;
+* `python/` -- директория с файлами для создания подключения через Python-коннектор;
+* `tools/` -- директория с файлами для запуска кластера etcd и средств мониторинга:
+  * `docker-compose.yml` -- описание узлов кластера etcd и средств мониторинга;
+  * `tcm.yml` -- конфигурация для запуска [Tarantool Cluster Manager](https://www.tarantool.io/ru/doc/latest/reference/tooling/tcm/).
+
+(admin_guide-traffic_encryption-start_example)=
+## Запуск стенда
+
+Для успешного запуска должны быть свободны следующие порты:
+* 3301--3303
+* 3310, 3311
+* 8081
+
+Порты 3310 и 3311 необходимы для корректного подключения между экземплярами через SSL в [Tarantool Cluster Manager](https://www.tarantool.io/ru/doc/latest/reference/tooling/tcm/).
 
 Перейдите в папку с примером `traffic_encryption` и запустите стенд:
 
 ```shell
 cd ./doc/examples/traffic_encryption/
-docker compose up
+make start
 ```
 
-Попытайтесь подключиться к экземпляру, используя команду `tt connect`:
+Команда развернет стенд, состоящий из:
+- кластера Tarantool DB:
+   - 1 роутер;
+   - 1 набор реплик на 2 хранилища;
+   - 1 [Tarantool Cluster Manager](getting_started-tcm) (TCM);
+- кластера etcd из 3 узлов;
+- клиентских приложений для проверки подключения.
+
+После запуска должны работать все контейнеры, кроме [init_host](admin_guide-deploy_docker_compose-init_host).
+
+Также после запуска кластера становится доступен веб-интерфейс TCM.
+Для входа в TCM откройте в браузере адрес [http://localhost:8081](http://localhost:8081).
+Логин и пароль для входа:
+
+- **Username**: `admin`
+- **Password**: `secret`
+
+
+(admin_guide-traffic_encryption-tt)=
+## Подключение через tt CLI
+
+Попробуйте подключиться к экземпляру, используя команду `tt connect`:
 
 ```shell
-tt connect admin:secret-cluster-cookie@localhost:3300
+tt connect admin:secret-cluster-cookie@localhost:3301
 ```
 
 Ответ будет выглядеть так:
 
 ```bash
 • Connecting to the instance...
-⨯ failed to run interactive console: failed to create new console: failed to connect: failed to get protocol: failed to read Tarantool greeting: read tcp [::1]:62950->[::1]:3300: i/o timeout
+⨯ failed to run interactive console: failed to create new console: failed to connect: failed to get protocol: failed to read Tarantool greeting: read tcp [::1]:62950->[::1]:3301: i/o timeout
 ```
 
 Подключитесь к узлу снова, используя клиентские сертификаты:
 
 ```shell
-tt connect admin:secret-cluster-cookie@localhost:3300   --sslkeyfile ./bootstrap/client-key.pem --sslcertfile ./bootstrap/client-cert.pem
-```
-
-После ввода команды в терминале появится сообщение `Enter PEM pass phrase`. Введите пароль для ключа клиента:
-
-```shell
-54321
+tt connect admin:secret-cluster-cookie@localhost:3301 \
+  --sslkeyfile ./certs/client-key.pem \
+  --sslcertfile ./certs/client-cert.pem
 ```
 
 При успешном подключении ответ будет выглядеть так:
@@ -114,9 +167,14 @@ tt connect admin:secret-cluster-cookie@localhost:3300   --sslkeyfile ./bootstrap
 ```bash
    • Connecting to the instance...
 Enter PEM pass phrase:
-   • Connected to localhost:3300
+   • Connected to localhost:3301
 
-localhost:3300> 
+localhost:3301> 
+```
+
+Для примера можно получить имя экземпляра:
+```lua
+box.info().name
 ```
 
 (admin_guide-traffic_encryption-go)=
@@ -125,16 +183,16 @@ localhost:3300>
 В этом разделе описано подключение к экземпляру Tarantool DB через [Go-коннектор](https://github.com/tarantool/go-tarantool/).
 Пример расположен в директории `./go/` примера `traffic_encryption`.
 
-Запустите кластер:
-
-```shell
-docker compose up
-```
- 
 Перейдите в директорию с примером Go-коннектора и запустите его:
 
 ```shell
-cd go && go run main.go
+cd go && go run main.go && cd ..
+```
+
+Go-клиент подключится к узлу через коннектор и запросит текущую
+версию платформы Tarantool. Ответ может выглядеть так:
+```
+Tarantool 3.2.0 (Binary) 2404fdc5-4438-485a-b2e1-18fae889b95c
 ```
 
 Код подключения выглядит так:
@@ -171,12 +229,14 @@ cd python
 ```shell
 python connect.py
 ```
+или
+```shell
+python3 connect.py
+```
 
-Пример выполнения:
-
-```bash
-(venv) python connect.py 
-- '2.11.2-0-g94f8b6aad-r609-gc64'
+Результат может выглядеть так:
+```bash 
+- '3.2.0-0-g19607a903'
 ```
 
 Код подключения выглядит так:
@@ -186,4 +246,32 @@ python connect.py
 :end-before: print(con.eval
 :language: python
 :dedent:
+```
+
+(admin_guide-traffic_encryption-netbox)=
+## Подключение через коннектор net.box
+
+Tarantool позволяет создавать пользовательские соединения с помощью модуля `net.box`.
+Чтобы показать, как работает этот модуль по SSL, вместе с миграциями определена
+функция `get_name_by_uri`. Функция создаёт соединение с экземпляром кластера и
+получает его имя:
+```lua
+box.schema.func.call('get_name_by_uri', 'admin:secret-cluster-cookie@tarantool-storage-1-spb:3301')
+```
+
+Функция возвращает имя экземляра: `storage-1-spb`.
+
+Примечание 1: На запуск кластера может уйти несколько десятков секунд, поэтому
+миграции появятся не сразу.
+
+Примечание 2: Для отправки команд через веб-интерфейс вместо способа
+"TT Connect" используйте способ "Direct".
+
+(admin_guide-traffic_encryption-stop_example)=
+## Остановка стенда
+
+Остановить стенд можно так:
+
+```shell
+make stop
 ```

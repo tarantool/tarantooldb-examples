@@ -1,0 +1,66 @@
+credentials:
+  users:
+    admin:
+      password: 'secret-cluster-cookie'
+      roles:
+        - super
+        - sharding
+
+iproto:
+  advertise:
+    peer:
+      login: admin
+    sharding:
+      login: admin
+
+
+sharding:
+  bucket_count: 30000
+
+groups:
+  routers:
+    replication:
+      failover: manual
+    sharding:
+      roles: [router]
+    roles:
+      - roles.crud-router
+    replicasets:
+      router-msk:
+        leader: router-msk
+        instances:
+          router-msk:
+            iproto:
+              listen:
+                - uri: tarantool-router-msk:3301
+                  params: &ssl_params
+                    transport: 'ssl'
+                    ssl_cert_file: '/tmp/certs/server-cert.pem'
+                    ssl_key_file: '/tmp/certs/server-key.pem'
+              advertise:
+                client: tarantool-router-msk:3301
+  storages:
+    replication:
+      failover: manual
+    sharding:
+      roles: [storage]
+    roles:
+      - roles.crud-storage
+    replicasets:
+      storage-1:
+        leader: storage-1-msk
+        instances:
+          storage-1-msk:
+            iproto:
+              listen:
+                - uri: tarantool-storage-1-msk:3301
+                  params: *ssl_params
+              advertise:
+                client: tarantool-storage-1-msk:3301
+          storage-1-spb:
+            iproto:
+              listen:
+                - uri: tarantool-storage-1-spb:3301
+                  params: *ssl_params
+              advertise:
+                client: tarantool-storage-1-spb:3301

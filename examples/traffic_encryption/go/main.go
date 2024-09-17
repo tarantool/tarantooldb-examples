@@ -13,12 +13,12 @@ func main() {
 	defer cancel()
 
 	dialer := tarantool.OpenSslDialer{
-		Address:     "localhost:3300",
+		Address:     "localhost:3301",
 		User:        "admin",
 		Password:    "secret-cluster-cookie",
-		SslKeyFile:  "../bootstrap/client-key.pem",
-		SslCertFile: "../bootstrap/client-cert.pem",
-		SslCaFile:   "../bootstrap/ca-cert.pem",
+		SslKeyFile:  "../certs/client-key.pem",
+		SslCertFile: "../certs/client-cert.pem",
+		SslCaFile:   "../certs/ca-cert.pem",
 		SslPassword: "54321",
 	}
 
@@ -31,5 +31,8 @@ func main() {
 	}
 
 	fmt.Println(conn.Greeting.Version)
+
+	conn.CloseGraceful()
+
 	return
 }
