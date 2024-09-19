@@ -236,7 +236,7 @@ docker compose start tarantool-router-msk
 
 Для остановки стенда:
 
-* В первом локальном терминале вернитесь в директорию `go-balancer/tt`:
+* В первом локальном терминале вернитесь в директорию `go_balancer/tt`:
 
   ```shell
   cd ./doc/examples/go_balancer/tt

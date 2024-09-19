@@ -9,8 +9,8 @@
 
 Для мониторинга используются:
 
-* Telegraf -- сбор метрик;
-* InfluxDB -- хранение метрик;
+* [Telegraf](https://www.influxdata.com/time-series-platform/telegraf/) -- сбор метрик;
+* [InfluxDB](https://www.influxdata.com/) -- хранение метрик;
 * [Grafana](https://grafana.com/) -- визуализация метрик.
 
 ```{admonition} Примечание
@@ -38,6 +38,8 @@
 * приложение Docker Compose;
 * Maven;
 * Java версии 8+;
+* конфигурация Maven -- для загрузки Java-коннектора.
+  Чтобы задать эту конфигурацию, используйте инструкцию [Установка клиента tarantool-java-ee](user_guide-connectors-install_java);
 * исходные файлы примера `java_balancer`.
 
   ```{admonition} Примечание
@@ -51,9 +53,6 @@
     
   * Отдельный архив [java_balancer.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/java_balancer/java_balancer.tar.gz), скачанный c сайта Tarantool.
   ```
-
-Кроме того, для загрузки Java-коннектора нужно настроить конфигурацию Maven.
-Чтобы задать эту конфигурацию, используйте инструкцию [Установка клиента tarantool-java-ee](user_guide-connectors-install_java).
 
 (user_guide-java_balancer-start_example)=
 ## Запуск стенда
@@ -78,7 +77,7 @@ cd ./doc/examples/java_balancer
 
 - кластера etcd из 3 узлов;
 - клиентского приложения, подающего нагрузку;
-- средств мониторинга (Telegraf, InfluxDB, Grafana).
+- средств мониторинга -- Telegraf, InfluxDB, Grafana.
 
 Запустите всё, кроме клиентского приложения, командой:
 
@@ -88,10 +87,11 @@ make start
 
 После запуска должны работать все контейнеры, кроме [init_host](admin_guide-deploy_docker_compose-init_host). Также
 после запуска доступны следующие пользовательские интерфейсы:
-* http://localhost:8081 -- веб-интерфейс кластера Tarantool DB ([TCM](https://www.tarantool.io/ru/doc/latest/reference/tooling/tcm/));
+* http://localhost:8081 -- веб-интерфейс TCM;
 * http://localhost:3000 -- веб-интерфейс Grafana.
 
-Для входа в веб-интерфейс TCM откройте в браузере адрес [http://localhost:8081](http://localhost:8081). Логин и пароль для входа:
+Для входа в веб-интерфейс TCM откройте в браузере адрес [http://localhost:8081](http://localhost:8081).
+Логин и пароль для входа:
 
 - **Username**: `admin`
 - **Password**: `secret`
@@ -100,30 +100,32 @@ make start
 Выберите в наборе реплик `router-msk` узел `router-msk` и в открывшемся окне перейдите на вкладку **Terminal**.
 Во вкладке **Terminal** проверьте наличие спейса `test`:
 
-```box.space```
+```lua
+box.space
+```
 
 Спейс `test` должен присутствовать в выводе, он создается при запуске кластера.
 
 (user_guide-java_balancer-grafana)=
 ## Панель Grafana
 
-Откройте в Grafana панель
-[Tarantool dashboard](http://localhost:8080/d/b2e44626-1163-4a80-b44b-616fe5ad6127/tarantool-dashboard?orgId=1&refresh=5s&from=now-5m&to=now).
+Откройте в браузере веб-интерфейс Grafana по адресу [http://localhost:3000/dashboards](http://localhost:3000/dashboards).
+В списке **Dashboards** откройте папку **General** и выберите панель **Tarantool 3 dashboard** в выпадающем списке.
 Проверьте, что графики показывают данные за последние 5 минут, а частота обновления равна 5 секундам:
 
 ![](images/grafana-panel.png)
 
-В панели `Tarantool Network activity` откройте график `Processed requests`:
+Разверните панель **Tarantool network activity** и откройте график **Processed requests**.
+Чтобы развернуть график на полный экран, нажмите на графике кнопку **...** (**Menu**) в правом верхнем углу и нажмите в выпадающем меню
+кнопку **View**.
+Выберите роутеры на графике, используя один из способов ниже:
+
+* Нажмите на название `router-msk` и, зажав `Shift`, нажмите на `router-spb`.
+* Используйте переключатель сверху (**Instances**), чтобы выбрать роутеры на уровне всего дашборда.
 
 ![](images/pr-1.png)
 
-Выделите роутеры. Есть два способа это сделать:
-* нажмите на название `router-1` и, зажав `Shift`, нажмите на `router-2`.
-* используйте переключатель сверху, чтобы выбрать роутеры на уровне всего дашборда:
-
-![](images/select.png)
-
-В панели `Tarantool operations statistics` откройте график `REPLACE space requests`.
+После перейдите на панель **Tarantool operations statistics** и откройте график **REPLACE space requests**.
 Выберите все узлы, кроме роутеров:
 
 ![](images/replace-1.png)
@@ -131,7 +133,7 @@ make start
 (user_guide-java_balancer-increase_load)=
 ## Увеличение нагрузки
 
-Откройте вторую вкладку терминала.
+Откройте вторую вкладку локального терминала.
 В этой вкладке перейдите в директорию `java_balancer`:
 
 ```shell
@@ -149,6 +151,7 @@ mvn exec:java -Dexec.mainClass="org.example.App"
 * растет число обработанных запросов на роутерах:
   
   ![](images/pr-2.png)
+
 * растет число операций `replace` в единицу времени:
 
   ![](images/replace-2.png)
@@ -162,14 +165,16 @@ mvn exec:java -Dexec.mainClass="org.example.App"
 
 В первом терминале перейдите в директорию `cluster`:
 
-```cd cluster```
+```shell
+cd cluster
+```
 
-Чтобы имитировать отказ роутера, в первом терминале выполните команду:
+Чтобы имитировать отказ роутера, выполните следующую команду:
 ```shell
 docker compose stop tarantool-router-msk
 ```
 
-Теперь в веб-интерфейсе Tarantool DB (TCM) узел `tarantool-router-msk` помечается серым, - это значит, что он отключен.
+Теперь в TCM во вкладке **Stateboard** узел `router-msk` отмечен серым -- это значит, что он отключен.
 График запросов изменится так:
 
 ![](images/pr-3.png)
@@ -208,10 +213,16 @@ docker compose start tarantool-router-msk
 
 Для остановки стенда:
 
-* В первом терминале выполните команду:
+* В первом локальном терминале вернитесь в директорию `java_balancer`:
 
-    ```shell
-    make stop
-    ```
+  ```shell
+  cd ./doc/examples/java_balancer
+  ```
+
+  Выполните следующую команду:
+
+  ```shell
+  make stop
+  ```
   
-* Во втором терминале выполните команду `Ctrl + Z`.
+* Во втором локальном терминале выполните команду `Ctrl + Z`.
