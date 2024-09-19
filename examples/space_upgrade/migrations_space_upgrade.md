@@ -15,6 +15,7 @@
 
 * [](user_guide-space_upgrade-prereq)
 * [](user_guide-space_upgrade-schema)
+* [](user_guide-space_upgrade-files)
 * [](user_guide-space_upgrade-start_example)
 * [](user_guide-space_upgrade-load_data)
 * [](user_guide-space_upgrade-description)
@@ -56,23 +57,28 @@
 * добавлено поле `assigned_manager_id` в спейс `projects`;
 * изменен тип поля `status` в спейсе `tasks` со `string` на `number`;
 * добавлено поле `due_date(datetime)` в спейс `tasks`;
-* изменен название поля `email` на `contact` в спейсе `users`;
+* изменено название поля `email` на `contact` в спейсе `users`;
 * добавлено поле `role` в спейс `users`.
 
 После изменений схема данных будет выглядеть так:
 
 ![Схема данных 2](images/schema2.drawio.svg)
 
+(user_guide-space_upgrade-files)=
+## Используемые файлы
+
+В руководстве используются следующие файлы примера `space_upgrade`:
+
+- `cluster/` -- директория c файлами для запуска кластера Tarantool DB:
+  - `config.yml` -- конфигурация и топология кластера;
+  - `docker-compose.yml` -- описание узлов кластера Tarantool DB;
+  - `migrations/scenario/` и `migration_next/` -- директории, содержащие файлы с описанием миграций;
+- `tools/` -- директория с файлами для запуска кластера etcd и TCM:
+  - `docker-compose.yml` -- описание узлов кластера etcd;
+  - `tcm.yml` -- конфигурация для запуска [Tarantool Cluster Manager](https://www.tarantool.io/ru/doc/latest/reference/tooling/tcm/).
+
 (user_guide-space_upgrade-start_example)=
 ## Запуск стенда
-
-Для запуска и настройки кластера используются файлы из папки ``space_upgrade``:
-
-* `docker-compose.yml` -- описание узлов кластера;
-* `config.yml` -- конфигурация и топология кластера;
-* `migrations/scenario` -- директория, содержащая файлы с описанием миграций;
-* `tcm.yml` -- конфигурация для запуска [Tarantool Cluster Manager](https://www.tarantool.io/ru/doc/latest/tooling/tcm/).
-
 
 Для успешного запуска должны быть свободны следующие порты:
 * 3301--3304
@@ -92,60 +98,35 @@ make start
 
 Команда развернет стенд, состоящий из:
 - кластера Tarantool DB:
-  - 1 роутер;
-  - 1 набор реплик на 2 хранилища;
+  - 2 роутера;
+  - 2 набора реплик по 3 хранилища;
   - 1 [Tarantool Cluster Manager](getting_started-tcm) (TCM);
-  - 2 координатора автоматического восстановления после сбоев (*failover coordinator*);
 - кластера etcd из 3 узлов.
 
-После запуска должны работать все контейнеры, кроме `init_host`.
+После запуска должны работать все контейнеры, кроме [init_host](admin_guide-deploy_docker_compose-init_host).
 
 Также после запуска кластера становится доступен веб-интерфейс TCM.
-Получить пароль для входа в TCM можно так:
-```shell
-docker compose logs tcm-1 | grep "super admin"
+Для входа в TCM откройте в браузере адрес [http://localhost:8081](http://localhost:8081).
+Логин и пароль для входа:
+- **Username**: `admin`
+- **Password**: `secret`
+
+В TCM откройте вкладку **Stateboard**.
+Выберите в наборе реплик `router-msk` узел `router-msk` и в открывшемся окне перейдите на вкладку **Terminal**.
+Во вкладке **Terminal** введите следующую команду:
+
+```lua
+box.space
 ```
 
-Откройте TCM в браузере по адресу [http://localhost:8081](http://localhost:8081).
-Для входа используйте логин `admin` и пароль, полученный с помощью предыдущей команды.
-
-Чтобы настроить кластер:
-
-1. В веб-интерфейсе перейдите на вкладку **Clusters**.
-2. В строке с кластером `Default cluster` нажмите кнопку **...** (**Actions**) справа и выберите **Edit** в выпадающем меню.
-3. Переключитесь на второй экран настройки, используя кнопку **Next**.
-4. На втором экране укажите в поле **Prefix** значение `/tdb` и нажмите  **Next**.
-5. На третьем экране укажите следующие значения:
-    - в поле **Username** -- `admin`;
-    - в поле **Password** --  `secret-cluster-cookie`.
-
-6. Нажмите **Update**, чтобы сохранить новые настройки кластера. При успешном обновлении в веб-интерфейсе появится сообщение `Cluster updated successfully`.
-7. В веб-интерфейсе перейдите на вкладку **Stateboard**.
-8. Выберите любой роутер из списка, например `router-1`, и в открывшемся окне перейдите на вкладку **Terminal**.
-9. Во вкладке **Terminal** введите команду `box.space`.  Проверьте, что в выводе есть спейсы `projects`, `tasks` и `users` -- эти спейсы создаются при запуске кластера.
-В запущенном кластере создана первоначальная схема данных:
-
-   ![схема данных](images/schema1.drawio.svg)
+Проверьте, что в выводе есть спейсы `projects`, `tasks` и `users` -- эти спейсы создаются при запуске кластера.
 
 (user_guide-space_upgrade-load_data)=
-## Подключение к кластеру и загрузка данных
+## Загрузка данных
 
-Чтобы начать работу с базой данных через интерактивную консоль Tarantool, нужно подключиться к узлу кластера.
-Сделать это можно двумя способами:
+Исходный код миграции приведен в файле `001_test.lua` в директории `./cluster/migrations/scenario/` примера `space_upgrade`.
 
-- в веб-интерфейсе TCM;
-- в терминале с помощью утилиты tt CLI:
-
-  ```shell
-  tt connect admin:secret-cluster-cookie@localhost:3301
-  ```
-
-Подключитесь к роутеру `router-1`, используя **первый способ** -- через TCM. Для этого:
-	
-1. Перейдите на вкладку **Stateboard**.
-2. Выберите роутер `router-1` и в открывшемся окне перейдите на вкладку **Terminal**.
-
-Загрузите данные в кластер с помощью утилиты TT CLI:
+Загрузить тестовые данные в спейсы можно с помощью утилиты tt CLI:
 
 ```shell
 tt crud import \
@@ -158,6 +139,10 @@ tt crud import \
     admin:secret-cluster-cookie@localhost:3301 \
     users.csv:users --header
 ```
+
+Проверьте, что в спейсах появились данные.
+Для этого в веб-интерфейсе TCM перейдите на вкладку **Tuples** и выберите в списке нужный спейс -- `users`, `tasks` или `projects`.
+Откроется новая вкладка с содержимым кортежей выбранного спейса.
 
 (user_guide-space_upgrade-description)=
 ## Метод space:upgrade()
@@ -178,13 +163,14 @@ tt crud import \
 
 `space:upgrade` возвращает объект `future`. По нему можно узнать статус миграции (`future:info`), отменить миграцию (`future:cancel`) или дождаться окончания миграции (`future:wait`).
 
-Подробная информация о методе `space:upgrade` приведена в [документации Tarantool Enterprise](https://www.tarantool.io/ru/doc/latest/enterprise/space_upgrade/).
+Подробная информация о методе `space:upgrade()` приведена в [документации Tarantool Enterprise](https://www.tarantool.io/ru/doc/latest/enterprise/space_upgrade/).
 
 (user_guide-space_upgrade-migration_code)=
 ## Определение кода миграций
 
-Исходный код миграции приведен в файле `002_test.lua` в директории `./migration_next/` примера `migrations_space_upgrade`.
+Исходный код миграции приведен в файле `cluster/migration_next/002_test.lua` примера `migrations_space_upgrade`.
 
+(user_guide-space_upgrade-migration_code-projects)=
 ### Спейс projects
 
 В спейсе `projects` нужно добавить поле `assigned_manager_id` между полями `name` и `description`. 
@@ -192,160 +178,113 @@ tt crud import \
 
 Определите функцию для изменения кортежей:
 
-```lua
--- функция для преобразования кортежей
-box.schema.func.create('__migrator_projects_002', { -- давайте функции название с номером миграции
-    language = 'lua', -- функция на Lua
-    is_deterministic = true, -- функция детерминированная
-    body = [[
-        function(t)
-            if #t == 4 then
-                return t:update({{'!', 4, box.NULL}}) 
-            end
-            return t
-        end
-    ]]
-})
+```{literalinclude} cluster/migration_next/002_test.lua
+:start-at: Функция для преобразования кортежей в спейсе projects
+:end-before: local projects_migration
+:language: lua
+:dedent:
 ```
 
 Теперь обновите формат спейса с помощью `space:upgrade()`.
 `space:upgrade()` возвращает объект `future`.
 Запишите этот объект в переменную `projects_migration`, чтобы отслеживать прогресс миграции:
 
-```lua
-local projects_migration = box.space.projects:upgrade({
-    func = '__migrator_projects_002',
-    format = {
-        { name = 'project_id', type = 'uuid' },
-        { name = 'bucket_id', type = 'unsigned' },
-        { name = 'name', type = 'string' },
-        { name = 'assigned_manager_id', type = 'uuid', is_nullable = true },
-        { name = 'description', type = 'string', is_nullable = true },
-    },
-    mode = 'dryrun+upgrade',
-    is_async = true,
-})
+```{literalinclude} cluster/migration_next/002_test.lua
+:start-at: local projects_migration
+:end-before: rawset(_G, '__projects_migration
+:language: lua
+:dedent:
 ```
 
 Сохраните объект `projects_migration` в глобальную переменную, чтобы иметь к ней доступ из консоли tt:
 
-```lua
-rawset(_G, '__projects_migration', projects_migration)
+```{literalinclude} cluster/migration_next/002_test.lua
+:start-at: rawset(_G, '__projects_migration
+:end-at: rawset(_G, '__projects_migration
+:language: lua
+:dedent:
 ```
 
+(user_guide-space_upgrade-migration_code-tasks)=
 ### Спейс tasks
 
-В спейс `tasks` нужно изменить тип поля `status` с `number` на `string`, а также добавить в конец поля `due_date(datetime)`.
+В спейсе `tasks` нужно:
+- изменить тип поля `status` со `string` на `number`;
+- добавить в конец поле `due_date(datetime)`.
 
 Определите функцию для изменения кортежей:
 
-```lua
-box.schema.func.create('__migrator_tasks_002', {
-    language = 'lua',
-    is_deterministic = true,
-    body = [[
-        function(t)
-            -- задана дата по умолчанию для due_date
-            local datetime = require('datetime')
-            local due_date = datetime.new({year=2999, month=12, day=31})
-            -- проверяем, что полей 7. Если их 7, это означает, что поле due_date добавлено не было
-            if #t == 7 then
-                -- для смены типа поля необходимо, его удалить и добавить новое
-                -- функция `tuple:transform` подходит для этого.
-                -- https://www.tarantool.io/ru/doc/latest/reference/reference_lua/box_tuple/transform/
-                -- t:transform(5, 1, 0) удалит одно поле начиная с пятого(status) и добавит вместо него число 0
-                -- update({{"!", 8, due_date}}) добавит поле в 8-ю позицию, т.е. в конец и присвоит полю значение due_date
-                return t:transform(5, 1, 0):update({{"!", 8, due_date}})
-            end
-            return t
-        end
-    ]],
-})
+```{literalinclude} cluster/migration_next/002_test.lua
+:start-at: Функция для преобразования кортежей в спейсе tasks
+:end-before: local tasks_migration
+:language: lua
+:dedent:
 ```
 
 Обновите формат спейса.
 Запишите объект `future` в переменную `tasks_migration`:
 
-```lua
-local tasks_migration = box.space.tasks:upgrade({
-    func = '__migrator_tasks_002',
-    format = {
-        { name = 'task_id', type = 'uuid' },
-        { name = 'bucket_id', type = 'unsigned' },
-        { name = 'name', type = 'string' },
-        { name = 'description', type = 'string', is_nullable = true },
-        -- изменили тип поля status
-        { name = 'status', type = 'number' },
-        { name = 'project_id', type = 'uuid' },
-        { name = 'assigned_user_id', type = 'uuid', is_nullable = true },
-        -- добавили новое поле due_date
-        { name = 'due_date', type = 'datetime' },
-    },
-    mode = 'dryrun+upgrade',
-    is_async = true,
-})
+```{literalinclude} cluster/migration_next/002_test.lua
+:start-at: local tasks_migration
+:end-before: rawset(_G, '__tasks_migration
+:language: lua
+:dedent:
 ```
 
 Сохраните объект `tasks_migration` в глобальную переменную, чтобы иметь к ней доступ из консоли tt:
 
-```lua
-rawset(_G, '__tasks_migration', tasks_migration)
+```{literalinclude} cluster/migration_next/002_test.lua
+:start-at: rawset(_G, '__tasks_migration
+:end-at: rawset(_G, '__tasks_migration
+:language: lua
+:dedent:
 ```
 
+(user_guide-space_upgrade-migration_code-users)=
 ### Спейс users
 
-В спейсе `users` нужно изменить название поля `email` на `contact`, а также добавить новое поле `role`.
+В спейсе `users` нужно:
+- изменить название поля `email` на `contact`;
+- добавить новое поле `role`.
 
+Определите функцию для изменения кортежей:
 
-```lua
-box.schema.func.create('__migrator_users_002',  {
-    language = 'lua',
-    is_deterministic = true,
-    body = [[
-        function(t)
-            -- проверяем, что поле `role` еще не добавлено
-            if #t == 4 then
-                -- добавляем новое поле на 4-ю позицию, между `name` и `contact`
-                return t:update({{'!', 4, 'not set'}})
-            end
-            return t
-        end
-    ]],
-})
+```{literalinclude} cluster/migration_next/002_test.lua
+:start-at: Функция для преобразования кортежей в спейсе users
+:end-before: local users_migration
+:language: lua
+:dedent:
 ```
 
 Обновите формат спейса.
 Запишите объект `future` в переменную `users_migration`:
 
-```lua
-local users_migration = box.space.users:upgrade({
-    func = '__migrator_users_002',
-    format = {
-        { name = 'user_id', type = 'uuid' },
-        { name = 'bucket_id', type = 'unsigned' },
-        { name = 'name', type = 'string' },
-        -- новое поле `role`
-        { name = 'role', type = 'string' },
-        -- изменяем название поля на `contact`
-        { name = 'contact', type = 'string' },
-    },
-    mode = 'dryrun+upgrade',
-    is_async = true,
-})
+```{literalinclude} cluster/migration_next/002_test.lua
+:start-at: local users_migration
+:end-before: rawset(_G, '__users_migration
+:language: lua
+:dedent:
 ```
 
 Сохраните объект `users_migration` в глобальную переменную, чтобы иметь к ней доступ из консоли tt:
-```lua
-rawset(_G, '__users_migration', users_migration)
+
+```{literalinclude} cluster/migration_next/002_test.lua
+:start-at: rawset(_G, '__users_migration
+:end-at: rawset(_G, '__users_migration
+:language: lua
+:dedent:
 ```
 
 (user_guide-space_upgrade-run_migration)=
 ## Запуск миграции
 
-1. Поместите файл с кодом миграций `002_test.lua` в папку `./migrations/scenario/`:
+Выполнить миграцию можно с помощью утилиты [tt CLI](https://www.tarantool.io/ru/doc/latest/tooling/tt_cli/). Для этого:
+
+1. В терминале поместите файлы из папки `migration_next` с кодом миграций `002_test.lua` в папку `./cluster/migrations/scenario/`:
 
    ```shell
-   cp -a ./migration_next/* ./migrations/scenario/ 
+   cd cluster
+   cp -a migration_next/* migrations/scenario/ 
    ```
 
 2. Загрузите миграции в [централизованное хранилище](https://www.tarantool.io/ru/doc/latest/tooling/tt_cli/cluster/#publish):
@@ -357,38 +296,41 @@ rawset(_G, '__users_migration', users_migration)
 3. Примените миграции:
 
    ```shell
-   docker exec migrations-tarantool-router-1-1  tt migrations up http://etcd1:2379/tdb --tarantool-cluster-username=admin --tarantool-cluster-password=secret-cluster-cookie
+   docker compose exec tarantool-router-msk tt migrations apply http://etcd1:2379/tdb --tarantool-username=admin --tarantool-password=secret-cluster-cookie
+   cd ..
    ```
 
-4. Подключитесь к узлу хранилища в TCM на вкладке **Stateboard** и откройте вкладку **Terminal**.
-   Чтобы просмотреть статусы миграции спейса, вызовите соответствующую глобальную переменную, заданную в конфигурации:
+Теперь подключитесь к узлу хранилища.
+Для этого в TCM откройте вкладку **Stateboard** и нажмите на набор реплик `storage-1`.
+Выберите узел `storage-1-msk` и в открывшемся окне перейдите на вкладку **Terminal**.
+Чтобы просмотреть статусы миграции спейса, вызовите соответствующую глобальную переменную, заданную в конфигурации:
 
-    ```shell
-    localhost:3301> __projects_migration
-    - owner: baf5b6ba-d594-4b80-856e-02e1f05de5c7
-      func: __migrator_projects_002
-      progress: 74%
-      status: inprogress
-      dryrun: true
-    localhost:3301> __tasks_migration
-    - status: inprogress
-      progress: 1%
-      owner: baf5b6ba-d594-4b80-856e-02e1f05de5c7
-      func: __migrator_tasks_002
-    localhost:3301> __users_migration
-    - status: inprogress
-      progress: 32%
-      owner: baf5b6ba-d594-4b80-856e-02e1f05de5c7
-      func: __migrator_users_002
-    ...
-    ```
+```shell
+tarantool-storage-1-msk:3301> __projects_migration
+- owner: baf5b6ba-d594-4b80-856e-02e1f05de5c7
+  func: __migrator_projects_002
+  progress: 74%
+  status: inprogress
+  dryrun: true
+tarantool-storage-1-msk:3301> __tasks_migration
+- status: inprogress
+  progress: 1%
+  owner: baf5b6ba-d594-4b80-856e-02e1f05de5c7
+  func: __migrator_tasks_002
+tarantool-storage-1-msk:3301> __users_migration
+- status: inprogress
+  progress: 32%
+  owner: baf5b6ba-d594-4b80-856e-02e1f05de5c7
+  func: __migrator_users_002
+...
+```
 
 В `space:upgrade` в режиме `dryrun+upgrade` сначала выполняется проверка (`dryrun`) данных без их изменений.
 Если ошибок нет, начинается обновление данных.
 На этапе проверки флаг `dryrun` принимает значение `true`:
 
 ```shell
-localhost:3301> __projects_migration
+tarantool-storage-1-msk:3301> __projects_migration
 - owner: baf5b6ba-d594-4b80-856e-02e1f05de5c7
   func: __migrator_projects_002
   progress: 74%
@@ -400,7 +342,7 @@ localhost:3301> __projects_migration
 Проверить это можно, если выполнить код ниже во время миграций, когда в `__projects_migration`, `__tasks_migration`, `__users_migration` отсутствует флаг `dryrun: true`:
 
 ```shell
-localhost:3301> box.space.users:pairs({require('uuid').new()}, 'GE'):take_n(2):map(function(t) return t:tomap({names_only=true}) end):totable()
+tarantool-storage-1-msk:3301> box.space.users:pairs({require('uuid').new()}, 'GE'):take_n(2):map(function(t) return t:tomap({names_only=true}) end):totable()
 ---
 - - bucket_id: 12192
     contact: john.doe863@example.com
@@ -412,7 +354,7 @@ localhost:3301> box.space.users:pairs({require('uuid').new()}, 'GE'):take_n(2):m
     role: not set
     user_id: f62cc684-fb92-4f7a-a6d4-132d20803bb9
     name: john_doe 854
-localhost:3301> box.space.projects:pairs({require('uuid').new()}, 'GE'):take_n(2):map(function(t) return t:tomap({names_only=true}) end):totable()
+tarantool-storage-1-msk:3301> box.space.projects:pairs({require('uuid').new()}, 'GE'):take_n(2):map(function(t) return t:tomap({names_only=true}) end):totable()
 ---
 - - bucket_id: 12580
     project_id: 45c5ee48-c725-440c-9310-fd014b6ff672
@@ -424,7 +366,7 @@ localhost:3301> box.space.projects:pairs({require('uuid').new()}, 'GE'):take_n(2
     assigned_manager_id: null
     name: Task Management 652
     description: Development of a task management system 652
-localhost:3301> box.space.tasks:pairs({require('uuid').new()}, 'GE'):take_n(2):map(function(t) return t:tomap({names_only=true}) end):totable()
+tarantool-storage-1-msk:3301> box.space.tasks:pairs({require('uuid').new()}, 'GE'):take_n(2):map(function(t) return t:tomap({names_only=true}) end):totable()
 ---
 - - bucket_id: 9071
     project_id: f267b29a-413e-4b84-bc23-35a6b6ff101c
@@ -444,21 +386,20 @@ localhost:3301> box.space.tasks:pairs({require('uuid').new()}, 'GE'):take_n(2):m
     description: Design a new logo for the website.
 ```
 
-
 После окончания миграций содержимое глобальных переменных с объектом `future` выглядит так:
 
 ```shell
-localhost:3301> __projects_migration
+tarantool-storage-1-msk:3301> __projects_migration
 ---
 - status: done
 ...
 
-localhost:3301> __tasks_migration
+tarantool-storage-1-msk:3301> __tasks_migration
 ---
 - status: done
 ...
 
-localhost:3301> __users_migration
+tarantool-storage-1-msk:3301> __users_migration
 ---
 - status: done
 ...
@@ -467,15 +408,15 @@ localhost:3301> __users_migration
 Окончание миграции данных в логах выглядит так:
 
 ```bash
-space_upgrade-tarantool-storage3-1  | 2024-02-26 09:13:43.048 [12] main/172/space_upgrade_516 I> space upgrade completed
-space_upgrade-tarantool-storage3-1  | 2024-02-26 09:13:43.133 [12] main/173/space_upgrade_513 I> space upgrade completed
-space_upgrade-tarantool-storage3-1  | 2024-02-26 09:13:43.163 [12] main/174/space_upgrade_515 I> space upgrade completed
+space_upgrade-tarantool-storage-1-msk  | 2024-02-26 09:13:43.048 [12] main/172/space_upgrade_516 I> space upgrade completed
+space_upgrade-tarantool-storage-1-msk  | 2024-02-26 09:13:43.133 [12] main/173/space_upgrade_513 I> space upgrade completed
+space_upgrade-tarantool-storage-1-msk  | 2024-02-26 09:13:43.163 [12] main/174/space_upgrade_515 I> space upgrade completed
 ```
 
 (user_guide-space_upgrade-stop_example)=
 ## Остановка стенда
 
-Чтобы остановить стенд, выполните следующую команду:
+Чтобы остановить стенд, выполните в локальном терминале следующую команду:
 
 ```shell
 make stop

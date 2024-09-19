@@ -20,6 +20,8 @@
 * приложение Docker Compose;
 * Maven;
 * Java версии 8+;
+* конфигурация Maven -- для загрузки Java-коннектора.
+  Чтобы задать эту конфигурацию, используйте инструкцию [Установка клиента tarantool-java-ee](user_guide-connectors-install_java);
 * исходные файлы примера `java_crud`.
 
   ```{admonition} Примечание
@@ -34,9 +36,6 @@
   * Отдельный архив [java_crud.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/java_crud/java_crud.tar.gz), скачанный c сайта Tarantool.
   ```
 
-Кроме того, для загрузки Java-коннектора нужно настроить конфигурацию Maven.
-Чтобы задать эту конфигурацию, используйте инструкцию [Установка клиента tarantool-java-ee](user_guide-connectors-install_java).
-
 (user_guide-java_crud-start_example)=
 ## Запуск стенда
 
@@ -49,7 +48,6 @@
 ```shell
 cd ./doc/examples/java_crud
 ```
-
 
 Стенд состоит из:
 - кластера Tarantool DB:
@@ -112,14 +110,14 @@ Records inserted via CRUD in batches of 10000 records in 1106 ms
 Rows verified
 ```
 
-Необходимо убедиться, что в спейсе `test` появились данные.
-Для этого в веб-интерфейсе TCM перейдите на вкладку **Tuples** и выберите в списке спейс `test`.
+Теперь проверьте, что в спейсе `test` появились данные.
+Для этого в TCM перейдите на вкладку **Tuples** и выберите в списке спейс `test`.
 Откроется новая вкладка с содержимым кортежей спейса `test`.
 
 (user_guide-java_crud-stop_example)=
 ## Остановка стенда
 
-Остановить стенд можно так:
+Чтобы остановить стенд, в локальном терминале выполните следующие команды:
 
 ```shell
 cd tt && make stop

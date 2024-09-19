@@ -16,9 +16,8 @@ TCF поддерживает репликацию шардированных д�
 * активный кластер Tarantool DB -- с него идет чтение реплицируемых данных;
 * пассивный кластер Tarantool DB -- на него идет запись реплицируемых данных;
 * [etcd](https://etcd.io/) -- для восстановления после сбоя (failover) кластеров Tarantool DB;
-* репликатор Tarantool Clusters Federation -- бинарные файлы `tcf-destination` и `tcf-gateway`
-  TODO: здесь объясняем, где их взять.
-  Их нужно положить в папку примера `tcf`.
+* репликатор TCF -- бинарные файлы `tcf-destination` и `tcf-gateway`.
+  Инструкция о том, как получить эти файлы, приведена ниже, в секции [](admin_guide-tcf-example-start_example).
 
 Содержание:
 
@@ -36,8 +35,10 @@ TCF поддерживает репликацию шардированных д�
 Для выполнения примера требуются:
 
 * установленный [Docker-образ](install_docker-image) Tarantool DB;
+* архив для развёртывания TCF версии не ниже 0.3.0.
+  Архив можно скачать в личном кабинете tarantool.io, в разделе [tcf/release/](https://www.tarantool.io/ru/accounts/customer_zone/packages/tcf/release);
 * приложение Docker Compose;
-* исходные файлы примера `tarantool_clusters_federation`.
+* исходные файлы примера `tarantool_clusters_federation`;
 
   ```{admonition} Примечание
   :class: note
@@ -51,13 +52,45 @@ TCF поддерживает репликацию шардированных д�
   * Отдельный архив [tarantool_clusters_federation.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/tarantool_clusters_federation/tarantool_clusters_federation.tar.gz), скачанный c сайта Tarantool.
   ```
 
+
 (admin_guide-tcf-example-start_example)=
 ## Запуск стенда
 
-Перейдите в директорию с примером и запустите стенд:
+Перейдите в директорию с примером:
 
 ```shell
 cd ./doc/examples/tarantool_clusters_federation/
+```
+
+Загрузите в эту директорию архив для развёртывания TCF и распакуйте его в новой папке `tcf_archive`:
+
+```shell
+mkdir tcf_archive
+tar -xzvf tcf-<VERSION>.tar.gz --directory tcf_archive
+```
+
+Здесь:
+
+- `VERSION` -- версия продукта.
+
+Пример: `tcf-0.3.0.tar.gz`.
+
+Скопируйте в директорию `tcf` бинарные файлы `tcf-destination` и `tcf-gateway` из созданной директории `tcf_archive`:
+
+```shell
+cp tcf_archive/tcf-destination tcf && cp tcf_archive/tcf-gateway tcf
+```
+
+Для запуска примера не требуются архив с TCF и другие файлы из директории `tcf_archive`, так что их можно удалить:
+
+```shell
+rm -r tcf_archive
+rm -r tcf-<VERSION>.tar.gz
+```
+
+Теперь запустите стенд:
+
+```shell
 make start
 ```
 
@@ -97,6 +130,8 @@ cd tcf && docker compose up --force-recreate -d --build
 :end-before: helpers.register_sharding_key
 :language: lua
 :dedent:
+```
+
 (admin_guide-tcf-example-replication-1-2)=
 ## Репликация данных с первого кластера на второй
 
@@ -164,7 +199,6 @@ active
 docker compose -f cluster1/docker-compose.yml start cluster1-storage-1-msk
 ```
 
-(admin_guide-tcf-example-replication-2-1)
 (admin_guide-tcf-example-replication-2-1)=
 ## Репликация данных со второго кластера на первый
 

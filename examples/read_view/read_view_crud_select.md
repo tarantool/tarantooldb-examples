@@ -42,10 +42,13 @@
 
 В руководстве используются следующие файлы примера `read_view`:
 
-* `config.yml` -- конфигурация и топология кластера;
-* `docker-compose.yml` -- описание узлов кластера;
-* `migrations/scenario` -- директория, содержащая файлы с описанием миграций;
-* `tcm.yml` -- конфигурация для запуска [Tarantool Cluster Manager](https://www.tarantool.io/ru/doc/latest/tooling/tcm/).
+* `cluster/` -- директория c файлами для запуска кластера Tarantool DB:
+  * `config.yml` -- конфигурация и топология кластера;
+  * `docker-compose.yml` -- описание узлов кластера Tarantool DB;
+  * `migrations/scenario` -- директория, содержащая файлы с описанием миграций;
+* `tools/` -- директория с файлами для запуска кластера etcd и TCM:
+  * `docker-compose.yml` -- описание узлов кластера etcd;
+  * `tcm.yml` -- конфигурация для запуска [Tarantool Cluster Manager](https://www.tarantool.io/ru/doc/latest/reference/tooling/tcm/).
 
 (user_guide-readview_crud_filter-start_example)=
 ## Запуск стенда
@@ -73,55 +76,66 @@ make start
   - 1 роутер;
   - 2 набора реплик по 2 хранилища;
   - 1 [Tarantool Cluster Manager](getting_started-tcm);
-  - 2 координатора автоматического восстановления после сбоев (*failover coordinator*);
 - кластера etcd из 3 узлов.
 
 После запуска должны работать все контейнеры, кроме [init_host](admin_guide-deploy_docker_compose-init_host).
 
 Также после запуска кластера становится доступен веб-интерфейс TCM.
-Для входа используйте:
-* логин `admin` 
-* пароль `secret`
+Для входа в TCM откройте в браузере адрес [http://localhost:8081](http://localhost:8081).
+Логин и пароль для входа:
 
-Кластер настроен автоматически.
+- **Username**: `admin`
+- **Password**: `secret`
+
+В TCM откройте вкладку **Stateboard**.
+Выберите в наборе реплик `router-1` узел `router-1` и в открывшемся окне перейдите на вкладку **Terminal**.
+Во вкладке **Terminal** проверьте наличие спейса `customers`:
+
+```lua
+box.space
+```
+
+Спейс `customers` должен присутствовать в выводе, он создается при запуске кластера.
+Перейдите на вкладку `Tuples`.
+Проверьте, что во вкладке отображается спейс `customers`, и в этот спейс загружены данные.
 
 (user_guide-readview_crud_filter-migrations)=
 ## Создание спейса и подключение к узлу
 
 На завершающем этапе поднятия кластера выполняется публикация YAML-конфигурации кластера в [централизованное хранилище](https://www.tarantool.io/ru/doc/latest/tooling/tt_cli/cluster/#publish)
 и применяются [миграции](user_guide-migrations).
-Миграции создают спейс `customers` (файл `./migrations/scenario/001_create_space.lua`) и
-загружают в него данные (файл `./migrations/scenario/002_data.lua`).
+Миграции создают спейс `customers` (файл `./cluster/migrations/scenario/001_create_space.lua`) и
+загружают в него данные (файл `./cluster/migrations/scenario/002_data.lua`).
 
 Спейс имеет следующий формат:
 
-```{literalinclude} migrations/scenario/001_create_space.lua
+```{literalinclude} cluster/migrations/scenario/001_create_space.lua
 :start-after: -- Создание спейса customers
 :end-before: helpers.register_sharding_key
 :language: lua
 :dedent:
 ```
 
-Чтобы начать работу с базой данных через интерактивную консоль Tarantool, нужно подключиться к роутеру с ролью [crud-router](reference-roles-crud).
+Чтобы начать работу с базой данных через интерактивную консоль Tarantool, нужно подключиться к узлу кластера.
 Сделать это можно двумя способами:
 
-- В терминале на вашем ПК с помощью команды `tt connect`:
+- в веб-интерфейсе TCM;
+- в терминале с помощью утилиты tt CLI:
 
   ```shell
   tt connect admin:secret-cluster-cookie@localhost:3301
   ```
 
-- В веб-интерфейсе TCM.
-
 Подключитесь к роутеру `router-1`, используя **первый способ** -- через TCM. Для этого:
 	
 1. Перейдите на вкладку **Stateboard**.
-2. Выберите роутер `router-1` и в открывшемся окне перейдите на вкладку **Terminal**.
+2. Нажмите на набор реплик `router-1`.
+3. Выберите роутер `router-1` и в открывшемся окне перейдите на вкладку **Terminal**.
   
 (user_guide-readview_crud-filter-create)=
 ## Создание представления для чтения
 
-Чтобы создать read view, вызовите функцию `crud.readview()`:
+Чтобы создать read view, во вкладке **Terminal** вызовите функцию `crud.readview()`:
 
 ```lua
 rv = crud.readview()
@@ -451,7 +465,7 @@ tuples
 (user_guide-readview_crud-filter-stop_example)=
 ## Остановка стенда
 
-Чтобы остановить стенд, выполните следующую команду:
+Чтобы остановить стенд, выполните в локальном терминале следующую команду:
 
 ```shell
 make stop

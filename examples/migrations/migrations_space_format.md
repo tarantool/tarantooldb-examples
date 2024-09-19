@@ -75,13 +75,13 @@
 
 В руководстве используются следующие файлы примера `migrations`:
 
-* `cluster/` -- директория c файлами для запуска кластера Tarantool DB:
-  * `config.yml` -- конфигурация и топология кластера;
-  * `docker-compose.yml` -- описание узлов кластера Tarantool DB;
-  * `migrations/scenario` -- директория, содержащая файлы с описанием миграций;
-* `tools/` -- директория с файлами для запуска кластера etcd и TCM:
-  * `docker-compose.yml` -- описание узлов кластера etcd и средств мониторинга;
-  * `tcm.yml` -- конфигурация для запуска [Tarantool Cluster Manager](https://www.tarantool.io/ru/doc/latest/reference/tooling/tcm/).
+- `cluster/` -- директория c файлами для запуска кластера Tarantool DB:
+  - `config.yml` -- конфигурация и топология кластера;
+  - `docker-compose.yml` -- описание узлов кластера Tarantool DB;
+  - `migrations/scenario/` и `migration_next/` -- директории, содержащие файлы с описанием миграций;
+- `tools/` -- директория с файлами для запуска кластера etcd и TCM:
+  - `docker-compose.yml` -- описание узлов кластера etcd;
+  - `tcm.yml` -- конфигурация для запуска [Tarantool Cluster Manager](https://www.tarantool.io/ru/doc/latest/reference/tooling/tcm/).
 
 (user_guide-space_format-start_example)=
 ## Запуск стенда

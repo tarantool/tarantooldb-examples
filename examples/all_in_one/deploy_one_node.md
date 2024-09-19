@@ -84,8 +84,8 @@ make start
   * `config.yml` -- конфигурация и топология кластера;
   * `docker-compose.yml` -- описание узлов кластера Tarantool DB;
   * `migrations/scenario` -- директория, содержащая файлы с описанием миграций;
-* `tools/` -- директория с файлами для запуска кластера etcd и средств мониторинга:
-  * `docker-compose.yml` -- описание узлов кластера etcd и средств мониторинга;
+* `tools/` -- директория с файлами для запуска кластера etcd и TCM:
+  * `docker-compose.yml` -- описание узлов кластера etcd;
   * `tcm.yml` -- конфигурация для запуска [Tarantool Cluster Manager](https://www.tarantool.io/ru/doc/latest/reference/tooling/tcm/);
 * `Makefile` -- инструкции для утилиты `make` для запуска и остановки всего стенда.
 

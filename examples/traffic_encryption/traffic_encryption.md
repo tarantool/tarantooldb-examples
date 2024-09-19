@@ -1,3 +1,4 @@
+(admin_guide-traffic_encryption)=
 # Шифрование трафика
 
 Tarantool DB позволяет шифровать трафик по IPROTO при запросах от клиента и при репликации.
@@ -10,9 +11,9 @@ Tarantool DB позволяет шифровать трафик по IPROTO пр
 Руководство включает следующие шаги:
 
 * [](admin_guide-traffic_encryption-prereq)
+* [](admin_guide-traffic_encryption-start_example)
 * [](admin_guide-traffic_encryption-ssl_setup)
 * [](admin_guide-traffic_encryption-files)
-* [](admin_guide-traffic_encryption-start_example)
 * [](admin_guide-traffic_encryption-tt)
 * [](admin_guide-traffic_encryption-go)
 * [](admin_guide-traffic_encryption-python)
@@ -29,6 +30,7 @@ Tarantool DB позволяет шифровать трафик по IPROTO пр
 * утилита [tt CLI](install-install_tt);
 * Go версии 1.13 или выше;
 * python3;
+* файлы сертификатов. Чтобы сгенерировать их, выполните команду `certs/gen.sh`;
 * исходные файлы примера `traffic_encryption`.
 
   ```{admonition} Примечание
@@ -42,66 +44,6 @@ Tarantool DB позволяет шифровать трафик по IPROTO пр
 
   * Отдельный архив [traffic_encryption.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/traffic_encryption/traffic_encryption.tar.gz), скачанный c сайта Tarantool.
   ```
-  
-* Файлы сертификатов. Чтобы сгенерировать их, выполните команду `certs/gen.sh`
-
-(admin_guide-traffic_encryption-ssl_setup)=
-## Настройка SSL-шифрования
-
-Для работы с SSL в Tarantool используются SSL-сертификаты.
-Экземпляр Tarantool DB здесь -- это одновременно и сервер, и клиент по отношению к другим экземплярам.
-Чтобы любой экземпляр мог подключаться ко всем остальным экземплярам, для каждого экземпляра требуется как сертификат
-сервера, так и сертификат клиента.
-Это означает, что для экземпляра кластера всегда нужно передавать как серверные, так и клиентские аргументы.
-
-В примере `traffic_encryption` сертификаты находятся в директории `./certs/` и
-должны быть доступны для каждого экземпляра.
-Сертификаты генерируются с помощью скрипта `./certs/gen.sh`.
-
-Также в примере используется TCM. В этом случае нужно создавать отдельные сертификаты для каждого экземпляра.
-Сертификаты для экземпляров генерируются с помощью скриптов `./certs/gen_router.sh` и `./certs/gen_storage.sh`.
-Чтобы сертификаты в TCM считывались корректно, в скриптах для генерации сертификатов на хранилище используется CA сертификат роутера.
-
-В примере заданы параметры SSL-шифрования для экземпляра с помощью переменных окружения:
-
-```{literalinclude} docker-compose.yml
-:start-at: environment
-:end-before: volumes
-:language: yaml
-:dedent:
-```
-
-Здесь:
-
-* `TARANTOOL_ADVERTISE_URI` -- адрес и порт, на котором узел доступен в кластере;
-* `TARANTOOL_TRANSPORT` -- значение SSL;
-* `TARANTOOL_SSL_SERVER_CA_FILE` -- путь к корневому сертификату сервера;
-* `TARANTOOL_SSL_SERVER_CERT_FILE` -- путь к сертификату сервера;
-* `TARANTOOL_SSL_SERVER_KEY_FILE` -- путь к закрытому ключу сервера;
-* `TARANTOOL_SSL_CLIENT_CA_FILE` -- путь к корневому сертификату клиента;
-* `TARANTOOL_SSL_CLIENT_CERT_FILE` -- путь к сертификату клиента;
-* `TARANTOOL_SSL_CLIENT_KEY_FILE` -- путь к закрытому ключу клиента;
-* `TARANTOOL_SSL_SERVER_PASSWORD` -- пароль для ключа сервера;
-* `TARANTOOL_SSL_CLIENT_PASSWORD` -- пароль для ключа клиента.
-
-Эти переменные окружения необходимы для корректной работы конфигурации при использовании Tarantool из клиентских приложений.
-
-(admin_guide-traffic_encryption-files)=
-## Используемые файлы
-
-Для запуска и настройки кластера используются файлы из папки ``traffic_encryption``:
-
-* `certs/`
-  * `gen.sh` -- скрипт генерации локального набора сертификатов для стенда;
-* `cluster/` -- директория c файлами для запуска кластера Tarantool DB:
-  * `migrations/scenario` -- директория, содержащая файлы с описанием миграций; 
-  * `config.yml` -- конфигурация и топология кластера;
-  * `docker-compose.yml` -- описание узлов кластера Tarantool DB;  
-* `go/` -- директория с файлами для создания подключения через Go-коннектор;
-* `python/` -- директория с файлами для создания подключения через Python-коннектор;
-* `tools/` -- директория с файлами для запуска кластера etcd и средств мониторинга:
-  * `docker-compose.yml` -- описание узлов кластера etcd и средств мониторинга;
-  * `tcm.yml` -- конфигурация для запуска [Tarantool Cluster Manager](https://www.tarantool.io/ru/doc/latest/reference/tooling/tcm/).
 
 (admin_guide-traffic_encryption-start_example)=
 ## Запуск стенда
@@ -137,6 +79,55 @@ make start
 - **Username**: `admin`
 - **Password**: `secret`
 
+(admin_guide-traffic_encryption-ssl_setup)=
+## Настройка SSL-шифрования
+
+Для работы с SSL в Tarantool используются SSL-сертификаты.
+Экземпляр Tarantool DB здесь -- это одновременно и сервер, и клиент по отношению к другим экземплярам.
+Чтобы любой экземпляр мог подключаться ко всем остальным экземплярам, для каждого экземпляра требуется как сертификат
+сервера, так и сертификат клиента.
+Это означает, что для экземпляра кластера всегда нужно передавать как серверные, так и клиентские аргументы.
+
+В примере `traffic_encryption` сертификаты находятся в директории `./certs/` и
+должны быть доступны для каждого экземпляра.
+Сертификаты генерируются с помощью скрипта `./certs/gen.sh`.
+
+Также в примере используется TCM. В этом случае нужно создавать отдельные сертификаты для каждого экземпляра.
+Сертификаты для экземпляров генерируются с помощью скриптов `./certs/gen_router.sh` и `./certs/gen_storage.sh`.
+Чтобы сертификаты в TCM считывались корректно, в скриптах для генерации сертификатов на хранилище используется CA сертификат роутера.
+
+В примере заданы параметры SSL-шифрования для экземпляра с помощью переменных окружения:
+
+```{literalinclude} cluster/docker-compose.yml
+:start-at: TT_CLI_SSLKEYFILE
+:end-before: command
+:language: yaml
+:dedent:
+```
+
+Здесь:
+
+- `TT_CLI_SSLKEYFILE` -- путь к закрытому ключу клиента.
+- `TT_CLI_SSLCERTFILE` -- путь к сертификату клиента;
+
+Эти переменные окружения необходимы для корректной работы конфигурации при использовании Tarantool из клиентских приложений.
+
+(admin_guide-traffic_encryption-files)=
+## Используемые файлы
+
+Для запуска и настройки кластера используются файлы из папки ``traffic_encryption``:
+
+* `certs/`
+  * `gen.sh` -- скрипт генерации локального набора сертификатов для стенда;
+* `cluster/` -- директория c файлами для запуска кластера Tarantool DB:
+  * `migrations/scenario` -- директория, содержащая файлы с описанием миграций; 
+  * `config.yml` -- конфигурация и топология кластера;
+  * `docker-compose.yml` -- описание узлов кластера Tarantool DB;  
+* `go/` -- директория с файлами для создания подключения через Go-коннектор;
+* `python/` -- директория с файлами для создания подключения через Python-коннектор;
+* `tools/` -- директория с файлами для запуска кластера etcd и средств мониторинга:
+  * `docker-compose.yml` -- описание узлов кластера etcd и средств мониторинга;
+  * `tcm.yml` -- конфигурация для запуска [Tarantool Cluster Manager](https://www.tarantool.io/ru/doc/latest/reference/tooling/tcm/).
 
 (admin_guide-traffic_encryption-tt)=
 ## Подключение через tt CLI
@@ -259,13 +250,16 @@ Tarantool позволяет создавать пользовательские
 box.schema.func.call('get_name_by_uri', 'admin:secret-cluster-cookie@tarantool-storage-1-spb:3301')
 ```
 
-Функция возвращает имя экземляра: `storage-1-spb`.
+Функция возвращает имя экземпляра: `storage-1-spb`.
 
-Примечание 1: На запуск кластера может уйти несколько десятков секунд, поэтому
+```{note}
+На запуск кластера может уйти несколько десятков секунд, поэтому
 миграции появятся не сразу.
+```
 
-Примечание 2: Для отправки команд через веб-интерфейс вместо способа
-"TT Connect" используйте способ "Direct".
+Отправлять команды можно также через веб-интерфейс TCM.
+Для этого откройте в TCM вкладку **Stateboard** и выберите в наборе реплик `router-msk` узел `router-msk`.
+В открывшемся окне перейдите на вкладку **Terminal -> Direct**.
 
 (admin_guide-traffic_encryption-stop_example)=
 ## Остановка стенда

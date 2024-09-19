@@ -25,6 +25,8 @@
 * приложение Docker Compose;
 * Maven;
 * Java версии 8+;
+* конфигурация Maven -- для загрузки Java-коннектора.
+  Чтобы задать эту конфигурацию, используйте инструкцию [Установка клиента tarantool-java-ee](user_guide-connectors-install_java);
 * исходные файлы примера `java_directly`.
 
   ```{admonition} Примечание
@@ -38,9 +40,6 @@
 
   * Отдельный архив [java_directly.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/java_directly/java_directly.tar.gz), скачанный c сайта Tarantool.
   ```
-
-Кроме того, для загрузки Java-коннектора нужно настроить конфигурацию Maven.
-Чтобы задать эту конфигурацию, используйте инструкцию [Установка клиента tarantool-java-ee](user_guide-connectors-install_java).
 
 (user_guide-java_directly-start_example)=
 ## Запуск стенда
@@ -117,8 +116,7 @@ Directly recorded 10000 rows one at a time in 483 milliseconds
 Tuples: [[1, 4677746723089159966, aHRDJPQVkTEBttESWzzUH]]
 ```
 
-Необходимо убедиться, что в спейсе `test` появились данные.
-
+Теперь проверьте, что в спейсе `test` появились данные.
 Для этого выберите в наборе реплик `router-msk` узел `router-msk` и в открывшемся окне перейдите на вкладку **Terminal**.
 Во вкладке **Terminal** проверьте наличие спейса `test`:
 

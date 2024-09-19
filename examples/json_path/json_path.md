@@ -89,39 +89,49 @@ make start
 
 В примере создан спейс `test` со следующим форматом:
 
-```{literalinclude} cluster/migrations/scenario/001-test.lua
+```{literalinclude} cluster/migrations/scenario/001_test.lua
 :start-at: local space_test
 :end-before: return true
 :language: lua
 :dedent:
 ```
+
 Чтобы подключиться к роутеру, в веб-интерфейсе TCM перейдите на вкладку **Stateboard**.
 В наборе реплик `router-storage-1` выберите роутер `router-storage-1` и в открывшемся окне перейдите на вкладку **Terminal**.
 
 Создайте кортеж и добавьте его в спейс `test`:
+
 ```lua
 s = box.space.test
 t = { 1, 1, {  key1 = 'value', key2 = 10 }, { 2, 3 , { key3 = 20 }}}
 t = s:replace(t)
 ```
 
+Проверьте, что в спейсе появились данные.
+Для этого в TCM перейдите на вкладку **Tuples** и выберите в списке спейс `test`.
+В открывшейся вкладке видно, что в спейс добавлен новый кортеж.
+
 Чтобы заменить значение одного ключа на другое, обновите в кортеже значение поля `users.key1`:
 
 ```lua
 s:update({1}, {{'=', 'users.key1', 'new_value'}})
 ```
+
 Вывод будет выглядеть так:
+
 ```shell
 ---
 - [1, 1, {'key1': 'new_value', 'key2': 10}, [2, 3, {'key3': 20}]]
 ...
 ```
+
 Теперь увеличьте на 1 значение второго элемента из массива `authors`.
 Массив `authors` имеет формат `{ name = 'authors', type = 'array' }`. Сейчас в массив записано значение `[2, 3, {'key3': 20}]`.
 
 ```lua
 s:update({1}, {{'+', 'authors[2]', 1}})
 ```
+
 Вывод будет выглядеть так:
 
 ```shell
@@ -135,6 +145,7 @@ s:update({1}, {{'+', 'authors[2]', 1}})
 ```lua
 s:update({1}, {{'!', 'payload', 'inserted_value'}})
 ```
+
 В схеме уже есть поле `payload` со следующим форматом: `{ name = 'payload', type = 'string', is_nullable = true }`.
 
 Вывод выглядит так:
@@ -143,10 +154,13 @@ s:update({1}, {{'!', 'payload', 'inserted_value'}})
 - [1, 1, {'key1': 'new_value', 'key2': 10}, [2, 4, {'key3': 20}], 'inserted_value']
 ...
 ```
+
 Теперь удалите из кортежа значение поля `users.key2` и добавьте в поле `authors` новый ключ `key4`:
+
 ```lua
 s:update({1}, {{'#', '[3].key2', 1}, {'=', '[4][3].key4', 'value4'}})
 ```
+
 Вывод выглядит так:
 
 ```shell
@@ -154,12 +168,16 @@ s:update({1}, {{'#', '[3].key2', 1}, {'=', '[4][3].key4', 'value4'}})
 - [1, 1, {'key1': 'new_value'}, [2, 4, {'key3': 20, 'key4': 'value4'}], 'inserted_value']
 ...
 ```
+
 После обновите значение кортежа и просмотрите результат:
+
 ```lua
 s:upsert({1, 1, {k = 'v'}, {}}, {{'#', '[3].key1', 1}})
 s:select{}
 ```
+
 Вывод выглядит так:
+
 ```shell
 ---
 - - [1, 1, {}, [2, 4, {'key3': 20, 'key4': 'value4'}], 'inserted_value']
