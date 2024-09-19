@@ -60,38 +60,49 @@
 
 Для успешного запуска должны быть свободны следующие порты:
 * 3301--3306
-* 8080--8086
+* 3000
+* 8081
 
-Перейдите в директорию `java_balancer/tt`:
-
-```shell
-cd ./doc/examples/java_balancer/tt
-```
-
-Запустите стенд:
+Перейдите в директорию `java_balancer`:
 
 ```shell
-docker compose up -d
+cd ./doc/examples/java_balancer
 ```
 
-Команда развернет стенд, состоящий из:
-* кластера Tarantool DB (два шарда, два хранилища и два роутера);
-* клиентского приложения, подающего нагрузку;
-* средств мониторинга (Telegraf, InfluxDB, Grafana).
+Стенд состоит из:
 
-После запуска должны работать все контейнеры, кроме `tarantool-db-init`. Также
+- кластера Tarantool DB:
+  - 2 роутера;
+  - 2 набора реплик по 2 хранилища;
+  - 1 [Tarantool Cluster Manager](getting_started-tcm) (TCM);
+
+- кластера etcd из 3 узлов;
+- клиентского приложения, подающего нагрузку;
+- средств мониторинга (Telegraf, InfluxDB, Grafana).
+
+Запустите всё, кроме клиентского приложения, командой:
+
+```shell
+make start
+```
+
+После запуска должны работать все контейнеры, кроме [init_host](admin_guide-deploy_docker_compose-init_host). Также
 после запуска доступны следующие пользовательские интерфейсы:
-* http://localhost:8083 -- веб-интерфейс кластера Tarantool DB;
-* http://localhost:8080 -- веб-интерфейс Grafana.
+* http://localhost:8081 -- веб-интерфейс кластера Tarantool DB ([TCM](https://www.tarantool.io/ru/doc/latest/reference/tooling/tcm/));
+* http://localhost:3000 -- веб-интерфейс Grafana.
 
-Теперь откройте в браузере веб-интерфейс Tarantool DB по адресу [http://localhost:8081](http://localhost:8081).
-Перейдите во вкладку **Cluster** и проверьте, что отсутствуют ошибки или предупреждения.
-В течение нескольких секунд после старта кластер еще поднимается, так что могут появиться предупреждения.
-В примере не используется [шардирование](https://www.tarantool.io/ru/doc/latest/concepts/sharding/), поэтому модуль
-`vshard` не запущен.
+Для входа в веб-интерфейс TCM откройте в браузере адрес [http://localhost:8081](http://localhost:8081). Логин и пароль для входа:
 
-После этого перейдите на вкладку **Space Explorer** и выберите любой узел, например, `storage1`.
-Проверьте, что на узле есть спейс `test`.
+- **Username**: `admin`
+- **Password**: `secret`
+
+В TCM откройте вкладку **Stateboard**.
+Выберите в наборе реплик `router-msk` узел `router-msk` и в открывшемся окне перейдите на вкладку **Terminal**.
+Во вкладке **Terminal** проверьте наличие спейса `test`:
+
+```box.space```
+
+Спейс `test` должен присутствовать в выводе, он создается при запуске кластера.
 
 (user_guide-java_balancer-grafana)=
 ## Панель Grafana
@@ -104,7 +115,7 @@ docker compose up -d
 
 В панели `Tarantool Network activity` откройте график `Processed requests`:
 
-![](images/processed-requests-1.png)
+![](images/pr-1.png)
 
 Выделите роутеры. Есть два способа это сделать:
 * нажмите на название `router-1` и, зажав `Shift`, нажмите на `router-2`.
@@ -134,33 +145,39 @@ mvn clean compile
 mvn exec:java -Dexec.mainClass="org.example.App"
 ```
 
-На графиках теперь заметно, что нагрузка растет:
+На графиках теперь заметна растущая нагрузка:
 * растет число обработанных запросов на роутерах:
   
-  ![](images/processed-requests-2.png)
+  ![](images/pr-2.png)
 * растет число операций `replace` в единицу времени:
 
   ![](images/replace-2.png)
 
-В веб-интерфейсе Tarantool DB откройте вкладку **Space Explorer** и проверьте, что в хранилищах появились данные.
+Проверьте, что в спейсе `test` появились данные.
+Для этого в веб-интерфейсе TCM перейдите на вкладку **Tuples** и выберите в списке спейс `test`.
+Откроется новая вкладка с содержимым кортежей спейса `test`.
 
 (user_guide-java_balancer-stop_router)=
 ## Имитация отказа роутера
 
+В первом терминале перейдите в директорию `cluster`:
+
+```cd cluster```
+
 Чтобы имитировать отказ роутера, в первом терминале выполните команду:
 ```shell
-docker compose stop tarantool-router1
+docker compose stop tarantool-router-msk
 ```
 
-Теперь в веб-интерфейсе Tarantool DB во вкладке **Cluster** узел `tarantool-router1` помечается как нездоровый (`unhealthy`).
+Теперь в веб-интерфейсе Tarantool DB (TCM) узел `tarantool-router-msk` помечается серым, - это значит, что он отключен.
 График запросов изменится так:
 
-![](images/processed-requests-3.png)
+![](images/pr-3.png)
 
 Нагрузка на второй роутер увеличилась вдвое.
 График для второго роутера выглядит так:
 
-![](images/processed-requests-4.png)
+![](images/pr-4.png)
 
 Роста нагрузки на этом графике нет.
 График прерывается, так как роутер не работает и метрики с него не поступают.
@@ -171,16 +188,16 @@ docker compose stop tarantool-router1
 (user_guide-java_balancer-start_router)=
 ## Восстановление роутера
 
-Для запуска первого роутера выполните следующую команду:
+Для запуска первого роутера выполните следующую команду в директории `cluster`:
 
 ```shell
-docker compose start tarantool-router1
+docker compose start tarantool-router-msk
 ```
 
-В веб-интерфейсе Tarantool DB во вкладке **Cluster** видно, что узел `tarantool-router1` восстановлен.
+В TCM во вкладке **Stateboard** видно, что узел `router-msk` восстановлен.
 Нагрузка на второй роутер уменьшилась вдвое, появились данные по нагрузке с первого:
 
-![](images/processed-requests-5.png)
+![](images/pr-5.png)
 
 Число операций `replace` не изменилось:
 
@@ -194,7 +211,7 @@ docker compose start tarantool-router1
 * В первом терминале выполните команду:
 
     ```shell
-    docker compose down
+    make stop
     ```
   
 * Во втором терминале выполните команду `Ctrl + Z`.
