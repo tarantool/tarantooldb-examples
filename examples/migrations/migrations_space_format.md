@@ -451,6 +451,8 @@ local _, err = vshard_router.callrw(bucket_id, 'projects.delete_project', {id})
    tt migrations publish http://admin:secret-cluster-cookie@localhost:2379/tdb/ migrations
    ```
 
+   Узнать больше о командах `tt migrations` можно в [документации Tarantool](https://www.tarantool.io/ru/doc/latest/tooling/tt_cli/migrations/).
+
 3. Примените миграции:
 
    ```shell
