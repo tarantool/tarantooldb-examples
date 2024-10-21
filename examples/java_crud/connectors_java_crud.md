@@ -20,8 +20,7 @@
 * приложение Docker Compose;
 * Maven;
 * Java версии 8+;
-* конфигурация Maven -- для загрузки Java-коннектора.
-  Чтобы задать эту конфигурацию, используйте инструкцию [Установка клиента tarantool-java-ee](user_guide-connectors-install_java);
+* установленный Java-коннектор версии 1.1.3. Для установки используйте инструкцию [Установка клиента tarantool-java-ee](user_guide-connectors-install_java);
 * исходные файлы примера `java_crud`.
 
   ```{admonition} Примечание
