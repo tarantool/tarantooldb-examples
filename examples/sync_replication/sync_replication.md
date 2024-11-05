@@ -10,7 +10,6 @@
 
 * [Prometheus](https://prometheus.io/) -- сбор и хранение метрик;
 * [Grafana](https://grafana.com/) -- визуализация метрик.
-* 
 Содержание:
 
 * [](user_guide-sync_replication-prereq)
