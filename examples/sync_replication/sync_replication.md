@@ -118,8 +118,13 @@ go run -tags go_tarantool_ssl_disable main.go target=sync
 Состояние репликации можно отслеживать в дашборде `Replication overview`:
 ![](./images/replication.png)
 
-При запуске записи в синхронный спейс наблюдается примерно такая картина:
-![](./images/synchro_que.png)
+Обратите внимание на графикики `Synchronyos queue transactions` и `Tarantool replication lag`
+При синхронной репликации они такие:
+![](./images/synchro_queue.png)
+![](./images/synchro_lag.png)
+При асинхронной репликации они такие (внимание на конец графика, в этот момет была переключена нагрузка на запись в асинхронный спейс):
+![](./images/asynchro_queue.png)
+![](./images/asynchro_lag.png)
 
 Также можно заметить увеличивающиеся нагрузку по метрикам:
 ![](./images/insert_requests.png)
