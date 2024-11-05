@@ -16,15 +16,16 @@ import (
 )
 
 const (
-	USER         = "admin"
-	PASS         = "secret-cluster-cookie"
-	LETTER_BYTES = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	USER    = "admin"
+	PASS    = "secret-cluster-cookie"
+	STREAMS = 64
 )
 
 var routerUriList = []string{"localhost:3301", "localhost:3302"}
 
 type Tags struct {
-	UUID string `faker:"uuid_hyphenated"`
+	UUID      string `faker:"uuid_hyphenated"`
+	Paragraph string `faker:"paragraph"`
 }
 
 type Tuple struct {
@@ -33,14 +34,6 @@ type Tuple struct {
 	BucketId *uint    `msgpack:"bucket_id"`
 	Too      uint     `msgpack:"user_id"`
 	Foo      string   `msgpack:"payload"`
-}
-
-func RandStringBytes(n int) string {
-	b := make([]byte, n)
-	for i := range b {
-		b[i] = LETTER_BYTES[rand.Intn(len(LETTER_BYTES))]
-	}
-	return string(b)
 }
 
 func MakeRandomTuple() Tuple {
@@ -55,7 +48,7 @@ func MakeRandomTuple() Tuple {
 		Id:       a.UUID,
 		BucketId: nil,
 		Too:      uint(r.Int63()),
-		Foo:      RandStringBytes(rand.Intn(32)),
+		Foo:      a.Paragraph,
 	}
 	fmt.Println(tuple)
 	return tuple
@@ -125,10 +118,10 @@ func main() {
 	defer routerPool.Close()
 
 	log.Printf("To finish the job, press Ctrl+Z\n")
-	for i := 0; i < 64; i++ {
+	for i := 0; i < STREAMS; i++ {
 		go InfinityLoad(routerPool, mode)
 	}
 	for {
-		time.Sleep(1 * time.Second)
+		time.Sleep(time.Second)
 	}
 }
