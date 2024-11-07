@@ -36,14 +36,12 @@ type Tuple struct {
 	Foo      string   `msgpack:"payload"`
 }
 
-func MakeRandomTuple() Tuple {
+func MakeRandomTuple(random *rand.Rand) Tuple {
 	fakeData := FakeData{}
 	err := faker.FakeData(&fakeData)
 	if err != nil {
 		fmt.Println(err)
 	}
-	source := rand.NewSource(time.Now().UnixNano())
-	random := rand.New(source)
 	tuple := Tuple{
 		Id:       fakeData.UUID,
 		BucketId: nil,
@@ -55,7 +53,9 @@ func MakeRandomTuple() Tuple {
 }
 
 func WriteOverCrud(routerPool *pool.ConnectionPool, space string) {
-	tuple := MakeRandomTuple()
+	sourceRandom := rand.NewSource(time.Now().UnixNano())
+	random := rand.New(sourceRandom)
+	tuple := MakeRandomTuple(random)
 	req := crud.MakeInsertRequest(space).Tuple(tuple)
 	ret := crud.Result{}
 	err := routerPool.Do(req, pool.ANY).GetTyped(&ret)
