@@ -23,7 +23,7 @@ const (
 
 var routerUriList = []string{"localhost:3301", "localhost:3302"}
 
-type Tags struct {
+type FakeData struct {
 	UUID      string `faker:"uuid_hyphenated"`
 	Paragraph string `faker:"paragraph"`
 }
@@ -37,18 +37,18 @@ type Tuple struct {
 }
 
 func MakeRandomTuple() Tuple {
-	a := Tags{}
-	err := faker.FakeData(&a)
+	fakeData := FakeData{}
+	err := faker.FakeData(&fakeData)
 	if err != nil {
 		fmt.Println(err)
 	}
 	source := rand.NewSource(time.Now().UnixNano())
-	r := rand.New(source)
+	random := rand.New(source)
 	tuple := Tuple{
-		Id:       a.UUID,
+		Id:       fakeData.UUID,
 		BucketId: nil,
-		Too:      uint(r.Int63()),
-		Foo:      a.Paragraph,
+		Too:      uint(random.Int63()),
+		Foo:      fakeData.Paragraph,
 	}
 	fmt.Println(tuple)
 	return tuple
