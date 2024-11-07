@@ -117,10 +117,12 @@ func main() {
 	}
 	defer routerPool.Close()
 
-	log.Printf("To finish the job, press Ctrl+Z\n")
 	for i := 0; i < STREAMS; i++ {
 		go InfinityLoad(routerPool, mode)
 	}
+
+	log.Printf("To finish the job, press Ctrl+Z\n")
+
 	for {
 		time.Sleep(time.Second)
 	}
