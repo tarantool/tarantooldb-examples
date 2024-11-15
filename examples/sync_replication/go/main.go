@@ -52,9 +52,7 @@ func MakeRandomTuple(random *rand.Rand) Tuple {
 	return tuple
 }
 
-func WriteOverCrud(routerPool *pool.ConnectionPool, space string) {
-	sourceRandom := rand.NewSource(time.Now().UnixNano())
-	random := rand.New(sourceRandom)
+func WriteOverCrud(routerPool *pool.ConnectionPool, space string, random *rand.Rand) {
 	tuple := MakeRandomTuple(random)
 	req := crud.MakeInsertRequest(space).Tuple(tuple)
 	ret := crud.Result{}
@@ -76,9 +74,10 @@ func InfinityLoad(routerPool *pool.ConnectionPool, mode string) {
 		fmt.Println("Неизвестное значение аргумента. Используйте target=sync или target=async.")
 		return
 	}
-
+	sourceRandom := rand.NewSource(time.Now().UnixNano())
+	random := rand.New(sourceRandom)
 	for {
-		WriteOverCrud(routerPool, space)
+		WriteOverCrud(routerPool, space, random)
 	}
 }
 
