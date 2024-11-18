@@ -63,7 +63,7 @@ func WriteOverCrud(routerPool *pool.ConnectionPool, space string, random *rand.R
 	}
 }
 
-func InfinityLoad(routerPool *pool.ConnectionPool, mode string) {
+func InfinityLoad(routerPool *pool.ConnectionPool, mode string, random *rand.Rand) {
 	var space string
 	switch mode {
 	case "sync":
@@ -74,8 +74,6 @@ func InfinityLoad(routerPool *pool.ConnectionPool, mode string) {
 		fmt.Println("Неизвестное значение аргумента. Используйте target=sync или target=async.")
 		return
 	}
-	sourceRandom := rand.NewSource(time.Now().UnixNano())
-	random := rand.New(sourceRandom)
 	for {
 		WriteOverCrud(routerPool, space, random)
 	}
@@ -115,9 +113,10 @@ func main() {
 		log.Fatalln("ConnectionPool is not established:", err)
 	}
 	defer routerPool.Close()
-
+	sourceRandom := rand.NewSource(time.Now().UnixNano())
+	random := rand.New(sourceRandom)
 	for i := 0; i < STREAMS; i++ {
-		go InfinityLoad(routerPool, mode)
+		go InfinityLoad(routerPool, mode, random)
 	}
 
 	log.Printf("To finish the job, press Ctrl+Z\n")
