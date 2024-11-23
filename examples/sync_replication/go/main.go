@@ -18,7 +18,7 @@ import (
 const (
 	USER    = "admin"
 	PASS    = "secret-cluster-cookie"
-	STREAMS = 64
+	STREAMS = 120
 )
 
 var routerUriList = []string{"localhost:3301", "localhost:3302"}
