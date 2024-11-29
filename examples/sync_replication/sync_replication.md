@@ -117,13 +117,13 @@ go run -tags go_tarantool_ssl_disable main.go target=sync
 
 Состояние репликации можно отслеживать в дашборде Replication overview:
 
-![](./images/replication.png)
+![](./images/replication_overview.png)
 
 Обратите внимание на графики Synchronyos queue transactions и Tarantool replication lag. 
 
 При синхронной репликации графики выглядят следующим образом:
 
-![](./images/synchro_queue.png)
+![](./images/synchro_queue_transactions.png)
 
 ![](./images/replication_lag_sync.png)
 
@@ -131,7 +131,7 @@ go run -tags go_tarantool_ssl_disable main.go target=sync
 
 При переключении нагрузки на запись в асинхронный спейс, графики изменяются:
 
-![](./images/asynchro_queue.png)
+![](./images/asynchro_queue_transactions.png)
 
 ![](./images/replication_lag_async.png)
 
