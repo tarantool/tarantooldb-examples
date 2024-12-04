@@ -10,22 +10,24 @@ local function generate_random_count()
     return math.random(1, 10)
 end
 
--- Функция для генерации и вставки
-function generate_inset(space)
+-- Переменная для создания метрик
+local test_insert_count = metrics.counter('test_insert_count', 'The number of data operations')
+
+-- Функция для генерации данных, вставки их в спейс и инкримент метрики
+function generate_inset(space, counter)
     local user_uuid = uuid.str() -- Генерация случайного UUID
     local bucket_id = generate_random_count()
     local count = generate_random_count()
 
     space:insert{user_uuid, bucket_id, count, foo}
-    local test_insert_count = metrics.counter('test_insert_count', 'The number of data operations')
-    test_insert_count:inc(count, { request_type = request_type })
+    counter:inc(count, { request_type = request_type })
 end
 
 -- Функция для запуска задачи каждые 5 секунд
-function start_periodic_task(space)
+_G.start_periodic_task = function(space)
     fiber.create(function()
         while true do
-            generate_inset(space)
+            generate_inset(space, test_insert_count)
             fiber.sleep(5) -- Пауза на 5 секунд
         end
     end)
@@ -41,9 +43,9 @@ local function apply()
     test:create_index('pk', { parts = {'uuid'}, if_not_exists = true })
     test:create_index('bucket_id', { parts = {'bucket_id'}, unique = false, if_not_exists = true})
 
-    helpers.register_sharding_key('async_space', {'uuid'})
+    helpers.register_sharding_key('test', {'uuid'})
 
-    start_periodic_task(test)
+    _G.start_periodic_task(test)
     return true
 end
 

@@ -81,38 +81,40 @@ box.space
 Спейс `test` должен присутствовать в выводе, он создается при запуске кластера.
 
 (user_guide-custom_metrics-files)=
-## Исходные файлы
+## Исходные данные
 
-В файле миграции добавлены глобальные функции
-
+В файле миграции создан набор скриптов:
 ```lua
-function generate_inset(space)
+-- Переменная для создания метрик
+local test_insert_count = metrics.counter('test_insert_count', 'The number of data operations')
+
+-- Функция для генерации данных, вставки их в спейс и инкримент метрики
+function generate_inset(space, counter)
     local user_uuid = uuid.str() -- Генерация случайного UUID
     local bucket_id = generate_random_count()
     local count = generate_random_count()
 
     space:insert{user_uuid, bucket_id, count, foo}
-    local test_insert_count = metrics.counter('test_insert_count', 'The number of data operations')
-    test_insert_count:inc(count, { request_type = request_type })
+    counter:inc(count, { request_type = request_type })
 end
 ```
 Эта функция производит вставку данных в спейс и записывает метрику.
 
-Также добавлена функция периодического выполнения вставки данных
-
+Далее следует глобальная функция с периодической задачей
 ```lua
-function start_periodic_task(space)
+-- Функция для запуска задачи каждые 5 секунд
+_G.start_periodic_task = function(space)
     fiber.create(function()
         while true do
-            generate_inset(space)
+            generate_inset(space, test_insert_count)
             fiber.sleep(5) -- Пауза на 5 секунд
         end
     end)
 end
 ```
-
 Функции начинают работать сразу после развертывания приложения
 
+Больше о создании произвольных метрик вы можете узнать из [документации](https://www.tarantool.io/ru/doc/latest/admin/monitoring/getting_started/#creating-custom-metrics).
 
 ```shell
 cd ./doc/examples/sync_replication/go
