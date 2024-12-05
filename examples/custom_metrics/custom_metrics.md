@@ -114,7 +114,7 @@ end
 ```
 Функции начинают работать сразу после развертывания приложения
 
-Больше о создании произвольных метрик вы можете узнать из [документации](https://www.tarantool.io/ru/doc/latest/admin/monitoring/getting_started/#creating-custom-metrics).
+Больше о работе с метриками вы можете узнать из [документации](https://www.tarantool.io/ru/doc/latest/admin/monitoring/getting_started/#creating-custom-metrics).
 
 ```shell
 cd ./doc/examples/sync_replication/go
