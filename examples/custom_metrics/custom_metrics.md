@@ -83,36 +83,35 @@ box.space
 (user_guide-custom_metrics-files)=
 ## Исходные данные
 
-В файле миграции создан набор скриптов:
+Давайте создадим хранимую процедуру:
 ```lua
+lua_code = [[
+function()
 -- Переменная для создания метрик
-local test_insert_count = metrics.counter('test_insert_count', 'The number of data operations')
+local test_insert_count = require('metrics').counter('test_insert_count', 'The number of data operations')
 
--- Функция для генерации данных, вставки их в спейс и инкримент метрики
-function generate_inset(space, counter)
-    local user_uuid = uuid.str() -- Генерация случайного UUID
-    local bucket_id = generate_random_count()
-    local count = generate_random_count()
-
-    space:insert{user_uuid, bucket_id, count, foo}
-    counter:inc(count, { request_type = request_type })
+-- Функция для генерации метрики
+function generate_count(counter)
+    counter:inc(1, { request_type = request_type })
 end
-```
-Эта функция производит вставку данных в спейс и записывает метрику.
 
-Далее следует глобальная функция с периодической задачей
+generate_count(test_insert_count)
+end
+]]
+
+box.schema.func.create('counter_task', {
+    body = lua_code,
+    language = 'LUA',
+    if_not_exists = true
+})
+```
+После этого нужно скопировать код выше и вставить его в терминал на роутере. Терминал можно найти если в TCM нажать на роутер и выбрать вкладку **Terminal**.
+
+Далее чтобы вызвать функцию `counter_task` нужно выполнить следующее:
 ```lua
--- Функция для запуска задачи каждые 5 секунд
-_G.start_periodic_task = function(space)
-    fiber.create(function()
-        while true do
-            generate_inset(space, test_insert_count)
-            fiber.sleep(5) -- Пауза на 5 секунд
-        end
-    end)
-end
+box.func.counter_task:call()
 ```
-Функции начинают работать сразу после развертывания приложения
+Так мы вызовем хранимую процедуру, которую создали ранее. Ее вызов будет увеличивать значение метрики на `1`.
 
 Больше о работе с метриками вы можете узнать из [документации](https://www.tarantool.io/ru/doc/latest/admin/monitoring/getting_started/#creating-custom-metrics).
 
@@ -128,10 +127,10 @@ cd ./doc/examples/sync_replication/go
 Вставляем в поле `Metrics broswer` значение  `test_insert_count{alias="router-msk"}`
 Должно получится то, что на изображении:
 ![](./images/custom_metrics.png)
-Метрика показывает значение `count`, которое добавляется при каждой вставке.
+Метрика показывает значение `count`, которое добавляется при каждом  вызове хранимой процедуры.
 
 В итоге вы должны увидеть такую картину:
-![](./images/custom_metrics_users_count.png)
+![](./images/custom_metrics_count_grafana.png)
 
 (user_guide-custom_metrics-stop_example)=
 ## Остановка стенда
