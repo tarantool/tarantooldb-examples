@@ -87,15 +87,20 @@ box.space
 ```lua
 lua_code = [[
 function()
--- Переменная для создания метрик
-local test_insert_count = require('metrics').counter('test_insert_count', 'The number of data operations')
+    -- Проверяем, была ли переменная уже инициализирована
+    if _G.test_insert_count == nil then
+        -- Инициализируем переменную только один раз
+        _G.test_insert_count = require('metrics').counter('test_insert_count', 'The number of data operations')
+    end
 
--- Функция для генерации метрики
-function generate_count(counter)
-    counter:inc(1, { request_type = request_type })
-end
+    -- Функция для генерации метрики
+    local function generate_count(counter)
+        local request_type = 'default' -- Убедитесь, что request_type определен
+        counter:inc(1, { request_type = request_type })
+    end
 
-generate_count(test_insert_count)
+    -- Вызываем функцию генерации метрики
+    generate_count(_G.test_insert_count)
 end
 ]]
 
