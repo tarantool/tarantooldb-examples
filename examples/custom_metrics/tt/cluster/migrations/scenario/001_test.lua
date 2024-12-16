@@ -1,16 +1,39 @@
 local helpers = require('tt-migrations.helpers')
 
 local function apply()
-    local test = box.schema.space.create('test', { if_not_exists = true })
-    test:format({
-        { name = 'uuid', type = 'string' },
-        { name = 'bucket_id', type = 'unsigned' },
-        { name = 'count', type = 'number' },
-    })
-    test:create_index('pk', { parts = {'uuid'}, if_not_exists = true })
-    test:create_index('bucket_id', { parts = {'bucket_id'}, unique = false, if_not_exists = true})
+    lua_code = [[
+    function()
+        -- Проверяем, была ли переменная уже инициализирована
+        if _G.test_insert_count == nil then
+            -- Инициализируем переменную только один раз
+            _G.test_insert_count = require('metrics').counter('test_insert_count', 'The number of data operations')
+        end
 
-    helpers.register_sharding_key('test', {'uuid'})
+        -- Функция для генерации метрики
+        local function update_metric(counter)
+            -- Здесь происходит обновление значения метрики. Каждая пара время-значение сопровождается
+            -- меткой. В качестве метки выступает структура с произвольными пользовательскими
+            -- данными, необходимыми для построения нужных графиков. К такой структуре применяется условие,
+            -- что количество вариантов значений внутри такой структуры должно быть ограничено, чтобы не
+            -- перегрузить БД, собирающую метрики (как правило это одна из Time Series баз данных).
+
+            local label_pairs = {
+                request_type = 'default',
+            }
+            counter:inc(1, label_pairs) -- Увеличиваем значение счётчика на единицу и одновременно подписываем
+                                        -- эту новую пару время-значение
+        end
+
+        -- Вызываем функцию генерации метрики
+        update_metric(_G.test_insert_count)
+    end
+    ]]
+
+    box.schema.func.create('counter_task', {
+        body = lua_code,
+        language = 'LUA',
+        if_not_exists = true
+    })
     return true
 end
 

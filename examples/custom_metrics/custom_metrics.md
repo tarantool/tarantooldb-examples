@@ -119,7 +119,8 @@ box.schema.func.create('counter_task', {
     if_not_exists = true
 })
 ```
-После этого нужно скопировать код выше и вставить его в терминал на роутере. Терминал можно найти если в TCM нажать на роутер и выбрать вкладку **Terminal**.
+После этого нужно скопировать код выше и вставить его в терминал на роутере, если вы перезапускали инстансы. В противном случае копировать не нужно, так как код выше применяется вместе с миграцией. 
+Терминал можно найти если в TCM нажать на роутер и выбрать вкладку **Terminal**.
 
 Далее чтобы вызвать функцию `counter_task` нужно выполнить следующее:
 ```lua
@@ -129,9 +130,6 @@ box.func.counter_task:call()
 
 Больше о работе с метриками вы можете узнать из [документации](https://www.tarantool.io/ru/doc/latest/reference/reference_lua/metrics/#metrics-api-reference-custom-metrics).
 
-```shell
-cd ./doc/examples/sync_replication/go
-```
 (user_guide-custom_metrics-watch_metrics)=
 ## Просмотр метрики
 
