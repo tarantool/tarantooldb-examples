@@ -100,15 +100,7 @@ box.func.counter_task:call()
 (user_guide-custom_metrics-stop_example)=
 ## Остановка стенда
 
-Для остановки стенда:
-
-* В первом локальном терминале вернитесь в директорию `sync_replication/tt`:
-
-  ```shell
-  cd ./doc/examples/custom_metrics/tt
-  ```
-
-  Выполните следующую команду:
+Для остановки стенда выполните следующую команду:
 
   ```shell
   make stop
