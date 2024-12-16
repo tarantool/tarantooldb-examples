@@ -121,5 +121,3 @@ box.func.counter_task:call()
   ```shell
   make stop
   ```
-
-* Во втором локальном терминале выполните команду `Ctrl + Z`.
