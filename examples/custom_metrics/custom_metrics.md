@@ -109,7 +109,7 @@ function()
     end
 
     -- Вызываем функцию генерации метрики
-    generate_count(_G.test_insert_count)
+    update_metric(_G.test_insert_count)
 end
 ]]
 
