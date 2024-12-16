@@ -127,7 +127,7 @@ box.func.counter_task:call()
 ```
 Так мы вызовем хранимую процедуру, которую создали ранее. Ее вызов будет увеличивать значение метрики на `1`.
 
-Больше о работе с метриками вы можете узнать из [документации](https://www.tarantool.io/ru/doc/latest/admin/monitoring/getting_started/#creating-custom-metrics).
+Больше о работе с метриками вы можете узнать из [документации](https://www.tarantool.io/ru/doc/latest/reference/reference_lua/metrics/#metrics-api-reference-custom-metrics).
 
 ```shell
 cd ./doc/examples/sync_replication/go
