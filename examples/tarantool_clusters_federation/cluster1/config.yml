@@ -32,6 +32,7 @@ groups:
       - roles.crud-router
       - roles.tcf-coordinator
       - roles.tcf-worker
+      - roles.httpd
     replicasets:
       router-msk:
         leader: router-msk
@@ -47,8 +48,6 @@ groups:
                 replication_password: secret
                 status_ttl: 4
                 enable_system_check: true
-                http:
-                  listen: cluster1-router-msk:8082
 
                 storage: etcd_v3
                 storage_params:
@@ -56,6 +55,10 @@ groups:
                     - http://etcd1:2379
                     - http://etcd2:2379
                     - http://etcd3:2379
+
+              roles.httpd:
+                default:
+                  listen: 8082
 
               roles.tcf-coordinator:
                 failover_timeout: 20
@@ -91,15 +94,16 @@ groups:
                 status_ttl: 4
                 enable_system_check: true
 
-                http:
-                  listen: cluster1-router-spb:8082
-
                 storage: etcd_v3
                 storage_params:
                   endpoints:
                     - http://etcd1:2379
                     - http://etcd2:2379
                     - http://etcd3:2379
+
+              roles.httpd:
+                default:
+                  listen: 8082
 
               roles.tcf-coordinator:
                 failover_timeout: 20
@@ -124,6 +128,7 @@ groups:
     roles:
       - roles.crud-storage
       - roles.tcf-worker
+      - roles.httpd
     replicasets:
       storage-1:
         leader: storage-1-msk
@@ -143,15 +148,16 @@ groups:
                 status_ttl: 4
                 enable_system_check: true
 
-                http:
-                  listen: cluster1-storage-1-msk:8082
-
                 storage: etcd_v3
                 storage_params:
                   endpoints:
                     - http://etcd1:2379
                     - http://etcd2:2379
                     - http://etcd3:2379
+
+              roles.httpd:
+                default:
+                  listen: 8082
 
             iproto:
               listen:
@@ -173,15 +179,16 @@ groups:
                 status_ttl: 4
                 enable_system_check: true
 
-                http:
-                  listen: cluster1-storage-1-spb:8082
-
                 storage: etcd_v3
                 storage_params:
                   endpoints:
                     - http://etcd1:2379
                     - http://etcd2:2379
                     - http://etcd3:2379
+
+              roles.httpd:
+                default:
+                  listen: 8082
 
             iproto:
               listen:
@@ -203,15 +210,16 @@ groups:
                 status_ttl: 4
                 enable_system_check: true
 
-                http:
-                  listen: cluster1-storage-1-brn:8082
-
                 storage: etcd_v3
                 storage_params:
                   endpoints:
                     - http://etcd1:2379
                     - http://etcd2:2379
                     - http://etcd3:2379
+
+              roles.httpd:
+                default:
+                  listen: 8082
 
             iproto:
               listen:
@@ -236,15 +244,16 @@ groups:
                 status_ttl: 4
                 enable_system_check: true
 
-                http:
-                  listen: cluster1-storage-2-msk:8082
-
                 storage: etcd_v3
                 storage_params:
                   endpoints:
                     - http://etcd1:2379
                     - http://etcd2:2379
                     - http://etcd3:2379
+
+              roles.httpd:
+                default:
+                  listen: 8082
 
             iproto:
               listen:
@@ -266,15 +275,16 @@ groups:
                 status_ttl: 4
                 enable_system_check: true
 
-                http:
-                  listen: cluster1-storage-2-spb:8082
-
                 storage: etcd_v3
                 storage_params:
                   endpoints:
                     - http://etcd1:2379
                     - http://etcd2:2379
                     - http://etcd3:2379
+
+              roles.httpd:
+                default:
+                  listen: 8082
 
             iproto:
               listen:
@@ -296,15 +306,16 @@ groups:
                 status_ttl: 4
                 enable_system_check: true
 
-                http:
-                  listen: cluster1-storage-2-brn:8082
-
                 storage: etcd_v3
                 storage_params:
                   endpoints:
                     - http://etcd1:2379
                     - http://etcd2:2379
                     - http://etcd3:2379
+
+              roles.httpd:
+                default:
+                  listen: 8082
 
             iproto:
               listen:
