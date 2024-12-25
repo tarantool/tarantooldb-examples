@@ -1,6 +1,6 @@
 module main
 
-go 1.21.1
+go 1.23
 
 require github.com/tarantool/go-tarantool/v2 v2.0.0-20240119083215-7ce27840782c
 
