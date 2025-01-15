@@ -198,8 +198,8 @@ tarantool-router-msk:3301> crud.select('users', {{"==", "name", "John Doe"}})
 - null
 ...
 
-tarantool-router-msk:3301> crud.update('users', require('uuid').fromstr('04e7f
-6a2-2979-46e4-8d71-e80217e3aac3'), {{'=', 'name', "John Doevelyn"}})
+tarantool-router-msk:3301> crud.update('users', require('uuid').fromstr('04e7f6a2-2979-46e4-8d71-e80217e3aac3'),
+ {{'=', 'name', "John Doevelyn"}})
 ---
 - rows: []
   metadata: [{'name': 'user_id', 'type': 'uuid'}, {'name': 'bucket_id', 'type': 'unsigned'},
@@ -207,8 +207,8 @@ tarantool-router-msk:3301> crud.update('users', require('uuid').fromstr('04e7f
 - null
 ...
 
-tarantool-router-msk:3301> crud.update('users', require('uuid').fromstr('ccccc
-ccc-0000-0000-0000-000000000001'), {{'=', 'name', "John Doevelyn"}})
+tarantool-router-msk:3301> crud.update('users', require('uuid').fromstr('cccccccc-0000-0000-0000-000000000001'),
+ {{'=', 'name', "John Doevelyn"}})
 ---
 - rows:
   - [cccccccc-0000-0000-0000-000000000001, 24745, 'John Doevelyn', 'john.doe@example.com']
@@ -217,8 +217,7 @@ ccc-0000-0000-0000-000000000001'), {{'=', 'name', "John Doevelyn"}})
 - null
 ...
 
-tarantool-router-msk:3301> crud.get('users', require('uuid').fromstr('cccccccc
--0000-0000-0000-000000000001'))
+tarantool-router-msk:3301> crud.get('users', require('uuid').fromstr('cccccccc-0000-0000-0000-000000000001'))
 ---
 - rows:
   - [cccccccc-0000-0000-0000-000000000001, 24745, 'John Doevelyn', 'john.doe@example.com']
@@ -227,8 +226,7 @@ tarantool-router-msk:3301> crud.get('users', require('uuid').fromstr('cccccccc
 - null
 ...
 
-tarantool-router-msk:3301> crud.delete('users', require('uuid').fromstr('ccccc
-ccc-0000-0000-0000-000000000001'))
+tarantool-router-msk:3301> crud.delete('users', require('uuid').fromstr('cccccccc-0000-0000-0000-000000000001'))
 ---
 - rows:
   - [cccccccc-0000-0000-0000-000000000001, 24745, 'John Doevelyn', 'john.doe@example.com']

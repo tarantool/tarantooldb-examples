@@ -206,7 +206,7 @@ local function apply()
             ]],
         })
 
-         -- __create_example_data_mant используется для заполнения кластера тестовыми данными в большом объеме
+         -- __generate_data используется для заполнения кластера тестовыми данными в большом объеме
         box.schema.func.create('__generate_data', {
             language = 'LUA',
             if_not_exists = true,
@@ -218,30 +218,40 @@ local function apply()
                     local final_size = size or 450000
                     local projects, tasks, users = {}, {}, {}
                     local batch_size = 1000
-                    for n = 1, size do
+
+                    for n = 1, final_size do
+                        local project_id = uuid.new()
+                        local user_id = uuid.new()
+
                         table.insert(projects, {
-                            project_id = uuid.new(),
-                            name = 'Task Management ' .. i,
-                            description = 'Development of a task management system ' .. i,
+                            project_id = project_id,
+                            name = 'Task Management ' .. n,
+                            description = 'Development of a task management system ' .. n,
                         })
                         table.insert(users, {
-                            user_id = uuid.new(),
-                            name = 'john_doe ' .. i,
-                            email = 'john.doe' .. i .. "@example.com"
+                            user_id = user_id,
+                            name = 'john_doe ' .. n,
+                            email = 'john.doe' .. n .. "@example.com"
                         })
                         table.insert(tasks, {
                             task_id = uuid.new(),
                             name = 'Create New Logo',
                             description = 'Design a new logo for the website.',
                             status = 'Not Started',
-                            project_id = uuid.new(),
-                            assigned_user_id = uuid.new(),
+                            project_id = project_id,
+                            assigned_user_id = user_id,
                         })
 
-                        if (n % batch_size == 0) or (n == size) then
-                            crud.replace_object_many('projects', projects)
-                            crud.replace_object_many('users', users)
-                            crud.replace_object_many('tasks', tasks)
+                        if (n % batch_size == 0) or (n == final_size) then
+                            local status, err
+                            status, err = pcall(function() crud.replace_object_many('projects', projects) end)
+                            if not status then error('Failed to insert projects: ' .. tostring(err)) end
+
+                            status, err = pcall(function() crud.replace_object_many('users', users) end)
+                            if not status then error('Failed to insert users: ' .. tostring(err)) end
+
+                            status, err = pcall(function() crud.replace_object_many('tasks', tasks) end)
+                            if not status then error('Failed to insert tasks: ' .. tostring(err)) end
 
                             projects, tasks, users = {}, {}, {}
                             fiber.yield()
