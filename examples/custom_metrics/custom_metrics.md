@@ -1,32 +1,34 @@
-(user_guide-custom_metrics)=
-# Пример создания пользовательской метрики
+(admin_guide-custom_metrics)=
+# Создание пользовательской метрики
 
-В примере демонстрируется создание произвольной метрики.
-Для этого будет использован модуль metrics и пользовательский код на lua.
+В примере демонстрируется создание произвольной метрики, для этого используются модуль [metrics](https://www.tarantool.io/ru/doc/latest/reference/reference_lua/metrics/) и
+пользовательский код на языке Lua.
+
+Узнать больше о пользовательских метриках можно в [документации Tarantool](https://www.tarantool.io/ru/doc/latest/reference/reference_lua/metrics/#metrics-api-reference-custom-metrics).
 
 Для мониторинга используются:
 
 * [Prometheus](https://prometheus.io/) -- сбор и хранение метрик;
 * [Grafana](https://grafana.com/) -- визуализация метрик.
+
 Содержание:
 
-* [](user_guide-custom_metrics-prereq)
-* [](user_guide-custom_metrics-start_example)
-* [](user_guide-custom_metrics-files)
-* [](user_guide-custom_metrics-watch_metrics)
-* [](user_guide-custom_metrics-stop_example)
+* [](admin_guide-custom_metrics-prereq)
+* [](admin_guide-custom_metrics-start_example)
+* [](admin_guide-custom_metrics-function)
+* [](admin_guide-custom_metrics-watch_metrics)
+* [](admin_guide-custom_metrics-stop_example)
 
-(user_guide-sync_replication-prereq)=
+(admin_guide-custom_metrics-prereq)=
 ## Пререквизиты
 
 Для выполнения примера требуются:
 
 * установленный [Docker-образ](install_docker-image) Tarantool DB;
 * приложение Docker Compose;
-* Go;
 * исходные файлы примера `custom_metrics`.
  
-(user_guide-sync_replication-start_example)=
+(admin_guide-custom_metrics-start_example)=
 ## Запуск стенда
 
 Для успешного запуска должны быть свободны следующие порты:
@@ -39,19 +41,18 @@
 Перейдите в директорию `custom_metrics/tt`:
 
 ```shell
-cd ./doc/examples/sync_replication/tt
+cd ./doc/examples/custom_metrics/tt
 ```
 
-Стенд состоит из:
-- кластера Tarantool DB:
-  - 1 роутера;
-  - 1 набора реплик по 3 хранилища;
-- кластера etcd из 3 узлов;
+Стенд состоит из следующих компонентов:
+- кластер Tarantool DB:
+  - 1 роутер;
+  - 1 набор реплик по 3 хранилища;
+- кластер etcd из 3 узлов;
 - 1 [Tarantool Cluster Manager](getting_started-tcm) (TCM);
-- клиентского приложения, подающего нагрузку;
-- средств мониторинга -- [Prometheus](https://prometheus.io/), [Grafana](https://grafana.com/).
+- средства мониторинга -- [Prometheus](https://prometheus.io/), [Grafana](https://grafana.com/).
 
-Запустите всё, кроме клиентского приложения, следующей командой:
+Запустите всё следующей командой:
 
 ```shell
 make start
@@ -59,7 +60,8 @@ make start
 
 После запуска должны работать все контейнеры, кроме [init_host](admin_guide-deploy_docker_compose-init_host).
 
-Также после запуска доступны следующие пользовательские интерфейсы:
+Также после запуска становятся доступны следующие пользовательские интерфейсы:
+
 * [http://localhost:8081](http://localhost:8081) -- веб-интерфейс TCM;
 * [http://localhost:3000](http://localhost:3000) -- веб-интерфейс Grafana.
 
@@ -69,39 +71,54 @@ make start
 - **Username**: `admin`
 - **Password**: `secret`
 
-В TCM откройте вкладку **Stateboard**.
+(admin_guide-custom_metrics-function)=
+## Вызов хранимой функции
 
+На завершающем этапе запуска кластера выполняется публикация YAML-конфигурации кластера в [централизованное хранилище](https://www.tarantool.io/ru/doc/latest/tooling/tt_cli/cluster/#publish)
+и применяются [миграции](user_guide-migrations).
+В примере выполняется миграция из файла `./tt/cluster/migrations/scenario/001_test.lua` примера `custom_metrics`.
+В ходе этой миграции создается хранимая функция `counter_task`.
+Каждый вызов этой функции будет увеличивать значение метрики на единицу.
+Исходный код функции выглядит так:
 
-(user_guide-custom_metrics-files)=
-## Исходные данные
-
-В коде миграций создана хранимая процедура. 
-Миграции можно найти в по пути `doc/examples/custom_metrics/tt/cluster/migrations/scenario/001_test.lua`.
-
-Далее чтобы вызвать функцию `counter_task` нужно перейти в терминал (вкладка **Terminal** на роутере в TCM) выполнить следующее:
-
-```lua
-box.func.counter_task:call()
+```{literalinclude} cluster/migrations/scenario/001_test.lua
+:start-at: function()
+:end-before: box.schema.func.create
+:language: lua
+:dedent:
 ```
-Так мы вызовем хранимую процедуру, которую создали ранее. Ее вызов будет увеличивать значение метрики на `1`.
 
-Больше о работе с метриками вы можете узнать из [документации](https://www.tarantool.io/ru/doc/latest/reference/reference_lua/metrics/#metrics-api-reference-custom-metrics).
+Чтобы вызвать хранимую функцию `counter_task`:
 
-(user_guide-custom_metrics-watch_metrics)=
-## Просмотр метрики
+1. В TCM откройте вкладку **Stateboard**.
+2. Выберите в наборе реплик `router-msk` узел `router-msk` и в открывшемся окне перейдите на вкладку **Terminal**.
+3. Во вкладке **Terminal** выполните следующую команду:
 
-Перейдем в графану по url `http://127.0.0.1:3000/`
+   ```lua
+   box.func.counter_task:call()
+   ```
 
-Откроем дашборд Cluster Overview. Там в самом низу должен быть график `Custom count`.
+(admin_guide-custom_metrics-watch_metrics)=
+## Просмотр метрики в Grafana
+
+Откройте в браузере веб-интерфейс Grafana по адресу [http://localhost:3000/dashboards](http://localhost:3000/dashboards).
+В списке **Dashboards** выберите панель **Tarantool 3 dashboard** в папке **General**.
+Проверьте, что графики показывают данные за последние 15 минут, а частота обновления равна 5 секундам.
+
+Разверните панель **Cluster Overview** и откройте график **Custom count**.
+Чтобы развернуть график на полный экран, нажмите на графике кнопку **...** (**Menu**) в правом верхнем углу и нажмите в выпадающем меню
+кнопку **View**.
+
 ![](images/custom_count.png)
-После вызова хранимой процедуры значение на графике должно увеличиваться на `1`.
-В графике используется выражение `test_insert_count{alias="router-msk"}`, его мы задали в хранимой процедуре.
 
-(user_guide-custom_metrics-stop_example)=
+После каждого вызова хранимой функции `counter_task` значение `restores per second` на графике должно увеличиваться на 1.
+В графике используется выражение `test_insert_count{alias="router-msk"}`, которое было задано в хранимой процедуре.
+
+(admin_guide-custom_metrics-stop_example)=
 ## Остановка стенда
 
 Для остановки стенда выполните следующую команду:
 
-  ```shell
-  make stop
-  ```
+```shell
+make stop
+```

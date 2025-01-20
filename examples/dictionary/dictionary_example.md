@@ -121,7 +121,7 @@ box.schema.func.call('dictionary_router_set', 'categories', '1', 'Shops')
 Вызвать метод в старом формате можно напрямую, например:
 
 ```lua
-dictionary_router_set('categories', '1', 'Shops')
+dictionary_router.set('categories', '1', 'Shops')
 ```
 (user_guide-dictionary_example-write_data-note_end)=
 
