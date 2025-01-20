@@ -1,4 +1,4 @@
-(user_guide-tracing_jaeger)=
+(admin_guide-tracing_jaeger)=
 # Трассировка с использованием Jaeger
 
 В этом руководстве описано, как настроить трассировку функций, а также просмотреть и оценить результаты трассировки
@@ -8,13 +8,13 @@
 
 Руководство включает следующие шаги:
 
-* [](user_guide-tracing_jaeger-prereq)
-* [](user_guide-tracing_jaeger-start_example)
-* [](user_guide-tracing_jaeger-set_config)
-* [](user_guide-tracing_jaeger-tracing_result)
-* [](user_guide-tracing_jaeger-stop_example)
+* [](admin_guide-tracing_jaeger-prereq)
+* [](admin_guide-tracing_jaeger-start_example)
+* [](admin_guide-tracing_jaeger-set_config)
+* [](admin_guide-tracing_jaeger-tracing_result)
+* [](admin_guide-tracing_jaeger-stop_example)
 
-(user_guide-tracing_jaeger-prereq)=
+(admin_guide-tracing_jaeger-prereq)=
 ## Пререквизиты
 
 Для выполнения примера требуются:
@@ -37,7 +37,7 @@
   * Отдельный архив [tracing.tar.gz](https://tarantool.io/ru/tarantooldb/doc/1.x/examples/tracing/tracing.tar.gz), скачанный c сайта Tarantool.
   ```
 
-(user_guide-tracing_jaeger-start_example)=
+(admin_guide-tracing_jaeger-start_example)=
 ## Запуск стенда и подключение к узлу
 
 Перейдите в директорию примера `tracing`:
@@ -59,7 +59,7 @@ cd ./doc/examples/tracing/
 tt connect admin:secret-cluster-cookie@localhost:3300
 ```
 
-(user_guide-tracing_jaeger-set_config)=
+(admin_guide-tracing_jaeger-set_config)=
 ## Определение конфигурации
 
 В конфигурации примера указаны следующие параметры трассировки:
@@ -94,7 +94,7 @@ tt connect admin:secret-cluster-cookie@localhost:3300
 
 Полное описание опций конфигурации `tracing` приведено в соответствующем разделе [Справочника по конфигурации](configuration_reference-tracing).
 
-(user_guide-tracing_jaeger-tracing_result)=
+(admin_guide-tracing_jaeger-tracing_result)=
 ## Оценка результатов трассировки
 
 Запустите несколько тестовых функций на роутере:
@@ -123,7 +123,7 @@ box.func.debug_func:call({"debug_2"})
 
 ![Результат трассировки функции get_token()](images/tracing_get_token.jpg)
 
-(user_guide-tracing_jaeger-stop_example)=
+(admin_guide-tracing_jaeger-stop_example)=
 ## Остановка стенда
 
 Чтобы остановить стенд, выполните следующую команду:
