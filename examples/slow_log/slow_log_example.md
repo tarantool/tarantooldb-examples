@@ -1,19 +1,19 @@
-(user_guide-slow_log-example)=
+(admin_guide-slow_log-example)=
 # Логирование медленных запросов для функций и CRUD-запросов
 
 В этом руководстве описано, как настроить запись медленных запросов в журнал для функций и CRUD-запросов.
 
-Подробнее о модуле `slow_log` можно узнать в разделе [Логирование медленных запросов](user_guide-slow_log).
+Подробнее о модуле `slow_log` можно узнать в разделе [Логирование медленных запросов](admin_guide-slow_log).
 
 Руководство включает следующие шаги:
 
-* [](user_guide-slow_log-prereq)
-* [](user_guide-slow_log-start_example)
-* [](user_guide-slow_log-crud)
-* [](user_guide-slow_log-function)
-* [](user_guide-slow_log-stop_example)
+* [](admin_guide-slow_log-prereq)
+* [](admin_guide-slow_log-start_example)
+* [](admin_guide-slow_log-crud)
+* [](admin_guide-slow_log-function)
+* [](admin_guide-slow_log-stop_example)
 
-(user_guide-slow_log-prereq)=
+(admin_guide-slow_log-prereq)=
 ## Пререквизиты
 
 Для выполнения примера требуются:
@@ -35,7 +35,7 @@
   * Отдельный архив [slow_log.tar.gz](https://tarantool.io/ru/tarantooldb/doc/1.x/examples/slow_log/slow_log.tar.gz), скачанный c сайта Tarantool.
   ```
 
-(user_guide-slow_log-start_example)=
+(admin_guide-slow_log-start_example)=
 ## Запуск стенда
 
 Перейдите в директорию примера `slow_log`:
@@ -53,7 +53,7 @@ docker compose up -d
 Команда поднимает кластер с двумя хранилищами и одним роутером.
 Роль `slow_log` задана на роутере.
 
-Подробная информация о том, как включить логирование медленных запросов и задать соответствующую конфигурацию, приведена в разделе [](user_guide-slow_log-set_config).
+Подробная информация о том, как включить логирование медленных запросов и задать соответствующую конфигурацию, приведена в разделе [](admin_guide-slow_log-set_config).
 
 Чтобы гарантированно получить сообщение в логе, задайте для опции `slow_log.threshold` значение `0` в конфигурационном файле:
 
@@ -61,7 +61,7 @@ docker compose up -d
 threshold: 0
 ```
 
-(user_guide-slow_log-crud)=
+(admin_guide-slow_log-crud)=
 ## Запись CRUD-запросов в журнал
 
 Подключитесь к роутеру с помощью команды `tt connect`:
@@ -99,7 +99,7 @@ docker compose logs | grep 'Function call crud'
 slow_log-tarantool-router-1    | 2023-11-30 14:02:35.599 [12] main/176/main/tarantooldb.app.roles.slow_log I> Function call crud.replace(["data",[1,null,[]]]) was too long: 0.011s
 ```
 
-(user_guide-slow_log-function)=
+(admin_guide-slow_log-function)=
 ## Логирование пользовательской функции
 
 В примере создана персистентная функция `app.wait_for`, которая ждет заданное количество секунд:
@@ -151,7 +151,7 @@ slow_log-tarantool-router-1    | 2023-11-30 14:13:55.740 [12] main/225/main/tara
 Для функции `app.wait_for` будет создана функция `__slow_log_orig_app.wait_for`.
 После отключения модуля функция `__slow_log_orig_app.wait_for` будет удалена.
 
-(user_guide-slow_log-stop_example)=
+(admin_guide-slow_log-stop_example)=
 ## Остановка стенда
 
 Чтобы остановить стенд, выполните следующую команду:
