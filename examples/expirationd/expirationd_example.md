@@ -18,8 +18,8 @@
 ## Пререквизиты
 
 Для выполнения примера требуются:
-* установленный [Docker-образ](/install_and_upgrade/install/install_docker.md) Tarantool DB;
-* приложение Docker compose;
+* установленный [Docker-образ](install_docker-image) Tarantool DB;
+* приложение Docker Compose;
 * утилита [tt CLI](install-install_tt);
 * исходные файлы примера `expirationd`.
 

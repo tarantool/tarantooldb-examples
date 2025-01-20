@@ -1,21 +1,21 @@
-(user_guide-tracing_jaeger)=
+(admin_guide-tracing_jaeger)=
 # Трассировка с использованием Jaeger
 
 В этом руководстве описано, как настроить трассировку функций, а также просмотреть и оценить результаты трассировки
 в веб-интерфейсе [Jaeger](https://www.jaegertracing.io/).
 
-Подробнее о модуле `tracing` можно узнать в разделе [Оценка производительности](user_guide-tracing).
+Подробнее о модуле `tracing` можно узнать в разделе [Оценка производительности](admin_guide-tracing).
 
 Руководство включает следующие шаги:
 
-* [](user_guide-tracing_jaeger-prereq)
-* [](user_guide-tracing_jaeger-start_example)
-* [](user_guide-tracing_jaeger-set_config)
-* [](user_guide-tracing_jaeger-connect)
-* [](user_guide-tracing_jaeger-tracing_result)
-* [](user_guide-tracing_jaeger-stop_example)
+* [](admin_guide-tracing_jaeger-prereq)
+* [](admin_guide-tracing_jaeger-start_example)
+* [](admin_guide-tracing_jaeger-set_config)
+* [](admin_guide-tracing_jaeger-connect)
+* [](admin_guide-tracing_jaeger-tracing_result)
+* [](admin_guide-tracing_jaeger-stop_example)
 
-(user_guide-tracing_jaeger-prereq)=
+(admin_guide-tracing_jaeger-prereq)=
 ## Пререквизиты
 
 Для выполнения примера требуются:
@@ -38,7 +38,7 @@
   * Отдельный архив [tracing.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/tracing/tracing.tar.gz), скачанный c сайта Tarantool.
   ```
 
-(user_guide-tracing_jaeger-start_example)=
+(admin_guide-tracing_jaeger-start_example)=
 ## Запуск стенда
 
 Перейдите в директорию примера `tracing`:
@@ -69,7 +69,7 @@ make start
 - **Username**: `admin`
 - **Password**: `secret`
 
-(user_guide-tracing_jaeger-set_config)=
+(admin_guide-tracing_jaeger-set_config)=
 ## Определение конфигурации
 
 В примере указаны следующие параметры трассировки:
@@ -104,7 +104,7 @@ make start
 
 Полное описание опций конфигурации `tracing` приведено в соответствующем разделе [Справочника по конфигурации](configuration_reference-tracing).
 
-(user_guide-tracing_jaeger-connect)=
+(admin_guide-tracing_jaeger-connect)=
 ## Подключение к узлу
 
 Чтобы начать работу с базой данных через интерактивную консоль Tarantool, нужно подключиться к узлу кластера.
@@ -123,7 +123,7 @@ make start
 2. Нажмите на набор реплик `router`.
 3. Выберите узел `router-msk` и в открывшемся окне перейдите на вкладку **Terminal**.
 
-(user_guide-tracing_jaeger-tracing_result)=
+(admin_guide-tracing_jaeger-tracing_result)=
 ## Оценка результатов трассировки
 
 В TCM во вкладке **Terminal** запустите несколько тестовых функций на роутере:
@@ -151,7 +151,7 @@ box.func.debug_func:call({"debug_2"})
 
 ![Результат трассировки функции get_token()](images/tracing_get_token.jpg)
 
-(user_guide-tracing_jaeger-stop_example)=
+(admin_guide-tracing_jaeger-stop_example)=
 ## Остановка стенда
 
 Чтобы остановить стенд, выполните в локальном терминале следующую команду:

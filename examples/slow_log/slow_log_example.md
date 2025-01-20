@@ -1,19 +1,19 @@
-(user_guide-slow_log-example)=
+(admin_guide-slow_log-example)=
 # Логирование медленных запросов для функций и CRUD-запросов
 
 В этом руководстве описано, как настроить запись медленных запросов в журнал для функций и CRUD-запросов.
-Подробнее о модуле `slow_log` можно узнать в разделе [Логирование медленных запросов](user_guide-slow_log).
+Подробнее о модуле `slow_log` можно узнать в разделе [Логирование медленных запросов](admin_guide-slow_log).
 
 Руководство включает следующие шаги:
 
-* [](user_guide-slow_log-prereq)
-* [](user_guide-slow_log-files)
-* [](user_guide-slow_log-start_example)
-* [](user_guide-slow_log-crud)
-* [](user_guide-slow_log-function)
-* [](user_guide-slow_log-stop_example)
+* [](admin_guide-slow_log-prereq)
+* [](admin_guide-slow_log-files)
+* [](admin_guide-slow_log-start_example)
+* [](admin_guide-slow_log-crud)
+* [](admin_guide-slow_log-function)
+* [](admin_guide-slow_log-stop_example)
 
-(user_guide-slow_log-prereq)=
+(admin_guide-slow_log-prereq)=
 ## Пререквизиты
 
 Для выполнения примера требуются:
@@ -35,7 +35,7 @@
   * Отдельный архив [slow_log.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/slow_log/slow_log.tar.gz), скачанный c сайта Tarantool.
   ```
 
-(user_guide-slow_log-files)=
+(admin_guide-slow_log-files)=
 ## Используемые файлы
 
 Для запуска и настройки кластера используются файлы из папки `slow_log`:
@@ -48,7 +48,7 @@
   * `docker-compose.yml` -- описание узлов кластера etcd;
   * `tcm.yml` -- конфигурация для запуска [Tarantool Cluster Manager](https://www.tarantool.io/ru/doc/latest/tooling/tcm/).
 
-(user_guide-slow_log-start_example)=
+(admin_guide-slow_log-start_example)=
 ## Запуск стенда
 
 Для успешного запуска должны быть свободны следующие порты:
@@ -98,7 +98,7 @@ box.space
 Чтобы проверить это, перейдите в выбранном роутере на вкладку **Details**.
 Видно, что в поле `roles` заданы роли `roles.crud-router` и `app.roles.slow_log`.
 
-(user_guide-slow_log-crud)=
+(admin_guide-slow_log-crud)=
 ## Запись CRUD-запросов в журнал
 
 В примере данные хранятся в спейсе `data`, который имеет следующий формат:
@@ -144,7 +144,7 @@ docker compose logs | grep 'Function call crud'
 slow_log-tarantool-router-1    | 2023-11-30 14:02:35.599 [12] main/176/main/tarantooldb.app.roles.slow_log I> Function call crud.replace(["data",[1,null,[]]]) was too long: 0.011s
 ```
 
-(user_guide-slow_log-function)=
+(admin_guide-slow_log-function)=
 ## Логирование пользовательской функции
 
 В примере создана персистентная функция `app.wait_for`, которая ждет заданное количество секунд:
@@ -190,7 +190,7 @@ slow_log-tarantool-router-1    | 2023-11-30 14:13:55.740 [12] main/225/main/tara
 Для функции `app.wait_for` будет создана функция `__slow_log_orig_app.wait_for`.
 После отключения модуля функция `__slow_log_orig_app.wait_for` будет удалена.
 
-(user_guide-slow_log-stop_example)=
+(admin_guide-slow_log-stop_example)=
 ## Остановка стенда
 
 Чтобы остановить стенд, выполните в локальном терминале следующую команду:
