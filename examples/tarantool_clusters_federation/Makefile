@@ -16,6 +16,7 @@ start:
 			&& echo Load config done"
 	cd cluster1 && docker compose up -d --build
 	cd cluster2 && docker compose up -d --build
+	cd tcf && docker compose up -d --build
 
 stop:
 	cd tcf && docker compose down
