@@ -81,7 +81,7 @@ make start
 Каждый вызов этой функции будет увеличивать значение метрики на единицу.
 Исходный код функции выглядит так:
 
-```{literalinclude} cluster/migrations/scenario/001_test.lua
+```{literalinclude} tt/cluster/migrations/scenario/001_test.lua
 :start-at: function()
 :end-before: box.schema.func.create
 :language: lua
