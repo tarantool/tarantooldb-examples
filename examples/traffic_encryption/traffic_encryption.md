@@ -1,3 +1,4 @@
+(admin_guide-traffic_encryption)=
 # Шифрование трафика
 
 Tarantool DB позволяет шифровать трафик по IPROTO при запросах от клиента и при репликации.
