@@ -21,6 +21,7 @@ cluster:
 initial-settings:
   clusters:
     - name: Tarantool DB Cluster
+      id: 00000000-0000-0000-0000-000000000000
       storage-connection:
         provider: tarantool
         tarantool-connection:
@@ -34,5 +35,3 @@ initial-settings:
       tarantool-connection:
         username: "admin"
         password: "secret-cluster-cookie"
-      users:
-        - 00000000-0000-0000-0000-000000000000
