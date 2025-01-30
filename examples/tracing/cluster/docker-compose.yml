@@ -1,34 +1,34 @@
 services:
-  tarantool-router-msk:
+  tarantool-api-1:
     image: tarantooldb:2x-latest
     networks:
       - tarantooldb_network
     ports:
       - "3301:3301"
     environment:
-      - TT_INSTANCE_NAME=router-msk
+      - TT_INSTANCE_NAME=api-1
       - TT_CONFIG_ETCD_ENDPOINTS=http://etcd1:2379,http://etcd2:2379,http://etcd3:2379
       - TT_CONFIG_ETCD_PREFIX=/tdb
       - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
-  tarantool-storage-1-msk:
+  tarantool-worker-1:
     image: tarantooldb:2x-latest
     networks:
       - tarantooldb_network
     ports:
       - "3303:3301"
     environment:
-      - TT_INSTANCE_NAME=storage-1-msk
+      - TT_INSTANCE_NAME=worker-1
       - TT_CONFIG_ETCD_ENDPOINTS=http://etcd1:2379,http://etcd2:2379,http://etcd3:2379
       - TT_CONFIG_ETCD_PREFIX=/tdb
       - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
-  tarantool-storage-2-msk:
+  tarantool-worker-2:
     image: tarantooldb:2x-latest
     networks:
       - tarantooldb_network
     ports:
       - "3304:3301"
     environment:
-      - TT_INSTANCE_NAME=storage-2-msk
+      - TT_INSTANCE_NAME=worker-2
       - TT_CONFIG_ETCD_ENDPOINTS=http://etcd1:2379,http://etcd2:2379,http://etcd3:2379
       - TT_CONFIG_ETCD_PREFIX=/tdb
       - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
@@ -40,17 +40,16 @@ services:
     volumes:
       - ./migrations/:/app/tarantooldb/migrations/
     depends_on:
-      - tarantool-router-msk
-      - tarantool-storage-1-msk
-      - tarantool-storage-2-msk
+      - tarantool-api-1
+      - tarantool-worker-1
+      - tarantool-worker-2
     environment:
       - TT_CLI_USERNAME=admin
       - TT_CLI_PASSWORD=secret-cluster-cookie
     command: /bin/sh -c "\
-        tools/client/wait_instance_ready.sh 15 tarantool-router-msk:3301 \
-        && tools/client/wait_instance_ready.sh 15 tarantool-storage-1-msk:3301 \
-        && tools/client/wait_instance_ready.sh 15 tarantool-storage-2-msk:3301 \
-        && tt replicaset vshard bootstrap tarantool-router-msk:3301 \
+        tools/client/wait_instance_ready.sh 15 tarantool-api-1:3301 \
+        && tools/client/wait_instance_ready.sh 15 tarantool-worker-1:3301 \
+        && tools/client/wait_instance_ready.sh 15 tarantool-worker-2:3301 \
         && tt migrations publish http://etcd1:2379/tdb migrations \
         && tt migrations apply http://etcd1:2379/tdb \
         && echo Initialize has completed successfully."
