@@ -325,7 +325,7 @@ objects
 Функция [reduce (foldl)](https://luafun.github.io/reducing.html#fun.foldl) уменьшает итератор слева направо:
 
 ```lua
-age_sum = crud.pairs('developers', nil, { use_tomap = true }):reduce(function(acc, x)
+age_sum = crud.pairs('customers', nil, { use_tomap = true }):reduce(function(acc, x)
     return acc + x.age
 end, 0)
 
@@ -336,7 +336,7 @@ age_sum
 
 ```yaml
 ---
-- 172
+- 1441
 ...
 ```
 
