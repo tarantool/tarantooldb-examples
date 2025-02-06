@@ -70,7 +70,7 @@ make start
 - **Password**: `secret`
 
 В TCM откройте вкладку **Stateboard**.
-Выберите в наборе реплик `router-msk` узел `router-msk` и в открывшемся окне перейдите на вкладку **Terminal**.
+Выберите в наборе реплик `storage-1` узел `storage-1-msk` и в открывшемся окне перейдите на вкладку **Terminal**.
 Во вкладке **Terminal** проверьте наличие спейса `messages`:
 
 ```lua
