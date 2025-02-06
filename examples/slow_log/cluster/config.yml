@@ -23,6 +23,14 @@ iproto:
 sharding:
   bucket_count: 30000
 
+roles_cfg:
+  app.roles.slow_log:
+    enable: false
+    threshold: 0.0
+    namespaces:
+      - app
+      - crud
+
 groups:
   routers:
     replication:
