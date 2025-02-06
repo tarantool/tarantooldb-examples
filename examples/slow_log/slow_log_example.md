@@ -9,6 +9,7 @@
 * [](admin_guide-slow_log-prereq)
 * [](admin_guide-slow_log-files)
 * [](admin_guide-slow_log-start_example)
+* [](admin_guide-slow_log-enable)
 * [](admin_guide-slow_log-crud)
 * [](admin_guide-slow_log-function)
 * [](admin_guide-slow_log-stop_example)
@@ -98,6 +99,19 @@ box.space
 Чтобы проверить это, перейдите в выбранном роутере на вкладку **Details**.
 Видно, что в поле `roles` заданы роли `roles.crud-router` и `app.roles.slow_log`.
 
+(admin_guide-slow_log-enable)=
+## Включение журнала медленных запросов
+
+Чтобы включить логирование медленных запросов:
+1. В TCM перейдите на вкладку **Configuration**.
+2. В секции конфигурации `roles_cfg` замените `enable: false` на `enable: true`:
+   ```yaml
+   roles_cfg:
+     app.roles.slow_log:
+       enable: true # <--
+   ```
+3. Нажмите кнопку **Apply**.
+
 (admin_guide-slow_log-crud)=
 ## Запись CRUD-запросов в журнал
 
@@ -135,13 +149,16 @@ require('crud').replace("data", {1, box.NULL, {}})
 Вернитесь в локальный терминал и просмотрите логи приложения:
 
 ```shell
-docker compose logs | grep 'Function call crud'
+cd cluster
+docker compose logs tarantool-router-msk | grep 'Function call crud'
+cd ..
 ```
 
 Запись в логе может выглядеть так:
 
 ```shell
-slow_log-tarantool-router-1    | 2023-11-30 14:02:35.599 [12] main/176/main/tarantooldb.app.roles.slow_log I> Function call crud.replace(["data",[1,null,[]]]) was too long: 0.011s
+tarantool-router-msk-1  | 2025-02-05 11:17:23.203 [1] main/231/main/app.roles.slow_log slow_log.lua:21
+I> Function call crud.replace(["data",[1,null,[]]]) was too long: 0.000s
 ```
 
 (admin_guide-slow_log-function)=
@@ -174,15 +191,17 @@ box.schema.func.call('app.wait_for', 3)
 Вернитесь в локальный терминал и просмотрите логи приложения:
 
 ```shell
-docker compose logs | grep wait_for
+cd cluster
+docker compose logs tarantool-router-msk | grep wait_for
+cd ..
 ```
 
 Запись в логе может выглядеть так:
 
 ```
-slow_log-tarantool-router-1    | 2023-11-30 14:13:52.738 [12] main/225/main/tarantool I> start wait_for 3
-slow_log-tarantool-router-1    | 2023-11-30 14:13:55.740 [12] main/225/main/tarantool I> stop wait_for 3
-slow_log-tarantool-router-1    | 2023-11-30 14:13:55.740 [12] main/225/main/tarantooldb.app.roles.slow_log I> Function call app.wait_for([3]) was too long: 3.002s
+tarantool-router-msk-1  | 2025-02-05 11:55:16.351 [1] main/792/main/tarantool [string "return                     function(sleep_tim..."]:4 I> start wait_for 3
+tarantool-router-msk-1  | 2025-02-05 11:55:19.351 [1] main/792/main/tarantool [string "return                     function(sleep_tim..."]:6 I> stop wait_for 3
+tarantool-router-msk-1  | 2025-02-05 11:55:19.351 [1] main/792/main/app.roles.slow_log slow_log.lua:21 I> Function call app.wait_for([3]) was too long: 3.000s
 ```
 
 При использовании модуля `slow_log` персистентные функции заменяются на версии с логированием времени выполнения.
