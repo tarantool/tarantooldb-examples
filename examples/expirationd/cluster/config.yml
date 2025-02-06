@@ -61,7 +61,7 @@ groups:
     roles_cfg:
       roles.expirationd:
         task_name1:
-          space: test
+          space: messages
           options:
             args:
               lifetime_in_seconds: 15
