@@ -118,7 +118,7 @@ make start
 - **Password**: `secret`
 
 В TCM откройте вкладку **Stateboard**.
-Выберите в наборе реплик `router-msk` узел `router-msk` и в открывшемся окне перейдите на вкладку **Terminal**.
+Выберите в наборе реплик узел `storage-1-msk` и в открывшемся окне перейдите на вкладку **Terminal**.
 Во вкладке **Terminal** введите следующую команду:
 
 ```lua
@@ -399,13 +399,13 @@ function(project_id)
 end
 ```
 
-Для вызова функции на конкретном мастере используется модуль `vshard`.
-Вызов функции `projects.delete_project` выглядит так:
+Для вызова функции на конкретном мастер-узле используется модуль `vshard`.
+Вызов функции `projects.delete_project` через модуль `vshard` в коде `app.delete_project` выглядит так:
 
 ```lua
 local vshard_router = require('vshard.router')
-local bucket_id = vshard_router.bucket_id_strcrc32(id)
-local _, err = vshard_router.callrw(bucket_id, 'projects.delete_project', {id})
+local bucket_id = vshard_router.bucket_id_strcrc32(project_id)
+local _, err = vshard_router.callrw(bucket_id, 'projects.delete_project', {project_id})
 ```
 
 Полный исходный код функции `projects.delete_project` приведен в файле миграции `./cluster/migrations/scenario/001_test.lua` примера `migrations`.
