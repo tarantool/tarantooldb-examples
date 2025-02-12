@@ -35,7 +35,7 @@ TCF поддерживает репликацию шардированных д�
 Для выполнения примера требуются:
 
 * установленный [Docker-образ](install_docker-image) Tarantool DB;
-* архив для развёртывания TCF версии не ниже 0.3.0.
+* архив для развёртывания TCF версии 0.3.0.
   Архив можно скачать в личном кабинете tarantool.io, в разделе [tcf/release/](https://www.tarantool.io/ru/accounts/customer_zone/packages/tcf/release);
 * приложение Docker Compose;
 * исходные файлы примера `tarantool_clusters_federation`;
@@ -181,7 +181,7 @@ passive
 
 Чтобы нарушить состояние первого кластера, остановите один из его узлов хранилища:
 ```
-docker compose -f cluster1/docker-compose.yml stop cluster1-storage-1-msk
+cd ../ && docker compose -f cluster1/docker-compose.yml stop cluster1-storage-1-msk
 ```
 
 Теперь снова проверьте статусы кластеров:
