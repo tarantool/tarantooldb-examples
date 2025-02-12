@@ -12,9 +12,6 @@ ifndef DOCKER_COMPOSE
     $(error "Не найден docker-compose или docker compose")
 endif
 
-test:
-	@echo $(DOCKER_COMPOSE)
-
 .SILENT: start
 start:
 	docker network create tarantooldb_network
