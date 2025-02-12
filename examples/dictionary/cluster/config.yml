@@ -2,9 +2,7 @@ credentials:
   users:
     replicator:
       password: 'secret'
-      roles:
-        - replication
-        - dictionary_api_service
+      roles: [replication]
     admin:
       password: 'secret-cluster-cookie'
       roles: [super]
