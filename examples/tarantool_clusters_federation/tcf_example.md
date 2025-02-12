@@ -17,6 +17,7 @@ TCF поддерживает репликацию шардированных д�
 * пассивный кластер Tarantool DB -- на него идет запись реплицируемых данных;
 * [etcd](https://etcd.io/) -- для восстановления после сбоя (failover) кластеров Tarantool DB;
 * репликатор Tarantool Clusters Federation -- бинарные файлы `tcf-destination` и `tcf-gateway`.
+  Инструкция о том, как получить эти файлы, приведена ниже, в секции [](admin_guide-tcf-example-start_example).
 
 Содержание:
 
@@ -36,6 +37,8 @@ TCF поддерживает репликацию шардированных д�
 Для выполнения примера требуются:
 
 * установленный [Docker-образ](/install_and_upgrade/install/install_docker.md) Tarantool DB;
+* архив для развёртывания TCF версии 0.3.0.
+  Архив можно скачать в личном кабинете tarantool.io, в разделе [tcf/release/](https://www.tarantool.io/ru/accounts/customer_zone/packages/tcf/release);
 * приложение Docker compose;
 * исходные файлы примера `tarantool_clusters_federation`.
 
@@ -58,6 +61,33 @@ TCF поддерживает репликацию шардированных д�
 
 ```shell
 cd ./doc/examples/tarantool_clusters_federation/
+```
+
+Загрузите в эту директорию архив для развёртывания TCF и распакуйте его в новой папке `tcf_archive`:
+
+```shell
+mkdir tcf_archive
+tar -xzvf tcf-<VERSION>.tar.gz --directory tcf_archive
+```
+
+Здесь:
+
+- `VERSION` -- версия продукта.
+
+Пример: `tcf-0.3.0.tar.gz`.
+
+Создайте директорию `bin` и скопируйте в нее бинарные файлы `tcf-destination` и `tcf-gateway` из созданной директории `tcf_archive`:
+
+```shell
+mkdir bin
+cp tcf_archive/tcf-destination bin && cp tcf_archive/tcf-gateway bin
+```
+
+Для запуска примера не требуются архив с TCF и другие файлы из директории `tcf_archive`, так что их можно удалить:
+
+```shell
+rm -r tcf_archive
+rm -r tcf-<VERSION>.tar.gz
 ```
 
 Запустите кластер etcd:
@@ -109,7 +139,7 @@ docker compose -f docker-compose-replicator.yml up --force-recreate -d --build
 (admin_guide-tcf-example-replication)=
 ## Репликация
 
-Подключитесь к роутеру-А, используя команду `tt connect`:
+Подключитесь к роутеру А, используя команду `tt connect`:
 
 ```shell
 tt connect admin:cookie-A@localhost:3300
