@@ -1,0 +1,33 @@
+credentials:
+  users:
+    admin:
+      password: 'secret-cluster-cookie'
+
+iproto:
+  advertise:
+    peer:
+      login: admin
+
+replication:
+  failover: off
+
+database:
+  mode: rw
+
+groups:
+  storages:
+    replicasets:
+      storage-1:
+        instances:
+          storage-1-msk:
+            iproto:
+              listen:
+                - uri: tarantool-storage-1-msk:3301
+              advertise:
+                client: tarantool-storage-1-msk:3301
+          storage-1-spb:
+            iproto:
+              listen:
+                - uri: tarantool-storage-1-spb:3301
+              advertise:
+                client: tarantool-storage-1-spb:3301
