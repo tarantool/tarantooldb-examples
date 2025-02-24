@@ -138,7 +138,7 @@ box.space.my_space:fselect()
 ![](./images/replication_conflict_1.png)
 
 Рекомендуется использовать одно из решений ниже:
-* использовать комутативные операции;
+* использовать коммутативные операции;
 * реализовать механизм разрешения конфликта репликации.
 
 Кроме того, в системах с репликацией мастер-мастер по описанным выше причинам нельзя использовать
@@ -226,47 +226,47 @@ box.space.my_space:fselect()
    ![](./images/migrations.png)
 
 4. Скопируйте в поле ввода код миграции `002_test.lua`:
-```lua
-local function apply()
-    -- Описана логика работы триггера 
-    local body = [[
-        function (old_tuple, new_tuple, space_name, operation_name)
-            if old_tuple and new_tuple then
-                -- Индекс 2 соответствует полю dt
-                if old_tuple[2] < new_tuple[2] then
+
+    ```lua
+    local function apply()
+        -- Описана логика работы триггера 
+        local body = [[
+            function (old_tuple, new_tuple, space_name, operation_name)
+                if old_tuple and new_tuple then
+                    -- Индекс 2 соответствует полю dt
+                    if old_tuple[2] < new_tuple[2] then
+                        return new_tuple
+                    end
+                else
                     return new_tuple
                 end
-            else
-                return new_tuple
-            end
-
-            return old_tuple
-        end
-    ]]
     
-    -- Объявлен персистентный триггер
-    box.schema.func.create('example.replicated_trigger', {
-        body = body,
-        trigger = 'box.space.my_space.before_replace'
-    })
-
-    return true
-end
-
--- Стандартный блок возврата для модулей миграции
-return {
-    apply = {
-        scenario = apply,
+                return old_tuple
+            end
+        ]]
+        
+        -- Объявлен персистентный триггер
+        box.schema.func.create('example.replicated_trigger', {
+            body = body,
+            trigger = 'box.space.my_space.before_replace'
+        })
+    
+        return true
+    end
+    
+    -- Стандартный блок возврата для модулей миграции
+    return {
+        apply = {
+            scenario = apply,
+        }
     }
-}
-```
+    ```
 
 5. Нажмите кнопки **Save** и **Apply**, чтобы сохранить и применить добавленную миграцию. В этой миграции был добавлен триггер, который будет продолжать работать после перезапуска экземпляров.
 
-```{admonition} Примечание
-:class: note
+Обратите внимание, что для нескольких спейсов можно указывать один триггер:
 
-Для нескольких спейсов можно указывать один триггер:
+```lua
 box.schema.func.create('example.replicated_trigger', {
        body = body,
        trigger = {
@@ -275,7 +275,6 @@ box.schema.func.create('example.replicated_trigger', {
        }
 })
 ```
-
 
 (user_guide-triggers_example-check_trigger)=
 ## Проверка работы триггера
@@ -321,8 +320,6 @@ box.space.my_space:fselect()
   +-----+-----------------------------+------+
 ...
 ```
-
-
 
 (user_guide-triggers_example-stop_example)=
 ## Остановка стенда

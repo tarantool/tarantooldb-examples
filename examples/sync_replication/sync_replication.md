@@ -35,7 +35,7 @@
 
 Для выполнения примера требуются:
 
-* установленный [Docker-образ](install_docker-image) Tarantool DB;
+* установленные [Docker-образы](install_docker-image) Tarantool DB, Prometheus и Grafana;
 * приложение Docker Compose;
 * Go;
 * исходные файлы примера `sync_replication`.

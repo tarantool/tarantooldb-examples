@@ -24,7 +24,7 @@ Docker Compose. Если использовать этот способ, веб-
 
 Для выполнения примера требуются:
 
-* установленный [Docker-образ](install_docker-image) Tarantool DB;
+* установленные [Docker-образы](install_docker-image) Tarantool DB, Prometheus и Grafana;
 * приложение Docker Compose;
 * исходные файлы примера `up_without_etcd`.
 
