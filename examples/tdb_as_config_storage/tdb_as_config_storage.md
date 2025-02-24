@@ -28,7 +28,7 @@
 
 Для выполнения примера требуются:
 
-* установленный [Docker-образ](install_docker-image) Tarantool DB;
+* установленные [Docker-образы](install_docker-image) Tarantool DB, Prometheus и Grafana;
 * приложение Docker Compose;
 * исходные файлы примера `tdb_as_config_storage`.
 

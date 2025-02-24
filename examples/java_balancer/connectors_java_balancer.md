@@ -34,7 +34,7 @@
 
 Для выполнения примера требуются:
 
-* установленный [Docker-образ](install_docker-image) Tarantool DB;
+* установленные [Docker-образы](install_docker-image) Tarantool DB, Prometheus и Grafana;
 * приложение Docker Compose;
 * Maven;
 * Java версии 8+;

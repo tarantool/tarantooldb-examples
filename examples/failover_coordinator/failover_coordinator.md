@@ -18,7 +18,7 @@
 
 Для выполнения примера требуются:
 
-* установленный [Docker-образ](install_docker-image) Tarantool DB;
+* установленные [Docker-образы](install_docker-image) Tarantool DB, Prometheus и Grafana;
 * приложение Docker Compose;
 * исходные файлы примера `failover_coordinator`.
 
@@ -65,7 +65,7 @@ make start
 - кластера etcd из 3 узлов;
 - средств мониторинга ([Prometheus](https://prometheus.io/), [Grafana](https://grafana.com/)).
 
-После запуска должны работать все контейнеры, кроме [init_host](admin_guide-failover_coordinator-init_host).
+После запуска должны работать все контейнеры, кроме [init_host](admin_guide-deploy_docker_compose-init_host).
 
 Также после запуска доступны следующие пользовательские интерфейсы:
 * http://localhost:8081 -- веб-интерфейс TCM;
