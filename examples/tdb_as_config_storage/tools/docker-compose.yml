@@ -7,6 +7,7 @@ services:
       - "8081:8081"
     volumes:
       - ./tcm.yml:/app/tarantooldb/tcm.yml
+      - ../main_cluster/config.yml:/app/tarantooldb/config.yml
     command: ./tcm -c tcm.yml
 
   prometheus:
