@@ -9,76 +9,107 @@ services:
       - TT_INSTANCE_NAME=router-msk
       - TT_CONFIG_STORAGE_ENDPOINTS=[{"uri":"tarantool-config-storage-1:3301","login":"client","password":"secret"},{"uri":"tarantool-config-storage-2:3301","login":"client","password":"secret"},{"uri":"tarantool-config-storage-3:3301","login":"client","password":"secret"}]
       - TT_CONFIG_STORAGE_PREFIX=/tdb
+
   tarantool-router-spb:
     image: tarantooldb:2x-latest
     networks:
       - tarantooldb_network
-    ports:
-      - "3302:3301"
     environment:
       - TT_INSTANCE_NAME=router-spb
       - TT_CONFIG_STORAGE_ENDPOINTS=[{"uri":"tarantool-config-storage-1:3301","login":"client","password":"secret"},{"uri":"tarantool-config-storage-2:3301","login":"client","password":"secret"},{"uri":"tarantool-config-storage-3:3301","login":"client","password":"secret"}]
       - TT_CONFIG_STORAGE_PREFIX=/tdb
+
   tarantool-storage-1-msk:
     image: tarantooldb:2x-latest
     networks:
       - tarantooldb_network
-    ports:
-      - "3303:3301"
     environment:
       - TT_INSTANCE_NAME=storage-1-msk
       - TT_CONFIG_STORAGE_ENDPOINTS=[{"uri":"tarantool-config-storage-1:3301","login":"client","password":"secret"},{"uri":"tarantool-config-storage-2:3301","login":"client","password":"secret"},{"uri":"tarantool-config-storage-3:3301","login":"client","password":"secret"}]
       - TT_CONFIG_STORAGE_PREFIX=/tdb
+
   tarantool-storage-1-spb:
     image: tarantooldb:2x-latest
     networks:
       - tarantooldb_network
-    ports:
-      - "3304:3301"
     environment:
       - TT_INSTANCE_NAME=storage-1-spb
       - TT_CONFIG_STORAGE_ENDPOINTS=[{"uri":"tarantool-config-storage-1:3301","login":"client","password":"secret"},{"uri":"tarantool-config-storage-2:3301","login":"client","password":"secret"},{"uri":"tarantool-config-storage-3:3301","login":"client","password":"secret"}]
       - TT_CONFIG_STORAGE_PREFIX=/tdb
+
   tarantool-storage-1-brn:
     image: tarantooldb:2x-latest
     networks:
       - tarantooldb_network
-    ports:
-      - "3305:3301"
     environment:
       - TT_INSTANCE_NAME=storage-1-brn
       - TT_CONFIG_STORAGE_ENDPOINTS=[{"uri":"tarantool-config-storage-1:3301","login":"client","password":"secret"},{"uri":"tarantool-config-storage-2:3301","login":"client","password":"secret"},{"uri":"tarantool-config-storage-3:3301","login":"client","password":"secret"}]
       - TT_CONFIG_STORAGE_PREFIX=/tdb
+
   tarantool-storage-2-msk:
     image: tarantooldb:2x-latest
     networks:
       - tarantooldb_network
-    ports:
-      - "3306:3301"
     environment:
       - TT_INSTANCE_NAME=storage-2-msk
       - TT_CONFIG_STORAGE_ENDPOINTS=[{"uri":"tarantool-config-storage-1:3301","login":"client","password":"secret"},{"uri":"tarantool-config-storage-2:3301","login":"client","password":"secret"},{"uri":"tarantool-config-storage-3:3301","login":"client","password":"secret"}]
       - TT_CONFIG_STORAGE_PREFIX=/tdb
+
   tarantool-storage-2-spb:
     image: tarantooldb:2x-latest
     networks:
       - tarantooldb_network
-    ports:
-      - "3307:3301"
     environment:
       - TT_INSTANCE_NAME=storage-2-spb
       - TT_CONFIG_STORAGE_ENDPOINTS=[{"uri":"tarantool-config-storage-1:3301","login":"client","password":"secret"},{"uri":"tarantool-config-storage-2:3301","login":"client","password":"secret"},{"uri":"tarantool-config-storage-3:3301","login":"client","password":"secret"}]
       - TT_CONFIG_STORAGE_PREFIX=/tdb
+
   tarantool-storage-2-brn:
     image: tarantooldb:2x-latest
     networks:
       - tarantooldb_network
-    ports:
-      - "3308:3301"
     environment:
       - TT_INSTANCE_NAME=storage-2-brn
       - TT_CONFIG_STORAGE_ENDPOINTS=[{"uri":"tarantool-config-storage-1:3301","login":"client","password":"secret"},{"uri":"tarantool-config-storage-2:3301","login":"client","password":"secret"},{"uri":"tarantool-config-storage-3:3301","login":"client","password":"secret"}]
       - TT_CONFIG_STORAGE_PREFIX=/tdb
+
+  init_host:
+    image: tarantooldb:2x-latest
+    networks:
+      - tarantooldb_network
+    volumes:
+      - ./migrations/:/app/tarantooldb/migrations/
+      - ./config.yml:/app/tarantooldb/config.yml
+    depends_on:
+      - tarantool-router-msk
+      - tarantool-router-spb
+      - tarantool-storage-1-msk
+      - tarantool-storage-1-spb
+      - tarantool-storage-1-brn
+      - tarantool-storage-2-msk
+      - tarantool-storage-2-spb
+      - tarantool-storage-2-brn
+    environment:
+      - TT_CLI_USERNAME=admin
+      - TT_CLI_PASSWORD=secret-cluster-cookie
+      - TT_CLI_CONFIG_STORAGE_USERNAME=client
+      - TT_CLI_CONFIG_STORAGE_PASSWORD=secret
+    command: /bin/sh -c "\
+        tools/client/wait_instance_ready.sh 15 tarantool-router-msk:3301 \
+        && tools/client/wait_instance_ready.sh 15 tarantool-router-spb:3301 \
+        && tools/client/wait_instance_ready.sh 15 tarantool-storage-1-msk:3301 \
+        && tools/client/wait_instance_ready.sh 15 tarantool-storage-1-spb:3301 \
+        && tools/client/wait_instance_ready.sh 15 tarantool-storage-1-brn:3301 \
+        && tools/client/wait_instance_ready.sh 15 tarantool-storage-2-msk:3301 \
+        && tools/client/wait_instance_ready.sh 15 tarantool-storage-2-spb:3301 \
+        && tools/client/wait_instance_ready.sh 15 tarantool-storage-2-brn:3301 \
+        && tt replicaset vshard bootstrap tarantool-router-msk:3301 \
+        && source tools/client/get_config_master.sh client:secret@tarantool-config-storage-1:3301 \
+        && echo CONFIG_MASTER=$$CONFIG_MASTER \
+        && tt migrations publish http://$$CONFIG_MASTER/tdb migrations \
+        && tt migrations apply http://$$CONFIG_MASTER/tdb \
+        && echo Initialize has completed successfully. \
+      "
 
 networks:
   tarantooldb_network:
