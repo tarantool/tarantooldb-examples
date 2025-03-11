@@ -35,7 +35,7 @@ TCF поддерживает репликацию шардированных д�
 Для выполнения примера требуются:
 
 * установленный [Docker-образ](install_docker-image) Tarantool DB;
-* архив для развёртывания TCF версии 0.3.0.
+* архив для развёртывания TCF версии 0.7.0.
   Архив можно скачать в личном кабинете tarantool.io, в разделе [tcf/release/](https://www.tarantool.io/ru/accounts/customer_zone/packages/tcf/release);
 * приложение Docker Compose;
 * исходные файлы примера `tarantool_clusters_federation`;
@@ -73,7 +73,7 @@ tar -xzvf tcf-<VERSION>.tar.gz --directory tcf_archive
 
 - `VERSION` -- версия продукта.
 
-Пример: `tcf-0.3.0.tar.gz`.
+Пример: `tcf-0.7.0.tar.gz`.
 
 Скопируйте в директорию `tcf` бинарные файлы `tcf-destination` и `tcf-gateway` из созданной директории `tcf_archive`:
 
