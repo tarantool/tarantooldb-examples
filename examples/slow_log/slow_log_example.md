@@ -84,7 +84,7 @@ tt connect admin:secret-cluster-cookie@localhost:3300
 Добавьте кортеж в спейс `data`, используя функцию из модуля CRUD:
 
 ```lua
-require('crud').replace("data", {1, box.NULL, {}})
+crud.replace("data", {1, box.NULL, {}})
 ```
 
 После просмотрите логи приложения:
@@ -140,7 +140,7 @@ docker compose logs | grep wait_for
 
 Запись в логе может выглядеть так:
 
-```
+```shell
 slow_log-tarantool-router-1    | 2023-11-30 14:13:52.738 [12] main/225/main/tarantool I> start wait_for 3
 slow_log-tarantool-router-1    | 2023-11-30 14:13:55.740 [12] main/225/main/tarantool I> stop wait_for 3
 slow_log-tarantool-router-1    | 2023-11-30 14:13:55.740 [12] main/225/main/tarantooldb.app.roles.slow_log I> Function call app.wait_for([3]) was too long: 3.002s

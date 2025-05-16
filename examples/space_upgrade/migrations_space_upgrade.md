@@ -73,14 +73,14 @@
 
 Перейдите в директорию примера `space_upgrade`:
 
-```
+```shell
 cd ./doc/examples/space_upgrade/
 ```
 
 Запустите стенд:
 
-```
-docker compose up --force-recreate`
+```shell
+docker compose up -d --force-recreate
 ```
 
 Команда развернет кластер с первоначальной схемой данных:
@@ -93,7 +93,7 @@ docker compose up --force-recreate`
 Подключитесь к роутеру с помощью команды `tt connect`.
 Команда открывает интерактивную консоль Tarantool, позволяющую работать с базой данных:
 
-```bash
+```shell
 tt connect admin:secret-cluster-cookie@localhost:3300
 ```
 
@@ -109,7 +109,7 @@ box.schema.func.call('__fill_data')
 В результате на каждом хранилище будет занято по 164 MB данных. 
 Процесс заполнения кластера можно отследить в логах:
 
-```bash
+```shell
 space_upgrade-tarantool-router-1    | 2024-02-26 05:46:50.947 [12] main/189/main/tarantool I> start to fill_data
 space_upgrade-tarantool-router-1    | 2024-02-26 05:46:50.947 [12] main/189/main/tarantool I> send batch 1
 ...
@@ -303,7 +303,7 @@ rawset(_G, '__users_migration', users_migration)
 Загрузите файл с миграцией в конфигурацию кластера.
 Подробнее о загрузке миграции в конфигурацию рассказано в разделе [Способы выполнения миграции](user_guide-space_format-change_schema-migrations).
 
-```bash
+```shell
 curl -v --raw 'http://localhost:8081/admin/api' -X POST --data '{
         "query":"mutation($sections: [ConfigSectionInput!]) {
             cluster {
@@ -324,19 +324,19 @@ curl -v --raw 'http://localhost:8081/admin/api' -X POST --data '{
 
 Запустите миграцию:
 
-```
+```shell
 curl -X POST localhost:8081/migrations/up
 ```
 
 Ответ выглядит так:
 
-```
+```shell
 `{"applied":["002_test.lua"]}
 ```
 
 После подключитесь к узлу хранилища, используя команду `tt connect`:
 
-```
+```shell
 tt connect admin:secret-cluster-cookie@localhost:3301
 ```
 
@@ -445,7 +445,7 @@ localhost:3301> __users_migration
 
 Окончание миграции данных в логах выглядит так:
 
-```bash
+```shell
 space_upgrade-tarantool-storage3-1  | 2024-02-26 09:13:43.048 [12] main/172/space_upgrade_516 I> space upgrade completed
 space_upgrade-tarantool-storage3-1  | 2024-02-26 09:13:43.133 [12] main/173/space_upgrade_513 I> space upgrade completed
 space_upgrade-tarantool-storage3-1  | 2024-02-26 09:13:43.163 [12] main/174/space_upgrade_515 I> space upgrade completed

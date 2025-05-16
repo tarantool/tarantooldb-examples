@@ -86,7 +86,7 @@ tt status tarantooldb
 ```
 
 Ответ выглядит так:
-```
+```shell
 INSTANCE                      STATUS      PID
 tarantooldb:router-msk        RUNNING     118242
 tarantooldb:router-spb        RUNNING     118243

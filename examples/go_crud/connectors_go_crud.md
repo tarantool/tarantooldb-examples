@@ -88,7 +88,7 @@ go run -tags go_tarantool_ssl_disable main.go
 
 Вывод после окончания работы приложения выглядит так:
 
-```
+```shell
 Recorded via crud in batches of 10000 records in 147.229874ms
 Rows verified
 ```

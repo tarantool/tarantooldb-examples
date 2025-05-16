@@ -103,7 +103,7 @@ localhost:3300> box.schema.func.call('generate_data_stop')
 
 * в терминале с помощью следующей команды:
 
-  ```bash
+  ```shell
   curl -sd @activate_expirationd.json http://localhost:8081/admin/api | jq
   ```
 * в веб-интерфейсе Tarantool DB.

@@ -83,13 +83,13 @@
 
 Перейдите в директорию примера `migrations`:
 
-```
+```shell
 cd ./doc/examples/migrations/
 ```
 
 Запустите стенд:
 
-```
+```shell
 docker compose up -d
 ```
 
@@ -431,7 +431,7 @@ localhost:3300> box.schema.func.call('__create_example_data')
 
 Для выполнения миграции запустите следующий запрос на изменение (мутацию):
 
-```bash
+```shell
 curl -v --raw 'http://localhost:8081/admin/api' -X POST --data '{
         "query":"mutation($sections: [ConfigSectionInput!]) {
             cluster {
@@ -452,7 +452,7 @@ curl -v --raw 'http://localhost:8081/admin/api' -X POST --data '{
 
 Чтобы выполнить старт миграции, запустите в консоли следующую команду:
 
-```bash
+```shell
 curl -X POST localhost:8081/migrations/up
 ```
 

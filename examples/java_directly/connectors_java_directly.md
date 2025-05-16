@@ -94,7 +94,7 @@ mvn exec:java -Dexec.mainClass="org.example.App"
 
 Вывод после окончания работы приложения выглядит так:
 
-```
+```shell
 Directly recorded 10000 rows one at a time in 483 milliseconds
 Tuples: [[1, 4677746723089159966, aHRDJPQVkTEBttESWzzUH]]
 ```

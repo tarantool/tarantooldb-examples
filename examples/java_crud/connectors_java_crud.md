@@ -87,7 +87,7 @@ mvn exec:java -Dexec.mainClass="org.example.App"
 
 Вывод после окончания работы приложения выглядит так:
 
-```
+```shell
 Records inserted via CRUD in batches of 10000 records in 1106 ms
 Rows verified
 ```

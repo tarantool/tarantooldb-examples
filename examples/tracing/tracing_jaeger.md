@@ -42,7 +42,7 @@
 
 Перейдите в директорию примера `tracing`:
 
-```
+```shell
 cd ./doc/examples/tracing/
 ```
 
