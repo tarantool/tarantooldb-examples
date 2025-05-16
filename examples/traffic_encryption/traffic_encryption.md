@@ -82,7 +82,7 @@ Tarantool DB позволяет шифровать трафик по IPROTO пр
 
 ```shell
 cd ./doc/examples/traffic_encryption/
-docker compose up
+docker compose up -d
 ```
 
 Попытайтесь подключиться к экземпляру, используя команду `tt connect`:
@@ -93,7 +93,7 @@ tt connect admin:secret-cluster-cookie@localhost:3300
 
 Ответ будет выглядеть так:
 
-```bash
+```shell
 • Connecting to the instance...
 ⨯ failed to run interactive console: failed to create new console: failed to connect: failed to get protocol: failed to read Tarantool greeting: read tcp [::1]:62950->[::1]:3300: i/o timeout
 ```
@@ -112,7 +112,7 @@ tt connect admin:secret-cluster-cookie@localhost:3300   --sslkeyfile ./bootstrap
 
 При успешном подключении ответ будет выглядеть так:
 
-```bash
+```shell
    • Connecting to the instance...
 Enter PEM pass phrase:
    • Connected to localhost:3300
@@ -129,7 +129,7 @@ localhost:3300>
 Запустите кластер:
 
 ```shell
-docker compose up
+docker compose up -d
 ```
  
 Перейдите в директорию с примером Go-коннектора и запустите его:
@@ -170,12 +170,13 @@ cd python
 Запустите пример:
 
 ```shell
+source venv/bin/activate
 python connect.py
 ```
 
 Пример выполнения:
 
-```bash
+```shell
 (venv) python connect.py 
 - '2.11.2-0-g94f8b6aad-r609-gc64'
 ```

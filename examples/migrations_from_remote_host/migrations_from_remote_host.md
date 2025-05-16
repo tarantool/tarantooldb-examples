@@ -43,7 +43,7 @@
 
 Перейдите в директорию примера `migrations_from_remote_host`:
 
-```
+```shell
 cd ./doc/examples/migrations_from_remote_host/
 ```
 
@@ -61,8 +61,8 @@ docker compose logs installer
 
 При успешном старте последняя строка в выводе будет следующей:
 
-```
-Cluster started
+```shell
+installer-1  | [bootstrap.sh] Cluster started
 ```
 
 Запущенный стенд состоит из:
@@ -100,7 +100,7 @@ TARANTOOLDB_TARGET_URI=localhost:8000 TARANTOOLDB_BOOTSTRAP_PATH=./user-host/ TA
 
 После успешного завершения миграции в консоли появится следующее сообщение:
 
-```
+```shell
 Load config..
 Config loaded
 Start migrate..

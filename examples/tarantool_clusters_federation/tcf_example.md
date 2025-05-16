@@ -104,7 +104,7 @@ docker compose -f docker-compose-etcd.yml logs etcd1
 
 Дождитесь в логах появления такого сообщения:
 
-```
+```shell
 tarantool_cluster_federation-etcd1-1  | 2024-04-02 12:37:41.475318 I | etcdserver/api: enabled capabilities for version 3.4
 ```
 

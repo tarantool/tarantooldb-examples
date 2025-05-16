@@ -93,7 +93,7 @@ go run -tags go_tarantool_ssl_disable main.go
 
 Вывод после окончания работы приложения выглядит так:
 
-```
+```shell
 Directly recorded 10000 rows one at a time in 670.147941ms
 Tuples [{{} 1 77 WjishcEWgbUGSerPYtkmAhtSrRYXmyYaXDyScIFcRCpFwIMYpGZwrZbYRSBUdPAP}]
 ```

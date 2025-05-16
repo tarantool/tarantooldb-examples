@@ -39,7 +39,7 @@
 
 Перейдите в директорию примера `read_view`:
 
-```
+```shell
 cd ./doc/examples/read_view/
 ```
 
