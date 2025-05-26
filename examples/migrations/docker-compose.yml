@@ -1,68 +1,138 @@
 version: '3.5'
 services:
-  tarantool-router:
+  tarantool-router-1:
     image: tarantooldb:1x-latest
     networks:
-      - tarantooldb_network
+    - tarantooldb_network
     ports:
-      - "8080:8081"
-      - "3300:3301"
+    - 8080:8081
+    - 3300:3301
     environment:
-      - TARANTOOL_ADVERTISE_URI=tarantool-router:3301
-  tarantool-storage1:
+    - TARANTOOL_ADVERTISE_URI=tarantool-router-1:3301
+    cap_add:
+      - NET_ADMIN
+  tarantool-router-2:
     image: tarantooldb:1x-latest
     networks:
-      - tarantooldb_network
+    - tarantooldb_network
     ports:
-      - "8081:8081"
-      - "3301:3301"
+    - 8081:8081
+    - 3301:3301
     environment:
-      - TARANTOOL_ADVERTISE_URI=tarantool-storage1:3301
-  tarantool-storage2:
+    - TARANTOOL_ADVERTISE_URI=tarantool-router-2:3301
+    cap_add:
+      - NET_ADMIN
+  tarantool-router-3:
     image: tarantooldb:1x-latest
     networks:
-      - tarantooldb_network
+    - tarantooldb_network
     ports:
-      - "8082:8081"
-      - "3302:3301"
+    - 8082:8081
+    - 3302:3301
     environment:
-      - TARANTOOL_ADVERTISE_URI=tarantool-storage2:3301
-  tarantool-storage3:
+    - TARANTOOL_ADVERTISE_URI=tarantool-router-3:3301
+    cap_add:
+      - NET_ADMIN
+  tarantool-router-4:
     image: tarantooldb:1x-latest
     networks:
-      - tarantooldb_network
+    - tarantooldb_network
     ports:
-      - "8083:8081"
-      - "3303:3301"
+    - 8083:8081
+    - 3303:3301
     environment:
-      - TARANTOOL_ADVERTISE_URI=tarantool-storage3:3301
-  tarantool-storage4:
+    - TARANTOOL_ADVERTISE_URI=tarantool-router-4:3301
+    cap_add:
+      - NET_ADMIN
+  tarantool-router-5:
     image: tarantooldb:1x-latest
     networks:
-      - tarantooldb_network
+    - tarantooldb_network
     ports:
-      - "8084:8081"
-      - "3304:3301"
+    - 8084:8081
+    - 3304:3301
     environment:
-      - TARANTOOL_ADVERTISE_URI=tarantool-storage4:3301
+    - TARANTOOL_ADVERTISE_URI=tarantool-router-5:3301
+    cap_add:
+      - NET_ADMIN
+  tarantool-storage01-1:
+    image: tarantooldb:1x-latest
+    networks:
+    - tarantooldb_network
+    ports:
+    - 8085:8081
+    - 3305:3301
+    environment:
+    - TARANTOOL_ADVERTISE_URI=tarantool-storage01-1:3301
+    cap_add:
+      - NET_ADMIN
+  tarantool-storage01-2:
+    image: tarantooldb:1x-latest
+    networks:
+    - tarantooldb_network
+    ports:
+    - 8086:8081
+    - 3306:3301
+    environment:
+    - TARANTOOL_ADVERTISE_URI=tarantool-storage01-2:3301
+    cap_add:
+      - NET_ADMIN
+  tarantool-storage01-3:
+    image: tarantooldb:1x-latest
+    networks:
+    - tarantooldb_network
+    ports:
+    - 8087:8081
+    - 3307:3301
+    environment:
+    - TARANTOOL_ADVERTISE_URI=tarantool-storage01-3:3301
+    cap_add:
+      - NET_ADMIN
+  # ... аналогично для всех оставшихся сервисов
   tarantool-db-init:
     image: tarantooldb:1x-latest
     networks:
-      - tarantooldb_network
+    - tarantooldb_network
     environment:
-      - TARANTOOLDB_TARGET_URI=tarantool-router:8081
+    - TARANTOOLDB_TARGET_URI=tarantool-router-1:8081
     working_dir: /usr/share/tarantool/tarantooldb/tools/client/
     command: /bin/bash -c "./bootstrap.sh && ./health_check.sh && ./migrate.sh"
+    cap_add:
+      - NET_ADMIN
     depends_on:
-      - tarantool-router
-      - tarantool-storage1
-      - tarantool-storage2
-      - tarantool-storage3
-      - tarantool-storage4
+    - tarantool-router-1
+    - tarantool-router-2
+    - tarantool-router-3
+    - tarantool-router-4
+    - tarantool-router-5
+    - tarantool-storage01-1
+    - tarantool-storage01-2
+    - tarantool-storage01-3
+    - tarantool-storage02-1
+    - tarantool-storage02-2
+    - tarantool-storage02-3
+    - tarantool-storage03-1
+    - tarantool-storage03-2
+    - tarantool-storage03-3
+    - tarantool-storage04-1
+    - tarantool-storage04-2
+    - tarantool-storage04-3
+    - tarantool-storage05-1
+    - tarantool-storage05-2
+    - tarantool-storage05-3
+    - tarantool-storage06-1
+    - tarantool-storage06-2
+    - tarantool-storage06-3
+    - tarantool-storage07-1
+    - tarantool-storage07-2
+    - tarantool-storage07-3
+    - tarantool-storage08-1
+    - tarantool-storage08-2
+    - tarantool-storage08-3
     volumes:
-      - ./bootstrap/:/bootstrap/
+    - ./bootstrap/:/bootstrap/
+
 networks:
   tarantooldb_network:
     name: tarantooldb_network
     driver: bridge
-

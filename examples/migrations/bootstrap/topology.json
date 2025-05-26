@@ -1,7 +1,7 @@
 {
   "replicasets": [
     {
-      "alias": "router",
+      "alias": "router-1",
       "roles": [
         "crud-router",
         "space-explorer"
@@ -11,26 +11,72 @@
       "vshard_group": "default",
       "join_servers": [
         {
-          "uri": "tarantool-router:3301"
+          "uri": "tarantool-router-1:3301"
         }
       ]
     },
     {
-      "alias": "storage-A",
+      "alias": "router-2",
       "roles": [
-        "crud-storage",
+        "crud-router",
         "space-explorer"
       ],
       "weight": null,
       "all_rw": false,
       "vshard_group": "default",
       "join_servers": [
-        {"uri": "tarantool-storage1:3301"},
-        {"uri": "tarantool-storage2:3301"}
+        {
+          "uri": "tarantool-router-2:3301"
+        }
       ]
     },
     {
-      "alias": "storage-B",
+      "alias": "router-3",
+      "roles": [
+        "crud-router",
+        "space-explorer"
+      ],
+      "weight": null,
+      "all_rw": false,
+      "vshard_group": "default",
+      "join_servers": [
+        {
+          "uri": "tarantool-router-3:3301"
+        }
+      ]
+    },
+    {
+      "alias": "router-4",
+      "roles": [
+        "crud-router",
+        "space-explorer"
+      ],
+      "weight": null,
+      "all_rw": false,
+      "vshard_group": "default",
+      "join_servers": [
+        {
+          "uri": "tarantool-router-4:3301"
+        }
+      ]
+    },
+    {
+      "alias": "router-5",
+      "roles": [
+        "crud-router",
+        "space-explorer"
+      ],
+      "weight": null,
+      "all_rw": false,
+      "vshard_group": "default",
+      "join_servers": [
+        {
+          "uri": "tarantool-router-5:3301"
+        }
+      ]
+    },
+    {
+      "alias": "storage-01",
       "roles": [
         "crud-storage",
         "space-explorer"
@@ -39,8 +85,162 @@
       "all_rw": false,
       "vshard_group": "default",
       "join_servers": [
-        {"uri": "tarantool-storage3:3301"},
-        {"uri": "tarantool-storage4:3301"}
+        {
+          "uri": "tarantool-storage01-1:3301"
+        },
+        {
+          "uri": "tarantool-storage01-2:3301"
+        },
+        {
+          "uri": "tarantool-storage01-3:3301"
+        }
+      ]
+    },
+    {
+      "alias": "storage-02",
+      "roles": [
+        "crud-storage",
+        "space-explorer"
+      ],
+      "weight": null,
+      "all_rw": false,
+      "vshard_group": "default",
+      "join_servers": [
+        {
+          "uri": "tarantool-storage02-1:3301"
+        },
+        {
+          "uri": "tarantool-storage02-2:3301"
+        },
+        {
+          "uri": "tarantool-storage02-3:3301"
+        }
+      ]
+    },
+    {
+      "alias": "storage-03",
+      "roles": [
+        "crud-storage",
+        "space-explorer"
+      ],
+      "weight": null,
+      "all_rw": false,
+      "vshard_group": "default",
+      "join_servers": [
+        {
+          "uri": "tarantool-storage03-1:3301"
+        },
+        {
+          "uri": "tarantool-storage03-2:3301"
+        },
+        {
+          "uri": "tarantool-storage03-3:3301"
+        }
+      ]
+    },
+    {
+      "alias": "storage-04",
+      "roles": [
+        "crud-storage",
+        "space-explorer"
+      ],
+      "weight": null,
+      "all_rw": false,
+      "vshard_group": "default",
+      "join_servers": [
+        {
+          "uri": "tarantool-storage04-1:3301"
+        },
+        {
+          "uri": "tarantool-storage04-2:3301"
+        },
+        {
+          "uri": "tarantool-storage04-3:3301"
+        }
+      ]
+    },
+    {
+      "alias": "storage-05",
+      "roles": [
+        "crud-storage",
+        "space-explorer"
+      ],
+      "weight": null,
+      "all_rw": false,
+      "vshard_group": "default",
+      "join_servers": [
+        {
+          "uri": "tarantool-storage05-1:3301"
+        },
+        {
+          "uri": "tarantool-storage05-2:3301"
+        },
+        {
+          "uri": "tarantool-storage05-3:3301"
+        }
+      ]
+    },
+    {
+      "alias": "storage-06",
+      "roles": [
+        "crud-storage",
+        "space-explorer"
+      ],
+      "weight": null,
+      "all_rw": false,
+      "vshard_group": "default",
+      "join_servers": [
+        {
+          "uri": "tarantool-storage06-1:3301"
+        },
+        {
+          "uri": "tarantool-storage06-2:3301"
+        },
+        {
+          "uri": "tarantool-storage06-3:3301"
+        }
+      ]
+    },
+    {
+      "alias": "storage-07",
+      "roles": [
+        "crud-storage",
+        "space-explorer"
+      ],
+      "weight": null,
+      "all_rw": false,
+      "vshard_group": "default",
+      "join_servers": [
+        {
+          "uri": "tarantool-storage07-1:3301"
+        },
+        {
+          "uri": "tarantool-storage07-2:3301"
+        },
+        {
+          "uri": "tarantool-storage07-3:3301"
+        }
+      ]
+    },
+    {
+      "alias": "storage-08",
+      "roles": [
+        "crud-storage",
+        "space-explorer"
+      ],
+      "weight": null,
+      "all_rw": false,
+      "vshard_group": "default",
+      "join_servers": [
+        {
+          "uri": "tarantool-storage08-1:3301"
+        },
+        {
+          "uri": "tarantool-storage08-2:3301"
+        },
+        {
+          "uri": "tarantool-storage08-3:3301"
+        }
       ]
     }
   ]
