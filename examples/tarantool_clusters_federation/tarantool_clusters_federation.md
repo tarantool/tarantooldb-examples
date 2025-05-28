@@ -104,19 +104,13 @@ make start
 Проверить состояние кластеров можно в TCM. Для этого выберите нужный кластер (`Tarantool DB Cluster 1` или `Tarantool DB Cluster 2`) в выпадающем списке **Clusters** над вкладкой **Stateboard**.
 Перейдите на вкладку **Stateboard**. Всё настроено правильно, если узлы в кластере подсвечены зеленым цветом.
 
-Теперь запустите репликатор:
-
-```shell
-cd tcf && docker compose up --force-recreate -d --build
-```
-
 Запущенный стенд состоит из:
 * двух кластеров Tarantool DB. Каждый кластер содержит 2 роутера и 2 набора реплик по 3 хранилища;
 * кластера etcd из трех узлов;
 * 1 [Tarantool Cluster Manager](getting_started-tcm) (TCM);
 * сервиса репликатора Tarantool Clusters Federation.
 
-На запущенном стенде настроена репликация из [**кластера 1**](http://localhost:8080) в [**кластер 2**](http://localhost:9080).
+На запущенном стенде настроена репликация из [**активного кластера 1**](http://localhost:8001) в [**пассивный кластер 2**](http://localhost:8002).
 Настройки TCF доступны в веб-интерфейсе TCM по адресу [http://localhost:8081](http://localhost:8081) на вкладке **TCF**.
 Подробная информация о доступных [опциях конфигурации TCF](https://www.tarantool.io/ru/clustersfederation/doc/latest/references/configuration_reference_cluster_yaml/) и [настройке TCF через веб-интерфейс](https://www.tarantool.io/ru/clustersfederation/doc/latest/references/configuration_reference_cluster_ui/)
 приведена в документации Tarantool Clusters Federation.
