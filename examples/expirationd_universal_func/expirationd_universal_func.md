@@ -114,7 +114,7 @@ localhost:3300> box.schema.func.call('generate_data_stop')
 Для этого:
 
 1. В веб-интерфейсе Tarantool DB перейдите на вкладку **Code** ([http://localhost:8081/admin/cluster/code](http://localhost:8081/admin/cluster/code)).
-2. Создайте файл `expiration.yml`. В нем будет задана конфигурация устаревания данных.
+2. Создайте файл `expirationd.yml`. В нем будет задана конфигурация устаревания данных.
 
     ![add_config](expirationd_config.png)
 
