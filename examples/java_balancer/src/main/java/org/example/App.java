@@ -1,6 +1,7 @@
 package org.example;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Random;
 import java.util.concurrent.CompletionException;
 
@@ -31,7 +32,8 @@ public class App {
         return TestSpaceRecord.builder()
             .id(rand.nextLong())
             .too(rand.nextLong())
-            .foo(randStringBytes(rand.nextInt(32))).build();
+            .foo(randStringBytes(rand.nextInt(32))
+            ).build();
     }
 
     private static void writeOverCrud(TarantoolCrudSpace space) {

@@ -9,6 +9,9 @@ import io.tarantool.client.crud.Condition;
 import io.tarantool.client.crud.TarantoolCrudClient;
 import io.tarantool.client.crud.TarantoolCrudSpace;
 import io.tarantool.client.factory.TarantoolFactory;
+import io.tarantool.mapping.Tuple;
+import io.tarantool.mapping.crud.CrudError;
+import io.tarantool.mapping.crud.CrudException;
 
 public class App {
 
@@ -61,7 +64,11 @@ public class App {
         }
 
         for (int i = 0; i < BATCH_QTY; i++) {
-            space.insertMany(batches.get(i)).join();
+            List<CrudError> errors = space.insertMany(batches.get(i)).join().getErrors();
+            if (errors != null && !errors.isEmpty()) {
+                // throw first error, or you can rewrite this line by your own way
+                throw new CrudException(errors.get(0));
+            }
         }
 
         return true;
@@ -75,7 +82,7 @@ public class App {
                 long wantToo = tupleWant.getToo();
                 String wantFoo = tupleWant.getFoo();
 
-                List<TestSpaceRecord> rows = space.select(
+                List<Tuple<TestSpaceRecord>> rows = space.select(
                     Collections.singletonList(
                         Condition.builder()
                             .withFieldIdentifier("pk")
@@ -90,7 +97,7 @@ public class App {
                     return;
                 }
 
-                TestSpaceRecord tupleActual = rows.get(0);
+                TestSpaceRecord tupleActual = rows.get(0).get();
                 long actualId = tupleActual.getId();
                 long actualToo = tupleActual.getToo();
                 String actualFoo = tupleActual.getFoo();

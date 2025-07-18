@@ -16,12 +16,11 @@ services:
     image: tarantooldb:1x-latest
     networks:
       - tarantooldb_network
-    environment:
-      - TARANTOOLDB_TARGET_URI=tarantool-router1:8081
-    working_dir: /usr/share/tarantool/tarantooldb/tools/client/
-    command: /bin/bash -c "./bootstrap.sh && ./health_check.sh && ./migrate.sh"
+    command: |
+      /bin/bash -c 'sleep 1; TARANTOOL_TARGET_URI=tarantool-storage1:8081 /usr/share/tarantool/tarantooldb/bootstrap-app.sh'
     depends_on:
       - tarantool-storage1
+    working_dir: /bootstrap
     volumes:
       - ./bootstrap/:/bootstrap/
 networks:

@@ -8,6 +8,7 @@ import io.tarantool.client.box.TarantoolBoxClient;
 import io.tarantool.client.box.TarantoolBoxSpace;
 import io.tarantool.client.factory.TarantoolFactory;
 import io.tarantool.mapping.SelectResponse;
+import io.tarantool.mapping.Tuple;
 
 public class App {
 
@@ -41,7 +42,7 @@ public class App {
 
         for (int i = 0; i < DATA_QTY; i++) {
             try {
-                space.insert(makeRandomTuple(i));
+                space.insert(makeRandomTuple(i)).join();
             } catch (Exception e) {
                 System.out.println("Insert error: " + e.getMessage());
             }
@@ -50,8 +51,8 @@ public class App {
 
     private static void ReadOne(TarantoolBoxSpace space, int id) {
         try {
-            SelectResponse<List<List<?>>> tuples = space.select(id).join();
-            System.out.println("Tuples: " + tuples.getData());
+            SelectResponse<List<Tuple<List<?>>>> tuples = space.select(id).join();
+            System.out.println("Tuples: " + tuples.get().get(0));
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
@@ -61,6 +62,8 @@ public class App {
         TarantoolBoxClient client =
             TarantoolFactory.box()
                 .withUser("admin")
+                .withPort(3301)
+                .withHost("localhost")
                 .withPassword("secret")
                 .build();
         TarantoolBoxSpace space = client.space("test");
