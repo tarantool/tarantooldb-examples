@@ -73,6 +73,12 @@ tar -xzvf tarantooldb-<VERSION>.<OS>.<ARCH>.tar.gz
 cp *.yml tarantooldb/
 ```
 
+После копирования перейдите в директорию `tarantooldb`:
+
+```shell
+cd tarantooldb
+```
+
 Запустите экземпляры Tarantool DB с помощью команды `tt start`:
 
 ```shell
