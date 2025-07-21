@@ -10,16 +10,15 @@ services:
     environment:
       - TARANTOOL_ADVERTISE_URI=tarantool-router:3301
       - TARANTOOL_TRANSPORT=SSL
-      - TARANTOOL_SSL_SERVER_CA_FILE=/bootstrap/ca-cert.pem
-      - TARANTOOL_SSL_SERVER_CERT_FILE=/bootstrap/server-cert.pem
-      - TARANTOOL_SSL_SERVER_KEY_FILE=/bootstrap/server-key.pem
-      - TARANTOOL_SSL_CLIENT_CA_FILE=/bootstrap/ca-cert.pem
-      - TARANTOOL_SSL_CLIENT_CERT_FILE=/bootstrap/client-cert.pem
-      - TARANTOOL_SSL_CLIENT_KEY_FILE=/bootstrap/client-key.pem
-      - TARANTOOL_SSL_SERVER_PASSWORD=12345
-      - TARANTOOL_SSL_CLIENT_PASSWORD=54321
+      - TARANTOOL_SSL_SERVER_CA_FILE=/certs/ca-cert.pem
+      - TARANTOOL_SSL_SERVER_CERT_FILE=/certs/server-cert.pem
+      - TARANTOOL_SSL_SERVER_KEY_FILE=/certs/server-key.pem
+      - TARANTOOL_SSL_CLIENT_CA_FILE=/certs/ca-cert.pem
+      - TARANTOOL_SSL_CLIENT_CERT_FILE=/certs/client-cert.pem
+      - TARANTOOL_SSL_CLIENT_KEY_FILE=/certs/client-key.pem
     volumes:
       - ./bootstrap/:/bootstrap/
+      - ./certs/:/certs/
   tarantool-storage1:
     image: tarantooldb:1x-latest
     networks:
@@ -30,16 +29,15 @@ services:
     environment:
       - TARANTOOL_ADVERTISE_URI=tarantool-storage1:3301
       - TARANTOOL_TRANSPORT=SSL
-      - TARANTOOL_SSL_SERVER_CA_FILE=/bootstrap/ca-cert.pem
-      - TARANTOOL_SSL_SERVER_CERT_FILE=/bootstrap/server-cert.pem
-      - TARANTOOL_SSL_SERVER_KEY_FILE=/bootstrap/server-key.pem
-      - TARANTOOL_SSL_CLIENT_CA_FILE=/bootstrap/ca-cert.pem
-      - TARANTOOL_SSL_CLIENT_CERT_FILE=/bootstrap/client-cert.pem
-      - TARANTOOL_SSL_CLIENT_KEY_FILE=/bootstrap/client-key.pem
-      - TARANTOOL_SSL_SERVER_PASSWORD=12345
-      - TARANTOOL_SSL_CLIENT_PASSWORD=54321
+      - TARANTOOL_SSL_SERVER_CA_FILE=/certs/ca-cert.pem
+      - TARANTOOL_SSL_SERVER_CERT_FILE=/certs/server-cert.pem
+      - TARANTOOL_SSL_SERVER_KEY_FILE=/certs/server-key.pem
+      - TARANTOOL_SSL_CLIENT_CA_FILE=/certs/ca-cert.pem
+      - TARANTOOL_SSL_CLIENT_CERT_FILE=/certs/client-cert.pem
+      - TARANTOOL_SSL_CLIENT_KEY_FILE=/certs/client-key.pem
     volumes:
       - ./bootstrap/:/bootstrap/
+      - ./certs/:/certs/
   tarantool-storage2:
     image: tarantooldb:1x-latest
     networks:
@@ -50,16 +48,15 @@ services:
     environment:
       - TARANTOOL_ADVERTISE_URI=tarantool-storage2:3301
       - TARANTOOL_TRANSPORT=SSL
-      - TARANTOOL_SSL_SERVER_CA_FILE=/bootstrap/ca-cert.pem
-      - TARANTOOL_SSL_SERVER_CERT_FILE=/bootstrap/server-cert.pem
-      - TARANTOOL_SSL_SERVER_KEY_FILE=/bootstrap/server-key.pem
-      - TARANTOOL_SSL_CLIENT_CA_FILE=/bootstrap/ca-cert.pem
-      - TARANTOOL_SSL_CLIENT_CERT_FILE=/bootstrap/client-cert.pem
-      - TARANTOOL_SSL_CLIENT_KEY_FILE=/bootstrap/client-key.pem
-      - TARANTOOL_SSL_SERVER_PASSWORD=12345
-      - TARANTOOL_SSL_CLIENT_PASSWORD=54321
+      - TARANTOOL_SSL_SERVER_CA_FILE=/certs/ca-cert.pem
+      - TARANTOOL_SSL_SERVER_CERT_FILE=/certs/server-cert.pem
+      - TARANTOOL_SSL_SERVER_KEY_FILE=/certs/server-key.pem
+      - TARANTOOL_SSL_CLIENT_CA_FILE=/certs/ca-cert.pem
+      - TARANTOOL_SSL_CLIENT_CERT_FILE=/certs/client-cert.pem
+      - TARANTOOL_SSL_CLIENT_KEY_FILE=/certs/client-key.pem
     volumes:
       - ./bootstrap/:/bootstrap/
+      - ./certs/:/certs/
   tarantool-storage3:
     image: tarantooldb:1x-latest
     networks:
@@ -70,16 +67,15 @@ services:
     environment:
       - TARANTOOL_ADVERTISE_URI=tarantool-storage3:3301
       - TARANTOOL_TRANSPORT=SSL
-      - TARANTOOL_SSL_SERVER_CA_FILE=/bootstrap/ca-cert.pem
-      - TARANTOOL_SSL_SERVER_CERT_FILE=/bootstrap/server-cert.pem
-      - TARANTOOL_SSL_SERVER_KEY_FILE=/bootstrap/server-key.pem
-      - TARANTOOL_SSL_CLIENT_CA_FILE=/bootstrap/ca-cert.pem
-      - TARANTOOL_SSL_CLIENT_CERT_FILE=/bootstrap/client-cert.pem
-      - TARANTOOL_SSL_CLIENT_KEY_FILE=/bootstrap/client-key.pem
-      - TARANTOOL_SSL_SERVER_PASSWORD=12345
-      - TARANTOOL_SSL_CLIENT_PASSWORD=54321
+      - TARANTOOL_SSL_SERVER_CA_FILE=/certs/ca-cert.pem
+      - TARANTOOL_SSL_SERVER_CERT_FILE=/certs/server-cert.pem
+      - TARANTOOL_SSL_SERVER_KEY_FILE=/certs/server-key.pem
+      - TARANTOOL_SSL_CLIENT_CA_FILE=/certs/ca-cert.pem
+      - TARANTOOL_SSL_CLIENT_CERT_FILE=/certs/client-cert.pem
+      - TARANTOOL_SSL_CLIENT_KEY_FILE=/certs/client-key.pem
     volumes:
       - ./bootstrap/:/bootstrap/
+      - ./certs/:/certs/
   tarantool-storage4:
     image: tarantooldb:1x-latest
     networks:
@@ -90,16 +86,15 @@ services:
     environment:
       - TARANTOOL_ADVERTISE_URI=tarantool-storage4:3301
       - TARANTOOL_TRANSPORT=SSL
-      - TARANTOOL_SSL_SERVER_CA_FILE=/bootstrap/ca-cert.pem
-      - TARANTOOL_SSL_SERVER_CERT_FILE=/bootstrap/server-cert.pem
-      - TARANTOOL_SSL_SERVER_KEY_FILE=/bootstrap/server-key.pem
-      - TARANTOOL_SSL_CLIENT_CA_FILE=/bootstrap/ca-cert.pem
-      - TARANTOOL_SSL_CLIENT_CERT_FILE=/bootstrap/client-cert.pem
-      - TARANTOOL_SSL_CLIENT_KEY_FILE=/bootstrap/client-key.pem
-      - TARANTOOL_SSL_SERVER_PASSWORD=12345
-      - TARANTOOL_SSL_CLIENT_PASSWORD=54321
+      - TARANTOOL_SSL_SERVER_CA_FILE=/certs/ca-cert.pem
+      - TARANTOOL_SSL_SERVER_CERT_FILE=/certs/server-cert.pem
+      - TARANTOOL_SSL_SERVER_KEY_FILE=/certs/server-key.pem
+      - TARANTOOL_SSL_CLIENT_CA_FILE=/certs/ca-cert.pem
+      - TARANTOOL_SSL_CLIENT_CERT_FILE=/certs/client-cert.pem
+      - TARANTOOL_SSL_CLIENT_KEY_FILE=/certs/client-key.pem
     volumes:
       - ./bootstrap/:/bootstrap/
+      - ./certs/:/certs/
   tarantool-db-init:
     image: tarantooldb:1x-latest
     networks:
@@ -116,5 +111,6 @@ services:
       - tarantool-storage4
     volumes:
       - ./bootstrap/:/bootstrap/
+      - ./certs/:/certs/
 networks:
   tarantooldb_network:

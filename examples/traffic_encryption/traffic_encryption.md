@@ -49,9 +49,9 @@ Tarantool DB позволяет шифровать трафик по IPROTO пр
 сервера, так и сертификат клиента.
 Это означает, что для экземпляра кластера всегда нужно передавать как серверные, так и клиентские аргументы.
 
-В примере `traffic_encryption` сертификаты находятся в директории `./bootstrap/` и
+В примере `traffic_encryption` сертификаты генерируются с помощью скрипта `./certs/gen.sh`. Сгенерированные сертификаты находятся в директории `./certs/` и
 должны быть доступны для каждого экземпляра.
-Сертификаты генерируются с помощью скрипта `./bootstrap/gen.sh`.
+
 
 В примере заданы параметры SSL-шифрования для экземпляра с помощью переменных окружения:
 
@@ -71,18 +71,17 @@ Tarantool DB позволяет шифровать трафик по IPROTO пр
 * `TARANTOOL_SSL_SERVER_KEY_FILE` -- путь к закрытому ключу сервера;
 * `TARANTOOL_SSL_CLIENT_CA_FILE` -- путь к корневому сертификату клиента;
 * `TARANTOOL_SSL_CLIENT_CERT_FILE` -- путь к сертификату клиента;
-* `TARANTOOL_SSL_CLIENT_KEY_FILE` -- путь к закрытому ключу клиента;
-* `TARANTOOL_SSL_SERVER_PASSWORD` -- пароль для ключа сервера;
-* `TARANTOOL_SSL_CLIENT_PASSWORD` -- пароль для ключа клиента.
+* `TARANTOOL_SSL_CLIENT_KEY_FILE` -- путь к закрытому ключу клиента.
 
 (admin_guide-traffic_encryption-connect)=
 ## Подключение к узлу с помощью клиентских сертификатов
 
-Перейдите в папку с примером `traffic_encryption` и запустите стенд:
+Перейдите в папку с примером `traffic_encryption`, сгенерируйте сертификаты, а затем запустите стенд:
 
 ```shell
 cd ./doc/examples/traffic_encryption/
-docker compose up -d
+cd certs && ./gen.sh
+cd .. && docker compose up -d
 ```
 
 Попытайтесь подключиться к экземпляру, используя команду `tt connect`:
@@ -101,24 +100,18 @@ tt connect admin:secret-cluster-cookie@localhost:3300
 Подключитесь к узлу снова, используя клиентские сертификаты:
 
 ```shell
-tt connect admin:secret-cluster-cookie@localhost:3300   --sslkeyfile ./bootstrap/client-key.pem --sslcertfile ./bootstrap/client-cert.pem
-```
-
-После ввода команды в терминале появится сообщение `Enter PEM pass phrase`. Введите пароль для ключа клиента:
-
-```shell
-54321
+tt connect admin:secret-cluster-cookie@localhost:3300   --sslkeyfile ./certs/client-key.pem --sslcertfile ./certs/client-cert.pem
 ```
 
 При успешном подключении ответ будет выглядеть так:
 
 ```shell
    • Connecting to the instance...
-Enter PEM pass phrase:
    • Connected to localhost:3300
 
 localhost:3300> 
 ```
+
 
 (admin_guide-traffic_encryption-go)=
 ## Подключение через Go-коннектор
@@ -126,16 +119,16 @@ localhost:3300>
 В этом разделе описано подключение к экземпляру Tarantool DB через [Go-коннектор](https://github.com/tarantool/go-tarantool/).
 Пример расположен в директории `./go/` примера `traffic_encryption`.
 
-Запустите кластер:
-
+Для запуска выполните из папки примера следующие команды:
 ```shell
-docker compose up -d
+docker build -t traffic-encryption-go -f go/Dockerfile ./go
+docker run -it --rm -v "$(pwd)/certs:/traffic_encryption/go/certs" --network traffic_encryption_tarantooldb_network traffic-encryption-go
 ```
- 
-Перейдите в директорию с примером Go-коннектора и запустите его:
 
+Go-клиент подключится к узлу через коннектор с шифрованием и запросит текущую
+версию платформы Tarantool. Ответ может выглядеть так:
 ```shell
-cd go && go run main.go
+Tarantool 2.11.6 (Binary) 67c35ab2-c334-49b6-a7a4-f617c81bccaa
 ```
 
 Код подключения выглядит так:
@@ -178,7 +171,7 @@ python connect.py
 
 ```shell
 (venv) python connect.py 
-- '2.11.2-0-g94f8b6aad-r609-gc64'
+- '2.11.6-0-ga5fc633b2'
 ```
 
 Код подключения выглядит так:
