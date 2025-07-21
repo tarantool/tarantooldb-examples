@@ -37,7 +37,7 @@ TCF поддерживает репликацию шардированных д�
 Для выполнения примера требуются:
 
 * установленный [Docker-образ](/install_and_upgrade/install/install_docker.md) Tarantool DB;
-* архив для развёртывания TCF версии 0.3.0.
+* архив для развёртывания TCF версии 0.9.0.
   Архив можно скачать в личном кабинете tarantool.io, в разделе [tcf/release/](https://www.tarantool.io/ru/accounts/customer_zone/packages/tcf/release);
 * приложение Docker compose;
 * исходные файлы примера `tarantool_clusters_federation`.
@@ -53,6 +53,14 @@ TCF поддерживает репликацию шардированных д�
 
   * Отдельный архив [tarantool_clusters_federation.tar.gz](https://tarantool.io/ru/tarantooldb/doc/1.x/examples/tarantool_clusters_federation/tarantool_clusters_federation.tar.gz), скачанный c сайта Tarantool.
   ```
+
+```{admonition} Важно
+:class: warning
+
+Версия TCF должна соответствовать версии Tarantool DB 1.x, установленной в вашем окружении.  
+Например, TCF 0.9.0 поддерживается начиная с версии Tarantool DB 1.2.4.  
+Использование несовместимых версий может привести к ошибкам запуска или проблемам в работе компонентов.
+```
 
 (admin_guide-tcf-example-start_example)=
 ## Запуск стенда
@@ -74,7 +82,7 @@ tar -xzvf tcf-<VERSION>.tar.gz --directory tcf_archive
 
 - `VERSION` -- версия продукта.
 
-Пример: `tcf-0.3.0.tar.gz`.
+Пример: `tcf-0.9.0.tar.gz`.
 
 Создайте директорию `bin` и скопируйте в нее бинарные файлы `tcf-destination` и `tcf-gateway` из созданной директории `tcf_archive`:
 
@@ -105,7 +113,7 @@ docker compose -f docker-compose-etcd.yml logs etcd1
 Дождитесь в логах появления такого сообщения:
 
 ```shell
-tarantool_cluster_federation-etcd1-1  | 2024-04-02 12:37:41.475318 I | etcdserver/api: enabled capabilities for version 3.4
+tarantool_cluster_federation-etcd1-1  | 2024-04-02 12:37:41.475318 I | etcdserver/api: enabled capabilities for version 3.5
 ```
 
 После этого запустите кластеры Tarantool DB:

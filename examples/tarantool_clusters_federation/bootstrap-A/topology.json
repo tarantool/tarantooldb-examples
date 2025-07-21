@@ -5,6 +5,8 @@
       "roles": [
         "crud-router",
         "space-explorer",
+        "tcf-worker",
+        "tcf-coordinator",
         "failover-coordinator"
       ],
       "weight": null,
