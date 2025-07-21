@@ -5,6 +5,8 @@
       "roles": [
         "crud-router",
         "space-explorer",
+        "tcf-worker",
+        "tcf-coordinator",
         "failover-coordinator"
       ],
       "weight": null,
@@ -33,7 +35,7 @@
       ]
     },
     {
-      "alias": "storage-A-2",
+      "alias": "storage-B-2",
       "roles": [
         "crud-storage",
         "space-explorer"

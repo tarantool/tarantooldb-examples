@@ -12,6 +12,12 @@ cluster_federation:
   replication_user: replicator
   replication_password: SuPPerSECreT_PAssw0rd
 
+  status_ttl: 4
+  enable_system_check: true
+  failover_timeout: 20
+  health_check_delay: 3
+  max_suspect_counts: 3
+
   initial_status: passive
 
   dml_users:

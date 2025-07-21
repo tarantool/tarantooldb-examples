@@ -11,7 +11,7 @@ services:
     - -c
     - |
       sleep 60 &
-      tcf-gateway --config ./config_repl_AB.yaml --rebootstrap --force &
+      tcf-gateway --config ./config_repl_AB.yaml &
       tcf-destination --config ./config_repl_AB.yaml --rebootstrap --force &
       tcf-gateway --config ./config_repl_BA.yaml &
       tcf-destination --config ./config_repl_BA.yaml &

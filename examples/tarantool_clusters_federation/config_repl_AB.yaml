@@ -1,11 +1,7 @@
 gateway:
-  metrics_enabled: true
   grpc_server:
     host: 0.0.0.0
     port: 10080
-  prometheus:
-    host: 0.0.0.0
-    port: 10081
   replica_type: anonymous
   max_cpu: 2
   log_level: debug
@@ -28,11 +24,7 @@ gateway:
       password: SuPPerSECreT_PAssw0rd
 
 destination:
-  metrics_enabled: true
-  prometheus:
-    host: 0.0.0.0
-    port: 10082
-  gateway:
+  gateways:
     host: localhost
     port: 10080
 
