@@ -27,6 +27,7 @@
 * приложение Docker compose;
 * Maven;
 * Java версии 8+;
+* установленный [tarantool-java-ee версии 1.3.1](/user_guide/connectors/java/java_install.md).
 * исходные файлы примера `java_directly`.
 
   ```{admonition} Примечание
