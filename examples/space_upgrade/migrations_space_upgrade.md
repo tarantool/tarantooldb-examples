@@ -1,6 +1,6 @@
 # Миграция данных с помощью space:upgrade()
 
-В этом руководстве описана миграция данных в Tarantool DB с помощью метода [space:upgrade()](https://www.tarantool.io/ru/doc/latest/enterprise/space_upgrade/).
+В этом руководстве описана миграция данных в Tarantool DB с помощью метода [space:upgrade()](https://www.tarantool.io/ru/doc/latest/platform/ddl_dml/migrations/space_upgrade/).
 `space:upgrade()` позволяет вносить несовместимые изменения в формат спейса, например изменить название спейса или удалить его.
 
 ```{admonition} Ограничения
@@ -159,11 +159,28 @@ tt crud import \
     - `dryrun` -- проверка корректности миграции. Функция `func` выполняется на каждом кортеже, но данные не меняются;
     - `upgrade` -- обновление данных;
     - `dryrun+upgrade` -- запуск проверки миграции, после которой при отсутствии ошибок выполняется `upgrade`.
-- `is_async` - булевый флаг неблокируемого выполнения `space:upgrade`.
+- `is_async` - булевый флаг неблокируемого выполнения `space:upgrade()`.
 
-`space:upgrade` возвращает объект `future`. По нему можно узнать статус миграции (`future:info`), отменить миграцию (`future:cancel`) или дождаться окончания миграции (`future:wait`).
+(space_upgrade-note-start)=
+```{admonition} Примечание
+:class: note
+  
+Выполнение миграции через `space:upgrade()` может занимать продолжительное время.
+Чтобы избежать в процессе миграции ошибок вида `TimedOut: timed out`, выполните **одно** из действий ниже:
+  
+- перед применением миграции включите асинхронный режим работы `space:upgrade()` с помощью флага `is_async = true`;
+- увеличьте для tt CLI время ожидания на завершение операции на экземпляре. Для этого при запуске миграции укажите в
+  команде tt migrations apply опцию `--execution-timeout=240`.
+  Узнать больше про эту опцию можно в [документации tt CLI](https://www.tarantool.io/ru/doc/latest/tooling/tt_cli/migrations/#options).
+  
+В данном руководстве используется **второй вариант** -- с опцией `execution-timeout`.
+```
+(space_upgrade-note-end)=
 
-Подробная информация о методе `space:upgrade()` приведена в [документации Tarantool Enterprise](https://www.tarantool.io/ru/doc/latest/enterprise/space_upgrade/).
+`space:upgrade()` возвращает объект `future`. По нему можно узнать статус миграции (`future:info`),
+отменить миграцию (`future:cancel`) или дождаться окончания миграции (`future:wait`).
+
+Подробная информация о методе `space:upgrade()` приведена в [документации Tarantool](https://www.tarantool.io/ru/doc/latest/platform/ddl_dml/migrations/space_upgrade/).
 
 (user_guide-space_upgrade-migration_code)=
 ## Определение кода миграций
@@ -295,13 +312,18 @@ tt crud import \
    
    Узнать больше о командах `tt migrations` можно в [документации Tarantool](https://www.tarantool.io/ru/doc/latest/tooling/tt_cli/migrations/).
 
-3. Примените миграции:
+3. Примените миграции с помощью команды `tt migrations apply`.
 
-   ```shell
-   docker compose exec tarantool-router-msk tt migrations apply http://etcd1:2379/tdb --tarantool-username=admin --tarantool-password=secret-cluster-cookie
-   cd ..
+   ```{include} /examples/space_upgrade/migrations_space_upgrade.md
+   :start-after: (space_upgrade-note-start)=
+   :end-before: (space_upgrade-note-end)
    ```
 
+   ```shell
+   docker compose exec tarantool-router-msk tt migrations apply http://etcd1:2379/tdb --tarantool-username=admin --tarantool-password=secret-cluster-cookie --execution-timeout=240
+   cd ..
+   ```
+   
 Теперь подключитесь к узлу хранилища.
 Для этого в TCM откройте вкладку **Stateboard** и нажмите на набор реплик `storage-1`.
 Выберите узел `storage-1-msk` и в открывшемся окне перейдите на вкладку **Terminal**.
