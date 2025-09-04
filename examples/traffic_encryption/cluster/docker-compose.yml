@@ -18,7 +18,7 @@ services:
     networks:
       - tarantooldb_network
     ports:
-      - "3303:3301"
+      - "3302:3301"
     volumes:
       - ../certs:/tmp/certs
     environment:
@@ -31,7 +31,7 @@ services:
     networks:
       - tarantooldb_network
     ports:
-      - "3304:3301"
+      - "3303:3301"
     volumes:
       - ../certs:/tmp/certs
     environment:
