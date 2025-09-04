@@ -48,7 +48,7 @@ services:
     networks:
       - tarantooldb_network
     ports:
-      - "3306:3301"
+      - "3305:3301"
     environment:
       - TT_INSTANCE_NAME=storage-2-msk
       - TT_CONFIG_ETCD_ENDPOINTS=http://etcd1:2379,http://etcd2:2379,http://etcd3:2379
@@ -59,7 +59,7 @@ services:
     networks:
       - tarantooldb_network
     ports:
-      - "3307:3301"
+      - "3306:3301"
     environment:
       - TT_INSTANCE_NAME=storage-2-spb
       - TT_CONFIG_ETCD_ENDPOINTS=http://etcd1:2379,http://etcd2:2379,http://etcd3:2379
