@@ -1,6 +1,6 @@
 services:
   tarantool-router-msk:
-    image: tarantooldb:2x-latest
+    image: tarantooldb:3x-latest
     networks:
       - tarantooldb_network
     ports:
@@ -11,7 +11,7 @@ services:
       - TT_CONFIG_STORAGE_PREFIX=/tdb
 
   tarantool-router-spb:
-    image: tarantooldb:2x-latest
+    image: tarantooldb:3x-latest
     networks:
       - tarantooldb_network
     environment:
@@ -20,7 +20,7 @@ services:
       - TT_CONFIG_STORAGE_PREFIX=/tdb
 
   tarantool-storage-1-msk:
-    image: tarantooldb:2x-latest
+    image: tarantooldb:3x-latest
     networks:
       - tarantooldb_network
     environment:
@@ -29,7 +29,7 @@ services:
       - TT_CONFIG_STORAGE_PREFIX=/tdb
 
   tarantool-storage-1-spb:
-    image: tarantooldb:2x-latest
+    image: tarantooldb:3x-latest
     networks:
       - tarantooldb_network
     environment:
@@ -38,7 +38,7 @@ services:
       - TT_CONFIG_STORAGE_PREFIX=/tdb
 
   tarantool-storage-1-brn:
-    image: tarantooldb:2x-latest
+    image: tarantooldb:3x-latest
     networks:
       - tarantooldb_network
     environment:
@@ -47,7 +47,7 @@ services:
       - TT_CONFIG_STORAGE_PREFIX=/tdb
 
   tarantool-storage-2-msk:
-    image: tarantooldb:2x-latest
+    image: tarantooldb:3x-latest
     networks:
       - tarantooldb_network
     environment:
@@ -56,7 +56,7 @@ services:
       - TT_CONFIG_STORAGE_PREFIX=/tdb
 
   tarantool-storage-2-spb:
-    image: tarantooldb:2x-latest
+    image: tarantooldb:3x-latest
     networks:
       - tarantooldb_network
     environment:
@@ -65,7 +65,7 @@ services:
       - TT_CONFIG_STORAGE_PREFIX=/tdb
 
   tarantool-storage-2-brn:
-    image: tarantooldb:2x-latest
+    image: tarantooldb:3x-latest
     networks:
       - tarantooldb_network
     environment:
@@ -74,7 +74,7 @@ services:
       - TT_CONFIG_STORAGE_PREFIX=/tdb
 
   init_host:
-    image: tarantooldb:2x-latest
+    image: tarantooldb:3x-latest
     networks:
       - tarantooldb_network
     volumes:

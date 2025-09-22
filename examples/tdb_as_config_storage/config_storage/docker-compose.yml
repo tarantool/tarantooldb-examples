@@ -1,6 +1,6 @@
 services:
   tarantool-config-storage-1:
-    image: tarantooldb:2x-latest
+    image: tarantooldb:3x-latest
     networks:
       - tarantooldb_network
     ports:
@@ -11,7 +11,7 @@ services:
       - TT_INSTANCE_NAME=config-storage-1
       - TT_CONFIG=/app/tarantooldb/config.yml
   tarantool-config-storage-2:
-    image: tarantooldb:2x-latest
+    image: tarantooldb:3x-latest
     networks:
       - tarantooldb_network
     ports:
@@ -22,7 +22,7 @@ services:
       - TT_INSTANCE_NAME=config-storage-2
       - TT_CONFIG=/app/tarantooldb/config.yml
   tarantool-config-storage-3:
-    image: tarantooldb:2x-latest
+    image: tarantooldb:3x-latest
     networks:
       - tarantooldb_network
     ports:

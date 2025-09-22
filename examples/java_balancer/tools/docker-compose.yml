@@ -60,7 +60,7 @@ services:
       - ./telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:ro
 
   tcm-1:
-    image: tarantooldb:2x-latest
+    image: tarantooldb:3x-latest
     networks:
       - tarantooldb_network
     ports:

@@ -1,6 +1,6 @@
 services:
   tarantool-router-msk:
-    image: tarantooldb:2x-latest
+    image: tarantooldb:3x-latest
     networks:
       - tarantooldb_network
     ports:
@@ -11,7 +11,7 @@ services:
       - TT_CONFIG_ETCD_PREFIX=/tdb
       - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
   tarantool-router-spb:
-    image: tarantooldb:2x-latest
+    image: tarantooldb:3x-latest
     networks:
       - tarantooldb_network
     ports:
@@ -22,7 +22,7 @@ services:
       - TT_CONFIG_ETCD_PREFIX=/tdb
       - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
   tarantool-storage-1-msk:
-    image: tarantooldb:2x-latest
+    image: tarantooldb:3x-latest
     networks:
       - tarantooldb_network
     ports:
@@ -33,7 +33,7 @@ services:
       - TT_CONFIG_ETCD_PREFIX=/tdb
       - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
   tarantool-storage-1-spb:
-    image: tarantooldb:2x-latest
+    image: tarantooldb:3x-latest
     networks:
       - tarantooldb_network
     ports:
@@ -44,7 +44,7 @@ services:
       - TT_CONFIG_ETCD_PREFIX=/tdb
       - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
   tarantool-storage-1-brn:
-    image: tarantooldb:2x-latest
+    image: tarantooldb:3x-latest
     networks:
       - tarantooldb_network
     ports:
@@ -55,7 +55,7 @@ services:
       - TT_CONFIG_ETCD_PREFIX=/tdb
       - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
   tarantool-storage-2-msk:
-    image: tarantooldb:2x-latest
+    image: tarantooldb:3x-latest
     networks:
       - tarantooldb_network
     ports:
@@ -66,7 +66,7 @@ services:
       - TT_CONFIG_ETCD_PREFIX=/tdb
       - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
   tarantool-storage-2-spb:
-    image: tarantooldb:2x-latest
+    image: tarantooldb:3x-latest
     networks:
       - tarantooldb_network
     ports:
@@ -77,7 +77,7 @@ services:
       - TT_CONFIG_ETCD_PREFIX=/tdb
       - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
   tarantool-storage-2-brn:
-    image: tarantooldb:2x-latest
+    image: tarantooldb:3x-latest
     networks:
       - tarantooldb_network
     ports:
@@ -88,7 +88,7 @@ services:
       - TT_CONFIG_ETCD_PREFIX=/tdb
       - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
   tarantool-failover-coordinator-1:
-    image: tarantooldb:2x-latest
+    image: tarantooldb:3x-latest
     networks:
       - tarantooldb_network
     environment:
@@ -98,7 +98,7 @@ services:
       - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
       - TT_FAILOVER_METRICS='{"http":[{"listen":8081,"endpoints":[{"path":"/metrics","format":"prometheus"}]}]}'
   tarantool-failover-coordinator-2:
-    image: tarantooldb:2x-latest
+    image: tarantooldb:3x-latest
     networks:
       - tarantooldb_network
     environment:
@@ -109,7 +109,7 @@ services:
       - TT_FAILOVER_METRICS='{"http":[{"listen":8081,"endpoints":[{"path":"/metrics","format":"prometheus"}]}]}'
 
   init_host:
-    image: tarantooldb:2x-latest
+    image: tarantooldb:3x-latest
     networks:
       - tarantooldb_network
     volumes:

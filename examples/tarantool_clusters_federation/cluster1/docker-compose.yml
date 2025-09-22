@@ -1,6 +1,6 @@
 services:
   cluster1-router-msk:
-    image: tarantooldb:2x-latest
+    image: tarantooldb:3x-latest
     networks:
       - tarantooldb_network
     ports:
@@ -12,7 +12,7 @@ services:
       - TT_CONFIG_ETCD_PREFIX=/tdb1
       - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
   cluster1-router-spb:
-    image: tarantooldb:2x-latest
+    image: tarantooldb:3x-latest
     networks:
       - tarantooldb_network
     environment:
@@ -21,7 +21,7 @@ services:
       - TT_CONFIG_ETCD_PREFIX=/tdb1
       - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
   cluster1-storage-1-msk:
-    image: tarantooldb:2x-latest
+    image: tarantooldb:3x-latest
     networks:
       - tarantooldb_network
     environment:
@@ -30,7 +30,7 @@ services:
       - TT_CONFIG_ETCD_PREFIX=/tdb1
       - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
   cluster1-storage-1-spb:
-    image: tarantooldb:2x-latest
+    image: tarantooldb:3x-latest
     networks:
       - tarantooldb_network
     environment:
@@ -39,7 +39,7 @@ services:
       - TT_CONFIG_ETCD_PREFIX=/tdb1
       - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
   cluster1-storage-1-brn:
-    image: tarantooldb:2x-latest
+    image: tarantooldb:3x-latest
     networks:
       - tarantooldb_network
     environment:
@@ -48,7 +48,7 @@ services:
       - TT_CONFIG_ETCD_PREFIX=/tdb1
       - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
   cluster1-storage-2-msk:
-    image: tarantooldb:2x-latest
+    image: tarantooldb:3x-latest
     networks:
       - tarantooldb_network
     environment:
@@ -57,7 +57,7 @@ services:
       - TT_CONFIG_ETCD_PREFIX=/tdb1
       - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
   cluster1-storage-2-spb:
-    image: tarantooldb:2x-latest
+    image: tarantooldb:3x-latest
     networks:
       - tarantooldb_network
     environment:
@@ -66,7 +66,7 @@ services:
       - TT_CONFIG_ETCD_PREFIX=/tdb1
       - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
   cluster1-storage-2-brn:
-    image: tarantooldb:2x-latest
+    image: tarantooldb:3x-latest
     networks:
       - tarantooldb_network
     environment:
@@ -76,7 +76,7 @@ services:
       - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
 
   init_host:
-    image: tarantooldb:2x-latest
+    image: tarantooldb:3x-latest
     networks:
       - tarantooldb_network
     volumes:
