@@ -1,6 +1,6 @@
 services:
   tarantool-router-msk:
-    image: tarantooldb:2x-latest
+    image: tarantooldb:3x-latest
     networks:
       - tarantooldb_network
     ports:
@@ -12,7 +12,7 @@ services:
       - TT_CONFIG_ETCD_PREFIX=/tdb
       - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
   tarantool-storage-1-msk:
-    image: tarantooldb:2x-latest
+    image: tarantooldb:3x-latest
     networks:
       - tarantooldb_network
     ports:
@@ -24,7 +24,7 @@ services:
       - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
       - TDB_VSHARD_BOOTSTRAP_TIMEOUT = 20
   tarantool-storage-1-spb:
-    image: tarantooldb:2x-latest
+    image: tarantooldb:3x-latest
     networks:
       - tarantooldb_network
     ports:
@@ -36,7 +36,7 @@ services:
       - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
       - TDB_VSHARD_BOOTSTRAP_TIMEOUT = 20
   tarantool-storage-1-brn:
-    image: tarantooldb:2x-latest
+    image: tarantooldb:3x-latest
     networks:
       - tarantooldb_network
     ports:
@@ -49,7 +49,7 @@ services:
       - TDB_VSHARD_BOOTSTRAP_TIMEOUT = 20
 
   init_host:
-    image: tarantooldb:2x-latest
+    image: tarantooldb:3x-latest
     user: root
     networks:
       - tarantooldb_network
