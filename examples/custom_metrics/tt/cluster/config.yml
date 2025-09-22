@@ -24,6 +24,10 @@ sharding:
   bucket_count: 30000
 
 roles_cfg:
+  roles.httpd:
+    default:
+      listen: 8081
+      log_requests: log.verbose
   roles.metrics-export:
     http:
       - endpoints:
@@ -42,6 +46,7 @@ groups:
     roles:
       - roles.crud-router
       - roles.metrics-export
+      - roles.httpd
     roles_cfg:
       roles.crud-router:
         stats: true
@@ -68,6 +73,7 @@ groups:
     roles:
       - roles.crud-storage
       - roles.metrics-export
+      - roles.httpd
     replicasets:
       storage-1:
         instances:
