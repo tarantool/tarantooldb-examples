@@ -137,7 +137,11 @@ make start
   Чем меньше значение, тем выше LSM-дерево.
   Значение по умолчанию: 3.5.
 
-Задать эти настройки можно в YAML-конфигурации кластера в секции `vinyl`.
+Задать настройки, связанные с движком vinyl, можно двумя способами:
+- в YAML-конфигурации кластера в секции `vinyl`;
+- в опции [index_opts](https://www.tarantool.io/ru/doc/latest/reference/reference_lua/box_space/create_index/#index-opts)
+  при создании индекса через `space_object:create_index()`.
+
 Подробную информацию о поддерживаемых опциях конфигурации для движка vinyl можно найти в
 [документации Tarantool](https://www.tarantool.io/ru/doc/latest/reference/configuration/configuration_reference/#vinyl).
 
