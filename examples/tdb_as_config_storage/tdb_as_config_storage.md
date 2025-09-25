@@ -37,7 +37,7 @@
   Есть два способа получить исходные файлы примера:
 
   * Архив с полной документацией Tarantool DB, полученный по почте или скачанный в [личном кабинете tarantool.io](https://www.tarantool.io/en/accounts/customer_zone/packages/tarantooldb/release/documentation).
-    Пример архива: `tarantooldb-documentation-2.0.0.tar.gz`.
+    Пример архива: `tarantooldb-documentation-3.0.0.tar.gz`.
     Пример `tdb_as_config_storage` расположен в таком архиве в директории `./doc/examples/tdb_as_config_storage/`.
     
   * Отдельный архив [tdb_as_config_storage.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/tdb_as_config_storage/tdb_as_config_storage.tar.gz), скачанный c сайта Tarantool.

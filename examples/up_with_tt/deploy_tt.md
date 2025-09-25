@@ -28,7 +28,7 @@
   Есть два способа получить исходные файлы примера:
 
   * Архив с полной документацией Tarantool DB, полученный по почте или скачанный в [личном кабинете tarantool.io](https://www.tarantool.io/en/accounts/customer_zone/packages/tarantooldb/release/documentation).
-    Пример архива: `tarantooldb-documentation-2.0.0.tar.gz`.
+    Пример архива: `tarantooldb-documentation-3.0.0.tar.gz`.
     Пример `up_with_tt` расположен в таком архиве в директории `./doc/examples/up_with_tt/`.
     
   * Отдельный архив [up_with_tt.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/up_with_tt/up_with_tt.tar.gz), скачанный c сайта Tarantool.
@@ -68,7 +68,7 @@ tar -xzvf tarantooldb-<VERSION>.<OS>.<ARCH>.tar.gz
 - `OS` -- поддерживаемая операционная система;
 - `ARCH` -- архитектура процессора.
 
-Пример: `tarantooldb-2.0.0.linux.x86_64.tar.gz`.
+Пример: `tarantooldb-3.0.0.linux.x86_64.tar.gz`.
 
 При распаковке будет создана директория `tarantooldb`.
 Переименовывать её нельзя.

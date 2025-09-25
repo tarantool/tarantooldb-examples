@@ -29,7 +29,7 @@
   Есть два способа получить исходные файлы примера:
 
   * Архив с полной документацией Tarantool DB, полученный по почте или скачанный в [личном кабинете tarantool.io](https://www.tarantool.io/en/accounts/customer_zone/packages/tarantooldb/release/documentation).
-    Пример архива: `tarantooldb-documentation-2.0.0.tar.gz`.
+    Пример архива: `tarantooldb-documentation-3.0.0.tar.gz`.
     Пример `dictionary` расположен в таком архиве в директории `./doc/examples/dictionary/`.
     
   * Отдельный архив [dictionary.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/dictionary/dictionary.tar.gz), скачанный c сайта Tarantool.
@@ -108,8 +108,8 @@ box.space
 ```{note}
 :class: note
 
-Tarantool DB 2.x поддерживает как новый формат названий методов dictionary API (`dictionary_router_get()`), так и старый (`dictionary_router.get()`).
-Методы, добавленные в версии 2.x, поддерживают оба формата названий.
+Tarantool DB 3.x поддерживает как новый формат названий методов dictionary API (`dictionary_router_get()`), так и старый (`dictionary_router.get()`).
+Методы, добавленные в версии Tarantool DB 2.x и выше, поддерживают оба формата названий.
 ```
 
 Вызвать метод в новом формате через [tt CLI](install-install_tt) или в [TCM](getting_started-tcm) во вкладке **Terminal** (`TT Connect`)
