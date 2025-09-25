@@ -1,9 +1,9 @@
 (user_guide-vinyl_spaces)=
-# Использование спейсов vinyl
+# Использование спейсов на движке vinyl
 
 Доступно с версии 3.0.0.
 
-В этом руководстве описано, как настроить и использовать спейсы на дисковом движке vinyl.
+В этом руководстве описаны создание спейса vinyl, его настройка, а также выполнение операций с этим спейсом через модуль CRUD.
 
 (user_guide-vinyl_spaces-prereq)=
 ## Пререквизиты
@@ -79,7 +79,7 @@ make start
 - возможно переключение контекста файбером при чтении из vinyl, поскольку данные могут отсутствовать в памяти и
   придется обращаться к диску.
 
-Подробнее о различиях между vinyl и memtx можно узнать в [документации Tarantool](https://www.tarantool.io/en/doc/latest/platform/engines/memtx_vinyl_diff/).
+Подробнее о различиях между vinyl и memtx можно узнать в [документации Tarantool](https://www.tarantool.io/ru/doc/latest/platform/engines/memtx_vinyl_diff/).
 
 (user_guide-vinyl_spaces-create)=
 ## Создание спейса vinyl
