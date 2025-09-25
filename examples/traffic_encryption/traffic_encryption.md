@@ -39,7 +39,7 @@ Tarantool DB позволяет шифровать трафик по IPROTO пр
   Есть два способа получить исходные файлы примера:
 
   * Архив с полной документацией Tarantool DB, полученный по почте или скачанный в [личном кабинете tarantool.io](https://www.tarantool.io/en/accounts/customer_zone/packages/tarantooldb/release/documentation).
-    Пример архива: `tarantooldb-documentation-2.0.0.tar.gz`.
+    Пример архива: `tarantooldb-documentation-3.0.0.tar.gz`.
     Пример `traffic_encryption` расположен в таком архиве в директории `./doc/examples/traffic_encryption/`.
 
   * Отдельный архив [traffic_encryption.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/traffic_encryption/traffic_encryption.tar.gz), скачанный c сайта Tarantool.
