@@ -1,21 +1,36 @@
-# Охлаждение данных с помощью библиотеки cooler 
+(user_guide-cooler_example)=
+# Пример архивации устаревших данных
 
-В этом руководстве описано, как использовать библиотеку `cooler` для автоматического переноса ("охлаждения") устаревших данных из `memtx`-спейса в `vinyl`-спейс на основе времени жизни (TTL), например, по полям `created_at` или `updated_at`. 
+Доступно с версии 3.0.0.
 
-Такой подход позволяет держать горячие данные в оперативной памяти (`memtx`) для высокой производительности и переносить холодные данные на диск (`vinyl`) для долгосрочного хранения.
+В этом руководстве приведен пример переноса пользовательских сессий старше 30 минут из спейса memtx в vinyl.
 
+(user_guide-cooler_example-prereq)=
 ## Пререквизиты
 
-Для выполнения примера вам понадобится:
+Для выполнения примера вам понадобятся:
 
-* Установленный Docker-образ Tarantool DB;
-* Приложение Docker Compose;
-* Утилита tt CLI;
-* Исходные файлы примера `cooler`.
+- установленный [Docker-образ](install_docker-image) Tarantool DB; 
+- приложение Docker Compose;
+- утилита [tt CLI](install-install_tt);
+- исходные файлы примера `cooler`.
 
-## Запуск кластера
+  ```{admonition} Примечание
+  :class: note
 
-Для успешного запуска кластера должны быть свободны следующие порты: 
+  Есть два способа получить исходные файлы примера:
+
+  * Архив с полной документацией Tarantool DB, полученный по почте или скачанный в [личном кабинете tarantool.io](https://www.tarantool.io/en/accounts/customer_zone/packages/tarantooldb/release/documentation).
+    Пример архива: `tarantooldb-documentation-3.0.0.tar.gz`.
+    Пример `cooler` расположен в таком архиве в директории `./doc/examples/cooler/`.
+    
+  * Отдельный архив [cooler.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/cooler/cooler.tar.gz), скачанный c сайта Tarantool.
+  ```
+
+(user_guide-cooler_example-start_example)=
+## Запуск стенда
+
+Для успешного запуска стенда должны быть свободны следующие порты: 
 
 * 2379
 * 3301--3308
@@ -27,87 +42,103 @@
 cd ./doc/examples/cooler/
 ```
 
-Запустите кластер:
+Запустите стенд:
 
 ```shell
 make start
 ```
 
 После выполнения команды будет развернут следующий стенд:
-- Кластер Tarantool DB:
-  - 2 роутера
-  - 2 набора реплик по 3 хранилища
-- Кластер etcd из 3 узлов
-- Tarantool Cluster Manager (TCM)
+- кластер Tarantool DB:
+  - 2 роутера;
+  - 2 набора реплик по 3 хранилища;
+- кластер etcd из 3 узлов;
+- веб-интерфейс [Tarantool Cluster Manager](getting_started-tcm) (TCM).
 
-После запуска должны работать все контейнеры, кроме `init_host`, который используется только для инициализации и завершает свою работу после настройки кластера.
+После запуска должны работать все контейнеры, кроме `init_host`.
+Контейнер `init_host` используется только для инициализации и завершает свою работу после настройки кластера.
 
-## Доступ к Tarantool Cluster Manager
+Также после запуска кластера становится доступен веб-интерфейс TCM.
+Через TCM вы можете управлять конфигурацией кластера, просматривать метрики кластера и подключаться к его узлам.
+Для входа в TCM откройте в браузере адрес [http://localhost:8081](http://localhost:8081).
+Логин и пароль для входа:
 
-После запуска кластера становится доступен веб-интерфейс Tarantool Cluster Manager (TCM).
-Откройте в браузере адрес http://localhost:8081.
-Для входа используйте следующие логин и пароль:
 - **Username**: `admin`
 - **Password**: `secret`
 
-Через TCM вы можете управлять конфигурацией, просматривать метрики и подключаться к узлам. 
+(user_guide-cooler_example-create_space_memtx)=
+## Создание спейса в memtx
 
-## Создание memtx-спейса и настройка cooler
+В руководстве при запуске кластера применяется [миграция](user_guide-migrations) из файла
+`./cluster/migrations/scenario/001_sessions.lua` примера `cooler`.
+В этой миграции создан на движке memtx шардированный спейс `sessions` для хранения пользовательских сессий:
 
-В данном руководстве используется миграция, определённая в файле: `./cluster/migrations/scenario/001_sessions.lua`.
-
-В ней создаётся шардированный `memtx`-спейс `sessions` для хранения пользовательских сессий. Для архивации устаревших записей используется модуль `cooler`. 
-
-### Настройка cooler
-
-Функция `cooler.setup()` настраивает процесс архивации для указанного `memtx`-спейса. Она регистрирует условие архивации и создаёт архивный `vinyl`-спейс с заданными параметрами:
-
-```lua
-cooler.setup('sessions', {
-    -- Параметры vinyl
-    vinyl_params = {
-        bloom_fpr = 0.05,
-        run_count_per_level = 8,
-        run_size_ratio = 3.5,
-    }
-})
+```{literalinclude} cluster/migrations/scenario/001_sessions.lua
+:start-after: if is_storage() then
+:end-before: box.schema.func.create(
+:language: lua
+:dedent:
 ```
 
-Имена функции и архивного спейса формируются автоматически на основе имени исходного спейса:
+(user_guide-cooler_example-setup)=
+## Настройка архивации
 
-* Имя функции-предиката - `<space_name>_is_cooled`, в данном случае `sessions_is_cooled`. Его можно переопределить с помощью параметра `is_cooled_fun_name`.
-* Имя архивного `vinyl`-спейса - `<space_name>_cold`, то есть `sessions_cold`. Может быть задано явно через параметр `vinyl_space_name`.
+Также в миграции, [описанной выше](user_guide-cooler_example-create_space_memtx), указаны [настройки процесса архивации](user_guide-cooler_example-setup_space)
+для заданного спейса memtx и определено [условие](user_guide-cooler_example-set_func), по которому будет запускаться архивация.
 
+(user_guide-cooler_example-setup_space)=
+### Создание спейса vinyl
+
+Метод [cooler.setup()](reference_lua-cooler-setup) настраивает процесс архивации для заданного спейса memtx.
+Метод регистрирует условие архивации и создаёт архивный спейс в vinyl с указанными параметрами:
+
+```{literalinclude} cluster/migrations/scenario/001_sessions.lua
+:start-at: cooler.setup(
+:end-before: end
+:language: lua
+:dedent:
+```
+
+По умолчанию имена функции и архивного спейса формируются автоматически на основе имени исходного спейса memtx следующим образом:
+
+- имя функции-предиката -- `<space_name>_is_cooled`, в данном случае `sessions_is_cooled`.
+  Может быть задано явно через параметр `is_cooled_fun_name`.
+- имя архивного спейса vinyl -- `<space_name>_cold`, то есть `sessions_cold`.
+  Может быть задано явно через параметр `vinyl_space_name`.
+
+(user_guide-cooler_example-set_func)=
 ### Условие архивации
 
-Функция-предикат с условием архивации задаётся с помощью функции `cooler.set_func`:
+Функцию с условием архивации можно задать с помощью метода [cooler.set_func()](reference_lua-cooler-set_func).
+В примере ниже также создана функция `sessions_updated_at_start_key`, которая возвращает порог времени для архивации.
+Условие `t.updated_at < ...` означает, что нужно архивировать все сессии, обновлённые более 30 минут назад.
 
-```lua
-box.schema.func.create('sessions_updated_at_start_key', {
-    body = "function() return require('clock').time() - 60 * 30 end",
-    if_not_exists = true,
-})
-
-cooler.set_func('sessions', "t.updated_at < box.func.sessions_updated_at_start_key:call()")
+```{literalinclude} cluster/migrations/scenario/001_sessions.lua
+:start-at: box.schema.func.create(
+:end-before: cooler.setup(
+:language: lua
+:dedent:
 ```
 
-Мы также определяем здесь функцию `sessions_updated_at_start_key`, возвращающую порог времени для архивации. Условие `t.updated_at < ...` означает: архивировать все сессии, обновлённые более 30 минут назад.
+(user_guide-cooler_example-check_spaces)=
+### Проверка созданных спейсов
 
-## Проверка создания спейсов
+Проверить, что memtx-спейс `sessions` и соответствующий ему архивный спейс в vinyl созданы успешно, можно так:
 
-Перейдите в раздел **Tuples** TCM. 
+1. В TCM перейдите на вкладку **Tuples**.
+2. Если спейсы созданы успешно, в списке вы увидите два спейса:
 
-Вы увидите два спейса:
+   - `sessions` -- спейс в memtx для свежих сессий;
+   - `sessions_cold` -- созданный спейс в vinyl для архивных сессий.
 
-1. `sessions` -- `memtx`-спейс для свежих сессий
-2. `sessions_cold` -- созданный `vinyl`-спейс для архивных сессий
+(user_guide-cooler_example-add_data)=
+## Вставка тестовых данных
 
-## Добавление тестовых данных
+Чтобы начать работу с базой данных через интерактивную консоль Tarantool, нужно подключиться к узлу кластера.
+Это можно сделать двумя способами:
 
-Чтобы начать работу с базой данных через интерактивную консоль Tarantool, нужно подключиться к узлу кластера. Это можно сделать двумя способами:
-
-- Через веб-интерфейс TCM;
-- Через терминал с помощью утилиты tt CLI:
+- через веб-интерфейс TCM;
+- через терминал с помощью утилиты tt CLI:
 
   ```shell
   tt connect admin:secret-cluster-cookie@localhost:3301
@@ -117,11 +148,10 @@ cooler.set_func('sessions', "t.updated_at < box.func.sessions_updated_at_start_k
 
 1. Перейдите в раздел **Stateboard**.
 2. Нажмите на набор реплик `router-msk`.
-3. Выберите узел `router-msk` и в открывшемся окне перейдите на вкладку **Terminal**.
+3. Выберите узел `router-msk` и в открывшемся окне перейдите на вкладку **Terminal** (`TT Connect`).
+   Теперь вы находитесь в интерактивной консоли Tarantool и можете выполнять запросы к кластеру.
 
-Теперь вы находитесь в интерактивной консоли Tarantool и можете выполнять запросы к кластеру.
-
-Для удобства ввода данных определите вспомогательную функцию для получения текущего времени:
+Для удобства ввода данных определите вспомогательную функцию `now()`, которая получает текущее время:
 
 ```lua
 function now()
@@ -130,7 +160,7 @@ function now()
 end
 ```
 
-Теперь вставьте несколько сессий с разным временем обновления: 
+Теперь добавьте в спейс memtx несколько сессий с разным временем обновления: 
 
 ```lua
 crud.insert_object_many('sessions', {
@@ -142,156 +172,205 @@ crud.insert_object_many('sessions', {
 })
 ```
 
-## Включение архивации
+(user_guide-cooler_example-enable)=
+## Запуск архивации данных
 
-Чтобы активировать фоновую задачу архивации, перейдите в **Configuration**. Добавьте конфигурацию роли `cooler` в секцию `storages`: 
+Чтобы запустить фоновую задачу архивации:
 
-```yaml
-storages:
-  replication:
-    failover: election
-  sharding:
-    roles: [storage]
-  roles:
-    - roles.crud-storage
-    - roles.cooler
-  roles_cfg:
-    roles.cooler:
-      sessions:
-        expirationd:
-          primary:
-```
+1. В TCM перейдите во вкладку **Configuration** с YAML-конфигурацией кластера.
+2. На вкладке **Configuration** добавьте в секцию экземпляров хранилищ (`storages`) технологическую роль `roles.cooler`
+   и настройки этой роли в `roles_cfg`: 
 
-Нажмите **Save**, затем **Apply**.
+    ```yaml
+    storages:
+      replication:
+        failover: election
+      sharding:
+        roles: [storage]
+      roles:
+        - roles.crud-storage
+        - roles.cooler
+      roles_cfg:
+        roles.cooler:
+          sessions:
+            expirationd:
+              primary:
+    ```
 
-Это запустит фоновую задачу модуля `expirationd`, которая будет периодически проверять `sessions` по первичному индексу и перемещать старые записи в `sessions_cold` по заданному условию.
+   Здесь:
+   - `sessions` -- название спейса memtx, для которого настраивается архивация.
+     Параметры архивации такого спейса задаются через настройки модуля `expirationd` в одноименной вложенной секции
+     конфигурации;
+     - `primary` -- название первичного ключа, по которому идет сканирование спейса.
+   
+   Полный список опций конфигурации для роли `roles.cooler` можно найти в [Справочнике по конфигурации](configuration_reference-cooler).
 
-## Проверка архивации
+3. Нажмите **Save** и затем **Apply**, чтобы сохранить и применить новую конфигурацию кластера.
 
-Убедимся, что архивация работает.  
+Эти настройки запускают фоновую задачу модуля `expirationd`: задача периодически сканирует спейс `sessions` по
+первичному индексу и перемещает старые записи в архивный спейс `sessions_cold` по заданному условию.
 
-Перейдите обратно в раздел **Tuples**. Вы увидите:
+Чтобы проверить запущенную архивацию данных, откройте вкладку **Tuples**.
+Если все настроено корректно, вы увидите в спейсах следующее:
 
-* В `sessions`: остались только свежие сессии (`updated_at` < 30 минут назад)
-* В `sessions_cold`: появились старые сессии (`id = 4`, `id = 5`).
+- в `sessions` остались только свежие сессии (`updated_at` < 30 минут назад);
+- в `sessions_cold` появились старые сессии (`id = 4`, `id = 5`).
 
-## Проверка статистики cooler
+(user_guide-cooler_example-info_stats)=
+## Статистика архивации
 
-Подключитесь к одному из лидеров хранилищ через **Terminal** в TCM.  
+Просмотреть текущую статистику архивации можно с помощью методов [cooler.info()](reference_lua-cooler-info) и
+[cooler.stats()](reference_lua-cooler-stats).
+Для этого:
 
-Загрузите модуль `cooler`:
+1. В TCM подключитесь к одному из лидеров хранилищ и перейдите на вкладку **Terminal** (`TT Connect`).  
+2. Во вкладке **Terminal** загрузите модуль `cooler`:
 
-```lua
-cooler = require('cooler')
-```
+   ```lua
+   cooler = require('cooler')
+   ```
 
-Далее, с помощью функции `cooler.info()` можно посмотреть следующую информацию о параметрах архивирования для спейса на текущем инстансе:
+3. Вызовите метод `cooler.info()`:
 
-* `memtx_space` - имя `memtx`-спейса.
-* `memtx_tuples_count` - количество кортежей в `memtx`-спейсе.
-* `vinyl_space` - имя `vinyl`-спейса.
-* `vinyl_params` - параметры `vinyl`-спейса
-* `vinyl_tuples_count` - количество кортежей в `vinyl`-спейсе.
-* `vinyl_bytes_count` - размер `vinyl`-спейса в байтах.
-* `is_cooled_fun` - имя функции-предиката для проверки условия архивации.
-* `cooling_indexes` - имена индексов, по которым выполняется архивация.
-* `resetup_count` - количество вызовов `resetup` для спейса.
+   ```lua
+   cooler.info()
+   ```
+   
+   Метод выводит следующую информацию о параметрах архивирования для спейса на текущем экземпляре:
 
-Также, вызвав функцию `cooler.stats()` можно получить статистику архивации для текущего полного прохода по спейсу:
+   - `memtx_space` -- имя спейса memtx;
+   - `memtx_tuples_count`  -- количество кортежей в спейсе memtx;
+   - `vinyl_space` -- имя спейса vinyl;
+   - `vinyl_params` -- параметры спейса vinyl (см. параметры в [](reference_lua-cooler-setup)).
+     Полный список доступных параметров vinyl и их подробное описание приведены в
+       [документации Tarantool](https://www.tarantool.io/ru/doc/latest/reference/configuration/configuration_reference/#vinyl);
+   - `vinyl_tuples_count` -- количество кортежей в спейсе vinyl;
+   - `vinyl_bytes_count` -- размер спейса vinyl в байтах;
+   - `is_cooled_fun` -- имя функции-предиката для проверки условия архивации;
+   - `cooling_indexes` -- имена индексов, по которым выполняется архивация;
+   - `resetup_count` -- количество вызовов метода [cooler.resetup()](reference_lua-cooler-resetup) для спейса.
 
-* `scan_elapsed` - время с начала полного прохода (в секундах).
-* `tuples_cooled` - количество архивированных кортежей.
-* `bytes_cooled` - количество архивированных байт.
-* `tuples_scanned` - количество просмотренных кортежей.
-* `bytes_scanned` - количество просмотренных байт.
-* `avg_rate` - средняя скорость архивации (кортежей/сек)
-* `avg_bytes_rate` - средняя скорость архивации (байт/сек)
-* `tuples_remaining` - оценка оставшихся кортежей до завершения прохода.
-* `eta` - оценка времени до завершения прохода (в секундах).
-* `mismatch_count` - количество несовпадений при проверке `memtx`-кортежей в ходе их переноса в `vinyl`-спейс. В результате в `vinyl`-спейсе оказываются старые версии этих кортежей.
-* `errors_count` - количество ошибок во время архивации.
+4. Вызовите метод `cooler.stats()`:
 
-## Проверка метрик
+   ```lua
+   cooler.stats()
+   ```
+   
+   Метод выводит статистику архивации для текущего полного прохода по спейсу:
 
-Перейдите в раздел **Cluster metrics**. Найдите метрику `cooler_on` и убедитесь, что она равна `1` на обоих лидерах хранилищ. Это означает, что архивация активна.
+   - `scan_elapsed` -- время с начала полного прохода в секундах;
+   - `tuples_cooled` -- количество архивированных кортежей;
+   - `bytes_cooled` -- объем архивированных данных в байтах;
+   - `tuples_scanned` -- количество просканированных кортежей;
+   - `bytes_scanned` -- объем просканированных данных в байтах;
+   - `avg_rate` -- средняя скорость архивации (кортежи в секунду);
+   - `avg_bytes_rate` -- средняя скорость архивации (байты в секунду);
+   - `tuples_remaining` -- оценка оставшихся кортежей до завершения прохода;
+   - `eta` -- оценка времени до завершения прохода в секундах;
+   - `mismatch_count` -- количество несовпадений при проверке кортежей memtx в ходе их переноса в спейс vinyl.
+     После переноса кортежа в спейс vinyl и до его удаления из спейса memtx эти кортежи сравниваются между собой.
+     Если во время переноса кортеж memtx был изменен, в vinyl остаётся предыдущая версия кортежа.
+     В этом случае значение `cooler_mismatches` увеличивается на 1;
+   - `errors_count` -- количество ошибок, возникших во время архивации.
 
-Также здесь вы можете посмотреть другие метрики архивации с префиксом `cooler`.
+(user_guide-cooler_example-metrics)=
+## Просмотр метрик
 
-## Отключение архивации
+Для отслеживания процесса переноса данных в Tarantool DB доступен набор метрик модуля `cooler`.
+Метрики рассчитываются отдельно для каждой задачи архивации, с разбивкой по ключам `space` и `index`-- спейсу и индексу,
+по которым выполняется архивация.
+Полный список доступных метрик модуля можно найти в разделе [Метрики Tarantool DB](admin_guide-monitoring_tdb-cooler).
 
-Чтобы остановить охлаждение: 
+Для просмотра метрик в TCM откройте вкладку **Cluster** > **Cluster metrics**.
+Все доступные метрики архивации помечены в списке префиксом `cooler`.
 
-1. Перейдите в раздел **Configuration**.
-2. Удалите добавленный конфиг роли `cooler`:
+Чтобы проверить, включена ли архивация, в строке поиска найдите метрику `cooler_on`.
+Убедитесь, что она равна `1` на каждом из лидеров хранилищ - это означает, что архивация запущена.
 
-```yaml
-storages:
-  replication:
-    failover: election
-  sharding:
-    roles: [storage]
-  roles:
-    - roles.crud-storage
-    - roles.cooler
-  roles_cfg:  # пусто
-```
+Смотрите также: [Мониторинг в Tarantool DB](admin_guide-monitoring).
 
-Нажмите **Save** и **Apply**, чтобы применить конфиг.
+(user_guide-cooler_example-disable)=
+## Остановка архивации
 
-Теперь архивация остановлена. Перейдите в раздел **Cluster metrics** и проверьте, что метрика `cooler_on` равна `0` на инстансах хранилищ.
+Чтобы отключить фоновый перенос данных: 
 
+1. В TCM откройте вкладку **Configuration**.
+2. Удалите из конфигурации кластера настройки технологической роли `roles.cooler`, указанные в секции `roles_cfg`:
+
+    ```yaml
+    storages:
+      replication:
+        failover: election
+      sharding:
+        roles: [storage]
+      roles:
+        - roles.crud-storage
+        - roles.cooler
+      roles_cfg:  # пусто
+    ```
+
+3. Нажмите **Save** и **Apply**, чтобы применить новую конфигурацию кластера.
+
+Теперь архивация остановлена.
+Чтобы проверить это, перейдите во вкладку **Cluster** > **Cluster metrics** и проверьте, что метрика `cooler_on` равна `0` на экземплярах хранилищ.
+
+(user_guide-cooler_example-change_format)=
 ## Смена формата спейса
 
-Теперь мы изменим формат `sessions`, добавив поле `ip_address`, и пересоздадим архивный спейс.
+Теперь измените формат memtx-спейса `sessions`, добавив в него поле `ip_address`, и создайте заново архивный спейс.
+Для этого:
 
-Перейдите в раздел **Migrations** и добавьте новую миграцию с именем `002_sessions_resetup.lua`:
+1. В TCM откройте вкладку **Migrations**.
+2. Добавьте новую миграцию `002_sessions_resetup.lua`:
 
-```lua
-local config = require('config')
-local fun = require('fun')
-local cooler = require('cooler')
-
-local function is_storage()
-    return fun.index('roles.crud-storage', config:get('roles')) ~= nil
-end
-
-local function apply()
-    if is_storage() then
-        box.space.sessions:format({
-            { name = 'id', type = 'unsigned' },
-            { name = 'bucket_id', type = 'unsigned' },
-            { name = 'status', type = 'string' },
-            { name = 'updated_at', type = 'number' },
-            { name = 'ip_address', type = 'string', is_nullable = true },
-        })
-
-        -- Пересоздаём архивный спейс с новым форматом
-        cooler.resetup('sessions')
+    ```lua
+    local config = require('config')
+    local fun = require('fun')
+    local cooler = require('cooler')
+    
+    local function is_storage()
+        return fun.index('roles.crud-storage', config:get('roles')) ~= nil
     end
-end
-
-return {
-    apply = {
-        scenario = apply,
+    
+    local function apply()
+        if is_storage() then
+            box.space.sessions:format({
+                { name = 'id', type = 'unsigned' },
+                { name = 'bucket_id', type = 'unsigned' },
+                { name = 'status', type = 'string' },
+                { name = 'updated_at', type = 'number' },
+                { name = 'ip_address', type = 'string', is_nullable = true },
+            })
+    
+            -- Повторное создание архивного спейса с новым форматом
+            cooler.resetup('sessions')
+        end
+    end
+    
+    return {
+        apply = {
+            scenario = apply,
+        }
     }
-}
-```
+    ```
 
-Здесь мы используем функцию `cooler.resetup()`, которая пересоздаёт архивный `vinyl`-спейс следующим образом:
+   В миграции используется метод [cooler.resetup()](reference_lua-cooler-resetup), который при смене формата исходного спейса
+   повторно создает спейс в vinyl следующим образом:
 
-* Старый `vinyl`-спейс переименовывается в `<vinyl_space_name>_<N>`, где N - счётчик переименований (начинается с 1). Поскольку это первый вызов, новое имя будет `sessions_cold_1`.
-* Создаётся новый `vinyl`-спейс `sessions_cold` с актуальным форматом и теми же параметрами.
+   - старый спейс vinyl будет переименован в `<vinyl_space_name>_<N>`, где `N` -- счётчик переименований (начинается с 1).
+     Поскольку это первый вызов, новое имя будет `sessions_cold_1`;
+   - новый vinyl-спейс `sessions_cold` будет создан с актуальным форматом и теми же параметрами.
 
-Нажмите **Save** и **Apply** для применения миграции.
+3. Нажмите **Save** и **Apply** для применения миграции.
+4. Перейдите на вкладку **Tuples**. На этой вкладке вы увидите:
 
-Перейдя в раздел **Tuples**, мы увидим:
+   - старый архивный спейс `sessions_cold_1` с новым именем;
+   - новый пустой спейс `sessions_cold` с полем `ip_address`.
 
-* Старый архивный спейс `sessions_cold_1` с новым именем
-* Новый пустой спейс `sessions_cold` с полем `ip_address`
-
+(user_guide-cooler_example-secondary_index)=
 ## Архивация по вторичному индексу
 
-Перейдите обратно в терминал роутера и вставьте новые данные:
+Подключитесь повторно к роутеру, откройте вкладку **Terminal** (`TT Connect`) и добавьте еще несколько новых сессий:
 
 ```lua
 crud.insert_object_many('sessions', {
@@ -303,39 +382,48 @@ crud.insert_object_many('sessions', {
 })
 ```
 
-Теперь включим более эффективную архивацию -- по вторичному индексу `by_updated_at`.
+Чтобы включить более эффективную архивацию по вторичному индексу `by_updated_at`:
 
-Перейдите в раздел **Configuration** и обновите конфигурацию роли `cooler`:
+1. В TCM перейдите во вкладку **Configuration**.
+2. В YAML-конфигурации кластера обновите конфигурацию роли `roles.cooler`:
 
-```yaml
-storages:
-  replication:
-    failover: election
-  sharding:
-    roles: [storage]
-  roles:
-    - roles.crud-storage
-    - roles.cooler
-  roles_cfg:
-    roles.cooler:
-      sessions:
-        expirationd:
-          by_updated_at:
-            start_key: sessions_updated_at_start_key
-            iterator_type: 'LT'
-```
+    ```yaml
+    storages:
+      replication:
+        failover: election
+      sharding:
+        roles: [storage]
+      roles:
+        - roles.crud-storage
+        - roles.cooler
+      roles_cfg:
+        roles.cooler:
+          sessions:
+            expirationd:
+              by_updated_at:
+                start_key: sessions_updated_at_start_key
+                iterator_type: 'LT'
+    ```
 
-Здесь мы задаём индекс `by_updated_at`, порог времени с помощью функции `sessions_updated_at_start_key` и тип итератора `LT` для архивации по TTL. В итоге задача архивации будет эффективно просматривать только старые записи.
+   Здесь:
+   - `sessions` -- название спейса memtx, для которого настраивается архивация;
+     - `by_updated_at` -- название вторичного индекса, по которому идет сканирование спейса;
+       - `start_key` -- ключ, с которого начинается проход по индексу.
+         Функция `sessions_updated_at_start_key` определяет порог времени для архивации;
+       - `iterator_type` -- тип итератора для архивации по TTL.
 
-Нажмите **Save** и **Apply** для применения конфигурации и запуска архивации.
+  В итоге задача архивации будет эффективно сканировать только старые записи.
 
-## Проверка финальных результатов
+3. Нажмите **Save** и **Apply**, чтобы применить конфигурацию и запустить перенос данных.
 
-Перейдите в раздел **Tuples**. Убедитесь, что в `sessions_cold` добавились записи, которые старше 30 минут (`id = 8`, `9`, `10`). При этом в `sessions` остались только свежие (`id = 6`, `7`).
+Чтобы проверить результат работы архивации, перейдите на вкладку **Tuples**.
+Убедитесь, что в vinyl-спейс `sessions_cold` добавлены сессии старше 30 минут (`id = 8`, `9`, `10`).
+При этом в исходном спейсе `sessions` должны остаться только свежие сессии (`id = 6`, `7`).
 
-## Остановка кластера
+(user_guide-cooler_example-stop_example)=
+## Остановка стенда
 
-Чтобы остановить кластер, выполните в локальном терминале следующую команду:
+Чтобы остановить стенд, выполните в локальном терминале следующую команду:
 
 ```shell
 make stop
