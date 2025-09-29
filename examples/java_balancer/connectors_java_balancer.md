@@ -34,7 +34,7 @@
 
 Для выполнения примера требуются:
 
-* установленные [Docker-образы](install_docker-image) Tarantool DB, Prometheus и Grafana;
+* установленные [Docker-образы](install_docker-image) Tarantool DB, Telegraf, InfluxDB и Grafana;
 * приложение Docker Compose;
 * Maven;
 * Java версии 8+;
@@ -64,7 +64,6 @@
 * 3301--3306
 * 8081
 * 8086
-* 9090
 
 Перейдите в директорию `java_balancer`:
 
@@ -114,7 +113,7 @@ box.space
 ## Панель Grafana
 
 Откройте в браузере веб-интерфейс Grafana по адресу [http://localhost:3000/dashboards](http://localhost:3000/dashboards).
-В списке **Dashboards** откройте папку **General** и выберите панель **Tarantool 3 dashboard** в выпадающем списке.
+В списке **Dashboards** откройте папку **General** и выберите панель **Tarantool DB dashboard** в выпадающем списке.
 Проверьте, что графики показывают данные за последние 5 минут, а частота обновления равна 5 секундам:
 
 ![](images/grafana-panel.png)

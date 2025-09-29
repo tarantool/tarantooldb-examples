@@ -19,15 +19,6 @@ services:
     networks:
       - tarantooldb_network
 
-  prometheus:
-    image: prom/prometheus:v2.30.3
-    networks:
-      - tarantooldb_network
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-
   grafana:
     image: grafana/grafana:9.5.14
     networks:
