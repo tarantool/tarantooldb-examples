@@ -27,13 +27,12 @@ roles_cfg:
   roles.httpd:
     default:
       listen: 8081
-      log_requests: log.verbose
+      log_requests: verbose
   roles.metrics-export:
     http:
-      - endpoints:
-          - format: prometheus
-            path: /metrics
-        listen: 8081
+    - endpoints:
+        - format: prometheus
+          path: /metrics
 
 groups:
   routers:
@@ -45,8 +44,8 @@ groups:
       roles: [router]
     roles:
       - roles.crud-router
-      - roles.metrics-export
       - roles.httpd
+      - roles.metrics-export
     roles_cfg:
       roles.crud-router:
         stats: true
@@ -72,8 +71,8 @@ groups:
       roles: [storage]
     roles:
       - roles.crud-storage
-      - roles.metrics-export
       - roles.httpd
+      - roles.metrics-export
     replicasets:
       storage-1:
         instances:

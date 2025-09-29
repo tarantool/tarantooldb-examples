@@ -113,7 +113,7 @@ box.space
 ## Панель Grafana
 
 Откройте в браузере веб-интерфейс Grafana по адресу [http://localhost:3000/dashboards](http://localhost:3000/dashboards).
-В списке **Dashboards** откройте папку **General** и выберите панель **Tarantool 3 dashboard** в выпадающем списке.
+В списке **Dashboards** откройте папку **General** и выберите панель **Tarantool DB dashboard** в выпадающем списке.
 Проверьте, что графики показывают данные за последние 5 минут, а частота обновления равна 5 секундам:
 
 ![](images/grafana-panel.png)

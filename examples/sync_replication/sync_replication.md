@@ -162,10 +162,10 @@ go run -tags go_tarantool_ssl_disable main.go target=sync
 ## Отслеживание состояния репликации в Grafana
 
 Откройте в браузере веб-интерфейс Grafana по адресу [http://localhost:3000/dashboards](http://localhost:3000/dashboards).
-В списке **Dashboards** выберите панель **Tarantool 3 dashboard** в папке **General**.
+В списке **Dashboards** выберите панель **Tarantool DB dashboard** в папке **General**.
 Проверьте, что графики показывают данные за последние 15 минут.
 
-Чтобы отслеживать состояние репликации, разверните панель **Replication overview**.
+Чтобы отслеживать состояние репликации, разверните панель **Tarantool replication overview**.
 
 ![](./images/replication_overview.png)
 

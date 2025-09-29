@@ -104,10 +104,10 @@ make start
 ## Просмотр метрики в Grafana
 
 Откройте в браузере веб-интерфейс Grafana по адресу [http://localhost:3000/dashboards](http://localhost:3000/dashboards).
-В списке **Dashboards** выберите панель **Tarantool 3 dashboard** в папке **General**.
+В списке **Dashboards** выберите панель **Tarantool DB dashboard** в папке **General**.
 Проверьте, что графики показывают данные за последние 15 минут, а частота обновления равна 5 секундам.
 
-Разверните панель **Cluster Overview** и откройте график **Custom count**.
+Разверните панель **Tarantool cluster overview** и откройте график **Custom count**.
 Чтобы развернуть график на полный экран, нажмите на графике кнопку **...** (**Menu**) в правом верхнем углу и нажмите в выпадающем меню
 кнопку **View**.
 
