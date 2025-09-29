@@ -180,9 +180,9 @@ make start
 Теперь вы находитесь в интерактивной консоли Tarantool и можете выполнять запросы к кластеру.
 
 (user_guide-vinyl_spaces-crud-functions)=
-### Определение вспомогательных функций
+### Определение вспомогательной функции
 
-Для удобства ввода данных добавьте в консоли следующие вспомогательные функции:
+Для удобства ввода данных добавьте в консоль следующую вспомогательную функцию:
 
 - `now()` -- функция возвращает текущее время: 
 
@@ -190,14 +190,6 @@ make start
   function now()
       local datetime = require('datetime')
       return datetime.now()
-  end
-  ```
-
-- `get_pk(id)` -- функция формирует первичный ключ в виде `{ bucket_id, id }`, вычисляя `bucket_id`:
-
-  ```lua
-  function get_pk(id)
-      return { vshard.router.bucket_id_strcrc32(id), id }
   end
   ```
 
@@ -247,7 +239,7 @@ crud.select('messages')
 Прочитайте запись с `id = 1`:
 
 ```lua
-crud.get('messages', get_pk(1))
+crud.get('messages', { box.NULL, 1 })
 ```
 
 Вывод:
@@ -268,7 +260,7 @@ crud.get('messages', get_pk(1))
 Обновите сообщение с `id = 2`, изменив его текст:
 
 ```lua
-crud.update('messages', get_pk(2), { {'=', 'text', 'Some text'} })
+crud.update('messages', { box.NULL, 2 }, { {'=', 'text', 'Some text'} })
 ```
 
 Вывод:
@@ -289,7 +281,7 @@ crud.update('messages', get_pk(2), { {'=', 'text', 'Some text'} })
 Удалите сообщение с `id = 1`:
 
 ```lua
-crud.delete('messages', get_pk(1))
+crud.delete('messages', { box.NULL, 1 })
 ```
 
 Вывод:
