@@ -2,9 +2,8 @@
 # Использование координаторов отказоустойчивости
 
 В этом руководстве показано, как настроить работу 
-[внешних координаторов отказоустойчивости](https://www.tarantool.io/en/doc/latest/platform/replication/supervised_failover/#repl-supervised-failover)
+[внешних координаторов отказоустойчивости](admin_guide-failover)
 (*supervised failover coordinators*).
-
 
 Содержание:
 
