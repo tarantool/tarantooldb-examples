@@ -1,15 +1,24 @@
 http:
     host: 0.0.0.0
     port: 8081
+    tls:
+      enabled: true
+      cert-file: /certs/tcm/server.pem
+      key-file: /certs/tcm/server-key.pem
 
 storage:
-    provider: etcd
-    etcd:
-        prefix: /tcm
-        endpoints:
-            - http://etcd1:2379
-            - http://etcd2:2379
-            - http://etcd3:2379
+  provider: etcd
+  etcd:
+      prefix: /tcm
+      endpoints:
+          - https://etcd1:2379
+          - https://etcd2:2379
+          - https://etcd3:2379
+      tls:
+        enabled: true
+        trusted-ca-file: /certs/ca/root-ca.pem
+        cert-file: /certs/etcd/client.pem
+        key-file: /certs/etcd/client-key.pem
 security:
   bootstrap-password: secret
 
@@ -25,11 +34,19 @@ initial-settings:
         etcd-connection:
           prefix: /tdb
           endpoints:
-            - http://etcd1:2379
-            - http://etcd2:2379
-            - http://etcd3:2379
+            - https://etcd1:2379
+            - https://etcd2:2379
+            - https://etcd3:2379
+          tls:
+            enabled: true
+            trusted-ca-file: /certs/ca/root-ca.pem
+            cert-file: /certs/etcd/client.pem
+            key-file: /certs/etcd/client-key.pem
       tarantool-connection:
         username: "admin"
         password: "secret-cluster-cookie"
         ssl:
           enabled: true
+          ca-file: /certs/ca/root-ca.pem
+          cert-file: /certs/tarantool/client.pem
+          key-file: /certs/tarantool/client-key.pem

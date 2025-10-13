@@ -1,23 +1,76 @@
+x-etcd-base: &etcd-base
+  image: quay.io/coreos/etcd:v3.5.15
+  networks:
+    - tarantooldb_network
+  volumes:
+    - ../certs/ca:/certs/ca:ro
+    - ../certs/etcd:/certs/etcd:ro
+
 services:
   etcd1:
-    image: quay.io/coreos/etcd:v3.5.15
-    command: etcd --name etcd1 --advertise-client-urls http://etcd1:2379 --listen-client-urls http://0.0.0.0:2379 --initial-advertise-peer-urls http://etcd1:2380 --listen-peer-urls http://0.0.0.0:2380 --initial-cluster-token etcd-cluster --initial-cluster etcd1=http://etcd1:2380,etcd2=http://etcd2:2380,etcd3=http://etcd3:2380 --initial-cluster-state new --enable-v2
-    networks:
-      - tarantooldb_network
+    <<: *etcd-base
+    command: >
+      etcd --name etcd1
+      --data-dir /etcd-data
+      --listen-client-urls https://0.0.0.0:2379
+      --advertise-client-urls https://etcd1:2379
+      --listen-peer-urls https://0.0.0.0:2380
+      --initial-advertise-peer-urls https://etcd1:2380
+      --initial-cluster etcd1=https://etcd1:2380,etcd2=https://etcd2:2380,etcd3=https://etcd3:2380
+      --initial-cluster-token my-etcd-cluster
+      --initial-cluster-state new
+      --client-cert-auth
+      --trusted-ca-file /certs/ca/root-ca.pem
+      --cert-file /certs/etcd/server.pem
+      --key-file /certs/etcd/server-key.pem
+      --peer-client-cert-auth
+      --peer-trusted-ca-file /certs/ca/root-ca.pem
+      --peer-cert-file /certs/etcd/peer.pem
+      --peer-key-file /certs/etcd/peer-key.pem
     ports:
       - "2379:2379"
 
   etcd2:
-    image: quay.io/coreos/etcd:v3.5.15
-    command: etcd --name etcd2 --advertise-client-urls http://etcd2:2379 --listen-client-urls http://0.0.0.0:2379 --initial-advertise-peer-urls http://etcd2:2380 --listen-peer-urls http://0.0.0.0:2380 --initial-cluster-token etcd-cluster --initial-cluster etcd1=http://etcd1:2380,etcd2=http://etcd2:2380,etcd3=http://etcd3:2380 --initial-cluster-state new --enable-v2
-    networks:
-      - tarantooldb_network
+    <<: *etcd-base
+    command: >
+      etcd --name etcd2
+      --data-dir /etcd-data
+      --listen-client-urls https://0.0.0.0:2379
+      --advertise-client-urls https://etcd2:2379
+      --listen-peer-urls https://0.0.0.0:2380
+      --initial-advertise-peer-urls https://etcd2:2380
+      --initial-cluster etcd1=https://etcd1:2380,etcd2=https://etcd2:2380,etcd3=https://etcd3:2380
+      --initial-cluster-token my-etcd-cluster
+      --initial-cluster-state new
+      --client-cert-auth
+      --trusted-ca-file /certs/ca/root-ca.pem
+      --cert-file /certs/etcd/server.pem
+      --key-file /certs/etcd/server-key.pem
+      --peer-client-cert-auth
+      --peer-trusted-ca-file /certs/ca/root-ca.pem
+      --peer-cert-file /certs/etcd/peer.pem
+      --peer-key-file /certs/etcd/peer-key.pem
 
   etcd3:
-    image: quay.io/coreos/etcd:v3.5.15
-    command: etcd --name etcd3 --advertise-client-urls http://etcd3:2379 --listen-client-urls http://0.0.0.0:2379 --initial-advertise-peer-urls http://etcd3:2380 --listen-peer-urls http://0.0.0.0:2380 --initial-cluster-token etcd-cluster --initial-cluster etcd1=http://etcd1:2380,etcd2=http://etcd2:2380,etcd3=http://etcd3:2380 --initial-cluster-state new --enable-v2
-    networks:
-      - tarantooldb_network
+    <<: *etcd-base
+    command: >
+      etcd --name etcd3
+      --data-dir /etcd-data
+      --listen-client-urls https://0.0.0.0:2379
+      --advertise-client-urls https://etcd3:2379
+      --listen-peer-urls https://0.0.0.0:2380
+      --initial-advertise-peer-urls https://etcd3:2380
+      --initial-cluster etcd1=https://etcd1:2380,etcd2=https://etcd2:2380,etcd3=https://etcd3:2380
+      --initial-cluster-token my-etcd-cluster
+      --initial-cluster-state new
+      --client-cert-auth
+      --trusted-ca-file /certs/ca/root-ca.pem
+      --cert-file /certs/etcd/server.pem
+      --key-file /certs/etcd/server-key.pem
+      --peer-client-cert-auth
+      --peer-trusted-ca-file /certs/ca/root-ca.pem
+      --peer-cert-file /certs/etcd/peer.pem
+      --peer-key-file /certs/etcd/peer-key.pem
 
   tcm-1:
     image: tarantooldb:3x-latest
@@ -28,7 +81,10 @@ services:
     volumes:
       - ./tcm.yml:/app/tarantooldb/tcm.yml
       - ../cluster/config.yml:/app/tarantooldb/config.yml
-      - ../certs:/tmp/certs
+      - ../certs/ca:/certs/ca:ro
+      - ../certs/etcd:/certs/etcd:ro
+      - ../certs/tarantool:/certs/tarantool:ro
+      - ../certs/tcm:/certs/tcm:ro
     command: ./tcm -c tcm.yml
 
 networks:

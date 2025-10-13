@@ -16,9 +16,9 @@ func main() {
 		Address:     "tarantool-router-msk:3301",
 		User:        "admin",
 		Password:    "secret-cluster-cookie",
-		SslKeyFile:  "./certs/client-key.pem",
-		SslCertFile: "./certs/client-cert.pem",
-		SslCaFile:   "./certs/ca-cert.pem",
+		SslKeyFile:  "./certs/tarantool/client-key.pem",
+		SslCertFile: "./certs/tarantool/client.pem",
+		SslCaFile:   "./certs/ca/root-ca.pem",
 		SslPassword: "54321",
 	}
 

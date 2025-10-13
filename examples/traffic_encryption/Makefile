@@ -21,11 +21,11 @@ start:
 	cd tools \
 		&& $(DOCKER_COMPOSE) up -d --build \
 		&& $(DOCKER_COMPOSE) exec -it tcm-1 bash -c "\
-			tools/client/wait_etcd_ready.sh 15 http://etcd1:2379 \
-			&& tools/client/wait_etcd_ready.sh 15 http://etcd2:2379 \
-			&& tools/client/wait_etcd_ready.sh 15 http://etcd3:2379 \
-			&& tt cluster publish http://etcd1:2379/tdb config.yml --force \
-			&& tools/client/wait_config_ready.sh 25 http://etcd1:2379/tdb \
+			tools/client/wait_etcd_ready.sh 15 https://etcd1:2379 /certs/ca/root-ca.pem /certs/etcd/client.pem /certs/etcd/client-key.pem \
+			&& tools/client/wait_etcd_ready.sh 15 https://etcd2:2379 /certs/ca/root-ca.pem /certs/etcd/client.pem /certs/etcd/client-key.pem \
+			&& tools/client/wait_etcd_ready.sh 15 https://etcd3:2379 /certs/ca/root-ca.pem /certs/etcd/client.pem /certs/etcd/client-key.pem \
+			&& tt cluster publish 'https://etcd1:2379/tdb?ssl_ca_file=/certs/ca/root-ca.pem&ssl_cert_file=/certs/etcd/client.pem&ssl_key_file=/certs/etcd/client-key.pem' config.yml --force \
+			&& tools/client/wait_config_ready.sh 25 'https://etcd1:2379/tdb?ssl_ca_file=/certs/ca/root-ca.pem&ssl_cert_file=/certs/etcd/client.pem&ssl_key_file=/certs/etcd/client-key.pem' \
 			&& echo Load config done"
 	cd cluster && $(DOCKER_COMPOSE) up -d --build
 
