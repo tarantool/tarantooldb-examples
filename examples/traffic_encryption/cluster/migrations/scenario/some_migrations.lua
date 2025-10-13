@@ -27,8 +27,8 @@ local function apply()
                     uri = uri,
                     params = {
                         transport = 'ssl',
-                        ssl_cert_file='/tmp/certs/client-cert.pem',
-                        ssl_key_file='/tmp/certs/client-key.pem'
+                        ssl_cert_file='/certs/tarantool/client.pem',
+                        ssl_key_file='/certs/tarantool/client-key.pem'
                     }
                 })
 

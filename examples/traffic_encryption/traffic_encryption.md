@@ -1,12 +1,23 @@
 (admin_guide-traffic_encryption)=
 # Шифрование трафика
 
-Tarantool DB позволяет шифровать трафик по IPROTO при запросах от клиента и при репликации.
+В этом примере показано, как настроить шифрование трафика для распределённой системы, состоящей из следующих компонентов:
+- клиентские приложения;
+- узлы кластера Tarantool DB;
+- веб-интерфейс Tarantool Cluster Manager (TCM);
+- etcd (используется для хранения конфигурации кластера и TCM).
 
-В этом руководстве описано, как включить шифрование на стороне кластера Tarantool DB,
-а также создать шифрованные соединения из коннекторов на Go и Python.
+Шифруются следующие соединения:
+- между узлами кластера Tarantool DB,
+- между клиентами и узлами Tarantool DB,
+- между TCM и узлами Tarantool DB,
+- между TCM и etcd (backend store),
+- между узлами Tarantool DB и etcd (хранилище конфигурации кластера),
+- между пользователем и веб-интерфейсом TCM (HTTPS).
 
-Документацию по шифрованию трафика можно найти в [документации Tarantool Enterprise](https://www.tarantool.io/ru/doc/latest/concepts/configuration/configuration_connections/#securing-connections-with-ssl). 
+Руководство также демонстрирует, как подключиться к защищённому кластеру с помощью клиентских коннекторов на Go и Python.
+
+Подробную информацию по настройке шифрования трафика можно найти в [документации Tarantool](https://www.tarantool.io/ru/doc/latest/platform/connections_and_auth/connections/#securing-connections-with-ssl). 
 
 Руководство включает следующие шаги:
 
@@ -71,8 +82,9 @@ make start
 
 После запуска должны работать все контейнеры, кроме [init_host](admin_guide-deploy_docker_compose-init_host).
 
-Также после запуска кластера становится доступен веб-интерфейс TCM.
-Для входа в TCM откройте в браузере адрес [http://localhost:8081](http://localhost:8081).
+Также после запуска кластера становится доступен защищённый веб-интерфейс TCM.
+Для входа в TCM откройте в браузере адрес [https://localhost:8081](https://localhost:8081) (браузер может предупредить о самоподписанном сертификате).  
+
 Логин и пароль для входа:
 
 - **Username**: `admin`
@@ -81,31 +93,146 @@ make start
 (admin_guide-traffic_encryption-ssl_setup)=
 ## Настройка SSL-шифрования
 
-Для работы с SSL в Tarantool используются SSL-сертификаты.
-Экземпляр Tarantool DB здесь -- это одновременно и сервер, и клиент по отношению к другим экземплярам.
-Чтобы любой экземпляр мог подключаться ко всем остальным экземплярам, для каждого экземпляра требуется как сертификат
-сервера, так и сертификат клиента.
-Это означает, что для экземпляра кластера всегда нужно передавать как серверные, так и клиентские аргументы.
+Для работы с SSL в Tarantool DB используются SSL-сертификаты.
+Экземпляры Tarantool DB используют сертификат сервера для взаимодействия друг с другом и клиентскими соединениями. При этом внешние компоненты, подключающиеся к Tarantool DB (например, утилита tt CLI или веб-интерфейс TCM), используют клиентские сертификаты, чтобы пройти аутентификацию.
 
-В примере `traffic_encryption` сертификаты находятся в директории `./certs/` и
-должны быть доступны для каждого экземпляра.
-Сертификаты генерируются с помощью скрипта `./certs/gen.sh`.
+Скрипт `./certs/gen.sh` генерирует все необходимые сертификаты с использованием единого корневого центра сертификации (CA):
+- для **Tarantool DB** -- серверные и клиентские сертификаты;
+- для **etcd** -- серверные и клиентские сертификаты, а также сертификат для peer-взаимодействия узлов в кластере etcd;
+- для **TCM** -- серверный сертификат для HTTPS.
 
-В примере заданы параметры SSL-шифрования для экземпляра с помощью переменных окружения:
+В разделах ниже описано, как настраивается шифрование для каждого из этих компонентов.
 
-```{literalinclude} cluster/docker-compose.yml
-:start-at: TT_CLI_SSLKEYFILE
-:end-before: command
-:language: yaml
-:dedent:
+
+(admin_guide-traffic_encryption-ssl_setup-etcd)=
+### Настройка etcd
+
+Параметры узлов etcd настраиваются в файле конфигурации `tools/docker-compose.yml`. Здесь указаны корневой CA, а также ключи и сертификаты для серверных и peer-взаимодействий:
+
+```yml
+etcd1:
+  <<: *etcd-base
+  command: >
+    etcd --name etcd1
+    --data-dir /etcd-data
+    --listen-client-urls https://0.0.0.0:2379
+    --advertise-client-urls https://etcd1:2379
+    --listen-peer-urls https://0.0.0.0:2380
+    --initial-advertise-peer-urls https://etcd1:2380
+    --initial-cluster etcd1=https://etcd1:2380,etcd2=https://etcd2:2380,etcd3=https://etcd3:2380
+    --initial-cluster-token my-etcd-cluster
+    --initial-cluster-state new
+    --client-cert-auth
+    --trusted-ca-file /certs/ca/root-ca.pem
+    --cert-file /certs/etcd/server.pem
+    --key-file /certs/etcd/server-key.pem
+    --peer-client-cert-auth
+    --peer-trusted-ca-file /certs/ca/root-ca.pem
+    --peer-cert-file /certs/etcd/peer.pem
+    --peer-key-file /certs/etcd/peer-key.pem
+  ports:
+    - "2379:2379"
 ```
 
-Здесь:
+(admin_guide-traffic_encryption-ssl_setup-tdb)=
+### Настройка Tarantool DB
 
-- `TT_CLI_SSLKEYFILE` -- путь к закрытому ключу клиента.
-- `TT_CLI_SSLCERTFILE` -- путь к сертификату клиента;
+Параметры SSL для каждого экземпляра Tarantool DB задаются в файле конфигурации кластера `cluster/config.yml`: 
 
-Эти переменные окружения необходимы для корректной работы конфигурации при использовании Tarantool из клиентских приложений.
+```yml
+params: &ssl_params
+  transport: 'ssl'
+  ssl_ca_file: '/certs/ca/root-ca.pem'
+  ssl_cert_file: '/certs/tarantool/server.pem'
+  ssl_key_file: '/certs/tarantool/server-key.pem'
+```
+
+Также в `cluster/docker-compose.yml` для каждого экземпляра через переменные окружения задаются параметры защищенного подключения к etcd, на котором хранится конфигурация кластера:
+
+```yml
+TT_CONFIG_ETCD_ENDPOINTS: https://etcd1:2379,https://etcd2:2379,https://etcd3:2379
+TT_CONFIG_ETCD_PREFIX: /tdb
+TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT: 3
+TT_CONFIG_ETCD_SSL_CA_FILE: /certs/ca/root-ca.pem
+TT_CONFIG_ETCD_SSL_SSL_CERT: /certs/etcd/client.pem
+TT_CONFIG_ETCD_SSL_SSL_KEY: /certs/etcd/client-key.pem
+```
+
+Если используется хранилище конфигураций на основе Tarantool, защищенное подключение к нему настраивается через поле `params` в переменной окружения `TT_CONFIG_STORAGE_ENDPOINTS`.
+Подробная информация доступна в [документации Tarantool](https://tarantool.io/ru/doc/latest/reference/configuration/configuration_reference/#config-storage).
+
+(admin_guide-traffic_encryption-ssl_setup-tcm)=
+### Настройка TCM
+
+Настройки шифрования для TCM задаются в файле конфигурации `tools/tcm.yml`.
+
+* HTTPS для веб-интерфейса:
+
+```yml
+http:
+    host: 0.0.0.0
+    port: 8081
+    tls:
+      enabled: true
+      cert-file: /certs/tcm/server.pem
+      key-file: /certs/tcm/server-key.pem
+```
+
+* Подключение к etcd с данными TCM (backend store):
+
+```yml
+storage:
+  provider: etcd
+  etcd:
+      prefix: /tcm
+      endpoints:
+          - https://etcd1:2379
+          - https://etcd2:2379
+          - https://etcd3:2379
+      tls:
+        enabled: true
+        trusted-ca-file: /certs/ca/root-ca.pem
+        cert-file: /certs/etcd/client.pem
+        key-file: /certs/etcd/client-key.pem
+```
+
+* Подключение к etcd с конфигурацией кластера:
+
+```yml
+storage-connection:
+  provider: etcd
+  etcd-connection:
+    prefix: /tdb
+    endpoints:
+      - https://etcd1:2379
+      - https://etcd2:2379
+      - https://etcd3:2379
+    tls:
+      enabled: true
+      trusted-ca-file: /certs/ca/root-ca.pem
+      cert-file: /certs/etcd/client.pem
+      key-file: /certs/etcd/client-key.pem
+```
+
+* Подключение к узлам Tarantool:
+
+```yml
+tarantool-connection:
+  username: "admin"
+  password: "secret-cluster-cookie"
+  ssl:
+    enabled: true
+    ca-file: /certs/ca/root-ca.pem
+    cert-file: /certs/tarantool/client.pem
+    key-file: /certs/tarantool/client-key.pem
+```
+
+Подробную информацию о настройке TCM можно найти в [документации](https://tarantool.io/ru/doc/latest/tooling/tcm/tcm_configuration).
+
+(admin_guide-traffic_encryption-ssl_setup-client)=
+### Настройка клиента
+
+Ключ и сертификат клиента для команды `tt migrations` можно задать в параметрах `--tarantool-sslkeyfile` и `--tarantool-sslcertfile`. Для команд `tt replicaset` и `tt connect` эти параметры имеют названия `--sslkeyfile` и `--sslcertfile`.
 
 (admin_guide-traffic_encryption-files)=
 ## Используемые файлы
@@ -113,7 +240,7 @@ make start
 Для запуска и настройки кластера используются файлы из папки ``traffic_encryption``:
 
 * `certs/`
-  * `gen.sh` -- скрипт генерации локального набора сертификатов для стенда;
+  * `gen.sh` -- скрипт генерации локального набора сертификатов;
 * `cluster/` -- директория c файлами для запуска кластера Tarantool DB:
   * `migrations/scenario` -- директория, содержащая файлы с описанием миграций; 
   * `config.yml` -- конфигурация и топология кластера;
@@ -137,25 +264,24 @@ tt connect admin:secret-cluster-cookie@localhost:3301
 
 ```bash
 • Connecting to the instance...
-⨯ failed to run interactive console: failed to create new console: failed to connect: failed to get protocol: failed to read Tarantool greeting: read tcp [::1]:62950->[::1]:3301: i/o timeout
+⨯ failed to run interactive console: failed to create new console: failed to connect: failed to get protocol: failed to read Tarantool greeting: read tcp 127.0.0.1:50634->127.0.0.1:3301: i/o timeout
 ```
 
 Подключитесь к узлу снова, используя клиентские сертификаты:
 
 ```shell
 tt connect admin:secret-cluster-cookie@localhost:3301 \
-  --sslkeyfile ./certs/client-key.pem \
-  --sslcertfile ./certs/client-cert.pem
+  --sslkeyfile ./certs/tarantool/client-key.pem \
+  --sslcertfile ./certs/tarantool/client.pem
 ```
 
 При успешном подключении ответ будет выглядеть так:
 
 ```bash
    • Connecting to the instance...
-Enter PEM pass phrase:
    • Connected to localhost:3301
 
-localhost:3301> 
+localhost:3301>
 ```
 
 Для примера можно получить имя экземпляра:
@@ -174,7 +300,7 @@ box.info().name
 Go-клиент подключится к узлу через коннектор и запросит текущую
 версию платформы Tarantool. Ответ может выглядеть так:
 ```
-Tarantool 3.2.0 (Binary) 2404fdc5-4438-485a-b2e1-18fae889b95c
+Tarantool 3.4.1 (Binary) 28274879-0539-4c12-a225-57ef4d1736cb
 ```
 
 Код подключения выглядит так:
@@ -198,7 +324,7 @@ Tarantool 3.2.0 (Binary) 2404fdc5-4438-485a-b2e1-18fae889b95c
 
 Результат может выглядеть так:
 ```bash 
-- '3.2.0-0-g19607a903'
+- '3.4.1-0-g096322fad'
 ```
 
 Код подключения выглядит так:
@@ -230,7 +356,7 @@ box.schema.func.call('get_name_by_uri', 'admin:secret-cluster-cookie@tarantool-s
 
 Отправлять команды можно также через веб-интерфейс TCM.
 Для этого откройте в TCM вкладку **Stateboard** и выберите в наборе реплик `router-msk` узел `router-msk`.
-В открывшемся окне перейдите на вкладку **Terminal -> Direct**.
+В открывшемся окне перейдите на вкладку **Terminal** (**TT Connect**).
 
 (admin_guide-traffic_encryption-stop_example)=
 ## Остановка стенда

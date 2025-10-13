@@ -13,7 +13,6 @@ iproto:
     sharding:
       login: admin
 
-
 sharding:
   bucket_count: 30000
 
@@ -35,8 +34,9 @@ groups:
                 - uri: tarantool-router-msk:3301
                   params: &ssl_params
                     transport: 'ssl'
-                    ssl_cert_file: '/tmp/certs/server-cert.pem'
-                    ssl_key_file: '/tmp/certs/server-key.pem'
+                    ssl_ca_file: '/certs/ca/root-ca.pem'
+                    ssl_cert_file: '/certs/tarantool/server.pem'
+                    ssl_key_file: '/certs/tarantool/server-key.pem'
               advertise:
                 client: tarantool-router-msk:3301
   storages:
