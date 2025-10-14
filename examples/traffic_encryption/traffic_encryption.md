@@ -8,11 +8,11 @@
 - etcd (используется для хранения конфигурации кластера и TCM).
 
 Шифруются следующие соединения:
-- между узлами кластера Tarantool DB,
-- между клиентами и узлами Tarantool DB,
-- между TCM и узлами Tarantool DB,
-- между TCM и etcd (backend store),
-- между узлами Tarantool DB и etcd (хранилище конфигурации кластера),
+- между узлами кластера Tarantool DB;
+- между клиентами и узлами Tarantool DB;
+- между TCM и узлами Tarantool DB;
+- между TCM и etcd (backend store);
+- между узлами Tarantool DB и etcd (хранилище конфигурации кластера);
 - между пользователем и веб-интерфейсом TCM (HTTPS).
 
 Руководство также демонстрирует, как подключиться к защищённому кластеру с помощью клиентских коннекторов на Go и Python.
@@ -22,9 +22,9 @@
 Руководство включает следующие шаги:
 
 * [](admin_guide-traffic_encryption-prereq)
+* [](admin_guide-traffic_encryption-files)
 * [](admin_guide-traffic_encryption-start_example)
 * [](admin_guide-traffic_encryption-ssl_setup)
-* [](admin_guide-traffic_encryption-files)
 * [](admin_guide-traffic_encryption-tt)
 * [](admin_guide-traffic_encryption-go)
 * [](admin_guide-traffic_encryption-python)
@@ -55,6 +55,23 @@
 
   * Отдельный архив [traffic_encryption.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/traffic_encryption/traffic_encryption.tar.gz), скачанный c сайта Tarantool.
   ```
+
+(admin_guide-traffic_encryption-files)=
+## Используемые файлы
+
+Для запуска и настройки кластера используются файлы из папки `traffic_encryption`:
+
+* `certs/`
+  * `gen.sh` -- скрипт генерации локального набора сертификатов;
+* `cluster/` -- директория c файлами для запуска кластера Tarantool DB:
+  * `migrations/scenario` -- директория, содержащая файлы с описанием миграций; 
+  * `config.yml` -- конфигурация и топология кластера;
+  * `docker-compose.yml` -- описание узлов кластера Tarantool DB;  
+* `go/` -- директория с файлами для создания подключения через Go-коннектор;
+* `python/` -- директория с файлами для создания подключения через Python-коннектор;
+* `tools/` -- директория с файлами для запуска кластера etcd и средств мониторинга:
+  * `docker-compose.yml` -- описание узлов кластера etcd и средств мониторинга;
+  * `tcm.yml` -- конфигурация для запуска [Tarantool Cluster Manager](https://www.tarantool.io/ru/doc/latest/reference/tooling/tcm/).
 
 (admin_guide-traffic_encryption-start_example)=
 ## Запуск стенда
@@ -107,31 +124,14 @@ make start
 (admin_guide-traffic_encryption-ssl_setup-etcd)=
 ### Настройка etcd
 
-Параметры узлов etcd настраиваются в файле конфигурации `tools/docker-compose.yml`. Здесь указаны корневой CA, а также ключи и сертификаты для серверных и peer-взаимодействий:
+Параметры узлов etcd настраиваются в файле конфигурации `tools/docker-compose.yml`.
+Здесь указаны корневой CA, а также ключи и сертификаты для серверных и peer-взаимодействий:
 
-```yml
-etcd1:
-  <<: *etcd-base
-  command: >
-    etcd --name etcd1
-    --data-dir /etcd-data
-    --listen-client-urls https://0.0.0.0:2379
-    --advertise-client-urls https://etcd1:2379
-    --listen-peer-urls https://0.0.0.0:2380
-    --initial-advertise-peer-urls https://etcd1:2380
-    --initial-cluster etcd1=https://etcd1:2380,etcd2=https://etcd2:2380,etcd3=https://etcd3:2380
-    --initial-cluster-token my-etcd-cluster
-    --initial-cluster-state new
-    --client-cert-auth
-    --trusted-ca-file /certs/ca/root-ca.pem
-    --cert-file /certs/etcd/server.pem
-    --key-file /certs/etcd/server-key.pem
-    --peer-client-cert-auth
-    --peer-trusted-ca-file /certs/ca/root-ca.pem
-    --peer-cert-file /certs/etcd/peer.pem
-    --peer-key-file /certs/etcd/peer-key.pem
-  ports:
-    - "2379:2379"
+```{literalinclude} tools/docker-compose.yml
+:start-at: etcd1
+:end-at: 2379:2379
+:language: yaml
+:dedent:
 ```
 
 (admin_guide-traffic_encryption-ssl_setup-tdb)=
@@ -139,26 +139,25 @@ etcd1:
 
 Параметры SSL для каждого экземпляра Tarantool DB задаются в файле конфигурации кластера `cluster/config.yml`: 
 
-```yml
-params: &ssl_params
-  transport: 'ssl'
-  ssl_ca_file: '/certs/ca/root-ca.pem'
-  ssl_cert_file: '/certs/tarantool/server.pem'
-  ssl_key_file: '/certs/tarantool/server-key.pem'
+```{literalinclude} cluster/config.yml
+:start-after: tarantool-router-msk:3301
+:end-before: advertise
+:language: yaml
+:dedent:
 ```
 
-Также в `cluster/docker-compose.yml` для каждого экземпляра через переменные окружения задаются параметры защищенного подключения к etcd, на котором хранится конфигурация кластера:
+Также в `cluster/docker-compose.yml` для каждого экземпляра через переменные окружения задаются параметры защищенного
+подключения к etcd, в котором хранится конфигурация кластера:
 
-```yml
-TT_CONFIG_ETCD_ENDPOINTS: https://etcd1:2379,https://etcd2:2379,https://etcd3:2379
-TT_CONFIG_ETCD_PREFIX: /tdb
-TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT: 3
-TT_CONFIG_ETCD_SSL_CA_FILE: /certs/ca/root-ca.pem
-TT_CONFIG_ETCD_SSL_SSL_CERT: /certs/etcd/client.pem
-TT_CONFIG_ETCD_SSL_SSL_KEY: /certs/etcd/client-key.pem
+```{literalinclude} cluster/docker-compose.yml
+:start-at: TT_CONFIG_ETCD_ENDPOINTS
+:end-before: services
+:language: yaml
+:dedent:
 ```
 
-Если используется хранилище конфигураций на основе Tarantool, защищенное подключение к нему настраивается через поле `params` в переменной окружения `TT_CONFIG_STORAGE_ENDPOINTS`.
+Если используется хранилище конфигурации на основе Tarantool, защищенное подключение к нему настраивается через
+поле `params` в переменной окружения `TT_CONFIG_STORAGE_ENDPOINTS`.
 Подробная информация доступна в [документации Tarantool](https://tarantool.io/ru/doc/latest/reference/configuration/configuration_reference/#config-storage).
 
 (admin_guide-traffic_encryption-ssl_setup-tcm)=
@@ -168,88 +167,48 @@ TT_CONFIG_ETCD_SSL_SSL_KEY: /certs/etcd/client-key.pem
 
 * HTTPS для веб-интерфейса:
 
-```yml
-http:
-    host: 0.0.0.0
-    port: 8081
-    tls:
-      enabled: true
-      cert-file: /certs/tcm/server.pem
-      key-file: /certs/tcm/server-key.pem
+```{literalinclude} tools/tcm.yml
+:start-at: http
+:end-before: storage
+:language: yaml
+:dedent:
 ```
 
 * Подключение к etcd с данными TCM (backend store):
 
-```yml
-storage:
-  provider: etcd
-  etcd:
-      prefix: /tcm
-      endpoints:
-          - https://etcd1:2379
-          - https://etcd2:2379
-          - https://etcd3:2379
-      tls:
-        enabled: true
-        trusted-ca-file: /certs/ca/root-ca.pem
-        cert-file: /certs/etcd/client.pem
-        key-file: /certs/etcd/client-key.pem
+```{literalinclude} tools/tcm.yml
+:start-at: storage
+:end-before: security
+:language: yaml
+:dedent:
 ```
 
 * Подключение к etcd с конфигурацией кластера:
 
-```yml
-storage-connection:
-  provider: etcd
-  etcd-connection:
-    prefix: /tdb
-    endpoints:
-      - https://etcd1:2379
-      - https://etcd2:2379
-      - https://etcd3:2379
-    tls:
-      enabled: true
-      trusted-ca-file: /certs/ca/root-ca.pem
-      cert-file: /certs/etcd/client.pem
-      key-file: /certs/etcd/client-key.pem
+```{literalinclude} tools/tcm.yml
+:start-at: storage-connection
+:end-before: tarantool-connection
+:language: yaml
+:dedent:
 ```
 
 * Подключение к узлам Tarantool:
 
-```yml
-tarantool-connection:
-  username: "admin"
-  password: "secret-cluster-cookie"
-  ssl:
-    enabled: true
-    ca-file: /certs/ca/root-ca.pem
-    cert-file: /certs/tarantool/client.pem
-    key-file: /certs/tarantool/client-key.pem
+```{literalinclude} tools/tcm.yml
+:start-at: tarantool-connection
+:end-at: client-key.pem
+:language: yaml
+:dedent:
 ```
 
-Подробную информацию о настройке TCM можно найти в [документации](https://tarantool.io/ru/doc/latest/tooling/tcm/tcm_configuration).
+Подробную информацию о настройке TCM можно найти в [документации Tarantool](https://tarantool.io/ru/doc/latest/tooling/tcm/tcm_configuration).
 
 (admin_guide-traffic_encryption-ssl_setup-client)=
 ### Настройка клиента
 
-Ключ и сертификат клиента для команды `tt migrations` можно задать в параметрах `--tarantool-sslkeyfile` и `--tarantool-sslcertfile`. Для команд `tt replicaset` и `tt connect` эти параметры имеют названия `--sslkeyfile` и `--sslcertfile`.
-
-(admin_guide-traffic_encryption-files)=
-## Используемые файлы
-
-Для запуска и настройки кластера используются файлы из папки ``traffic_encryption``:
-
-* `certs/`
-  * `gen.sh` -- скрипт генерации локального набора сертификатов;
-* `cluster/` -- директория c файлами для запуска кластера Tarantool DB:
-  * `migrations/scenario` -- директория, содержащая файлы с описанием миграций; 
-  * `config.yml` -- конфигурация и топология кластера;
-  * `docker-compose.yml` -- описание узлов кластера Tarantool DB;  
-* `go/` -- директория с файлами для создания подключения через Go-коннектор;
-* `python/` -- директория с файлами для создания подключения через Python-коннектор;
-* `tools/` -- директория с файлами для запуска кластера etcd и средств мониторинга:
-  * `docker-compose.yml` -- описание узлов кластера etcd и средств мониторинга;
-  * `tcm.yml` -- конфигурация для запуска [Tarantool Cluster Manager](https://www.tarantool.io/ru/doc/latest/reference/tooling/tcm/).
+Ключ и сертификат клиента для команды `tt migrations` можно задать в параметрах `--tarantool-sslkeyfile` и
+`--tarantool-sslcertfile`.
+Для команд `tt replicaset` и `tt connect` эти параметры имеют названия `--sslkeyfile` и `--sslcertfile`.
 
 (admin_guide-traffic_encryption-tt)=
 ## Подключение через tt CLI
@@ -285,8 +244,9 @@ localhost:3301>
 ```
 
 Для примера можно получить имя экземпляра:
+
 ```lua
-box.info().name
+box.info.name
 ```
 
 (admin_guide-traffic_encryption-go)=
@@ -295,7 +255,7 @@ box.info().name
 В этом разделе описано подключение к экземпляру Tarantool DB через [Go-коннектор](https://github.com/tarantool/go-tarantool/).
 Пример расположен в директории `./go/` примера `traffic_encryption`.
 
-Для запуска выполните `make go`
+Для запуска выполните команду `make go`.
 
 Go-клиент подключится к узлу через коннектор и запросит текущую
 версию платформы Tarantool. Ответ может выглядеть так:
@@ -320,7 +280,7 @@ Tarantool 3.4.1 (Binary) 28274879-0539-4c12-a225-57ef4d1736cb
 В разделе описано подключение к экземпляру Tarantool DB через [Python-коннектор](https://github.com/tarantool/tarantool-python).
 Пример расположен в директории `./python/` примера `traffic_encryption`.
 
-Для запуска примера выполните `make python`.
+Для запуска примера выполните команду `make python`.
 
 Результат может выглядеть так:
 ```bash 
