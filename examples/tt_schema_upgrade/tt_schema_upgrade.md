@@ -1,10 +1,10 @@
-(admin_guide-schema-upgrade-tt)=
+(upgrade_guide-schema-upgrade-tt)=
 # Обновление схемы через tt CLI
 
 В этом руководстве показано, как обновить cхему Tarantool DB с помощью утилиты tt CLI.
 
 
-(admin_guide-schema-upgrade-tt-prereq)=
+(upgrade_guide-schema-upgrade-tt-prereq)=
 ## Пререквизиты
 
 Для выполнения примера требуются:
@@ -25,7 +25,7 @@
   * Отдельный архив [tt_schema_upgrade.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/tt_schema_upgrade/tt_schema_upgrade.tar.gz), скачанный c сайта Tarantool.
   ```
 
-(admin_guide-schema-upgrade-tt-start_example)=
+(upgrade_guide-schema-upgrade-tt-start_example)=
 ## Запуск стенда
 
 Перейдите в директорию примера `tt_schema_upgrade`:
@@ -60,9 +60,9 @@ make start
 В TCM откройте вкладку **Stateboard**.
 
 В кластере появится предупреждение о необходимости обновить схему БД:
-![](./cluster/warning.png)
+![](/install_and_upgrade/images/warning.png)
 
-(admin_guide-schema-upgrade-tt-upgrade)=
+(upgrade_guide-schema-upgrade-tt-upgrade)=
 ## Обновление схемы
 
 Чтобы обновить схему через tt CLI, используйте команду `tt replicaset upgrade`.
@@ -88,7 +88,7 @@ make start
 
 Обновление схемы также будет отражено в логах:
 
-```txt
+```
 tarantool-router-msk-1  | 2025-10-09 08:44:55.876 [1] main/104/interactive/box.upgrade upgrade.lua:1591 I> Recovering snapshot with schema version 3.1.0
 tarantool-router-msk-1  | 2025-10-09 08:44:55.901 [1] main/104/interactive/box.load_cfg load_cfg.lua:1229 W> Your schema version is 3.1.0 while Tarantool 3.4.0-0-gea61d3a20 requires a more recent schema version. Please, consider using box.schema.upgrade().
 tarantool-router-msk-1  | 2025-10-09 08:44:55.928 [1] main/104/interactive/tarantool.config log.lua:74 W> The schema version 3.1.0 is outdated, the latest version is 3.3.0. Please, consider using box.schema.upgrade().
@@ -98,7 +98,7 @@ tarantool-router-msk-1  | 2025-10-09 08:46:10.299 [1] main/180/tt_migrations.exe
 
 Проверить, что схема успешно обновлена, можно с помощью вызова `box.info.schema_version`. После обновления схемы значение `schema_version` увеличится.
 
-(admin_guide-schema-upgrade-tt-stop_example)=
+(upgrade_guide-schema-upgrade-tt-stop_example)=
 ## Остановка стенда
 
 Остановить стенд можно так:
