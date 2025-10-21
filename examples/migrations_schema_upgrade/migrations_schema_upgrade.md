@@ -1,10 +1,9 @@
-(admin_guide-schema-upgrade-migrations)=
+(upgrade_guide-schema-upgrade-migrations)=
 # Обновление схемы через миграции
 
-В этом руководстве показано, как обновить cхему Tarantool DB при выполнении [миграции](user_guide-migrations).
+В этом руководстве показано, как обновить схему Tarantool DB при выполнении [миграции](user_guide-migrations).
 
-
-(admin_guide-schema-upgrade-migrations-prereq)=
+(upgrade_guide-schema-upgrade-migrations-prereq)=
 ## Пререквизиты
 
 Для выполнения примера требуются:
@@ -25,7 +24,7 @@
   * Отдельный архив [migrations_schema_upgrade.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/migrations_schema_upgrade/migrations_schema_upgrade.tar.gz), скачанный c сайта Tarantool.
   ```
 
-(admin_guide-schema-upgrade-migrations-start_example)=
+(upgrade_guide-schema-upgrade-migrations-start_example)=
 ## Запуск стенда
 
 Перейдите в директорию примера `migrations_schema_upgrade`:
@@ -60,32 +59,24 @@ make start
 В TCM откройте вкладку **Stateboard**.
 
 В кластере появится предупреждение о необходимости обновить схему БД:
-![](./cluster/warning.png)
+![](/install_and_upgrade/images/warning.png)
 
-(admin_guide-schema-upgrade-migrations-upgrade)=
+(upgrade_guide-schema-upgrade-migrations-upgrade)=
 ## Обновление схемы
 
 Один из надежных способов обновления схемы БД -- применить соответствующую миграцию.
 Миграция при этом выглядит так:
 
-```lua
-local function apply()
-    box.snapshot()
-    box.schema.upgrade()
-    box.snapshot()
-end
-
-return {
-    apply = {
-        scenario = apply,
-    }
-}
+```{literalinclude} cluster/migration_next/003_test.lua
+:language: lua
+:dedent:
 ```
 
 Выполнить миграцию можно с помощью утилиты [tt CLI](https://www.tarantool.io/ru/doc/latest/tooling/tt_cli/). Для этого:
 
 
-1. В локальном терминале поместите файл из папки `migration_next` с кодом миграций `003_test.lua` в папку `./cluster/migrations/scenario/`:
+1. В локальном терминале поместите файл из папки `migration_next` с кодом миграций `003_test.lua`
+   в папку `./cluster/migrations/scenario/`:
 
    ```shell
    cp -a cluster/migration_next/* cluster/migrations/scenario/ 
@@ -110,7 +101,7 @@ return {
 
 Обновление схемы также будет отражено в логах:
 
-```txt
+```
 tarantool-router-msk-1  | 2025-10-09 08:44:55.876 [1] main/104/interactive/box.upgrade upgrade.lua:1591 I> Recovering snapshot with schema version 3.1.0
 tarantool-router-msk-1  | 2025-10-09 08:44:55.901 [1] main/104/interactive/box.load_cfg load_cfg.lua:1229 W> Your schema version is 3.1.0 while Tarantool 3.4.0-0-gea61d3a20 requires a more recent schema version. Please, consider using box.schema.upgrade().
 tarantool-router-msk-1  | 2025-10-09 08:44:55.928 [1] main/104/interactive/tarantool.config log.lua:74 W> The schema version 3.1.0 is outdated, the latest version is 3.3.0. Please, consider using box.schema.upgrade().
@@ -120,7 +111,7 @@ tarantool-router-msk-1  | 2025-10-09 08:46:10.299 [1] main/180/tt_migrations.exe
 
 Проверить, что схема успешно обновлена, можно с помощью вызова `box.info.schema_version`. После обновления схемы значение `schema_version` увеличится.
 
-(admin_guide-schema-upgrade-migrations-stop_example)=
+(upgrade_guide-schema-upgrade-migrations-stop_example)=
 ## Остановка стенда
 
 Остановить стенд можно так:
