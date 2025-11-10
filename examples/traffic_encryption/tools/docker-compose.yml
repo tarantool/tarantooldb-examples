@@ -72,6 +72,29 @@ services:
       --peer-cert-file /certs/etcd/peer.pem
       --peer-key-file /certs/etcd/peer-key.pem
 
+  prometheus:
+    image: prom/prometheus:v2.30.3
+    networks:
+      - tarantooldb_network
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ../certs/ca:/certs/ca:ro
+
+  grafana:
+    image: grafana/grafana:9.5.14
+    networks:
+      - tarantooldb_network
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_BASIC_ENABLED=false
+    volumes:
+      - ./grafana:/etc/grafana/provisioning
+
   tcm-1:
     image: tarantooldb:3x-latest
     networks:

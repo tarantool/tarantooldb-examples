@@ -16,6 +16,16 @@ iproto:
 sharding:
   bucket_count: 30000
 
+roles_cfg:
+  roles.metrics-export:
+    http:
+    - listen: 8081
+      ssl_cert_file: /certs/tarantool/metrics.pem
+      ssl_key_file: /certs/tarantool/metrics-key.pem
+      endpoints:
+      - format: prometheus
+        path: /metrics
+
 groups:
   routers:
     replication:
@@ -24,6 +34,7 @@ groups:
       roles: [router]
     roles:
       - roles.crud-router
+      - roles.metrics-export
     replicasets:
       router-msk:
         leader: router-msk
@@ -46,6 +57,7 @@ groups:
       roles: [storage]
     roles:
       - roles.crud-storage
+      - roles.metrics-export
     replicasets:
       storage-1:
         leader: storage-1-msk

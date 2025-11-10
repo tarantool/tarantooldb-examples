@@ -5,7 +5,8 @@
 - клиентские приложения;
 - узлы кластера Tarantool DB;
 - веб-интерфейс Tarantool Cluster Manager (TCM);
-- etcd (используется для хранения конфигурации кластера и TCM).
+- etcd (используется для хранения конфигурации кластера и TCM);
+- Prometheus.
 
 Шифруются следующие соединения:
 - между узлами кластера Tarantool DB;
@@ -13,7 +14,8 @@
 - между TCM и узлами Tarantool DB;
 - между TCM и etcd (backend store);
 - между узлами Tarantool DB и etcd (хранилище конфигурации кластера);
-- между пользователем и веб-интерфейсом TCM (HTTPS).
+- между пользователем и веб-интерфейсом TCM (HTTPS);
+- между узлами Tarantool DB и Prometheus (экспорт метрик по HTTPS).
 
 Руководство также демонстрирует, как подключиться к защищённому кластеру с помощью клиентских коннекторов на Go и Python.
 
@@ -36,7 +38,7 @@
 
 Для выполнения примера требуются:
 
-* установленный [Docker-образ](install_docker-image) Tarantool DB;
+* установленные [Docker-образы](install_docker-image) Tarantool DB, Prometheus и Grafana;
 * приложение Docker Compose;
 * утилита [tt CLI](install-install_tt);
 * Go версии 1.13 или выше;
@@ -70,6 +72,8 @@
 * `go/` -- директория с файлами для создания подключения через Go-коннектор;
 * `python/` -- директория с файлами для создания подключения через Python-коннектор;
 * `tools/` -- директория с файлами для запуска кластера etcd и средств мониторинга:
+  * `grafana/` -- директория, содержащая настройки для ведения мониторинга;
+  * `prometheus/` -- директория, содержащая настройки Prometheus для сбора и передачи метрик в Grafana;
   * `docker-compose.yml` -- описание узлов кластера etcd и средств мониторинга;
   * `tcm.yml` -- конфигурация для запуска [Tarantool Cluster Manager](https://www.tarantool.io/ru/doc/latest/reference/tooling/tcm/).
 
@@ -79,8 +83,10 @@
 Для успешного запуска должны быть свободны следующие порты:
 
 * 2379
+* 3000
 * 3301--3303
 * 8081
+* 9090
 
 Перейдите в папку с примером `traffic_encryption` и запустите стенд:
 
@@ -95,11 +101,15 @@ make start
    - 1 набор реплик на 2 хранилища;
    - 1 [Tarantool Cluster Manager](getting_started-tcm) (TCM);
 - кластера etcd из 3 узлов;
-- клиентских приложений для проверки подключения.
+- клиентских приложений для проверки подключения;
+- средств мониторинга -- [Prometheus](https://prometheus.io/), [Grafana](https://grafana.com/).
 
 После запуска должны работать все контейнеры, кроме [init_host](admin_guide-deploy_docker_compose-init_host).
 
-Также после запуска кластера становится доступен защищённый веб-интерфейс TCM.
+Также после запуска кластера доступны следующие пользовательские интерфейсы:
+* [https://localhost:8081](https://localhost:8081) -- защищённый веб-интерфейс TCM;
+* [http://localhost:3000](http://localhost:3000) -- веб-интерфейс Grafana.
+
 Для входа в TCM откройте в браузере адрес [https://localhost:8081](https://localhost:8081) (браузер может предупредить о самоподписанном сертификате).  
 
 Логин и пароль для входа:
@@ -114,7 +124,7 @@ make start
 Экземпляры Tarantool DB используют сертификат сервера для взаимодействия друг с другом и клиентскими соединениями. При этом внешние компоненты, подключающиеся к Tarantool DB (например, утилита tt CLI или веб-интерфейс TCM), используют клиентские сертификаты, чтобы пройти аутентификацию.
 
 Скрипт `./certs/gen.sh` генерирует все необходимые сертификаты с использованием единого корневого центра сертификации (CA):
-- для **Tarantool DB** -- серверные и клиентские сертификаты;
+- для **Tarantool DB** -- серверные и клиентские сертификаты, а также сертификат для HTTPS-сервера экспорта метрик;
 - для **etcd** -- серверные и клиентские сертификаты, а также сертификат для peer-взаимодействия узлов в кластере etcd;
 - для **TCM** -- серверный сертификат для HTTPS.
 
@@ -146,6 +156,15 @@ make start
 :dedent:
 ```
 
+Список разрешённых наборов шифров (cipher suites) для SSL-соединения можно задать с помощью параметра `params.ssl_ciphers`, перечислив их через двоеточие:
+
+```yaml
+params:
+  ssl_ciphers: 'ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256'
+```
+
+Подробная информация о поддерживаемых значениях параметра `params.ssl_ciphers` приведена в [документации Tarantool](https://tarantool.io/ru/doc/latest/reference/configuration/configuration_reference/#confval-uri-.params.ssl_ciphers). 
+
 Также в `cluster/docker-compose.yml` для каждого экземпляра через переменные окружения задаются параметры защищенного
 подключения к etcd, в котором хранится конфигурация кластера:
 
@@ -159,6 +178,20 @@ make start
 Если используется хранилище конфигурации на основе Tarantool, защищенное подключение к нему настраивается через
 поле `params` в переменной окружения `TT_CONFIG_STORAGE_ENDPOINTS`.
 Подробная информация доступна в [документации Tarantool](https://tarantool.io/ru/doc/latest/reference/configuration/configuration_reference/#config-storage).
+
+Для экспорта метрик по SSL в формате Prometheus роль `roles.metrics-export` задается на всех экземплярах Tarantool DB:
+
+```yaml
+roles_cfg:
+  roles.metrics-export:
+    http:
+    - listen: 8081
+      ssl_cert_file: /certs/tarantool/metrics.pem
+      ssl_key_file: /certs/tarantool/metrics-key.pem
+      endpoints:
+      - format: prometheus
+        path: /metrics
+```
 
 (admin_guide-traffic_encryption-ssl_setup-tcm)=
 ### Настройка TCM
@@ -174,6 +207,24 @@ make start
 :dedent:
 ```
 
+Если требуется ограничить наборы используемых шифров, перечислите их в виде массива с помощью параметра `http.tls.cipher-suites`:
+
+```yaml
+http:
+  tls:
+    cipher-suites:
+    - TLS_AES_256_GCM_SHA384
+    - TLS_AES_128_GCM_SHA256
+    - TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+    - TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+    - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+    - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+    - TLS_DHE_RSA_WITH_AES_256_GCM_SHA384
+    - TLS_DHE_RSA_WITH_AES_128_GCM_SHA256
+```
+
+Информацию о поддерживаемых значениях наборов шифров для веб-интерфейса можно найти в [документации TCM](https://tarantool.io/ru/doc/latest/tooling/tcm/tcm_configuration_reference/#confval-http.tls.cipher-suites).
+
 * Подключение к etcd с данными TCM (backend store):
 
 ```{literalinclude} tools/tcm.yml
@@ -182,6 +233,8 @@ make start
 :language: yaml
 :dedent:
 ```
+
+Здесь также можно задать набор используемых шифров -- он указывается в виде массива в параметре [storage.etcd.tls.cipher-suites](https://www.tarantool.io/ru/doc/latest/tooling/tcm/tcm_configuration_reference/#confval-storage.etcd.tls.cipher-suites).
 
 * Подключение к etcd с конфигурацией кластера:
 
@@ -192,6 +245,8 @@ make start
 :dedent:
 ```
 
+Здесь также можно задать набор используемых шифров -- он указывается в виде массива в параметре [initial-settings.clusters.<cluster>.storage-connection.etcd-connection.tls.cipher-suites](https://www.tarantool.io/ru/doc/latest/tooling/tcm/tcm_configuration_reference/#confval-initial-settings.clusters.-cluster-.storage-connection.etcd-connection.tls.cipher-suites).
+
 * Подключение к узлам Tarantool:
 
 ```{literalinclude} tools/tcm.yml
@@ -200,6 +255,8 @@ make start
 :language: yaml
 :dedent:
 ```
+
+Список наборов шифров для подключения к узлам Tarantool можно задать с помощью параметра [initial-settings.clusters.<cluster>.storage-connection.tarantool-connection.ssl.ciphers](https://www.tarantool.io/ru/doc/latest/tooling/tcm/tcm_configuration_reference/#confval-initial-settings.clusters.-cluster-.storage-connection.tarantool-connection.ssl.ciphers). Наборы шифров перечисляются через двоеточие аналогично параметру `params.ssl_ciphers` конфигурации кластера Tarantool DB.
 
 Подробную информацию о настройке TCM можно найти в [документации Tarantool](https://tarantool.io/ru/doc/latest/tooling/tcm/tcm_configuration).
 

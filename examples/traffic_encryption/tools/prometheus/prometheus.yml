@@ -1,0 +1,15 @@
+global:
+  scrape_interval: 2s
+  scrape_timeout: 1s
+
+scrape_configs:
+  - job_name: "tarantooldb"
+    scheme: https
+    tls_config:
+      ca_file: /certs/ca/root-ca.pem
+    static_configs:
+      - targets:
+          - 'tarantool-router-msk:8081'
+          - 'tarantool-storage-1-msk:8081'
+          - 'tarantool-storage-1-spb:8081'
+    metrics_path: /metrics
