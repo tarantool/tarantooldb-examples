@@ -21,7 +21,7 @@ services:
       - TT_CONFIG_ETCD_ENDPOINTS=http://etcd1:2379,http://etcd2:2379,http://etcd3:2379
       - TT_CONFIG_ETCD_PREFIX=/tdb
       - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
-      - TDB_VSHARD_BOOTSTRAP_TIMEOUT = 20
+      - TDB_VSHARD_BOOTSTRAP_TIMEOUT=20
   tarantool-storage-1-msk:
     image: tarantooldb:2x-latest
     networks:
@@ -33,7 +33,7 @@ services:
       - TT_CONFIG_ETCD_ENDPOINTS=http://etcd1:2379,http://etcd2:2379,http://etcd3:2379
       - TT_CONFIG_ETCD_PREFIX=/tdb
       - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
-      - TDB_VSHARD_BOOTSTRAP_TIMEOUT = 20
+      - TDB_VSHARD_BOOTSTRAP_TIMEOUT=20
   tarantool-storage-1-spb:
     image: tarantooldb:2x-latest
     networks:
@@ -45,7 +45,7 @@ services:
       - TT_CONFIG_ETCD_ENDPOINTS=http://etcd1:2379,http://etcd2:2379,http://etcd3:2379
       - TT_CONFIG_ETCD_PREFIX=/tdb
       - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
-      - TDB_VSHARD_BOOTSTRAP_TIMEOUT = 20
+      - TDB_VSHARD_BOOTSTRAP_TIMEOUT=20
   tarantool-storage-1-brn:
     image: tarantooldb:2x-latest
     networks:
@@ -57,7 +57,7 @@ services:
       - TT_CONFIG_ETCD_ENDPOINTS=http://etcd1:2379,http://etcd2:2379,http://etcd3:2379
       - TT_CONFIG_ETCD_PREFIX=/tdb
       - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
-      - TDB_VSHARD_BOOTSTRAP_TIMEOUT = 20
+      - TDB_VSHARD_BOOTSTRAP_TIMEOUT=20
   tarantool-storage-2-msk:
     image: tarantooldb:2x-latest
     networks:
@@ -69,7 +69,7 @@ services:
       - TT_CONFIG_ETCD_ENDPOINTS=http://etcd1:2379,http://etcd2:2379,http://etcd3:2379
       - TT_CONFIG_ETCD_PREFIX=/tdb
       - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
-      - TDB_VSHARD_BOOTSTRAP_TIMEOUT = 20
+      - TDB_VSHARD_BOOTSTRAP_TIMEOUT=20
   tarantool-storage-2-spb:
     image: tarantooldb:2x-latest
     networks:
@@ -81,7 +81,7 @@ services:
       - TT_CONFIG_ETCD_ENDPOINTS=http://etcd1:2379,http://etcd2:2379,http://etcd3:2379
       - TT_CONFIG_ETCD_PREFIX=/tdb
       - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
-      - TDB_VSHARD_BOOTSTRAP_TIMEOUT = 20
+      - TDB_VSHARD_BOOTSTRAP_TIMEOUT=20
   tarantool-storage-2-brn:
     image: tarantooldb:2x-latest
     networks:
@@ -93,7 +93,7 @@ services:
       - TT_CONFIG_ETCD_ENDPOINTS=http://etcd1:2379,http://etcd2:2379,http://etcd3:2379
       - TT_CONFIG_ETCD_PREFIX=/tdb
       - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
-      - TDB_VSHARD_BOOTSTRAP_TIMEOUT = 20
+      - TDB_VSHARD_BOOTSTRAP_TIMEOUT=20
 
   init_host:
     image: tarantooldb:2x-latest
