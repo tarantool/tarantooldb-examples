@@ -4,11 +4,9 @@
 В этом руководстве показано, как развернуть кластер Tarantool DB без централизованной конфигурации с помощью
 Docker Compose. Если использовать этот способ, веб-интерфейс [Tarantool Cluster Manager](getting_started-tcm) будет недоступен.
 
-```{admonition} Примечание
-:class: note
-
-Запуск с помощью Docker Compose является вспомогательным и используется для тестирования и демонстрации
-в примерах документации. Для целевого развертывания используйте [инсталлятор Ansible Tarantool Enterprise](admin_guide-deploy_ate).
+```{include} /examples/up_with_docker_compose/deploy_docker_compose.md
+:start-after: (admin_guide-docker_compose-note_start)=
+:end-before: (admin_guide-docker_compose-note_end)
 ```
 
 Содержание:

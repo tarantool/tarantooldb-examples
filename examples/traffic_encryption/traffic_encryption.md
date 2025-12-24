@@ -175,7 +175,7 @@ params:
 :dedent:
 ```
 
-Если используется хранилище конфигурации на основе Tarantool, защищенное подключение к нему настраивается через
+Если используется централизованное хранилище конфигурации на основе Tarantool (*Tarantool-based configuration storage*, далее — TBCS), защищенное подключение к нему настраивается через
 поле `params` в переменной окружения `TT_CONFIG_STORAGE_ENDPOINTS`.
 Подробная информация доступна в [документации Tarantool](https://tarantool.io/ru/doc/latest/reference/configuration/configuration_reference/#config-storage).
 

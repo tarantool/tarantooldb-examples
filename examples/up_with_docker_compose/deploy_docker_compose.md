@@ -1,14 +1,17 @@
 (admin_guide-deploy_docker_compose)=
 # Запуск кластера через Docker Compose
 
-В этом руководстве показано, как развернуть кластер Tarantool DB с помощью Docker Compose.
+В этом руководстве показано, как запустить кластер Tarantool DB с помощью Docker Compose.
 
+(admin_guide-docker_compose-note_start)=
 ```{admonition} Примечание
 :class: note
 
-Данный способ является вспомогательным и используется для тестирования и демонстрации в примерах документации.
-Для целевого развертывания используйте [инсталлятор Ansible Tarantool Enterprise](admin_guide-deploy_ate).
+Развертывание Tarantool DB через Docker-образ используется в ознакомительных целях и
+рассчитано для использования в примерах документации и при тестировании.
+Для целевого развертывания используйте [Ansible Tarantool Enterprise](install_guide-ate).
 ```
+(admin_guide-docker_compose-note_end)=
 
 Содержание:
 

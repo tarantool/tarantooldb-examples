@@ -8,11 +8,9 @@
 
 Смотрите также: [](admin_guide-up_without_etcd).
 
-```{admonition} Примечание
-:class: note
-
-Данный способ является вспомогательным и используется для тестирования и демонстрации в примерах документации.
-Для целевого развертывания используйте [инсталлятор Ansible Tarantool Enterprise](admin_guide-deploy_ate).
+```{include} /examples/up_with_docker_compose/deploy_docker_compose.md
+:start-after: (admin_guide-docker_compose-note_start)=
+:end-before: (admin_guide-docker_compose-note_end)
 ```
 
 Содержание:
