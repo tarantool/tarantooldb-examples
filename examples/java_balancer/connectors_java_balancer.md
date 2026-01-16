@@ -51,7 +51,7 @@
     Пример архива: `tarantooldb-documentation-2.0.0.tar.gz`.
     Пример `java_balancer` расположен в таком архиве в директории `./doc/examples/java_balancer/`.
     
-  * Отдельный архив [java_balancer.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/java_balancer/java_balancer.tar.gz), скачанный c сайта Tarantool.
+  * Отдельный архив [java_balancer.tar.gz](https://tarantool.io/ru/tarantooldb/doc/2.x/examples/java_balancer/java_balancer.tar.gz), скачанный c сайта Tarantool.
   ```
 
 (user_guide-java_balancer-start_example)=

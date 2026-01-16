@@ -31,7 +31,7 @@
     Пример архива: `tarantooldb-documentation-2.0.0.tar.gz`.
     Пример `failover_coordinator` расположен в таком архиве в директории `./doc/examples/failover_coordinator/`.
     
-  * Отдельный архив [failover_coordinator.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/failover_coordinator/failover_coordinator.tar.gz), скачанный c сайта Tarantool.
+  * Отдельный архив [failover_coordinator.tar.gz](https://tarantool.io/ru/tarantooldb/doc/2.x/examples/failover_coordinator/failover_coordinator.tar.gz), скачанный c сайта Tarantool.
   ```
 
 (admin_guide-failover_coordinator-start_example)=

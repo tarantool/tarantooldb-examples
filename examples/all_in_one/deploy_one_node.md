@@ -38,7 +38,7 @@
     Пример архива: `tarantooldb-documentation-2.0.0.tar.gz`.
     Пример `all_in_one` расположен в таком архиве в директории `./doc/examples/all_in_one/`.
     
-  * Отдельный архив [all_in_one.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/all_in_one/all_in_one.tar.gz), скачанный c сайта Tarantool.
+  * Отдельный архив [all_in_one.tar.gz](https://tarantool.io/ru/tarantooldb/doc/2.x/examples/all_in_one/all_in_one.tar.gz), скачанный c сайта Tarantool.
   ```
 
 (admin_guide-deploy_one_node-start_example)=

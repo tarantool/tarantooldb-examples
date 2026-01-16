@@ -40,7 +40,7 @@
     Пример архива: `tarantooldb-documentation-2.0.0.tar.gz`.
     Пример `tdb_as_config_storage` расположен в таком архиве в директории `./doc/examples/tdb_as_config_storage/`.
     
-  * Отдельный архив [tdb_as_config_storage.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/tdb_as_config_storage/tdb_as_config_storage.tar.gz), скачанный c сайта Tarantool.
+  * Отдельный архив [tdb_as_config_storage.tar.gz](https://tarantool.io/ru/tarantooldb/doc/2.x/examples/tdb_as_config_storage/tdb_as_config_storage.tar.gz), скачанный c сайта Tarantool.
   ```
 
 (admin_guide-tdb_as_config_storage-start_example)=

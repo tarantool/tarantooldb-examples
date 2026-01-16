@@ -35,7 +35,7 @@
     Пример архива: `tarantooldb-documentation-2.0.0.tar.gz`.
     Пример `tracing` расположен в таком архиве в директории `./doc/examples/tracing/`.
     
-  * Отдельный архив [tracing.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/tracing/tracing.tar.gz), скачанный c сайта Tarantool.
+  * Отдельный архив [tracing.tar.gz](https://tarantool.io/ru/tarantooldb/doc/2.x/examples/tracing/tracing.tar.gz), скачанный c сайта Tarantool.
   ```
 
 (admin_guide-tracing_jaeger-start_example)=

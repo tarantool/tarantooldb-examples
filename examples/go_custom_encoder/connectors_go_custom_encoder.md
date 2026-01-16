@@ -32,7 +32,7 @@
     Пример архива: `tarantooldb-documentation-2.0.0.tar.gz`.
     Пример `go_custom_encoder` расположен в таком архиве в директории `./doc/examples/go_custom_encoder/`.
     
-  * Отдельный архив [go_custom_encoder.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/go_custom_encoder/go_custom_encoder.tar.gz), скачанный c сайта Tarantool.
+  * Отдельный архив [go_custom_encoder.tar.gz](https://tarantool.io/ru/tarantooldb/doc/2.x/examples/go_custom_encoder/go_custom_encoder.tar.gz), скачанный c сайта Tarantool.
   ```
  
 (user_guide-go_encoder-space)=

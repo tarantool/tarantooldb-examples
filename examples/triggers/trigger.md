@@ -33,7 +33,7 @@
     Пример архива: `tarantooldb-documentation-2.0.0.tar.gz`.
     Пример `triggers` расположен в таком архиве в директории `./doc/examples/triggers/`.
     
-  * Отдельный архив [triggers.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/triggers/triggers.tar.gz), скачанный c сайта Tarantool.
+  * Отдельный архив [triggers.tar.gz](https://tarantool.io/ru/tarantooldb/doc/2.x/examples/triggers/triggers.tar.gz), скачанный c сайта Tarantool.
   ```
 
 (user_guide-triggers_example-start_example)=

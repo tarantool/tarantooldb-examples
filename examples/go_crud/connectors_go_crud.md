@@ -31,7 +31,7 @@
     Пример архива: `tarantooldb-documentation-2.0.0.tar.gz`.
     Пример `go_crud` расположен в таком архиве в директории `./doc/examples/go_crud/`.
     
-  * Отдельный архив [go_crud.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/go_crud/go_crud.tar.gz), скачанный c сайта Tarantool.
+  * Отдельный архив [go_crud.tar.gz](https://tarantool.io/ru/tarantooldb/doc/2.x/examples/go_crud/go_crud.tar.gz), скачанный c сайта Tarantool.
   ```
  
 (user_guide-go_crud-start_example)=

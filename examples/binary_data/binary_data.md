@@ -36,7 +36,7 @@
     Пример архива: `tarantooldb-documentation-2.0.0.tar.gz`.
     Пример `binary_data` расположен в таком архиве в директории `./doc/examples/binary_data/`.
     
-  * Отдельный архив [binary_data.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/binary_data/binary_data.tar.gz), скачанный c сайта Tarantool.
+  * Отдельный архив [binary_data.tar.gz](https://tarantool.io/ru/tarantooldb/doc/2.x/examples/binary_data/binary_data.tar.gz), скачанный c сайта Tarantool.
   ```
 
 (user_guide-binary_data_example-start_example)=

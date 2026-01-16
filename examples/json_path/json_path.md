@@ -29,7 +29,7 @@
     Пример архива: `tarantooldb-documentation-2.0.0.tar.gz`.
     Пример `json_path` расположен в таком архиве в директории `./doc/examples/json_path/`.
     
-  * Отдельный архив [json_path.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/json_path/json_path.tar.gz), скачанный c сайта Tarantool.
+  * Отдельный архив [json_path.tar.gz](https://tarantool.io/ru/tarantooldb/doc/2.x/examples/json_path/json_path.tar.gz), скачанный c сайта Tarantool.
   ```
 
 (user_guide-json_path-start_example)=

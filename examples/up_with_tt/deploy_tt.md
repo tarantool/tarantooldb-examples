@@ -31,7 +31,7 @@
     Пример архива: `tarantooldb-documentation-2.0.0.tar.gz`.
     Пример `up_with_tt` расположен в таком архиве в директории `./doc/examples/up_with_tt/`.
     
-  * Отдельный архив [up_with_tt.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/up_with_tt/up_with_tt.tar.gz), скачанный c сайта Tarantool.
+  * Отдельный архив [up_with_tt.tar.gz](https://tarantool.io/ru/tarantooldb/doc/2.x/examples/up_with_tt/up_with_tt.tar.gz), скачанный c сайта Tarantool.
   ```
 
 (admin_guide-deploy_tt-files)=

@@ -37,7 +37,7 @@ Docker Compose. Если использовать этот способ, веб-
     Пример архива: `tarantooldb-documentation-2.0.0.tar.gz`.
     Пример `up_without_etcd` расположен в таком архиве в директории `./doc/examples/up_without_etcd/`.
     
-  * Отдельный архив [up_without_etcd.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/up_without_etcd/up_without_etcd.tar.gz), скачанный c сайта Tarantool.
+  * Отдельный архив [up_without_etcd.tar.gz](https://tarantool.io/ru/tarantooldb/doc/2.x/examples/up_without_etcd/up_without_etcd.tar.gz), скачанный c сайта Tarantool.
   ```
 
 (admin_guide-up_without_etcd-start_example)=

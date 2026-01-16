@@ -36,7 +36,7 @@
     Пример архива: `tarantooldb-documentation-2.0.0.tar.gz`.
     Пример `migrations` расположен в таком архиве в директории `./doc/examples/migrations/`.
     
-  * Отдельный архив [migrations.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/migrations/migrations.tar.gz), скачанный c сайта Tarantool.
+  * Отдельный архив [migrations.tar.gz](https://tarantool.io/ru/tarantooldb/doc/2.x/examples/migrations/migrations.tar.gz), скачанный c сайта Tarantool.
   ```
  
 (user_guide-space_format-schema)=
