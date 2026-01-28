@@ -1,4 +1,4 @@
-(user_guide-dictionary_example_restricted)=
+(user_guide-dictionary_user_example)=
 # Работа со словарём с ограниченными правами
 
 В этом руководстве показано, как работать со словарями через отдельного пользователя
@@ -6,19 +6,19 @@
 
 Содержание:
 
-- [](user_guide-dictionary_example_restricted-dictionary_user)
-- [](user_guide-dictionary_example_restricted-prereq)
-- [](user_guide-dictionary_example_restricted-start_example)
-- [](user_guide-dictionary_example_restricted-add_data)
-- [](user_guide-dictionary_example_restricted-read_data)
-- [](user_guide-dictionary_example_restricted-export_import)
-  - [](user_guide-dictionary_example_restricted-export)
-  - [](user_guide-dictionary_example_restricted-edit_outside_cluster)
-  - [](user_guide-dictionary_example_restricted-update_csv)
-  - [](user_guide-dictionary_example_restricted-import)
-- [](user_guide-dictionary_example_restricted-stop_example)
+- [](user_guide-dictionary_user_example-dictionary_user)
+- [](user_guide-dictionary_user_example-prereq)
+- [](user_guide-dictionary_user_example-start_example)
+- [](user_guide-dictionary_user_example-add_data)
+- [](user_guide-dictionary_user_example-read_data)
+- [](user_guide-dictionary_user_example-export_import)
+  - [](user_guide-dictionary_user_example-export)
+  - [](user_guide-dictionary_user_example-edit_outside_cluster)
+  - [](user_guide-dictionary_user_example-update_csv)
+  - [](user_guide-dictionary_user_example-import)
+- [](user_guide-dictionary_user_example-stop_example)
 
-(user_guide-dictionary_example_restricted-dictionary_user)=
+(user_guide-dictionary_user_example-dictionary_user)=
 ## Пользователь словарей
 
 Для выполнения операций со словарями не требуются широкие права доступа (super-права).
@@ -51,7 +51,7 @@ credentials:
           universe: true
 ```
 
-(user_guide-dictionary_example_restricted-prereq)=
+(user_guide-dictionary_user_example-prereq)=
 ## Пререквизиты
 
 Для выполнения примера требуются:
@@ -59,7 +59,7 @@ credentials:
 - установленный [Docker-образ](install_docker-image) Tarantool DB;
 - приложение Docker Compose;
 - утилита [tt CLI](install-install_tt);
-- исходные файлы примера `dictionary_restricted`.
+- исходные файлы примера `dictionary_user`.
 
   ```{admonition} Примечание
   :class: note
@@ -68,12 +68,12 @@ credentials:
 
   * Архив с полной документацией Tarantool DB, полученный по почте или скачанный в [личном кабинете tarantool.io](https://www.tarantool.io/en/accounts/customer_zone/packages/tarantooldb/release/documentation).
     Пример архива: `tarantooldb-documentation-3.0.0.tar.gz`.
-    Пример `dictionary_restricted` расположен в таком архиве в директории `./doc/examples/dictionary_restricted/`.
+    Пример `dictionary_user` расположен в таком архиве в директории `./doc/examples/dictionary_user/`.
     
-  * Отдельный архив [dictionary_restricted.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/dictionary_restricted/dictionary_restricted.tar.gz), скачанный c сайта Tarantool.
+  * Отдельный архив [dictionary_user.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/dictionary_user/dictionary_user.tar.gz), скачанный c сайта Tarantool.
   ```
 
-(user_guide-dictionary_example_restricted-start_example)=
+(user_guide-dictionary_user_example-start_example)=
 ## Запуск стенда и подключение к узлам
 
 Для успешного запуска должны быть свободны следующие порты:
@@ -82,10 +82,10 @@ credentials:
 - 3301–3308
 - 8081
 
-Перейдите в папку с примером `dictionary_restricted`
+Перейдите в папку с примером `dictionary_user`
 
 ```shell
-cd ./doc/examples/dictionary_restricted
+cd ./doc/examples/dictionary_user
 ```
 
 Запустите стенд:
@@ -112,7 +112,7 @@ make start
 
 Все операции со словарями в примере ниже выполняются через пользователя `dictionary_user`.
 
-(user_guide-dictionary_example_restricted-add_data)=
+(user_guide-dictionary_user_example-add_data)=
 ## Запись данных в словарь
 
 Чтобы начать работу с базой данных через интерактивную консоль Tarantool, нужно подключиться к узлу кластера.
@@ -137,13 +137,13 @@ box.schema.func.call('dictionary_router_set', 'categories', '3', 'Transport')
 ```
 
 
-(user_guide-dictionary_example_restricted-read_data)=
+(user_guide-dictionary_user_example-read_data)=
 ## Чтение данных с другого узла
 
 Словари автоматически реплицируются между всеми узлами кластера. Чтобы проверить это, откройте вторую вкладку терминала (далее -- **Terminal 2**) и подключитесь к другому узлу кластера:
 
 ```shell
-tt connect dictionary_user:secret@localhost:3304
+tt connect dictionary_user:secret@localhost:3302
 ```
 
 Проверьте записанные в словарь данные с помощью метода [dictionary_router_get()](reference_lua-dictionary-get):
@@ -156,7 +156,7 @@ box.schema.func.call('dictionary_router_get', 'categories', '3')
 
 Видно, что изменения словаря автоматически синхронизируются между всеми узлами кластера.
 
-(user_guide-dictionary_example_restricted-export_import)=
+(user_guide-dictionary_user_example-export_import)=
 ## Выгрузка и загрузка словаря через утилиту tt CLI
 
 Экспорт и импорт словарей можно использовать:
@@ -165,7 +165,7 @@ box.schema.func.call('dictionary_router_get', 'categories', '3')
 - при восстановлении словарей из резервной копии;
 - для массового редактирования данных вне кластера.
 
-(user_guide-dictionary_example_restricted-export)=
+(user_guide-dictionary_user_example-export)=
 ### Экспорт словаря
 
 Выполните экспорт системных спейсов словарей, используя **один** из способов ниже
@@ -181,7 +181,7 @@ box.schema.func.call('dictionary_router_get', 'categories', '3')
     dictionary_data:dictionary_data.csv --header
   ```
 
-(user_guide-dictionary_example_restricted-edit_outside_cluster)=
+(user_guide-dictionary_user_example-edit_outside_cluster)=
 ### Редактирование данных вне кластера
 
 Выгрузка словарей через `tt export` используется в тех случаях, когда требуется
@@ -203,7 +203,7 @@ box.schema.func.call('dictionary_router_get', 'categories', '3')
 Во всех этих сценариях словарь выгружается в виде CSV-файлов,
 редактируется вне кластера, а затем загружается обратно с помощью `tt import`.
 
-(user_guide-dictionary_example_restricted-update_csv)=
+(user_guide-dictionary_user_example-update_csv)=
 ### Обогащение CSV-файла словаря
 
 После экспорта файл `dictionary_data.csv` можно дополнить новыми записями.
@@ -229,7 +229,7 @@ categories,7,Subscriptions,44444444-4444-4444-4444-444444444444,1766583269000000
 ```
 
 
-(user_guide-dictionary_example_restricted-import)=
+(user_guide-dictionary_user_example-import)=
 ### Импорт обновлённых данных
 
 После редактирования файлов загрузите их обратно в кластер, используя **один** из способов ниже
@@ -262,7 +262,7 @@ box.schema.func.call('dictionary_router_get', 'categories', '7')
 
 Обновлённые значения доступны на всех узлах кластера.
 
-(user_guide-dictionary_example_restricted-stop_example)=
+(user_guide-dictionary_user_example-stop_example)=
 ## Остановка стенда
 
 Чтобы остановить стенд, выполните в локальном терминале следующую команду:
