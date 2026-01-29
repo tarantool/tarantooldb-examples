@@ -130,7 +130,7 @@ curl localhost:8283/healthcheck
 Теперь проверьте здоровье второй реплики в этом наборе реплик:
 
 ```shell
-curl localhost:8283/healthcheck
+curl localhost:8285/healthcheck
 ```
 
 Ответ:
