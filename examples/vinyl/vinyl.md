@@ -88,7 +88,7 @@ make start
 
 В руководстве при запуске кластера применяется [миграция](user_guide-migrations) из файла
 `./cluster/migrations/scenario/001_messages.lua` примера `vinyl`.
-В этой миграции создан на движке vinyl шардированный спейс `messages` для хранения пользовательских сообщений:
+В этой миграции создан на движке vinyl [шардированный спейс](admin_guide-sharding) `messages` для хранения пользовательских сообщений:
 
 ```{literalinclude} cluster/migrations/scenario/001_messages.lua
 :start-after: local function apply()
@@ -111,7 +111,7 @@ make start
 
 Здесь:
 
-- `bucket_id` -- идентификатор виртуального сегмента, используемый для шардирования;
+- `bucket_id` -- [идентификатор виртуального сегмента](admin_guide-sharding), используемый для шардирования;
 - `id` -- идентификатор сообщения.
 
 При использовании движка vinyl создание отдельного вторичного индекса по `bucket_id` избыточно и неэффективно по

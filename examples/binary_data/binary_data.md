@@ -1,7 +1,7 @@
 (user_guide-binary_data_example)=
 # Запись и получение бинарных данных
 
-В этом руководстве показано, как записать бинарные данные в шардированный спейс с помощью модуля CRUD, а затем прочитать записанные файлы.
+В этом руководстве показано, как записать бинарные данные в [шардированный спейс](admin_guide-sharding) с помощью модуля CRUD, а затем прочитать записанные файлы.
 
 Для хранения бинарных данных используйте тип [string](https://www.tarantool.io/ru/doc/latest/platform/ddl_dml/value_store/#index-box-string) или [varbinary](https://www.tarantool.io/ru/doc/latest/platform/ddl_dml/value_store/#bin). 
 Эти типы имеют одинаковые представления в виде байтов, различается только заголовок MsgPack. 

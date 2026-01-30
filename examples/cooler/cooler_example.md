@@ -71,7 +71,7 @@ make start
 
 В руководстве при запуске кластера применяется [миграция](user_guide-migrations) из файла
 `./cluster/migrations/scenario/001_sessions.lua` примера `cooler`.
-В этой миграции создан на движке memtx шардированный спейс `sessions` для хранения пользовательских сессий:
+В этой миграции создан на движке memtx [шардированный спейс](admin_guide-sharding) `sessions` для хранения пользовательских сессий:
 
 ```{literalinclude} cluster/migrations/scenario/001_sessions.lua
 :start-after: if is_storage() then

@@ -50,7 +50,7 @@
 
 Здесь:
 
-* Спейсы `projects` и `tasks` имеют одинаковый [ключ шардирования](https://www.tarantool.io/ru/doc/latest/concepts/sharding/) `project_id` и находятся на одном экземпляре.
+* Спейсы `projects` и `tasks` имеют одинаковый [ключ шардирования](admin_guide-sharding) `project_id` и находятся на одном экземпляре.
 * Спейс `users` имеет ключ шардирования `user_id`.
 
 Особенности базы данных:
