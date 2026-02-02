@@ -1,5 +1,5 @@
 (admin_guide-tcf-example)=
-# Запуск кластеров Tarantool DB с TCF и настройка репликатора
+# Запуск кластеров Tarantool DataBase с TCF и настройка репликатора
 
 В этом руководстве показано, как запустить два независимых кластера Tarantool DB в Docker в связке с [Tarantool Clusters Federation](https://www.tarantool.io/ru/clustersfederation/doc/latest/) (TCF)
 и настроить работу репликатора между кластерами.
