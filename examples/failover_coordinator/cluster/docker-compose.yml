@@ -91,22 +91,18 @@ services:
     image: tarantooldb:3x-latest
     networks:
       - tarantooldb_network
+    volumes:
+      - ./failover/config.yml:/app/tarantooldb/failover/config.yml
     environment:
-      - TT_RUN_OPTIONS=--failover
-      - TT_CONFIG_ETCD_ENDPOINTS=http://etcd1:2379,http://etcd2:2379,http://etcd3:2379
-      - TT_CONFIG_ETCD_PREFIX=/tdb
-      - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
-      - TT_FAILOVER_METRICS='{"http":[{"listen":8081,"endpoints":[{"path":"/metrics","format":"prometheus"}]}]}'
+      - TT_RUN_OPTIONS=--failover --config failover/config.yml
   tarantool-failover-coordinator-2:
     image: tarantooldb:3x-latest
     networks:
       - tarantooldb_network
+    volumes:
+      - ./failover/config.yml:/app/tarantooldb/failover/config.yml
     environment:
-      - TT_RUN_OPTIONS=--failover
-      - TT_CONFIG_ETCD_ENDPOINTS=http://etcd1:2379,http://etcd2:2379,http://etcd3:2379
-      - TT_CONFIG_ETCD_PREFIX=/tdb
-      - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
-      - TT_FAILOVER_METRICS='{"http":[{"listen":8081,"endpoints":[{"path":"/metrics","format":"prometheus"}]}]}'
+      - TT_RUN_OPTIONS=--failover --config failover/config.yml
 
   init_host:
     image: tarantooldb:3x-latest

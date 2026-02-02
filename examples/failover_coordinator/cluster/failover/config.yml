@@ -1,0 +1,19 @@
+failover:
+  http:
+    listen:
+    - uri: 0.0.0.0:8081
+  metrics:
+    exporters:
+    - path: /metrics
+      format: prometheus
+
+config:
+  etcd:
+    endpoints:
+    - http://etcd1:2379
+    - http://etcd2:2379
+    - http://etcd3:2379
+    prefix: /tdb
+    http:
+      request:
+        timeout: 3
