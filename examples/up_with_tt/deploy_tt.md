@@ -1,5 +1,5 @@
 (admin_guide-deploy_tt)=
-#  Запуск Tarantool DB с помощью TT CLI
+#  Запуск Tarantool DataBase с помощью TT CLI
 
 В этом руководстве показано, как развернуть Tarantool DB локально, используя утилиту [TT CLI](install-install_tt) (`tt`).
 
