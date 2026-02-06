@@ -1,0 +1,46 @@
+services:
+  worker-1:
+    image: tarantooldb:3x-latest
+    networks:
+      - tarantooldb_network
+    volumes:
+      - ./bin:/app/tarantooldb/bin
+    environment:
+      - TDB_WORKER_NAME=http-server-1
+      - TDB_WORKER_CONFIG_ETCD_ENDPOINTS=http://etcd1:2379
+      - TDB_WORKER_CONFIG_ETCD_PREFIX=/tdb-workers/tdb
+      - TDB_WORKER_HOST_NAME=127.0.0.1
+    command: ./bin/http-server
+    ports:
+      - "10000:10000"
+      - "9080:9080"
+  worker-2:
+    image: tarantooldb:3x-latest
+    networks:
+      - tarantooldb_network
+    volumes:
+      - ./bin:/app/tarantooldb/bin
+    environment:
+      - TDB_WORKER_NAME=http-server-2
+      - TDB_WORKER_CONFIG_ETCD_ENDPOINTS=http://etcd1:2379
+      - TDB_WORKER_CONFIG_ETCD_PREFIX=/tdb-workers/tdb
+      - TDB_WORKER_HOST_NAME=127.0.0.1
+    command: ./bin/http-server
+    ports:
+      - "10001:10001"
+      - "9081:9081"
+
+  tarantool-router-brn:
+    image: tarantooldb:3x-latest
+    networks:
+      - tarantooldb_network
+    ports:
+      - "3309:3301"
+    environment:
+      - TT_INSTANCE_NAME=router-brn
+      - TT_CONFIG_ETCD_ENDPOINTS=http://etcd1:2379,http://etcd2:2379,http://etcd3:2379
+      - TT_CONFIG_ETCD_PREFIX=/tdb
+      - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
+networks:
+  tarantooldb_network:
+    external: true

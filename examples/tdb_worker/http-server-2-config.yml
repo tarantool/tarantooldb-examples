@@ -1,0 +1,13 @@
+type: nontarantool
+instrumentation: # опции для мониторинга
+    url:            worker-2:9081
+    metrics_url:    /metrics
+    metrics_format: "prometheus"
+    liveness_url:   /alive
+    info_url: /info
+    binary: ./bin/http-server
+config: # произвольная конфигурация воркера
+    addr: 0.0.0.0:10001
+    tarantool_cluster_prefix: /tdb/config/all
+    tarantool_user: admin
+    tarantool_pass: secret-cluster-cookie
