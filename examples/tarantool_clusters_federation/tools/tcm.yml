@@ -19,6 +19,7 @@ cluster:
 
 feature:
   tcf: true
+  tuples: true
 
 initial-settings:
   clusters:

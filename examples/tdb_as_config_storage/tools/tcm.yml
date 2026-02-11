@@ -18,6 +18,9 @@ security:
 cluster:
   tt-command: /app/tarantooldb/tt
 
+feature:
+  tuples: true
+
 initial-settings:
   clusters:
     - name: Tarantool DB Cluster
