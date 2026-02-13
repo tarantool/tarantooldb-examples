@@ -42,7 +42,7 @@ local function up()
             { name = 'id', type = 'number' },
             { name = 'bucket_id', type = 'unsigned' },
             { name = 'create_at', type = 'datetime' },
-            { name = 'data', type = 'string' },
+            { name = 'data', type = 'uuid' },
         })
         s:create_index('pk', { parts = {'id'}, if_not_exists = true})
         s:create_index('bucket_id', { parts = {'bucket_id'}, unique = false, if_not_exists = true})
