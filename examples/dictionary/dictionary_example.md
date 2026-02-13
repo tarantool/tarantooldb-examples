@@ -164,7 +164,6 @@ box.schema.func.call('dictionary_router_get', 'categories', '1')
 ```lua
 crud.replace('money_moves', {1, box.NULL, 123, require('datetime').now(), '1', false, 260.01})
 crud.replace('money_moves', {2, box.NULL, 123, require('datetime').now(), '2', false, 1234.56})
-crud.replace('money_moves', {2, box.NULL, 123, require('datetime').now(), '3', false, 30})
 crud.replace('money_moves', {3, box.NULL, 123, require('datetime').now(), '5', false, 1176.12})
 crud.replace('money_moves', {4, box.NULL, 123, require('datetime').now(), '3', false, 30})
 crud.replace('money_moves', {5, box.NULL, 123, require('datetime').now(), '3', false, 35})
