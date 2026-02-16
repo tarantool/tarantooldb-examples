@@ -122,7 +122,7 @@ localhost:3300>
 Для запуска выполните из папки примера следующие команды:
 ```shell
 docker build -t traffic-encryption-go -f go/Dockerfile ./go
-docker run -it --rm -v "$(pwd)/certs:/traffic_encryption/go/certs" --network traffic_encryption_tarantooldb_network traffic-encryption-go
+docker run -t --rm -v "$(pwd)/certs:/traffic_encryption/go/certs" --network traffic_encryption_tarantooldb_network traffic-encryption-go
 ```
 
 Go-клиент подключится к узлу через коннектор с шифрованием и запросит текущую

@@ -9,6 +9,7 @@ services:
       - "3300:3301"
     environment:
       - TARANTOOL_ADVERTISE_URI=tarantool-router-A:3301
+      - TARANTOOL_ALIAS=router-A-1
       - TARANTOOL_CLUSTER_COOKIE=cookie-A
   tarantool-storage-A-1-1:
     image: tarantooldb:1x-latest
@@ -19,6 +20,7 @@ services:
       - "3301:3301"
     environment:
       - TARANTOOL_ADVERTISE_URI=tarantool-storage-A-1-1:3301
+      - TARANTOOL_ALIAS=storage-A-1-1
       - TARANTOOL_CLUSTER_COOKIE=cookie-A
   tarantool-storage-A-1-2:
     image: tarantooldb:1x-latest
@@ -29,6 +31,7 @@ services:
       - "3302:3301"
     environment:
       - TARANTOOL_ADVERTISE_URI=tarantool-storage-A-1-2:3301
+      - TARANTOOL_ALIAS=storage-A-1-2
       - TARANTOOL_CLUSTER_COOKIE=cookie-A
   tarantool-storage-A-2-1:
     image: tarantooldb:1x-latest
@@ -39,6 +42,7 @@ services:
       - "3303:3301"
     environment:
       - TARANTOOL_ADVERTISE_URI=tarantool-storage-A-2-1:3301
+      - TARANTOOL_ALIAS=storage-A-2-1
       - TARANTOOL_CLUSTER_COOKIE=cookie-A
   tarantool-storage-A-2-2:
     image: tarantooldb:1x-latest
@@ -49,6 +53,7 @@ services:
       - "3304:3301"
     environment:
       - TARANTOOL_ADVERTISE_URI=tarantool-storage-A-2-2:3301
+      - TARANTOOL_ALIAS=storage-A-2-2
       - TARANTOOL_CLUSTER_COOKIE=cookie-A
   user-host-A:
     image: tarantooldb:1x-latest
@@ -76,6 +81,7 @@ services:
       - "4300:3301"
     environment:
       - TARANTOOL_ADVERTISE_URI=tarantool-router-B:3301
+      - TARANTOOL_ALIAS=router-B-1
       - TARANTOOL_CLUSTER_COOKIE=cookie-B
   tarantool-storage-B-1-1:
     image: tarantooldb:1x-latest
@@ -86,6 +92,7 @@ services:
       - "4301:3301"
     environment:
       - TARANTOOL_ADVERTISE_URI=tarantool-storage-B-1-1:3301
+      - TARANTOOL_ALIAS=storage-B-1-1
       - TARANTOOL_CLUSTER_COOKIE=cookie-B
   tarantool-storage-B-1-2:
     image: tarantooldb:1x-latest
@@ -96,6 +103,7 @@ services:
       - "4302:3301"
     environment:
       - TARANTOOL_ADVERTISE_URI=tarantool-storage-B-1-2:3301
+      - TARANTOOL_ALIAS=storage-B-1-2
       - TARANTOOL_CLUSTER_COOKIE=cookie-B
   tarantool-storage-B-2-1:
     image: tarantooldb:1x-latest
@@ -106,6 +114,7 @@ services:
       - "4303:3301"
     environment:
       - TARANTOOL_ADVERTISE_URI=tarantool-storage-B-2-1:3301
+      - TARANTOOL_ALIAS=storage-B-2-1
       - TARANTOOL_CLUSTER_COOKIE=cookie-B
   tarantool-storage-B-2-2:
     image: tarantooldb:1x-latest
@@ -116,6 +125,7 @@ services:
       - "4304:3301"
     environment:
       - TARANTOOL_ADVERTISE_URI=tarantool-storage-B-2-2:3301
+      - TARANTOOL_ALIAS=storage-B-2-2
       - TARANTOOL_CLUSTER_COOKIE=cookie-B
   user-host-B:
     image: tarantooldb:1x-latest

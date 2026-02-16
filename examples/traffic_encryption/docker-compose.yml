@@ -9,6 +9,7 @@ services:
       - "3300:3301"
     environment:
       - TARANTOOL_ADVERTISE_URI=tarantool-router:3301
+      - TARANTOOL_ALIAS=router-1
       - TARANTOOL_TRANSPORT=SSL
       - TARANTOOL_SSL_SERVER_CA_FILE=/certs/ca-cert.pem
       - TARANTOOL_SSL_SERVER_CERT_FILE=/certs/server-cert.pem
@@ -28,6 +29,7 @@ services:
       - "3301:3301"
     environment:
       - TARANTOOL_ADVERTISE_URI=tarantool-storage1:3301
+      - TARANTOOL_ALIAS=storage-A-1
       - TARANTOOL_TRANSPORT=SSL
       - TARANTOOL_SSL_SERVER_CA_FILE=/certs/ca-cert.pem
       - TARANTOOL_SSL_SERVER_CERT_FILE=/certs/server-cert.pem
@@ -47,6 +49,7 @@ services:
       - "3302:3301"
     environment:
       - TARANTOOL_ADVERTISE_URI=tarantool-storage2:3301
+      - TARANTOOL_ALIAS=storage-A-2
       - TARANTOOL_TRANSPORT=SSL
       - TARANTOOL_SSL_SERVER_CA_FILE=/certs/ca-cert.pem
       - TARANTOOL_SSL_SERVER_CERT_FILE=/certs/server-cert.pem
@@ -66,6 +69,7 @@ services:
       - "3303:3301"
     environment:
       - TARANTOOL_ADVERTISE_URI=tarantool-storage3:3301
+      - TARANTOOL_ALIAS=storage-B-1
       - TARANTOOL_TRANSPORT=SSL
       - TARANTOOL_SSL_SERVER_CA_FILE=/certs/ca-cert.pem
       - TARANTOOL_SSL_SERVER_CERT_FILE=/certs/server-cert.pem
@@ -85,6 +89,7 @@ services:
       - "3304:3301"
     environment:
       - TARANTOOL_ADVERTISE_URI=tarantool-storage4:3301
+      - TARANTOOL_ALIAS=storage-B-2
       - TARANTOOL_TRANSPORT=SSL
       - TARANTOOL_SSL_SERVER_CA_FILE=/certs/ca-cert.pem
       - TARANTOOL_SSL_SERVER_CERT_FILE=/certs/server-cert.pem

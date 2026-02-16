@@ -9,6 +9,7 @@ services:
       - "3301:3301"
     environment:
       - TARANTOOL_ADVERTISE_URI=tarantool-instance:3301
+      - TARANTOOL_ALIAS=all_in_one-1
   user-host:
     image: tarantooldb:1x-latest
     networks:

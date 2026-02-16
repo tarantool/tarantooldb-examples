@@ -10,6 +10,7 @@ services:
     environment:
       - TARANTOOL_LISTEN=0.0.0.0:3301
       - TARANTOOL_ADVERTISE_URI=tarantool-router:3301
+      - TARANTOOL_ALIAS=router-1
   tarantool-storage1:
     image: tarantooldb:1x-latest
     networks:
@@ -20,6 +21,7 @@ services:
     environment:
       - TARANTOOL_LISTEN=0.0.0.0:3301
       - TARANTOOL_ADVERTISE_URI=tarantool-storage1:3301
+      - TARANTOOL_ALIAS=storage-A-1
   tarantool-storage2:
     image: tarantooldb:1x-latest
     networks:
@@ -30,6 +32,7 @@ services:
     environment:
       - TARANTOOL_LISTEN=0.0.0.0:3301
       - TARANTOOL_ADVERTISE_URI=tarantool-storage2:3301
+      - TARANTOOL_ALIAS=storage-A-2
   tarantool-storage3:
     image: tarantooldb:1x-latest
     networks:
@@ -40,6 +43,7 @@ services:
     environment:
       - TARANTOOL_LISTEN=0.0.0.0:3301
       - TARANTOOL_ADVERTISE_URI=tarantool-storage3:3301
+      - TARANTOOL_ALIAS=storage-B-1
   tarantool-storage4:
     image: tarantooldb:1x-latest
     networks:
@@ -50,6 +54,7 @@ services:
     environment:
       - TARANTOOL_LISTEN=0.0.0.0:3301
       - TARANTOOL_ADVERTISE_URI=tarantool-storage4:3301
+      - TARANTOOL_ALIAS=storage-B-2
   tarantool-db-init:
     image: tarantooldb:1x-latest
     networks:
