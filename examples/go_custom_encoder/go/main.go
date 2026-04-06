@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"math/rand"
 	"reflect"
@@ -141,7 +142,7 @@ func GenerateBatchesCustom() {
 
 func WritePerBatchOverCrud(conn *tarantool.Connection) bool {
 	var opManyOpts = crud.OperationManyOpts{
-		Timeout: crud.MakeOptUint(TIMEOUT),
+		Timeout: crud.MakeOptFloat64(float64(TIMEOUT)),
 	}
 
 	for i := 0; i < BATCH_QTY; i++ {
@@ -161,7 +162,7 @@ func WritePerBatchOverCrud(conn *tarantool.Connection) bool {
 
 func CheckRecords(conn *tarantool.Connection) {
 	var opts = crud.GetOpts{
-		Timeout: crud.MakeOptUint(TIMEOUT),
+		Timeout: crud.MakeOptFloat64(float64(TIMEOUT)),
 	}
 
 	for i := 0; i < BATCH_QTY; i++ {
@@ -194,8 +195,14 @@ func CheckRecords(conn *tarantool.Connection) {
 }
 
 func main() {
-	opts := tarantool.Opts{User: TT_USER, Pass: TT_PASS}
-	conn, err := tarantool.Connect(TT_HOST + ":" + TT_PORT, opts)
+	ctx := context.Background()
+	dialer := tarantool.NetDialer{
+		Address:  TT_HOST + ":" + TT_PORT,
+		User:     TT_USER,
+		Password: TT_PASS,
+	}
+	opts := tarantool.Opts{}
+	conn, err := tarantool.Connect(ctx, dialer, opts)
 	if err != nil {
 		fmt.Printf("database connection error: %s\n", err.Error())
 		return

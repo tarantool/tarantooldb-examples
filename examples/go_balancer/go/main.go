@@ -59,17 +59,21 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	dialersMap := map[string]tarantool.Dialer{}
+	instances := make([]pool.Instance, 0, len(routerUriList))
+	connOpts := tarantool.Opts{}
 	for _, uri := range routerUriList {
-		dialersMap[uri] = tarantool.NetDialer{
-			Address:  uri,
-			User:     USER,
-			Password: PASS,
-		}
+		instances = append(instances, pool.Instance{
+			Name: uri,
+			Dialer: tarantool.NetDialer{
+				Address:  uri,
+				User:     USER,
+				Password: PASS,
+			},
+			Opts: connOpts,
+		})
 	}
 
-	connOpts := tarantool.Opts{}
-	routerPool, err := pool.Connect(ctx, dialersMap, connOpts)
+	routerPool, err := pool.ConnectWithOpts(ctx, instances, pool.Opts{CheckTimeout: time.Second})
 	if err != nil || routerPool == nil {
 		log.Fatalln("ConnectionPool is not established:", err)
 	}
