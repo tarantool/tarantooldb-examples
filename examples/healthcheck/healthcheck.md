@@ -74,7 +74,7 @@ make start
   - 1 [Tarantool Cluster Manager](getting_started-tcm) (TCM);
 - кластера etcd из 3 узлов.
 
-После запуска должны работать все контейнеры, кроме [init_host](admin_guide-healthcheck-init_host).
+После запуска должны работать все контейнеры, кроме [init_host](admin_guide-deploy_docker_compose-init_host).
 Также после запуска становится доступен веб-интерфейс TCM.
 
 Для входа в веб-интерфейс TCM откройте в браузере адрес [http://localhost:8081](http://localhost:8081).
