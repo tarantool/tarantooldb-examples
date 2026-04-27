@@ -205,4 +205,4 @@ go run -tags go_tarantool_ssl_disable main.go target=sync
 make stop
 ```
 
-* Во втором локальном терминале выполните команду `Ctrl + Z`.
+* Во втором локальном терминале выполните команду `Ctrl + C`.

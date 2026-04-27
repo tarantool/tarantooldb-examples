@@ -2,11 +2,13 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"log"
 	"math/rand"
 	"os"
-	"strings"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/go-faker/faker/v4"
@@ -23,83 +25,62 @@ const (
 
 var routerUriList = []string{"localhost:3301", "localhost:3302"}
 
-type FakeData struct {
-	UUID      string `faker:"uuid_hyphenated"`
-	Paragraph string `faker:"paragraph"`
-}
-
 type Tuple struct {
-	_msgpack struct{} `msgpack:",asArray"` //nolint: structcheck,unused
-	Id       string   `msgpack:"uuid"`
-	BucketId *uint    `msgpack:"bucket_id"`
-	Too      uint     `msgpack:"user_id"`
-	Foo      string   `msgpack:"payload"`
+	Id       string
+	BucketId *uint
+	Too      int64
+	Foo      string
 }
 
-func MakeRandomTuple(random *rand.Rand) Tuple {
-	fakeData := FakeData{}
-	err := faker.FakeData(&fakeData)
-	if err != nil {
-		fmt.Println(err)
-	}
-	tuple := Tuple{
-		Id:       fakeData.UUID,
-		BucketId: nil,
-		Too:      uint(random.Int63()),
-		Foo:      fakeData.Paragraph,
-	}
-	fmt.Println(tuple)
-	return tuple
+type Loader struct {
+	pool   *pool.ConnectionPool
+	space  string
+	random *rand.Rand
 }
 
-func WriteOverCrud(routerPool *pool.ConnectionPool, space string, random *rand.Rand) {
-	tuple := MakeRandomTuple(random)
-	req := crud.MakeInsertRequest(space).Tuple(tuple)
-	ret := crud.Result{}
-	err := routerPool.Do(req, pool.ANY).GetTyped(&ret)
-	if err != nil {
-		log.Printf("Failed to execute request: %s\n", err)
-		return
+func MakeRandomTuple(r *rand.Rand) Tuple {
+	return Tuple{
+		Id:  faker.UUIDHyphenated(),
+		Too: r.Int63(),
+		Foo: faker.Paragraph(),
 	}
 }
 
-func InfinityLoad(routerPool *pool.ConnectionPool, mode string, random *rand.Rand) {
-	var space string
-	switch mode {
-	case "sync":
-		space = "sync_space"
-	case "async":
-		space = "async_space"
-	default:
-		fmt.Println("Неизвестное значение аргумента. Используйте target=sync или target=async.")
-		return
-	}
+func (l *Loader) Run(ctx context.Context) {
 	for {
-		WriteOverCrud(routerPool, space, random)
+		select {
+		case <-ctx.Done():
+			return
+		default:
+			tuple := MakeRandomTuple(l.random)
+			req := crud.MakeInsertRequest(l.space).Tuple(tuple)
+
+			_, err := l.pool.Do(req, pool.ANY).Get()
+			if err != nil {
+				if ctx.Err() == nil {
+					log.Printf("Insert error: %v", err)
+				}
+			}
+		}
 	}
 }
 
 func main() {
-	if len(os.Args) < 2 {
-		fmt.Println("Пожалуйста, укажите аргумент target=sync или target=async.")
-		return
+	modePtr := flag.String("target", "", "Target space: sync or async")
+	flag.Parse()
+
+	if *modePtr != "sync" && *modePtr != "async" {
+		fmt.Println("Error: invalid or missing target.")
+		flag.Usage()
+		os.Exit(1)
 	}
 
-	var mode string
+	fmt.Printf("Starting %s load (%d streams). Press Ctrl+C to stop.\n", *modePtr, STREAMS)
 
-	for _, arg := range os.Args {
-		if strings.HasPrefix(arg, "target=") {
-			mode = strings.TrimPrefix(arg, "target=")
-		}
-	}
-
-	fmt.Println("mode", mode)
-
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	instances := make([]pool.Instance, 0, len(routerUriList))
-	connOpts := tarantool.Opts{}
 	for _, uri := range routerUriList {
 		instances = append(instances, pool.Instance{
 			Name: uri,
@@ -108,24 +89,44 @@ func main() {
 				User:     USER,
 				Password: PASS,
 			},
-			Opts: connOpts,
 		})
 	}
 
 	routerPool, err := pool.ConnectWithOpts(ctx, instances, pool.Opts{CheckTimeout: time.Second})
-	if err != nil || routerPool == nil {
-		log.Fatalln("ConnectionPool is not established:", err)
+	if err != nil {
+		log.Printf("Connection failed: %v\n", err)
+		os.Exit(1)
 	}
 	defer routerPool.Close()
-	sourceRandom := rand.NewSource(time.Now().UnixNano())
-	random := rand.New(sourceRandom)
+
+	loadCtx, loadCancel := context.WithCancel(context.Background())
+	space := *modePtr + "_space"
 	for i := 0; i < STREAMS; i++ {
-		go InfinityLoad(routerPool, mode, random)
+		l := &Loader{
+			pool:   routerPool,
+			space:  space,
+			random: rand.New(rand.NewSource(time.Now().UnixNano() + int64(i))),
+		}
+		go l.Run(loadCtx)
 	}
 
-	log.Printf("To finish the job, press Ctrl+Z\n")
+	go func() {
+		symbols := []string{"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"}
+		i := 0
+		for {
+			fmt.Printf("\r\033[32m%s\033[0m Loading...", symbols[i%len(symbols)])
+			i++
+			time.Sleep(100 * time.Millisecond)
+		}
+	}()
 
-	for {
-		time.Sleep(time.Second)
-	}
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+
+	<-sigChan
+
+	loadCancel()
+	fmt.Println("\nStopping load...")
+	routerPool.Close()
+	fmt.Println("Done.")
 }
