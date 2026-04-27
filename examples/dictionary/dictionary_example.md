@@ -89,6 +89,26 @@ make start
 box.space
 ```
 
+```yaml
+---
+- dictionary_data:
+    is_local: true
+    is_sync: false
+    temporary: false
+    engine: memtx
+  dictionary_vclock:
+    is_local: true
+    is_sync: false
+    temporary: false
+    engine: memtx
+  money_moves:
+    is_local: false
+    is_sync: false
+    temporary: false
+    engine: memtx
+...
+```
+
 Узнать больше о спейсе `dictionary_data` можно в разделе [](user_guide-dictionary_gs).
 
 (user_guide-dictionary_example-write_data)=
@@ -156,6 +176,15 @@ box.schema.func.call('dictionary_router_set', 'categories', '5', 'Med')
 box.schema.func.call('dictionary_router_get', 'categories', '1')
 ```
 
+Вывод:
+
+```yaml
+---
+- Shops
+- null
+...
+```
+
 (user_guide-dictionary_example-prepare_data)=
 ## Подготовка нормализованных данных
 
@@ -180,6 +209,20 @@ crud.replace('money_moves', {10, box.NULL, 123, require('datetime').now(), '2', 
 crud.get('money_moves', 1)
 ```
 
+Вывод:
+
+```yaml
+---
+- rows:
+  - [1, 12477, 123, '2026-03-24T13:52:27.316389Z', '1', false, 260.01]
+  metadata: [{'name': 'money_move_id', 'type': 'number'}, {'name': 'bucket_id', 'type': 'unsigned'},
+    {'name': 'recorder_id', 'type': 'number'}, {'name': 'dt', 'type': 'datetime'},
+    {'name': 'category_id', 'type': 'string'}, {'name': 'income', 'type': 'boolean'},
+    {'name': 'amount', 'type': 'number'}]
+- null
+...
+```
+
 (user_guide-dictionary_example-read_data)=
 ## Чтение данных с обогащением из словаря
 
@@ -187,6 +230,21 @@ crud.get('money_moves', 1)
 
 ```lua
 box.schema.func.call('get_money_move', 1)
+```
+
+Вывод:
+
+```yaml
+---
+- bucket_id: 12477
+  category_id: '1'
+  money_move_id: 1
+  recorder_id: 123
+  amount: 260.01
+  income: false
+  dt: 2026-03-24T13:52:27.316389Z
+  category_name: Shops
+...
 ```
 
 (user_guide-dictionary_example-stop_example)=
