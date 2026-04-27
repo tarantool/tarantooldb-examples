@@ -69,10 +69,10 @@
 * 3301--3308
 * 8081
 
-Перейдите в директорию `go_custom_encoder/tt`:
+Перейдите в директорию примера `go_custom_encoder`:
 
 ```shell
-cd ./doc/examples/go_custom_encoder/tt
+cd ./doc/examples/go_custom_encoder/
 ```
 
 Стенд состоит из:

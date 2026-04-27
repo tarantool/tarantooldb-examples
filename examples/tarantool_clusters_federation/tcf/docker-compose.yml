@@ -1,4 +1,3 @@
-version: '3'
 services:
   tcf-replicator-1to2:
     build:

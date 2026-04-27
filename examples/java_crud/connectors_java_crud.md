@@ -61,7 +61,7 @@ cd ./doc/examples/java_crud
 Запустите стенд:
 
 ```shell
-cd tt && make start
+make start
 ```
 
 После запуска должны работать все контейнеры, кроме [init_host](admin_guide-deploy_docker_compose-init_host).
@@ -118,8 +118,8 @@ Rows verified
 (user_guide-java_crud-stop_example)=
 ## Остановка стенда
 
-Чтобы остановить стенд, в локальном терминале выполните следующие команды:
+Чтобы остановить стенд, в локальном терминале выполните следующую команду:
 
 ```shell
-cd tt && make stop
+make stop
 ```

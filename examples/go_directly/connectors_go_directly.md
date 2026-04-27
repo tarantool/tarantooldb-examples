@@ -46,10 +46,10 @@
 * 3301--3303
 * 8081
 
-Перейдите в директорию `go_directly/tt`:
+Перейдите в директорию примера `go_directly`:
 
 ```shell
-cd ./doc/examples/go_directly/tt
+cd ./doc/examples/go_directly/
 ```
 
 Стенд состоит из:

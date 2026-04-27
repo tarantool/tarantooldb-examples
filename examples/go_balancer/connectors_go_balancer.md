@@ -62,10 +62,10 @@
 * 8081
 * 9090
 
-Перейдите в директорию `go_balancer/tt`:
+Перейдите в директорию примера `go_balancer`:
 
 ```shell
-cd ./doc/examples/go_balancer/tt
+cd ./doc/examples/go_balancer/
 ```
 
 Стенд состоит из:
@@ -238,10 +238,10 @@ docker compose start tarantool-router-msk
 
 Для остановки стенда:
 
-* В первом локальном терминале вернитесь в директорию `go_balancer/tt`:
+* В первом локальном терминале вернитесь в директорию `go_balancer/`:
 
   ```shell
-  cd ./doc/examples/go_balancer/tt
+  cd ./doc/examples/go_balancer/
   ```
 
   Выполните следующую команду:

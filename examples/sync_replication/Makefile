@@ -1,4 +1,5 @@
 SHELL := /bin/bash
+BASE_DIR := tt
 
 ifneq ($(shell command -v docker-compose version),)
     DOCKER_COMPOSE = docker-compose
@@ -15,7 +16,7 @@ endif
 .SILENT: start
 start:
 	docker network create tarantooldb_network
-	cd tools \
+	cd $(BASE_DIR)/tools \
 		&& $(DOCKER_COMPOSE) up -d --build \
 		&& $(DOCKER_COMPOSE) exec -it tcm-1 bash -c "\
 			tools/client/wait_etcd_ready.sh 15 http://etcd1:2379 \
@@ -24,10 +25,10 @@ start:
 			&& tt cluster publish http://etcd1:2379/tdb config.yml --force \
 			&& tools/client/wait_config_ready.sh 25 http://etcd1:2379/tdb \
 			&& echo Load config done"
-	cd cluster && $(DOCKER_COMPOSE) up -d --build
+	cd $(BASE_DIR)/cluster && $(DOCKER_COMPOSE) up -d --build
 
 stop:
-	cd cluster && $(DOCKER_COMPOSE) down
-	cd tools && $(DOCKER_COMPOSE) down
+	cd $(BASE_DIR)/cluster && $(DOCKER_COMPOSE) down
+	cd $(BASE_DIR)/tools && $(DOCKER_COMPOSE) down
 	docker container prune -f
 	docker network prune -f

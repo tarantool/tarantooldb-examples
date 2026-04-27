@@ -40,10 +40,10 @@
 * 8088
 * 9090
 
-Перейдите в директорию `custom_metrics/tt`:
+Перейдите в директорию примера `custom_metrics`:
 
 ```shell
-cd ./doc/examples/custom_metrics/tt
+cd ./doc/examples/custom_metrics/
 ```
 
 Стенд состоит из следующих компонентов:

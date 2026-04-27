@@ -43,10 +43,10 @@
 * 3301--3308
 * 8081
 
-Перейдите в директорию `go_crud/tt`:
+Перейдите в директорию примера `go_crud`:
 
 ```shell
-cd ./doc/examples/go_crud/tt
+cd ./doc/examples/go_crud/
 ```
 
 Стенд состоит из:

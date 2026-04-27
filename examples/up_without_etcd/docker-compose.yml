@@ -1,4 +1,3 @@
-version: '3'
 services:
   tarantool-router-msk:
     image: tarantooldb:3x-latest

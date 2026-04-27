@@ -51,10 +51,10 @@
 * 8081
 * 9090
 
-Перейдите в директорию `sync_replication/tt`:
+Перейдите в директорию примера `sync_replication`:
 
 ```shell
-cd ./doc/examples/sync_replication/tt
+cd ./doc/examples/sync_replication/
 ```
 
 Стенд состоит из следующих компонентов:
@@ -199,16 +199,10 @@ go run -tags go_tarantool_ssl_disable main.go target=sync
 
 Для остановки стенда:
 
-* В первом локальном терминале вернитесь в директорию `sync_replication/tt`:
+* В первом локальном терминале выполните следующую команду:
 
-  ```shell
-  cd ./doc/examples/sync_replication/tt
-  ```
-
-  Выполните следующую команду:
-
-  ```shell
-  make stop
-  ```
+```shell
+make stop
+```
 
 * Во втором локальном терминале выполните команду `Ctrl + Z`.

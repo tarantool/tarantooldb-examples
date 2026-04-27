@@ -59,7 +59,7 @@ cd ./doc/examples/java_directly
 Запустите стенд:
 
 ```shell
-cd tt && make start
+make start
 ```
 
 Стенд состоит из:
@@ -138,9 +138,9 @@ Tuples: [[1, 4677746723089159966, aHRDJPQVkTEBttESWzzUH]]
 (user_guide-java_directly-stop_example)=
 ## Остановка стенда
 
-Чтобы остановить стенд, в локальном терминале выполните следующие команды:
+Чтобы остановить стенд, в локальном терминале выполните следующую команду:
 
 ```shell
-cd tt && make stop
+make stop
 ```
 

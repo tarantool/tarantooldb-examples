@@ -48,10 +48,10 @@
 * 3301--3308
 * 8081, 8082
 
-Перейдите в папку с примером `binary_data/tt`:
+Перейдите в папку с примером `binary_data`:
 
 ```shell
-cd ./doc/examples/binary_data/tt
+cd ./doc/examples/binary_data/
 ```
 
 Запустите стенд:
@@ -122,16 +122,10 @@ http://localhost:8082/Dunkan.jpg
 
 Для остановки стенда:
 
-* В первом локальном терминале вернитесь в директорию `binary_data/tt`:
+* В первом локальном терминале выполните следующую команду:
 
-  ```shell
-  cd ./doc/examples/binary_data/tt
-  ```
-
-  Выполните следующую команду:
-
-  ```shell
-  make stop
-  ```
+```shell
+make stop
+```
 
 * Во втором локальном терминале выполните команду `Ctrl + Z`.
