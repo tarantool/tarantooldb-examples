@@ -10,6 +10,7 @@
 * [](admin_guide-failover_coordinator-prereq)
 * [](admin_guide-failover_coordinator-start_example)
 * [](admin_guide-failover_coordinator-healthcheck)
+* [](admin_guide-failover_coordinator-switchover)
 * [](admin_guide-failover_coordinator-stop_example)
 
 (admin_guide-failover_coordinator-prereq)=
@@ -101,9 +102,29 @@ make start
 crud.insert_object('bands', {id = 1, band_name = 'Free Flow Flava', year = 2014})
 ```
 
+Вывод:
+
+```yaml
+---
+- rows:
+  - [1, 177, 'Free Flow Flava', 2014]
+  metadata: [{'name': 'id', 'type': 'integer'}, {'name': 'bucket_id', 'type': 'unsigned'},
+    {'name': 'band_name', 'type': 'string'}, {'name': 'year', 'type': 'integer'}]
+- null
+...
+```
+
 После этого проверьте записанный кортеж с помощью операции `crud.select()`:
 ```lua
 crud.select('bands').rows
+```
+
+Вывод:
+
+```yaml
+---
+- - [1, 177, 'Free Flow Flava', 2014]
+...
 ```
 
 Теперь нужно остановить мастер-узлы. Чтобы определить мастер-узлы в наборе реплик, в TCM на вкладке **Stateboard** найдите в каждом наборе реплик экземпляр кластера с иконкой короны. В данном примере это узлы `storage-1-brn`
@@ -128,10 +149,53 @@ cd ..
 crud.insert_object('bands', {id = 2, band_name = 'Wax Tailor', year = 2001})
 ```
 
+Вывод:
+
+```yaml
+---
+- rows:
+  - [2, 101, 'Wax Tailor', 2001]
+  metadata: [{'name': 'id', 'type': 'integer'}, {'name': 'bucket_id', 'type': 'unsigned'},
+    {'name': 'band_name', 'type': 'string'}, {'name': 'year', 'type': 'integer'}]
+- null
+...
+```
+
 Кластер доступен для записи данных. Проверить кортеж, добавленный в спейс, можно так:
 ```lua
 crud.select('bands').rows
 ```
+
+Вывод:
+
+```yaml
+---
+- - [1, 177, 'Free Flow Flava', 2014]
+  - [2, 101, 'Wax Tailor', 2001]
+...
+```
+
+(admin_guide-failover_coordinator-switchover)=
+## Ручное переключение лидера (switchover)
+
+Координатор позволяет не только обрабатывать аварийные ситуации, но и вручную менять лидера в наборе реплик. Например, если после фейловера мастером стал узел `storage-1-msk`, а вы хотите назначить лидером `storage-1-spb`.
+
+1. В веб-интерфейсе TCM перейдите на вкладку **Stateboard**.
+2. В меню **Actions** выберите пункт **Supervised failover**.
+3. В открывшемся окне перейдите на вкладку **Commands** и нажмите кнопку **Add**.
+4. В поле ввода укажите команду в формате YAML, определив имя нового мастера:
+  
+```yaml
+command: switch
+new_master: storage-1-spb
+timeout: 100
+```
+
+5. Нажмите **Save**.
+
+После этого в списке на вкладке **Commands** появится запись о выполнении операции. Статус `success` подтверждает, что лидерство было успешно передано указанному узлу.
+
+![](./images/failover_switch.png)
 
 (admin_guide-failover_coordinator-stop_example)=
 ## Остановка стенда
