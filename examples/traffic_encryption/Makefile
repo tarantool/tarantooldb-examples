@@ -32,12 +32,12 @@ start:
 .PHONY: go
 go:
 	docker build -t traffic-encryption-go -f go/Dockerfile ./go
-	docker run -it --network tarantooldb_network traffic-encryption-go
+	docker run --network tarantooldb_network traffic-encryption-go
 
 .PHONY: python
 python:
 	docker build -t traffic-encryption-python -f python/Dockerfile ./python
-	docker run -it --network tarantooldb_network traffic-encryption-python
+	docker run --network tarantooldb_network traffic-encryption-python
 
 stop:
 	docker rm $(docker ps -a -q --filter "ancestor=tranffic-encryption-go") || true ## not rm if not exists
