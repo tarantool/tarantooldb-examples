@@ -33,6 +33,4 @@ func main() {
 	fmt.Println(conn.Greeting.Version)
 
 	conn.CloseGraceful()
-
-	return
 }
