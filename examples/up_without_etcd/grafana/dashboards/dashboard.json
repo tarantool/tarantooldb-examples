@@ -20942,7 +20942,7 @@
                      "refId": "A"
                   }
                ],
-               "title": "Cooling enabled",
+               "title": "Cooling Status",
                "type": "timeseries"
             },
             {
@@ -20951,16 +20951,544 @@
                "dashLength": 10,
                "dashes": false,
                "datasource": "$prometheus",
-               "description": "Number of key compare mismatches during cooling.\n",
+               "description": "Aggregated percentage of RAM tuples vs Total tuples for each storage.",
                "fill": 0,
                "fillGradient": 0,
                "gridPos": {
                   "h": 8,
-                  "w": 9,
+                  "w": 18,
                   "x": 6,
                   "y": 594
                },
                "id": 249,
+               "legend": {
+                  "alignAsTable": true,
+                  "avg": false,
+                  "current": true,
+                  "max": false,
+                  "min": false,
+                  "rightSide": false,
+                  "show": true,
+                  "sideWidth": null,
+                  "sort": "current",
+                  "sortDesc": true,
+                  "total": false,
+                  "values": true
+               },
+               "lines": true,
+               "linewidth": 1,
+               "links": [ ],
+               "nullPointMode": "null",
+               "percentage": false,
+               "pointradius": 5,
+               "points": false,
+               "renderer": "flot",
+               "repeat": null,
+               "seriesOverrides": [ ],
+               "spaceLength": 10,
+               "stack": false,
+               "steppedLine": false,
+               "targets": [
+                  {
+                     "expr": "(\n  sum by (alias) (cooler_memtx_tuples_total{alias=~\"$tarantool_alias\",job=~\"$tarantool_job\"})\n  /\n  (\n    sum by (alias) (cooler_memtx_tuples_total{alias=~\"$tarantool_alias\",job=~\"$tarantool_job\"})\n    +\n    sum by (alias) (cooler_vinyl_tuples_total{alias=~\"$tarantool_alias\",job=~\"$tarantool_job\"})\n  )\n) * 100\n",
+                     "format": "time_series",
+                     "intervalFactor": 2,
+                     "legendFormat": "{{alias}}",
+                     "refId": "A"
+                  }
+               ],
+               "thresholds": [ ],
+               "timeFrom": null,
+               "timeShift": null,
+               "title": "Storage Hot Data Ratio",
+               "tooltip": {
+                  "shared": true,
+                  "sort": 2,
+                  "value_type": "individual"
+               },
+               "type": "graph",
+               "xaxis": {
+                  "buckets": null,
+                  "mode": "time",
+                  "name": null,
+                  "show": true,
+                  "values": [ ]
+               },
+               "yaxes": [
+                  {
+                     "format": "percent",
+                     "label": null,
+                     "logBase": 1,
+                     "max": 100,
+                     "min": 0,
+                     "show": true
+                  },
+                  {
+                     "format": "percent",
+                     "label": null,
+                     "logBase": 1,
+                     "max": 100,
+                     "min": 0,
+                     "show": true
+                  }
+               ]
+            },
+            {
+               "aliasColors": { },
+               "bars": false,
+               "dashLength": 10,
+               "dashes": false,
+               "datasource": "$prometheus",
+               "description": "Aggregated RAM (memtx) data size for all spaces under cooling on each storage.",
+               "fill": 0,
+               "fillGradient": 0,
+               "gridPos": {
+                  "h": 8,
+                  "w": 12,
+                  "x": 0,
+                  "y": 602
+               },
+               "id": 250,
+               "legend": {
+                  "alignAsTable": true,
+                  "avg": true,
+                  "current": true,
+                  "max": true,
+                  "min": false,
+                  "rightSide": false,
+                  "show": true,
+                  "sideWidth": null,
+                  "sort": "current",
+                  "sortDesc": true,
+                  "total": false,
+                  "values": true
+               },
+               "lines": true,
+               "linewidth": 1,
+               "links": [ ],
+               "nullPointMode": "null",
+               "percentage": false,
+               "pointradius": 5,
+               "points": false,
+               "renderer": "flot",
+               "repeat": null,
+               "seriesOverrides": [ ],
+               "spaceLength": 10,
+               "stack": false,
+               "steppedLine": false,
+               "targets": [
+                  {
+                     "expr": "sum by (alias) (cooler_memtx_bytes_total{alias=~\"$tarantool_alias\",job=~\"$tarantool_job\"})",
+                     "format": "time_series",
+                     "intervalFactor": 2,
+                     "legendFormat": "{{alias}}",
+                     "refId": "A"
+                  }
+               ],
+               "thresholds": [ ],
+               "timeFrom": null,
+               "timeShift": null,
+               "title": "Storage RAM Volume",
+               "tooltip": {
+                  "shared": true,
+                  "sort": 2,
+                  "value_type": "individual"
+               },
+               "type": "graph",
+               "xaxis": {
+                  "buckets": null,
+                  "mode": "time",
+                  "name": null,
+                  "show": true,
+                  "values": [ ]
+               },
+               "yaxes": [
+                  {
+                     "format": "bytes",
+                     "label": null,
+                     "logBase": 1,
+                     "max": null,
+                     "min": 0,
+                     "show": true
+                  },
+                  {
+                     "format": "bytes",
+                     "label": null,
+                     "logBase": 1,
+                     "max": null,
+                     "min": 0,
+                     "show": true
+                  }
+               ]
+            },
+            {
+               "aliasColors": { },
+               "bars": false,
+               "dashLength": 10,
+               "dashes": false,
+               "datasource": "$prometheus",
+               "description": "Aggregated Disk (vinyl) data size for all spaces under cooling on each storage.",
+               "fill": 0,
+               "fillGradient": 0,
+               "gridPos": {
+                  "h": 8,
+                  "w": 12,
+                  "x": 12,
+                  "y": 602
+               },
+               "id": 251,
+               "legend": {
+                  "alignAsTable": true,
+                  "avg": true,
+                  "current": true,
+                  "max": true,
+                  "min": false,
+                  "rightSide": false,
+                  "show": true,
+                  "sideWidth": null,
+                  "sort": "current",
+                  "sortDesc": true,
+                  "total": false,
+                  "values": true
+               },
+               "lines": true,
+               "linewidth": 1,
+               "links": [ ],
+               "nullPointMode": "null",
+               "percentage": false,
+               "pointradius": 5,
+               "points": false,
+               "renderer": "flot",
+               "repeat": null,
+               "seriesOverrides": [ ],
+               "spaceLength": 10,
+               "stack": false,
+               "steppedLine": false,
+               "targets": [
+                  {
+                     "expr": "sum by (alias) (cooler_vinyl_bytes_total{alias=~\"$tarantool_alias\",job=~\"$tarantool_job\"})",
+                     "format": "time_series",
+                     "intervalFactor": 2,
+                     "legendFormat": "{{alias}}",
+                     "refId": "A"
+                  }
+               ],
+               "thresholds": [ ],
+               "timeFrom": null,
+               "timeShift": null,
+               "title": "Storage Disk Volume",
+               "tooltip": {
+                  "shared": true,
+                  "sort": 2,
+                  "value_type": "individual"
+               },
+               "type": "graph",
+               "xaxis": {
+                  "buckets": null,
+                  "mode": "time",
+                  "name": null,
+                  "show": true,
+                  "values": [ ]
+               },
+               "yaxes": [
+                  {
+                     "format": "bytes",
+                     "label": null,
+                     "logBase": 1,
+                     "max": null,
+                     "min": 0,
+                     "show": true
+                  },
+                  {
+                     "format": "bytes",
+                     "label": null,
+                     "logBase": 1,
+                     "max": null,
+                     "min": 0,
+                     "show": true
+                  }
+               ]
+            },
+            {
+               "aliasColors": { },
+               "bars": false,
+               "dashLength": 10,
+               "dashes": false,
+               "datasource": "$prometheus",
+               "description": "Percentage of tuples currently residing in RAM vs Total tuples under cooling per specific space.\n",
+               "fill": 0,
+               "fillGradient": 0,
+               "gridPos": {
+                  "h": 8,
+                  "w": 24,
+                  "x": 0,
+                  "y": 610
+               },
+               "id": 252,
+               "legend": {
+                  "alignAsTable": true,
+                  "avg": false,
+                  "current": true,
+                  "max": false,
+                  "min": false,
+                  "rightSide": false,
+                  "show": true,
+                  "sideWidth": null,
+                  "sort": "current",
+                  "sortDesc": true,
+                  "total": false,
+                  "values": true
+               },
+               "lines": true,
+               "linewidth": 1,
+               "links": [ ],
+               "nullPointMode": "null",
+               "percentage": false,
+               "pointradius": 5,
+               "points": false,
+               "renderer": "flot",
+               "repeat": null,
+               "seriesOverrides": [ ],
+               "spaceLength": 10,
+               "stack": false,
+               "steppedLine": false,
+               "targets": [
+                  {
+                     "expr": "(\n  sum by (space, alias) (cooler_memtx_tuples_total{alias=~\"$tarantool_alias\",job=~\"$tarantool_job\"})\n  /\n  (\n    sum by (space, alias) (cooler_memtx_tuples_total{alias=~\"$tarantool_alias\",job=~\"$tarantool_job\"})\n    +\n    sum by (space, alias) (cooler_vinyl_tuples_total{alias=~\"$tarantool_alias\",job=~\"$tarantool_job\"})\n  )\n) * 100\n",
+                     "format": "time_series",
+                     "intervalFactor": 2,
+                     "legendFormat": "{{alias}} - {{space}}",
+                     "refId": "A"
+                  }
+               ],
+               "thresholds": [ ],
+               "timeFrom": null,
+               "timeShift": null,
+               "title": "Space Hot Data Ratio",
+               "tooltip": {
+                  "shared": true,
+                  "sort": 2,
+                  "value_type": "individual"
+               },
+               "type": "graph",
+               "xaxis": {
+                  "buckets": null,
+                  "mode": "time",
+                  "name": null,
+                  "show": true,
+                  "values": [ ]
+               },
+               "yaxes": [
+                  {
+                     "format": "percent",
+                     "label": null,
+                     "logBase": 1,
+                     "max": 100,
+                     "min": 0,
+                     "show": true
+                  },
+                  {
+                     "format": "percent",
+                     "label": null,
+                     "logBase": 1,
+                     "max": 100,
+                     "min": 0,
+                     "show": true
+                  }
+               ]
+            },
+            {
+               "aliasColors": { },
+               "bars": false,
+               "dashLength": 10,
+               "dashes": false,
+               "datasource": "$prometheus",
+               "description": "Total size of data currently residing in memtx for each space under cooling.\nA decrease indicates successful memory relocation.\n",
+               "fill": 0,
+               "fillGradient": 0,
+               "gridPos": {
+                  "h": 8,
+                  "w": 12,
+                  "x": 0,
+                  "y": 618
+               },
+               "id": 253,
+               "legend": {
+                  "alignAsTable": true,
+                  "avg": true,
+                  "current": true,
+                  "max": true,
+                  "min": false,
+                  "rightSide": false,
+                  "show": true,
+                  "sideWidth": null,
+                  "sort": "current",
+                  "sortDesc": true,
+                  "total": false,
+                  "values": true
+               },
+               "lines": true,
+               "linewidth": 1,
+               "links": [ ],
+               "nullPointMode": "null",
+               "percentage": false,
+               "pointradius": 5,
+               "points": false,
+               "renderer": "flot",
+               "repeat": null,
+               "seriesOverrides": [ ],
+               "spaceLength": 10,
+               "stack": false,
+               "steppedLine": false,
+               "targets": [
+                  {
+                     "expr": "cooler_memtx_bytes_total{alias=~\"$tarantool_alias\",job=~\"$tarantool_job\"}",
+                     "format": "time_series",
+                     "intervalFactor": 2,
+                     "legendFormat": "{{alias}} — {{space}}",
+                     "refId": "A"
+                  }
+               ],
+               "thresholds": [ ],
+               "timeFrom": null,
+               "timeShift": null,
+               "title": "Space RAM Volume",
+               "tooltip": {
+                  "shared": true,
+                  "sort": 2,
+                  "value_type": "individual"
+               },
+               "type": "graph",
+               "xaxis": {
+                  "buckets": null,
+                  "mode": "time",
+                  "name": null,
+                  "show": true,
+                  "values": [ ]
+               },
+               "yaxes": [
+                  {
+                     "format": "bytes",
+                     "label": null,
+                     "logBase": 1,
+                     "max": null,
+                     "min": 0,
+                     "show": true
+                  },
+                  {
+                     "format": "bytes",
+                     "label": null,
+                     "logBase": 1,
+                     "max": null,
+                     "min": 0,
+                     "show": true
+                  }
+               ]
+            },
+            {
+               "aliasColors": { },
+               "bars": false,
+               "dashLength": 10,
+               "dashes": false,
+               "datasource": "$prometheus",
+               "description": "Total size of data currently residing in vinyl for each space under cooling.\nAn increase indicates data has been successfully archived.\n",
+               "fill": 0,
+               "fillGradient": 0,
+               "gridPos": {
+                  "h": 8,
+                  "w": 12,
+                  "x": 12,
+                  "y": 618
+               },
+               "id": 254,
+               "legend": {
+                  "alignAsTable": true,
+                  "avg": true,
+                  "current": true,
+                  "max": true,
+                  "min": false,
+                  "rightSide": false,
+                  "show": true,
+                  "sideWidth": null,
+                  "sort": "current",
+                  "sortDesc": true,
+                  "total": false,
+                  "values": true
+               },
+               "lines": true,
+               "linewidth": 1,
+               "links": [ ],
+               "nullPointMode": "null",
+               "percentage": false,
+               "pointradius": 5,
+               "points": false,
+               "renderer": "flot",
+               "repeat": null,
+               "seriesOverrides": [ ],
+               "spaceLength": 10,
+               "stack": false,
+               "steppedLine": false,
+               "targets": [
+                  {
+                     "expr": "cooler_vinyl_bytes_total{alias=~\"$tarantool_alias\",job=~\"$tarantool_job\"}",
+                     "format": "time_series",
+                     "intervalFactor": 2,
+                     "legendFormat": "{{alias}} — {{space}}",
+                     "refId": "A"
+                  }
+               ],
+               "thresholds": [ ],
+               "timeFrom": null,
+               "timeShift": null,
+               "title": "Space Disk Volume",
+               "tooltip": {
+                  "shared": true,
+                  "sort": 2,
+                  "value_type": "individual"
+               },
+               "type": "graph",
+               "xaxis": {
+                  "buckets": null,
+                  "mode": "time",
+                  "name": null,
+                  "show": true,
+                  "values": [ ]
+               },
+               "yaxes": [
+                  {
+                     "format": "bytes",
+                     "label": null,
+                     "logBase": 1,
+                     "max": null,
+                     "min": 0,
+                     "show": true
+                  },
+                  {
+                     "format": "bytes",
+                     "label": null,
+                     "logBase": 1,
+                     "max": null,
+                     "min": 0,
+                     "show": true
+                  }
+               ]
+            },
+            {
+               "aliasColors": { },
+               "bars": false,
+               "dashLength": 10,
+               "dashes": false,
+               "datasource": "$prometheus",
+               "description": "Number of key compare mismatches during cooling process.\n",
+               "fill": 0,
+               "fillGradient": 0,
+               "gridPos": {
+                  "h": 8,
+                  "w": 12,
+                  "x": 0,
+                  "y": 626
+               },
+               "id": 255,
                "legend": {
                   "alignAsTable": true,
                   "avg": true,
@@ -21000,7 +21528,7 @@
                "thresholds": [ ],
                "timeFrom": null,
                "timeShift": null,
-               "title": "Compare mismatches",
+               "title": "Compare Mismatches",
                "tooltip": {
                   "shared": true,
                   "sort": 2,
@@ -21044,11 +21572,11 @@
                "fillGradient": 0,
                "gridPos": {
                   "h": 8,
-                  "w": 9,
-                  "x": 15,
-                  "y": 594
+                  "w": 12,
+                  "x": 12,
+                  "y": 626
                },
-               "id": 250,
+               "id": 256,
                "legend": {
                   "alignAsTable": true,
                   "avg": true,
@@ -21088,7 +21616,7 @@
                "thresholds": [ ],
                "timeFrom": null,
                "timeShift": null,
-               "title": "Errors",
+               "title": "Task Errors",
                "tooltip": {
                   "shared": true,
                   "sort": 2,
@@ -21127,16 +21655,16 @@
                "dashLength": 10,
                "dashes": false,
                "datasource": "$prometheus",
-               "description": "Number of tuples cooled by the cooler task.\n",
+               "description": "Velocity of data cooling, measured in bytes per second.\n",
                "fill": 0,
                "fillGradient": 0,
                "gridPos": {
                   "h": 8,
                   "w": 12,
                   "x": 0,
-                  "y": 602
+                  "y": 634
                },
-               "id": 251,
+               "id": 257,
                "legend": {
                   "alignAsTable": true,
                   "avg": true,
@@ -21166,7 +21694,7 @@
                "steppedLine": false,
                "targets": [
                   {
-                     "expr": "cooler_tuples_cooled{alias=~\"$tarantool_alias\",job=~\"$tarantool_job\"}",
+                     "expr": "rate(cooler_bytes_cooled{alias=~\"$tarantool_alias\",job=~\"$tarantool_job\"}[$__rate_interval])",
                      "format": "time_series",
                      "intervalFactor": 2,
                      "legendFormat": "{{alias}} — {{space}} — {{index}}",
@@ -21176,7 +21704,7 @@
                "thresholds": [ ],
                "timeFrom": null,
                "timeShift": null,
-               "title": "Tuples cooled",
+               "title": "Cooling Speed (Bytes Cooled)",
                "tooltip": {
                   "shared": true,
                   "sort": 2,
@@ -21192,15 +21720,15 @@
                },
                "yaxes": [
                   {
-                     "format": "none",
-                     "label": null,
+                     "format": "Bps",
+                     "label": "bytes per second",
                      "logBase": 1,
                      "max": null,
                      "min": 0,
                      "show": true
                   },
                   {
-                     "format": "none",
+                     "format": "Bps",
                      "label": null,
                      "logBase": 1,
                      "max": null,
@@ -21215,16 +21743,16 @@
                "dashLength": 10,
                "dashes": false,
                "datasource": "$prometheus",
-               "description": "Amount of memory cooled by the cooler task.\n",
+               "description": "Velocity of data scanning by the cooler task, measured in bytes per second.\n",
                "fill": 0,
                "fillGradient": 0,
                "gridPos": {
                   "h": 8,
                   "w": 12,
                   "x": 12,
-                  "y": 602
+                  "y": 634
                },
-               "id": 252,
+               "id": 258,
                "legend": {
                   "alignAsTable": true,
                   "avg": true,
@@ -21254,7 +21782,7 @@
                "steppedLine": false,
                "targets": [
                   {
-                     "expr": "cooler_bytes_cooled{alias=~\"$tarantool_alias\",job=~\"$tarantool_job\"}",
+                     "expr": "rate(cooler_bytes_scanned{alias=~\"$tarantool_alias\",job=~\"$tarantool_job\"}[$__rate_interval])",
                      "format": "time_series",
                      "intervalFactor": 2,
                      "legendFormat": "{{alias}} — {{space}} — {{index}}",
@@ -21264,7 +21792,7 @@
                "thresholds": [ ],
                "timeFrom": null,
                "timeShift": null,
-               "title": "Memory cooled",
+               "title": "Cooling Speed (Bytes Scanned)",
                "tooltip": {
                   "shared": true,
                   "sort": 2,
@@ -21280,15 +21808,15 @@
                },
                "yaxes": [
                   {
-                     "format": "bytes",
-                     "label": null,
+                     "format": "Bps",
+                     "label": "bytes per second",
                      "logBase": 1,
                      "max": null,
                      "min": 0,
                      "show": true
                   },
                   {
-                     "format": "bytes",
+                     "format": "Bps",
                      "label": null,
                      "logBase": 1,
                      "max": null,
@@ -21303,16 +21831,16 @@
                "dashLength": 10,
                "dashes": false,
                "datasource": "$prometheus",
-               "description": "Number of tuples scanned by the cooler task.\n",
+               "description": "Velocity of tuples processing and moving to disk by the cooler task, measured in tuples per second.\n",
                "fill": 0,
                "fillGradient": 0,
                "gridPos": {
                   "h": 8,
                   "w": 12,
                   "x": 0,
-                  "y": 610
+                  "y": 642
                },
-               "id": 253,
+               "id": 259,
                "legend": {
                   "alignAsTable": true,
                   "avg": true,
@@ -21342,7 +21870,7 @@
                "steppedLine": false,
                "targets": [
                   {
-                     "expr": "cooler_tuples_scanned{alias=~\"$tarantool_alias\",job=~\"$tarantool_job\"}",
+                     "expr": "rate(cooler_tuples_cooled{alias=~\"$tarantool_alias\",job=~\"$tarantool_job\"}[$__rate_interval])",
                      "format": "time_series",
                      "intervalFactor": 2,
                      "legendFormat": "{{alias}} — {{space}} — {{index}}",
@@ -21352,7 +21880,7 @@
                "thresholds": [ ],
                "timeFrom": null,
                "timeShift": null,
-               "title": "Tuples scanned",
+               "title": "Cooling Speed (Tuples Cooled)",
                "tooltip": {
                   "shared": true,
                   "sort": 2,
@@ -21368,15 +21896,15 @@
                },
                "yaxes": [
                   {
-                     "format": "none",
-                     "label": null,
+                     "format": "ops",
+                     "label": "tuples per second",
                      "logBase": 1,
                      "max": null,
                      "min": 0,
                      "show": true
                   },
                   {
-                     "format": "none",
+                     "format": "ops",
                      "label": null,
                      "logBase": 1,
                      "max": null,
@@ -21391,16 +21919,16 @@
                "dashLength": 10,
                "dashes": false,
                "datasource": "$prometheus",
-               "description": "Amount of memory scanned by the cooler task.\n",
+               "description": "Velocity of tuples scanning by the cooler task during inspection, measured in tuples per second.\n",
                "fill": 0,
                "fillGradient": 0,
                "gridPos": {
                   "h": 8,
                   "w": 12,
                   "x": 12,
-                  "y": 610
+                  "y": 642
                },
-               "id": 254,
+               "id": 260,
                "legend": {
                   "alignAsTable": true,
                   "avg": true,
@@ -21430,7 +21958,7 @@
                "steppedLine": false,
                "targets": [
                   {
-                     "expr": "cooler_bytes_scanned{alias=~\"$tarantool_alias\",job=~\"$tarantool_job\"}",
+                     "expr": "rate(cooler_tuples_scanned{alias=~\"$tarantool_alias\",job=~\"$tarantool_job\"}[$__rate_interval])",
                      "format": "time_series",
                      "intervalFactor": 2,
                      "legendFormat": "{{alias}} — {{space}} — {{index}}",
@@ -21440,7 +21968,7 @@
                "thresholds": [ ],
                "timeFrom": null,
                "timeShift": null,
-               "title": "Memory scanned",
+               "title": "Cooling Speed (Tuples Scanned)",
                "tooltip": {
                   "shared": true,
                   "sort": 2,
@@ -21456,15 +21984,15 @@
                },
                "yaxes": [
                   {
-                     "format": "bytes",
-                     "label": null,
+                     "format": "ops",
+                     "label": "tuples per second",
                      "logBase": 1,
                      "max": null,
                      "min": 0,
                      "show": true
                   },
                   {
-                     "format": "bytes",
+                     "format": "ops",
                      "label": null,
                      "logBase": 1,
                      "max": null,
@@ -21479,16 +22007,16 @@
                "dashLength": 10,
                "dashes": false,
                "datasource": "$prometheus",
-               "description": "Number of scanned tuples that were not cooled (e.g. not expired).\nHigh values indicate inefficient cooling scope. Should ideally be near zero.\n",
+               "description": "Number of scanned tuples that were not cooled (e.g. not expired yet).\nHigh values indicate inefficient cooling scope. Should ideally be near zero.\n",
                "fill": 0,
                "fillGradient": 0,
                "gridPos": {
                   "h": 8,
                   "w": 8,
                   "x": 0,
-                  "y": 618
+                  "y": 650
                },
-               "id": 255,
+               "id": 261,
                "legend": {
                   "alignAsTable": true,
                   "avg": true,
@@ -21528,7 +22056,7 @@
                "thresholds": [ ],
                "timeFrom": null,
                "timeShift": null,
-               "title": "Cooling inefficiency: Uncooled tuples",
+               "title": "Cooling Inefficiency: Uncooled Tuples",
                "tooltip": {
                   "shared": true,
                   "sort": 2,
@@ -21567,16 +22095,16 @@
                "dashLength": 10,
                "dashes": false,
                "datasource": "$prometheus",
-               "description": "Time elapsed since the start of the current full scan, in seconds.\n",
+               "description": "Time elapsed since the start of the current full scan iteration, in seconds.\n",
                "fill": 0,
                "fillGradient": 0,
                "gridPos": {
                   "h": 8,
                   "w": 8,
                   "x": 8,
-                  "y": 618
+                  "y": 650
                },
-               "id": 256,
+               "id": 262,
                "legend": {
                   "alignAsTable": true,
                   "avg": true,
@@ -21616,7 +22144,7 @@
                "thresholds": [ ],
                "timeFrom": null,
                "timeShift": null,
-               "title": "Time since full scan start",
+               "title": "Time Since Full Scan Start",
                "tooltip": {
                   "shared": true,
                   "sort": 2,
@@ -21662,9 +22190,9 @@
                   "h": 8,
                   "w": 8,
                   "x": 16,
-                  "y": 618
+                  "y": 650
                },
-               "id": 257,
+               "id": 263,
                "legend": {
                   "alignAsTable": true,
                   "avg": true,
@@ -21704,7 +22232,7 @@
                "thresholds": [ ],
                "timeFrom": null,
                "timeShift": null,
-               "title": "Fiber context switches",
+               "title": "Fiber Context Switches",
                "tooltip": {
                   "shared": true,
                   "sort": 2,
@@ -21753,9 +22281,9 @@
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 626
+            "y": 658
          },
-         "id": 258,
+         "id": 264,
          "panels": [
             {
                "aliasColors": { },
@@ -21770,9 +22298,9 @@
                   "h": 8,
                   "w": 12,
                   "x": 0,
-                  "y": 627
+                  "y": 659
                },
-               "id": 259,
+               "id": 265,
                "legend": {
                   "alignAsTable": true,
                   "avg": true,
@@ -21858,9 +22386,9 @@
                   "h": 8,
                   "w": 12,
                   "x": 12,
-                  "y": 627
+                  "y": 659
                },
-               "id": 260,
+               "id": 266,
                "legend": {
                   "alignAsTable": true,
                   "avg": true,
@@ -21939,16 +22467,16 @@
                "dashLength": 10,
                "dashes": false,
                "datasource": "$prometheus",
-               "description": "The time it took for the record to be delivered from the source node in nanoseconds - P50 percentile.\n",
+               "description": "The time it took for the record to be delivered from the source node - P50 percentile.\n",
                "fill": 0,
                "fillGradient": 0,
                "gridPos": {
                   "h": 8,
                   "w": 8,
                   "x": 0,
-                  "y": 635
+                  "y": 667
                },
-               "id": 261,
+               "id": 267,
                "legend": {
                   "alignAsTable": true,
                   "avg": true,
@@ -22004,7 +22532,7 @@
                },
                "yaxes": [
                   {
-                     "format": "none",
+                     "format": "ns",
                      "label": null,
                      "logBase": 1,
                      "max": null,
@@ -22012,7 +22540,7 @@
                      "show": true
                   },
                   {
-                     "format": "none",
+                     "format": "ns",
                      "label": null,
                      "logBase": 1,
                      "max": null,
@@ -22027,16 +22555,16 @@
                "dashLength": 10,
                "dashes": false,
                "datasource": "$prometheus",
-               "description": "The time it took for the record to be delivered from the source node in nanoseconds - P95 percentile.\n",
+               "description": "The time it took for the record to be delivered from the source node - P95 percentile.\n",
                "fill": 0,
                "fillGradient": 0,
                "gridPos": {
                   "h": 8,
                   "w": 8,
                   "x": 8,
-                  "y": 635
+                  "y": 667
                },
-               "id": 262,
+               "id": 268,
                "legend": {
                   "alignAsTable": true,
                   "avg": true,
@@ -22092,7 +22620,7 @@
                },
                "yaxes": [
                   {
-                     "format": "none",
+                     "format": "ns",
                      "label": null,
                      "logBase": 1,
                      "max": null,
@@ -22100,7 +22628,7 @@
                      "show": true
                   },
                   {
-                     "format": "none",
+                     "format": "ns",
                      "label": null,
                      "logBase": 1,
                      "max": null,
@@ -22115,16 +22643,16 @@
                "dashLength": 10,
                "dashes": false,
                "datasource": "$prometheus",
-               "description": "The time it took for the record to be delivered from the source node in nanoseconds - P99 percentile.\n",
+               "description": "The time it took for the record to be delivered from the source node - P99 percentile.\n",
                "fill": 0,
                "fillGradient": 0,
                "gridPos": {
                   "h": 8,
                   "w": 8,
                   "x": 16,
-                  "y": 635
+                  "y": 667
                },
-               "id": 263,
+               "id": 269,
                "legend": {
                   "alignAsTable": true,
                   "avg": true,
@@ -22180,7 +22708,7 @@
                },
                "yaxes": [
                   {
-                     "format": "none",
+                     "format": "ns",
                      "label": null,
                      "logBase": 1,
                      "max": null,
@@ -22188,7 +22716,7 @@
                      "show": true
                   },
                   {
-                     "format": "none",
+                     "format": "ns",
                      "label": null,
                      "logBase": 1,
                      "max": null,
