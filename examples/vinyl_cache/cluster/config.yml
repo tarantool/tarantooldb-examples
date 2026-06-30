@@ -1,0 +1,36 @@
+credentials:
+  users:
+    admin:
+      password: 'secret-cluster-cookie'
+      roles: [super]
+    client:
+      password: 'secret'
+      roles: [super]
+    replicator:
+      password: 'secret'
+      roles: [replication]
+
+iproto:
+  advertise:
+    peer:
+      login: replicator
+
+replication:
+  failover: manual
+
+vinyl:
+  memory: 134217728   # 128 MiB — буфер in-memory уровня (L0). Значение по умолчанию.
+  cache: 16777216     # 16 MiB  — размер кэша кортежей. По умолчанию 128 MiB; 0 = кэш выключен.
+
+groups:
+  group-vinyl-cache:
+    replicasets:
+      replicaset-vinyl-cache:
+        leader: vinyl-cache
+        instances:
+          vinyl-cache:
+            iproto:
+              listen:
+                - uri: tarantool-vinyl-cache:3301
+              advertise:
+                client: tarantool-vinyl-cache:3301
