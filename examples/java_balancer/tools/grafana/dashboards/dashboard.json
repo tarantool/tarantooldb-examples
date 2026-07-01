@@ -32940,7 +32940,7 @@
                      ]
                   }
                ],
-               "title": "Cooling enabled",
+               "title": "Cooling Status",
                "type": "timeseries"
             },
             {
@@ -32949,16 +32949,121 @@
                "dashLength": 10,
                "dashes": false,
                "datasource": "$influxdb",
-               "description": "Number of key compare mismatches during cooling.\n",
+               "description": "Aggregated percentage of RAM tuples vs Total tuples for each storage.",
                "fill": 0,
                "fillGradient": 0,
                "gridPos": {
                   "h": 8,
-                  "w": 9,
+                  "w": 18,
                   "x": 6,
                   "y": 586
                },
                "id": 242,
+               "legend": {
+                  "alignAsTable": true,
+                  "avg": false,
+                  "current": true,
+                  "max": false,
+                  "min": false,
+                  "rightSide": false,
+                  "show": true,
+                  "sideWidth": null,
+                  "sort": "current",
+                  "sortDesc": true,
+                  "total": false,
+                  "values": true
+               },
+               "lines": true,
+               "linewidth": 1,
+               "links": [ ],
+               "nullPointMode": "null",
+               "percentage": false,
+               "pointradius": 5,
+               "points": false,
+               "renderer": "flot",
+               "repeat": null,
+               "seriesOverrides": [ ],
+               "spaceLength": 10,
+               "stack": false,
+               "steppedLine": false,
+               "targets": [
+                  {
+                     "alias": "$tag_label_pairs_alias",
+                     "groupBy": [
+                        {
+                           "params": [
+                              "$__interval"
+                           ],
+                           "type": "time"
+                        },
+                        {
+                           "params": [
+                              "none"
+                           ],
+                           "type": "fill"
+                        }
+                     ],
+                     "policy": "default",
+                     "query": "SELECT (mean(\"memtx_tuples\") / (mean(\"memtx_tuples\") + mean(\"vinyl_tuples\"))) * 100 as \"storage_hot_data_ratio\" \nFROM \n  (SELECT last(\"value\") as \"memtx_tuples\" FROM \"$policy\".\"$measurement\"\n  WHERE (\"metric_name\" = 'cooler_memtx_tuples_total' AND \"label_pairs_alias\" =~ /^$alias$/) AND $timeFilter\n  GROUP BY time($__interval), \"label_pairs_alias\" fill(previous)),\n  (SELECT last(\"value\") as \"vinyl_tuples\" FROM \"$policy\".\"$measurement\"\n  WHERE (\"metric_name\" = 'cooler_vinyl_tuples_total' AND \"label_pairs_alias\" =~ /^$alias$/) AND $timeFilter\n  GROUP BY time($__interval), \"label_pairs_alias\" fill(previous))\nGROUP BY time($__interval), \"label_pairs_alias\" fill(none)\n",
+                     "rawQuery": true,
+                     "refId": "A",
+                     "resultFormat": "time_series",
+                     "select": [ ],
+                     "tags": [ ]
+                  }
+               ],
+               "thresholds": [ ],
+               "timeFrom": null,
+               "timeShift": null,
+               "title": "Storage Hot Data Ratio",
+               "tooltip": {
+                  "shared": true,
+                  "sort": 2,
+                  "value_type": "individual"
+               },
+               "type": "graph",
+               "xaxis": {
+                  "buckets": null,
+                  "mode": "time",
+                  "name": null,
+                  "show": true,
+                  "values": [ ]
+               },
+               "yaxes": [
+                  {
+                     "format": "percent",
+                     "label": null,
+                     "logBase": 1,
+                     "max": 100,
+                     "min": 0,
+                     "show": true
+                  },
+                  {
+                     "format": "percent",
+                     "label": null,
+                     "logBase": 1,
+                     "max": 100,
+                     "min": 0,
+                     "show": true
+                  }
+               ]
+            },
+            {
+               "aliasColors": { },
+               "bars": false,
+               "dashLength": 10,
+               "dashes": false,
+               "datasource": "$influxdb",
+               "description": "Aggregated RAM (memtx) data size for all spaces under cooling on each storage.",
+               "fill": 0,
+               "fillGradient": 0,
+               "gridPos": {
+                  "h": 8,
+                  "w": 12,
+                  "x": 0,
+                  "y": 594
+               },
+               "id": 243,
                "legend": {
                   "alignAsTable": true,
                   "avg": true,
@@ -32988,7 +33093,604 @@
                "steppedLine": false,
                "targets": [
                   {
-                     "alias": "$tag_label_pairs_alias — $tag_label_pairs_space — tag_label_pairs_index",
+                     "alias": "$tag_label_pairs_alias",
+                     "groupBy": [
+                        {
+                           "params": [
+                              "$__interval"
+                           ],
+                           "type": "time"
+                        },
+                        {
+                           "params": [
+                              "none"
+                           ],
+                           "type": "fill"
+                        }
+                     ],
+                     "policy": "default",
+                     "query": "SELECT sum(\"space_value\") FROM (\n  SELECT mean(\"value\") as \"space_value\" FROM \"$policy\".\"$measurement\"\n  WHERE (\"metric_name\" = 'cooler_memtx_bytes_total' AND \"label_pairs_alias\" =~ /^$alias$/) AND $timeFilter\n  GROUP BY time($__interval), \"label_pairs_alias\", \"label_pairs_space\" fill(none)\n) GROUP BY time($__interval), \"label_pairs_alias\" fill(null)\n",
+                     "rawQuery": true,
+                     "refId": "A",
+                     "resultFormat": "time_series",
+                     "select": [ ],
+                     "tags": [ ]
+                  }
+               ],
+               "thresholds": [ ],
+               "timeFrom": null,
+               "timeShift": null,
+               "title": "Storage RAM Volume",
+               "tooltip": {
+                  "shared": true,
+                  "sort": 2,
+                  "value_type": "individual"
+               },
+               "type": "graph",
+               "xaxis": {
+                  "buckets": null,
+                  "mode": "time",
+                  "name": null,
+                  "show": true,
+                  "values": [ ]
+               },
+               "yaxes": [
+                  {
+                     "format": "bytes",
+                     "label": null,
+                     "logBase": 1,
+                     "max": null,
+                     "min": 0,
+                     "show": true
+                  },
+                  {
+                     "format": "bytes",
+                     "label": null,
+                     "logBase": 1,
+                     "max": null,
+                     "min": 0,
+                     "show": true
+                  }
+               ]
+            },
+            {
+               "aliasColors": { },
+               "bars": false,
+               "dashLength": 10,
+               "dashes": false,
+               "datasource": "$influxdb",
+               "description": "Aggregated Disk (vinyl) data size for all spaces under cooling on each storage.",
+               "fill": 0,
+               "fillGradient": 0,
+               "gridPos": {
+                  "h": 8,
+                  "w": 12,
+                  "x": 12,
+                  "y": 594
+               },
+               "id": 244,
+               "legend": {
+                  "alignAsTable": true,
+                  "avg": true,
+                  "current": true,
+                  "max": true,
+                  "min": false,
+                  "rightSide": false,
+                  "show": true,
+                  "sideWidth": null,
+                  "sort": "current",
+                  "sortDesc": true,
+                  "total": false,
+                  "values": true
+               },
+               "lines": true,
+               "linewidth": 1,
+               "links": [ ],
+               "nullPointMode": "null",
+               "percentage": false,
+               "pointradius": 5,
+               "points": false,
+               "renderer": "flot",
+               "repeat": null,
+               "seriesOverrides": [ ],
+               "spaceLength": 10,
+               "stack": false,
+               "steppedLine": false,
+               "targets": [
+                  {
+                     "alias": "$tag_label_pairs_alias",
+                     "groupBy": [
+                        {
+                           "params": [
+                              "$__interval"
+                           ],
+                           "type": "time"
+                        },
+                        {
+                           "params": [
+                              "none"
+                           ],
+                           "type": "fill"
+                        }
+                     ],
+                     "policy": "default",
+                     "query": "SELECT sum(\"space_value\") FROM (\n  SELECT mean(\"value\") as \"space_value\" FROM \"$policy\".\"$measurement\"\n  WHERE (\"metric_name\" = 'cooler_vinyl_bytes_total' AND \"label_pairs_alias\" =~ /^$alias$/) AND $timeFilter\n  GROUP BY time($__interval), \"label_pairs_alias\", \"label_pairs_space\" fill(none)\n) GROUP BY time($__interval), \"label_pairs_alias\" fill(null)\n",
+                     "rawQuery": true,
+                     "refId": "A",
+                     "resultFormat": "time_series",
+                     "select": [ ],
+                     "tags": [ ]
+                  }
+               ],
+               "thresholds": [ ],
+               "timeFrom": null,
+               "timeShift": null,
+               "title": "Storage Disk Volume",
+               "tooltip": {
+                  "shared": true,
+                  "sort": 2,
+                  "value_type": "individual"
+               },
+               "type": "graph",
+               "xaxis": {
+                  "buckets": null,
+                  "mode": "time",
+                  "name": null,
+                  "show": true,
+                  "values": [ ]
+               },
+               "yaxes": [
+                  {
+                     "format": "bytes",
+                     "label": null,
+                     "logBase": 1,
+                     "max": null,
+                     "min": 0,
+                     "show": true
+                  },
+                  {
+                     "format": "bytes",
+                     "label": null,
+                     "logBase": 1,
+                     "max": null,
+                     "min": 0,
+                     "show": true
+                  }
+               ]
+            },
+            {
+               "aliasColors": { },
+               "bars": false,
+               "dashLength": 10,
+               "dashes": false,
+               "datasource": "$influxdb",
+               "description": "Percentage of tuples currently residing in RAM vs Total tuples under cooling per specific space.\n",
+               "fill": 0,
+               "fillGradient": 0,
+               "gridPos": {
+                  "h": 8,
+                  "w": 24,
+                  "x": 0,
+                  "y": 602
+               },
+               "id": 245,
+               "legend": {
+                  "alignAsTable": true,
+                  "avg": false,
+                  "current": true,
+                  "max": false,
+                  "min": false,
+                  "rightSide": false,
+                  "show": true,
+                  "sideWidth": null,
+                  "sort": "current",
+                  "sortDesc": true,
+                  "total": false,
+                  "values": true
+               },
+               "lines": true,
+               "linewidth": 1,
+               "links": [ ],
+               "nullPointMode": "null",
+               "percentage": false,
+               "pointradius": 5,
+               "points": false,
+               "renderer": "flot",
+               "repeat": null,
+               "seriesOverrides": [ ],
+               "spaceLength": 10,
+               "stack": false,
+               "steppedLine": false,
+               "targets": [
+                  {
+                     "alias": "$tag_label_pairs_alias — $tag_label_pairs_space",
+                     "groupBy": [
+                        {
+                           "params": [
+                              "$__interval"
+                           ],
+                           "type": "time"
+                        },
+                        {
+                           "params": [
+                              "none"
+                           ],
+                           "type": "fill"
+                        }
+                     ],
+                     "policy": "default",
+                     "query": "SELECT (mean(\"memtx_tuples\") / (mean(\"memtx_tuples\") + mean(\"vinyl_tuples\"))) * 100 as \"space_hot_data_ratio\" \nFROM\n  (SELECT last(\"value\") as \"memtx_tuples\" FROM \"$policy\".\"$measurement\"\n  WHERE (\"metric_name\" = 'cooler_memtx_tuples_total' AND \"label_pairs_alias\" =~ /^$alias$/) AND $timeFilter\n  GROUP BY time($__interval), \"label_pairs_alias\", \"label_pairs_space\" fill(previous)),\n  (SELECT last(\"value\") as \"vinyl_tuples\" FROM \"$policy\".\"$measurement\"\n  WHERE (\"metric_name\" = 'cooler_vinyl_tuples_total' AND \"label_pairs_alias\" =~ /^$alias$/) AND $timeFilter\n  GROUP BY time($__interval), \"label_pairs_alias\", \"label_pairs_space\" fill(previous))\nGROUP BY time($__interval), \"label_pairs_alias\", \"label_pairs_space\" fill(none)\n",
+                     "rawQuery": true,
+                     "refId": "A",
+                     "resultFormat": "time_series",
+                     "select": [ ],
+                     "tags": [ ]
+                  }
+               ],
+               "thresholds": [ ],
+               "timeFrom": null,
+               "timeShift": null,
+               "title": "Space Hot Data Ratio",
+               "tooltip": {
+                  "shared": true,
+                  "sort": 2,
+                  "value_type": "individual"
+               },
+               "type": "graph",
+               "xaxis": {
+                  "buckets": null,
+                  "mode": "time",
+                  "name": null,
+                  "show": true,
+                  "values": [ ]
+               },
+               "yaxes": [
+                  {
+                     "format": "percent",
+                     "label": null,
+                     "logBase": 1,
+                     "max": 100,
+                     "min": 0,
+                     "show": true
+                  },
+                  {
+                     "format": "percent",
+                     "label": null,
+                     "logBase": 1,
+                     "max": 100,
+                     "min": 0,
+                     "show": true
+                  }
+               ]
+            },
+            {
+               "aliasColors": { },
+               "bars": false,
+               "dashLength": 10,
+               "dashes": false,
+               "datasource": "$influxdb",
+               "description": "Total size of data currently residing in memtx for each space under cooling.\nA decrease indicates successful memory relocation.\n",
+               "fill": 0,
+               "fillGradient": 0,
+               "gridPos": {
+                  "h": 8,
+                  "w": 12,
+                  "x": 0,
+                  "y": 610
+               },
+               "id": 246,
+               "legend": {
+                  "alignAsTable": true,
+                  "avg": true,
+                  "current": true,
+                  "max": true,
+                  "min": false,
+                  "rightSide": false,
+                  "show": true,
+                  "sideWidth": null,
+                  "sort": "current",
+                  "sortDesc": true,
+                  "total": false,
+                  "values": true
+               },
+               "lines": true,
+               "linewidth": 1,
+               "links": [ ],
+               "nullPointMode": "null",
+               "percentage": false,
+               "pointradius": 5,
+               "points": false,
+               "renderer": "flot",
+               "repeat": null,
+               "seriesOverrides": [ ],
+               "spaceLength": 10,
+               "stack": false,
+               "steppedLine": false,
+               "targets": [
+                  {
+                     "alias": "$tag_label_pairs_alias — $tag_label_pairs_space",
+                     "groupBy": [
+                        {
+                           "params": [
+                              "$__interval"
+                           ],
+                           "type": "time"
+                        },
+                        {
+                           "params": [
+                              "label_pairs_alias"
+                           ],
+                           "type": "tag"
+                        },
+                        {
+                           "params": [
+                              "label_pairs_space"
+                           ],
+                           "type": "tag"
+                        },
+                        {
+                           "params": [
+                              "none"
+                           ],
+                           "type": "fill"
+                        }
+                     ],
+                     "measurement": "$measurement",
+                     "policy": "$policy",
+                     "refId": "A",
+                     "resultFormat": "time_series",
+                     "select": [
+                        [
+                           {
+                              "params": [
+                                 "value"
+                              ],
+                              "type": "field"
+                           },
+                           {
+                              "params": [ ],
+                              "type": "mean"
+                           }
+                        ]
+                     ],
+                     "tags": [
+                        {
+                           "key": "metric_name",
+                           "operator": "=",
+                           "value": "cooler_memtx_bytes_total"
+                        },
+                        {
+                           "condition": "AND",
+                           "key": "label_pairs_alias",
+                           "operator": "=~",
+                           "value": "/^$alias$/"
+                        }
+                     ]
+                  }
+               ],
+               "thresholds": [ ],
+               "timeFrom": null,
+               "timeShift": null,
+               "title": "Space RAM Volume",
+               "tooltip": {
+                  "shared": true,
+                  "sort": 2,
+                  "value_type": "individual"
+               },
+               "type": "graph",
+               "xaxis": {
+                  "buckets": null,
+                  "mode": "time",
+                  "name": null,
+                  "show": true,
+                  "values": [ ]
+               },
+               "yaxes": [
+                  {
+                     "format": "bytes",
+                     "label": null,
+                     "logBase": 1,
+                     "max": null,
+                     "min": 0,
+                     "show": true
+                  },
+                  {
+                     "format": "bytes",
+                     "label": null,
+                     "logBase": 1,
+                     "max": null,
+                     "min": 0,
+                     "show": true
+                  }
+               ]
+            },
+            {
+               "aliasColors": { },
+               "bars": false,
+               "dashLength": 10,
+               "dashes": false,
+               "datasource": "$influxdb",
+               "description": "Total size of data currently residing in vinyl for each space under cooling.\nAn increase indicates data has been successfully archived.\n",
+               "fill": 0,
+               "fillGradient": 0,
+               "gridPos": {
+                  "h": 8,
+                  "w": 12,
+                  "x": 12,
+                  "y": 610
+               },
+               "id": 247,
+               "legend": {
+                  "alignAsTable": true,
+                  "avg": true,
+                  "current": true,
+                  "max": true,
+                  "min": false,
+                  "rightSide": false,
+                  "show": true,
+                  "sideWidth": null,
+                  "sort": "current",
+                  "sortDesc": true,
+                  "total": false,
+                  "values": true
+               },
+               "lines": true,
+               "linewidth": 1,
+               "links": [ ],
+               "nullPointMode": "null",
+               "percentage": false,
+               "pointradius": 5,
+               "points": false,
+               "renderer": "flot",
+               "repeat": null,
+               "seriesOverrides": [ ],
+               "spaceLength": 10,
+               "stack": false,
+               "steppedLine": false,
+               "targets": [
+                  {
+                     "alias": "$tag_label_pairs_alias — $tag_label_pairs_space",
+                     "groupBy": [
+                        {
+                           "params": [
+                              "$__interval"
+                           ],
+                           "type": "time"
+                        },
+                        {
+                           "params": [
+                              "label_pairs_alias"
+                           ],
+                           "type": "tag"
+                        },
+                        {
+                           "params": [
+                              "label_pairs_space"
+                           ],
+                           "type": "tag"
+                        },
+                        {
+                           "params": [
+                              "none"
+                           ],
+                           "type": "fill"
+                        }
+                     ],
+                     "measurement": "$measurement",
+                     "policy": "$policy",
+                     "refId": "A",
+                     "resultFormat": "time_series",
+                     "select": [
+                        [
+                           {
+                              "params": [
+                                 "value"
+                              ],
+                              "type": "field"
+                           },
+                           {
+                              "params": [ ],
+                              "type": "mean"
+                           }
+                        ]
+                     ],
+                     "tags": [
+                        {
+                           "key": "metric_name",
+                           "operator": "=",
+                           "value": "cooler_vinyl_bytes_total"
+                        },
+                        {
+                           "condition": "AND",
+                           "key": "label_pairs_alias",
+                           "operator": "=~",
+                           "value": "/^$alias$/"
+                        }
+                     ]
+                  }
+               ],
+               "thresholds": [ ],
+               "timeFrom": null,
+               "timeShift": null,
+               "title": "Space Disk Volume",
+               "tooltip": {
+                  "shared": true,
+                  "sort": 2,
+                  "value_type": "individual"
+               },
+               "type": "graph",
+               "xaxis": {
+                  "buckets": null,
+                  "mode": "time",
+                  "name": null,
+                  "show": true,
+                  "values": [ ]
+               },
+               "yaxes": [
+                  {
+                     "format": "bytes",
+                     "label": null,
+                     "logBase": 1,
+                     "max": null,
+                     "min": 0,
+                     "show": true
+                  },
+                  {
+                     "format": "bytes",
+                     "label": null,
+                     "logBase": 1,
+                     "max": null,
+                     "min": 0,
+                     "show": true
+                  }
+               ]
+            },
+            {
+               "aliasColors": { },
+               "bars": false,
+               "dashLength": 10,
+               "dashes": false,
+               "datasource": "$influxdb",
+               "description": "Number of key compare mismatches during cooling process.\n",
+               "fill": 0,
+               "fillGradient": 0,
+               "gridPos": {
+                  "h": 8,
+                  "w": 12,
+                  "x": 0,
+                  "y": 618
+               },
+               "id": 248,
+               "legend": {
+                  "alignAsTable": true,
+                  "avg": true,
+                  "current": true,
+                  "max": true,
+                  "min": false,
+                  "rightSide": false,
+                  "show": true,
+                  "sideWidth": null,
+                  "sort": "current",
+                  "sortDesc": true,
+                  "total": false,
+                  "values": true
+               },
+               "lines": true,
+               "linewidth": 1,
+               "links": [ ],
+               "nullPointMode": "null",
+               "percentage": false,
+               "pointradius": 5,
+               "points": false,
+               "renderer": "flot",
+               "repeat": null,
+               "seriesOverrides": [ ],
+               "spaceLength": 10,
+               "stack": false,
+               "steppedLine": false,
+               "targets": [
+                  {
+                     "alias": "$tag_label_pairs_alias — $tag_label_pairs_space — $tag_label_pairs_index",
                      "groupBy": [
                         {
                            "params": [
@@ -33057,7 +33759,7 @@
                "thresholds": [ ],
                "timeFrom": null,
                "timeShift": null,
-               "title": "Compare mismatches",
+               "title": "Compare Mismatches",
                "tooltip": {
                   "shared": true,
                   "sort": 2,
@@ -33101,11 +33803,11 @@
                "fillGradient": 0,
                "gridPos": {
                   "h": 8,
-                  "w": 9,
-                  "x": 15,
-                  "y": 586
+                  "w": 12,
+                  "x": 12,
+                  "y": 618
                },
-               "id": 243,
+               "id": 249,
                "legend": {
                   "alignAsTable": true,
                   "avg": true,
@@ -33135,7 +33837,7 @@
                "steppedLine": false,
                "targets": [
                   {
-                     "alias": "$tag_label_pairs_alias — $tag_label_pairs_space — tag_label_pairs_index",
+                     "alias": "$tag_label_pairs_alias — $tag_label_pairs_space — $tag_label_pairs_index",
                      "groupBy": [
                         {
                            "params": [
@@ -33204,7 +33906,7 @@
                "thresholds": [ ],
                "timeFrom": null,
                "timeShift": null,
-               "title": "Errors",
+               "title": "Task Errors",
                "tooltip": {
                   "shared": true,
                   "sort": 2,
@@ -33243,16 +33945,16 @@
                "dashLength": 10,
                "dashes": false,
                "datasource": "$influxdb",
-               "description": "Number of tuples cooled by the cooler task.\n",
+               "description": "Velocity of data cooling, measured in bytes per second.\n",
                "fill": 0,
                "fillGradient": 0,
                "gridPos": {
                   "h": 8,
                   "w": 12,
                   "x": 0,
-                  "y": 594
+                  "y": 626
                },
-               "id": 244,
+               "id": 250,
                "legend": {
                   "alignAsTable": true,
                   "avg": true,
@@ -33282,7 +33984,7 @@
                "steppedLine": false,
                "targets": [
                   {
-                     "alias": "$tag_label_pairs_alias — $tag_label_pairs_space — tag_label_pairs_index",
+                     "alias": "$tag_label_pairs_alias — $tag_label_pairs_space — $tag_label_pairs_index",
                      "groupBy": [
                         {
                            "params": [
@@ -33330,153 +34032,12 @@
                            {
                               "params": [ ],
                               "type": "mean"
-                           }
-                        ]
-                     ],
-                     "tags": [
-                        {
-                           "key": "metric_name",
-                           "operator": "=",
-                           "value": "cooler_tuples_cooled"
-                        },
-                        {
-                           "condition": "AND",
-                           "key": "label_pairs_alias",
-                           "operator": "=~",
-                           "value": "/^$alias$/"
-                        }
-                     ]
-                  }
-               ],
-               "thresholds": [ ],
-               "timeFrom": null,
-               "timeShift": null,
-               "title": "Tuples cooled",
-               "tooltip": {
-                  "shared": true,
-                  "sort": 2,
-                  "value_type": "individual"
-               },
-               "type": "graph",
-               "xaxis": {
-                  "buckets": null,
-                  "mode": "time",
-                  "name": null,
-                  "show": true,
-                  "values": [ ]
-               },
-               "yaxes": [
-                  {
-                     "format": "none",
-                     "label": null,
-                     "logBase": 1,
-                     "max": null,
-                     "min": 0,
-                     "show": true
-                  },
-                  {
-                     "format": "none",
-                     "label": null,
-                     "logBase": 1,
-                     "max": null,
-                     "min": 0,
-                     "show": true
-                  }
-               ]
-            },
-            {
-               "aliasColors": { },
-               "bars": false,
-               "dashLength": 10,
-               "dashes": false,
-               "datasource": "$influxdb",
-               "description": "Amount of memory cooled by the cooler task.\n",
-               "fill": 0,
-               "fillGradient": 0,
-               "gridPos": {
-                  "h": 8,
-                  "w": 12,
-                  "x": 12,
-                  "y": 594
-               },
-               "id": 245,
-               "legend": {
-                  "alignAsTable": true,
-                  "avg": true,
-                  "current": true,
-                  "max": true,
-                  "min": false,
-                  "rightSide": false,
-                  "show": true,
-                  "sideWidth": null,
-                  "sort": "current",
-                  "sortDesc": true,
-                  "total": false,
-                  "values": true
-               },
-               "lines": true,
-               "linewidth": 1,
-               "links": [ ],
-               "nullPointMode": "null",
-               "percentage": false,
-               "pointradius": 5,
-               "points": false,
-               "renderer": "flot",
-               "repeat": null,
-               "seriesOverrides": [ ],
-               "spaceLength": 10,
-               "stack": false,
-               "steppedLine": false,
-               "targets": [
-                  {
-                     "alias": "$tag_label_pairs_alias — $tag_label_pairs_space — tag_label_pairs_index",
-                     "groupBy": [
-                        {
-                           "params": [
-                              "$__interval"
-                           ],
-                           "type": "time"
-                        },
-                        {
-                           "params": [
-                              "label_pairs_alias"
-                           ],
-                           "type": "tag"
-                        },
-                        {
-                           "params": [
-                              "label_pairs_space"
-                           ],
-                           "type": "tag"
-                        },
-                        {
-                           "params": [
-                              "label_pairs_index"
-                           ],
-                           "type": "tag"
-                        },
-                        {
-                           "params": [
-                              "none"
-                           ],
-                           "type": "fill"
-                        }
-                     ],
-                     "measurement": "$measurement",
-                     "policy": "$policy",
-                     "refId": "A",
-                     "resultFormat": "time_series",
-                     "select": [
-                        [
-                           {
-                              "params": [
-                                 "value"
-                              ],
-                              "type": "field"
                            },
                            {
-                              "params": [ ],
-                              "type": "mean"
+                              "params": [
+                                 "1s"
+                              ],
+                              "type": "non_negative_derivative"
                            }
                         ]
                      ],
@@ -33498,7 +34059,7 @@
                "thresholds": [ ],
                "timeFrom": null,
                "timeShift": null,
-               "title": "Memory cooled",
+               "title": "Cooling Speed (Bytes Cooled)",
                "tooltip": {
                   "shared": true,
                   "sort": 2,
@@ -33514,15 +34075,15 @@
                },
                "yaxes": [
                   {
-                     "format": "bytes",
-                     "label": null,
+                     "format": "Bps",
+                     "label": "bytes per second",
                      "logBase": 1,
                      "max": null,
                      "min": 0,
                      "show": true
                   },
                   {
-                     "format": "bytes",
+                     "format": "Bps",
                      "label": null,
                      "logBase": 1,
                      "max": null,
@@ -33537,163 +34098,16 @@
                "dashLength": 10,
                "dashes": false,
                "datasource": "$influxdb",
-               "description": "Number of tuples scanned by the cooler task.\n",
-               "fill": 0,
-               "fillGradient": 0,
-               "gridPos": {
-                  "h": 8,
-                  "w": 12,
-                  "x": 0,
-                  "y": 602
-               },
-               "id": 246,
-               "legend": {
-                  "alignAsTable": true,
-                  "avg": true,
-                  "current": true,
-                  "max": true,
-                  "min": false,
-                  "rightSide": false,
-                  "show": true,
-                  "sideWidth": null,
-                  "sort": "current",
-                  "sortDesc": true,
-                  "total": false,
-                  "values": true
-               },
-               "lines": true,
-               "linewidth": 1,
-               "links": [ ],
-               "nullPointMode": "null",
-               "percentage": false,
-               "pointradius": 5,
-               "points": false,
-               "renderer": "flot",
-               "repeat": null,
-               "seriesOverrides": [ ],
-               "spaceLength": 10,
-               "stack": false,
-               "steppedLine": false,
-               "targets": [
-                  {
-                     "alias": "$tag_label_pairs_alias — $tag_label_pairs_space — tag_label_pairs_index",
-                     "groupBy": [
-                        {
-                           "params": [
-                              "$__interval"
-                           ],
-                           "type": "time"
-                        },
-                        {
-                           "params": [
-                              "label_pairs_alias"
-                           ],
-                           "type": "tag"
-                        },
-                        {
-                           "params": [
-                              "label_pairs_space"
-                           ],
-                           "type": "tag"
-                        },
-                        {
-                           "params": [
-                              "label_pairs_index"
-                           ],
-                           "type": "tag"
-                        },
-                        {
-                           "params": [
-                              "none"
-                           ],
-                           "type": "fill"
-                        }
-                     ],
-                     "measurement": "$measurement",
-                     "policy": "$policy",
-                     "refId": "A",
-                     "resultFormat": "time_series",
-                     "select": [
-                        [
-                           {
-                              "params": [
-                                 "value"
-                              ],
-                              "type": "field"
-                           },
-                           {
-                              "params": [ ],
-                              "type": "mean"
-                           }
-                        ]
-                     ],
-                     "tags": [
-                        {
-                           "key": "metric_name",
-                           "operator": "=",
-                           "value": "cooler_tuples_scanned"
-                        },
-                        {
-                           "condition": "AND",
-                           "key": "label_pairs_alias",
-                           "operator": "=~",
-                           "value": "/^$alias$/"
-                        }
-                     ]
-                  }
-               ],
-               "thresholds": [ ],
-               "timeFrom": null,
-               "timeShift": null,
-               "title": "Tuples scanned",
-               "tooltip": {
-                  "shared": true,
-                  "sort": 2,
-                  "value_type": "individual"
-               },
-               "type": "graph",
-               "xaxis": {
-                  "buckets": null,
-                  "mode": "time",
-                  "name": null,
-                  "show": true,
-                  "values": [ ]
-               },
-               "yaxes": [
-                  {
-                     "format": "none",
-                     "label": null,
-                     "logBase": 1,
-                     "max": null,
-                     "min": 0,
-                     "show": true
-                  },
-                  {
-                     "format": "none",
-                     "label": null,
-                     "logBase": 1,
-                     "max": null,
-                     "min": 0,
-                     "show": true
-                  }
-               ]
-            },
-            {
-               "aliasColors": { },
-               "bars": false,
-               "dashLength": 10,
-               "dashes": false,
-               "datasource": "$influxdb",
-               "description": "Amount of memory scanned by the cooler task.\n",
+               "description": "Velocity of data scanning by the cooler task, measured in bytes per second.\n",
                "fill": 0,
                "fillGradient": 0,
                "gridPos": {
                   "h": 8,
                   "w": 12,
                   "x": 12,
-                  "y": 602
+                  "y": 626
                },
-               "id": 247,
+               "id": 251,
                "legend": {
                   "alignAsTable": true,
                   "avg": true,
@@ -33723,7 +34137,7 @@
                "steppedLine": false,
                "targets": [
                   {
-                     "alias": "$tag_label_pairs_alias — $tag_label_pairs_space — tag_label_pairs_index",
+                     "alias": "$tag_label_pairs_alias — $tag_label_pairs_space — $tag_label_pairs_index",
                      "groupBy": [
                         {
                            "params": [
@@ -33771,6 +34185,12 @@
                            {
                               "params": [ ],
                               "type": "mean"
+                           },
+                           {
+                              "params": [
+                                 "1s"
+                              ],
+                              "type": "non_negative_derivative"
                            }
                         ]
                      ],
@@ -33792,7 +34212,7 @@
                "thresholds": [ ],
                "timeFrom": null,
                "timeShift": null,
-               "title": "Memory scanned",
+               "title": "Cooling Speed (Bytes Scanned)",
                "tooltip": {
                   "shared": true,
                   "sort": 2,
@@ -33808,15 +34228,15 @@
                },
                "yaxes": [
                   {
-                     "format": "bytes",
-                     "label": null,
+                     "format": "Bps",
+                     "label": "bytes per second",
                      "logBase": 1,
                      "max": null,
                      "min": 0,
                      "show": true
                   },
                   {
-                     "format": "bytes",
+                     "format": "Bps",
                      "label": null,
                      "logBase": 1,
                      "max": null,
@@ -33831,16 +34251,16 @@
                "dashLength": 10,
                "dashes": false,
                "datasource": "$influxdb",
-               "description": "Number of scanned tuples that were not cooled (e.g. not expired).\nHigh values indicate inefficient cooling scope. Should ideally be near zero.\n",
+               "description": "Velocity of tuples processing and moving to disk by the cooler task, measured in tuples per second.\n",
                "fill": 0,
                "fillGradient": 0,
                "gridPos": {
                   "h": 8,
-                  "w": 8,
+                  "w": 12,
                   "x": 0,
-                  "y": 610
+                  "y": 634
                },
-               "id": 248,
+               "id": 252,
                "legend": {
                   "alignAsTable": true,
                   "avg": true,
@@ -33870,7 +34290,313 @@
                "steppedLine": false,
                "targets": [
                   {
-                     "alias": "$tag_label_pairs_alias — $tag_label_pairs_space — tag_label_pairs_index",
+                     "alias": "$tag_label_pairs_alias — $tag_label_pairs_space — $tag_label_pairs_index",
+                     "groupBy": [
+                        {
+                           "params": [
+                              "$__interval"
+                           ],
+                           "type": "time"
+                        },
+                        {
+                           "params": [
+                              "label_pairs_alias"
+                           ],
+                           "type": "tag"
+                        },
+                        {
+                           "params": [
+                              "label_pairs_space"
+                           ],
+                           "type": "tag"
+                        },
+                        {
+                           "params": [
+                              "label_pairs_index"
+                           ],
+                           "type": "tag"
+                        },
+                        {
+                           "params": [
+                              "none"
+                           ],
+                           "type": "fill"
+                        }
+                     ],
+                     "measurement": "$measurement",
+                     "policy": "$policy",
+                     "refId": "A",
+                     "resultFormat": "time_series",
+                     "select": [
+                        [
+                           {
+                              "params": [
+                                 "value"
+                              ],
+                              "type": "field"
+                           },
+                           {
+                              "params": [ ],
+                              "type": "mean"
+                           },
+                           {
+                              "params": [
+                                 "1s"
+                              ],
+                              "type": "non_negative_derivative"
+                           }
+                        ]
+                     ],
+                     "tags": [
+                        {
+                           "key": "metric_name",
+                           "operator": "=",
+                           "value": "cooler_tuples_cooled"
+                        },
+                        {
+                           "condition": "AND",
+                           "key": "label_pairs_alias",
+                           "operator": "=~",
+                           "value": "/^$alias$/"
+                        }
+                     ]
+                  }
+               ],
+               "thresholds": [ ],
+               "timeFrom": null,
+               "timeShift": null,
+               "title": "Cooling Speed (Tuples Cooled)",
+               "tooltip": {
+                  "shared": true,
+                  "sort": 2,
+                  "value_type": "individual"
+               },
+               "type": "graph",
+               "xaxis": {
+                  "buckets": null,
+                  "mode": "time",
+                  "name": null,
+                  "show": true,
+                  "values": [ ]
+               },
+               "yaxes": [
+                  {
+                     "format": "ops",
+                     "label": "tuples per second",
+                     "logBase": 1,
+                     "max": null,
+                     "min": 0,
+                     "show": true
+                  },
+                  {
+                     "format": "ops",
+                     "label": null,
+                     "logBase": 1,
+                     "max": null,
+                     "min": 0,
+                     "show": true
+                  }
+               ]
+            },
+            {
+               "aliasColors": { },
+               "bars": false,
+               "dashLength": 10,
+               "dashes": false,
+               "datasource": "$influxdb",
+               "description": "Velocity of tuples scanning by the cooler task during inspection, measured in tuples per second.\n",
+               "fill": 0,
+               "fillGradient": 0,
+               "gridPos": {
+                  "h": 8,
+                  "w": 12,
+                  "x": 12,
+                  "y": 634
+               },
+               "id": 253,
+               "legend": {
+                  "alignAsTable": true,
+                  "avg": true,
+                  "current": true,
+                  "max": true,
+                  "min": false,
+                  "rightSide": false,
+                  "show": true,
+                  "sideWidth": null,
+                  "sort": "current",
+                  "sortDesc": true,
+                  "total": false,
+                  "values": true
+               },
+               "lines": true,
+               "linewidth": 1,
+               "links": [ ],
+               "nullPointMode": "null",
+               "percentage": false,
+               "pointradius": 5,
+               "points": false,
+               "renderer": "flot",
+               "repeat": null,
+               "seriesOverrides": [ ],
+               "spaceLength": 10,
+               "stack": false,
+               "steppedLine": false,
+               "targets": [
+                  {
+                     "alias": "$tag_label_pairs_alias — $tag_label_pairs_space — $tag_label_pairs_index",
+                     "groupBy": [
+                        {
+                           "params": [
+                              "$__interval"
+                           ],
+                           "type": "time"
+                        },
+                        {
+                           "params": [
+                              "label_pairs_alias"
+                           ],
+                           "type": "tag"
+                        },
+                        {
+                           "params": [
+                              "label_pairs_space"
+                           ],
+                           "type": "tag"
+                        },
+                        {
+                           "params": [
+                              "label_pairs_index"
+                           ],
+                           "type": "tag"
+                        },
+                        {
+                           "params": [
+                              "none"
+                           ],
+                           "type": "fill"
+                        }
+                     ],
+                     "measurement": "$measurement",
+                     "policy": "$policy",
+                     "refId": "A",
+                     "resultFormat": "time_series",
+                     "select": [
+                        [
+                           {
+                              "params": [
+                                 "value"
+                              ],
+                              "type": "field"
+                           },
+                           {
+                              "params": [ ],
+                              "type": "mean"
+                           },
+                           {
+                              "params": [
+                                 "1s"
+                              ],
+                              "type": "non_negative_derivative"
+                           }
+                        ]
+                     ],
+                     "tags": [
+                        {
+                           "key": "metric_name",
+                           "operator": "=",
+                           "value": "cooler_tuples_scanned"
+                        },
+                        {
+                           "condition": "AND",
+                           "key": "label_pairs_alias",
+                           "operator": "=~",
+                           "value": "/^$alias$/"
+                        }
+                     ]
+                  }
+               ],
+               "thresholds": [ ],
+               "timeFrom": null,
+               "timeShift": null,
+               "title": "Cooling Speed (Tuples Scanned)",
+               "tooltip": {
+                  "shared": true,
+                  "sort": 2,
+                  "value_type": "individual"
+               },
+               "type": "graph",
+               "xaxis": {
+                  "buckets": null,
+                  "mode": "time",
+                  "name": null,
+                  "show": true,
+                  "values": [ ]
+               },
+               "yaxes": [
+                  {
+                     "format": "ops",
+                     "label": "tuples per second",
+                     "logBase": 1,
+                     "max": null,
+                     "min": 0,
+                     "show": true
+                  },
+                  {
+                     "format": "ops",
+                     "label": null,
+                     "logBase": 1,
+                     "max": null,
+                     "min": 0,
+                     "show": true
+                  }
+               ]
+            },
+            {
+               "aliasColors": { },
+               "bars": false,
+               "dashLength": 10,
+               "dashes": false,
+               "datasource": "$influxdb",
+               "description": "Number of scanned tuples that were not cooled (e.g. not expired yet).\nHigh values indicate inefficient cooling scope. Should ideally be near zero.\n",
+               "fill": 0,
+               "fillGradient": 0,
+               "gridPos": {
+                  "h": 8,
+                  "w": 8,
+                  "x": 0,
+                  "y": 642
+               },
+               "id": 254,
+               "legend": {
+                  "alignAsTable": true,
+                  "avg": true,
+                  "current": true,
+                  "max": true,
+                  "min": false,
+                  "rightSide": false,
+                  "show": true,
+                  "sideWidth": null,
+                  "sort": "current",
+                  "sortDesc": true,
+                  "total": false,
+                  "values": true
+               },
+               "lines": true,
+               "linewidth": 1,
+               "links": [ ],
+               "nullPointMode": "null",
+               "percentage": false,
+               "pointradius": 5,
+               "points": false,
+               "renderer": "flot",
+               "repeat": null,
+               "seriesOverrides": [ ],
+               "spaceLength": 10,
+               "stack": false,
+               "steppedLine": false,
+               "targets": [
+                  {
+                     "alias": "$tag_label_pairs_alias — $tag_label_pairs_space — $tag_label_pairs_index",
                      "groupBy": [
                         {
                            "params": [
@@ -33939,7 +34665,7 @@
                "thresholds": [ ],
                "timeFrom": null,
                "timeShift": null,
-               "title": "Cooling inefficiency: Uncooled tuples",
+               "title": "Cooling Inefficiency: Uncooled Tuples",
                "tooltip": {
                   "shared": true,
                   "sort": 2,
@@ -33978,16 +34704,16 @@
                "dashLength": 10,
                "dashes": false,
                "datasource": "$influxdb",
-               "description": "Time elapsed since the start of the current full scan, in seconds.\n",
+               "description": "Time elapsed since the start of the current full scan iteration, in seconds.\n",
                "fill": 0,
                "fillGradient": 0,
                "gridPos": {
                   "h": 8,
                   "w": 8,
                   "x": 8,
-                  "y": 610
+                  "y": 642
                },
-               "id": 249,
+               "id": 255,
                "legend": {
                   "alignAsTable": true,
                   "avg": true,
@@ -34017,7 +34743,7 @@
                "steppedLine": false,
                "targets": [
                   {
-                     "alias": "$tag_label_pairs_alias — $tag_label_pairs_space — tag_label_pairs_index",
+                     "alias": "$tag_label_pairs_alias — $tag_label_pairs_space — $tag_label_pairs_index",
                      "groupBy": [
                         {
                            "params": [
@@ -34086,7 +34812,7 @@
                "thresholds": [ ],
                "timeFrom": null,
                "timeShift": null,
-               "title": "Time since full scan start",
+               "title": "Time Since Full Scan Start",
                "tooltip": {
                   "shared": true,
                   "sort": 2,
@@ -34132,9 +34858,9 @@
                   "h": 8,
                   "w": 8,
                   "x": 16,
-                  "y": 610
+                  "y": 642
                },
-               "id": 250,
+               "id": 256,
                "legend": {
                   "alignAsTable": true,
                   "avg": true,
@@ -34164,7 +34890,7 @@
                "steppedLine": false,
                "targets": [
                   {
-                     "alias": "$tag_label_pairs_alias — $tag_label_pairs_space — tag_label_pairs_index",
+                     "alias": "$tag_label_pairs_alias — $tag_label_pairs_space — $tag_label_pairs_index",
                      "groupBy": [
                         {
                            "params": [
@@ -34233,7 +34959,7 @@
                "thresholds": [ ],
                "timeFrom": null,
                "timeShift": null,
-               "title": "Fiber context switches",
+               "title": "Fiber Context Switches",
                "tooltip": {
                   "shared": true,
                   "sort": 2,
@@ -34282,9 +35008,9 @@
             "h": 1,
             "w": 24,
             "x": 0,
-            "y": 618
+            "y": 650
          },
-         "id": 251,
+         "id": 257,
          "panels": [
             {
                "aliasColors": { },
@@ -34299,9 +35025,9 @@
                   "h": 8,
                   "w": 12,
                   "x": 0,
-                  "y": 619
+                  "y": 651
                },
-               "id": 252,
+               "id": 258,
                "legend": {
                   "alignAsTable": true,
                   "avg": true,
@@ -34440,9 +35166,9 @@
                   "h": 8,
                   "w": 12,
                   "x": 12,
-                  "y": 619
+                  "y": 651
                },
-               "id": 253,
+               "id": 259,
                "legend": {
                   "alignAsTable": true,
                   "avg": true,
@@ -34574,16 +35300,16 @@
                "dashLength": 10,
                "dashes": false,
                "datasource": "$influxdb",
-               "description": "The time it took for the record to be delivered from the source node in nanoseconds - P50 percentile.\n",
+               "description": "The time it took for the record to be delivered from the source node - P50 percentile.\n",
                "fill": 0,
                "fillGradient": 0,
                "gridPos": {
                   "h": 8,
                   "w": 8,
                   "x": 0,
-                  "y": 627
+                  "y": 659
                },
-               "id": 254,
+               "id": 260,
                "legend": {
                   "alignAsTable": true,
                   "avg": true,
@@ -34692,7 +35418,7 @@
                },
                "yaxes": [
                   {
-                     "format": "none",
+                     "format": "ns",
                      "label": null,
                      "logBase": 1,
                      "max": null,
@@ -34700,7 +35426,7 @@
                      "show": true
                   },
                   {
-                     "format": "none",
+                     "format": "ns",
                      "label": null,
                      "logBase": 1,
                      "max": null,
@@ -34715,16 +35441,16 @@
                "dashLength": 10,
                "dashes": false,
                "datasource": "$influxdb",
-               "description": "The time it took for the record to be delivered from the source node in nanoseconds - P95 percentile.\n",
+               "description": "The time it took for the record to be delivered from the source node - P95 percentile.\n",
                "fill": 0,
                "fillGradient": 0,
                "gridPos": {
                   "h": 8,
                   "w": 8,
                   "x": 8,
-                  "y": 627
+                  "y": 659
                },
-               "id": 255,
+               "id": 261,
                "legend": {
                   "alignAsTable": true,
                   "avg": true,
@@ -34833,7 +35559,7 @@
                },
                "yaxes": [
                   {
-                     "format": "none",
+                     "format": "ns",
                      "label": null,
                      "logBase": 1,
                      "max": null,
@@ -34841,7 +35567,7 @@
                      "show": true
                   },
                   {
-                     "format": "none",
+                     "format": "ns",
                      "label": null,
                      "logBase": 1,
                      "max": null,
@@ -34856,16 +35582,16 @@
                "dashLength": 10,
                "dashes": false,
                "datasource": "$influxdb",
-               "description": "The time it took for the record to be delivered from the source node in nanoseconds - P99 percentile.\n",
+               "description": "The time it took for the record to be delivered from the source node - P99 percentile.\n",
                "fill": 0,
                "fillGradient": 0,
                "gridPos": {
                   "h": 8,
                   "w": 8,
                   "x": 16,
-                  "y": 627
+                  "y": 659
                },
-               "id": 256,
+               "id": 262,
                "legend": {
                   "alignAsTable": true,
                   "avg": true,
@@ -34974,7 +35700,7 @@
                },
                "yaxes": [
                   {
-                     "format": "none",
+                     "format": "ns",
                      "label": null,
                      "logBase": 1,
                      "max": null,
@@ -34982,7 +35708,7 @@
                      "show": true
                   },
                   {
-                     "format": "none",
+                     "format": "ns",
                      "label": null,
                      "logBase": 1,
                      "max": null,
