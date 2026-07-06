@@ -1,0 +1,3 @@
+doc/examples/tarantool_clusters_federation/bin/*
+examples/traffic_encryption/certs/*.pem
+examples/traffic_encryption/certs/*.srl
