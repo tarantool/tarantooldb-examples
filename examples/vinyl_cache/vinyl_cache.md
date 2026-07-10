@@ -310,7 +310,7 @@ echo "box.func.bench_hot:call()" | tt connect admin:secret-cluster-cookie@localh
 # time=2.504s  hit=0  miss=50000  ratio=0.00
 ```
 
-Включим кэш и повторим. Первый проход прогревает кэш, остальные девять обслуживаются из него:
+Теперь включите кэш и сделайте повторный замер. Первый проход прогревает кэш, остальные девять обслуживаются из него:
 
 ```shell
 echo "box.cfg{ vinyl_cache = 16 * 1024 * 1024 }" | tt connect admin:secret-cluster-cookie@localhost:3301
