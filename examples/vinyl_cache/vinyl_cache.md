@@ -289,31 +289,7 @@ after.disk.iterator.lookup   - before.disk.iterator.lookup     -- =5000: дан�
 В демо выполняется многократное чтение одного и того же небольшого набора ключей (1–5000).
 Этот набор целиком помещается в кэш 16 MiB, поэтому повторные чтения обслуживаются из памяти.
 
-Миграция зарегистрировала функцию `bench_hot`. Она выполняет 10 проходов по ключам 1–5000,
-замеряет время через `clock.bench` и считает hit/miss по разнице счётчиков `index:stat()`:
-
-```lua
-box.schema.func.create('bench_hot', {
-    language = 'LUA',
-    body = [=[function()
-        local clock = require('clock')
-        local s = box.space.data
-        local idx = s.index.pk
-        local before = idx:stat()
-        local t = clock.bench(function()
-            for pass = 1, 10 do
-                for i = 1, 5000 do s:get(i) end
-            end
-        end)[1]
-        local after = idx:stat()
-        local hit = after.cache.get.rows - before.cache.get.rows
-        local total = after.get.rows - before.get.rows
-        return string.format('time=%.3fs  hit=%d  miss=%d  ratio=%.2f',
-            t, hit, total - hit, hit / total)
-    end]=],
-    if_not_exists = true,
-})
-```
+Для последовательного чтения данных создана хранимая процедура `bench_hot`. Она выполняет 10 проходов по ключам 1–5000, замеряет время через `clock.bench` и считает hit/miss по разнице счётчиков `index:stat()`. Текст процедуры можно посмотреть на вкладке Funcs узла `vinyl-cache` в TCM.
 
 Сначала измерьте время с **выключенным** кэшем — каждое чтение при этом идёт на диск:
 
