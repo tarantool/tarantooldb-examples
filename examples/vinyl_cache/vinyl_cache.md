@@ -364,7 +364,7 @@ echo "box.func.bench_scattered:call()" | tt connect admin:secret-cluster-cookie@
 # time=2.309s  hit=3401  miss=46599  ratio=0.07
 ```
 
-Рост числа вытеснений подтверждает, что кэш «крутится» вхолостую:
+Рост числа вытеснений подтверждает, что кэш работает безрезультатно:
 
 ```shell
 echo "box.space.data.index.pk:stat().cache.evict.rows" | tt connect admin:secret-cluster-cookie@localhost:3301
