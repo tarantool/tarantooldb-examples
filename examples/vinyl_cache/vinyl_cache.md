@@ -71,11 +71,11 @@ make start
 
 Команда последовательно:
 
-1. создаёт Docker-сеть `tarantooldb_network`;
-2. запускает etcd (3 узла) и TCM;
-3. публикует конфигурацию в etcd;
-4. запускает инстанс Tarantool DB (`vinyl-cache`) и контейнер `init_host`, который применяет миграцию:
-   создаёт vinyl-спейс `data` и регистрирует вспомогательные функции `fill_data`, `bench_hot` и `bench_scattered`.
+1. Создаёт Docker-сеть `tarantooldb_network`;
+2. Запускает etcd (3 узла) и TCM;
+3. Публикует конфигурацию в etcd;
+4. Запускает узел Tarantool DB (`vinyl-cache`) и контейнер `init_host`, который применяет миграцию.
+  Миграция создаёт спейс на движке vinyl с названием `data` и регистрирует вспомогательные функции `fill_data`, `bench_hot` и `bench_scattered`.
 
 После запуска стенда доступны:
 
