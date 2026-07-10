@@ -188,7 +188,7 @@ miss  = total - hit
 (admin_guide-vinyl_cache-connect)=
 ## Подключение к консоли
 
-Подключитесь к инстансу с помощью tt CLI:
+Подключитесь к экземпляру с помощью tt CLI:
 
 ```shell
 tt connect admin:secret-cluster-cookie@localhost:3301
