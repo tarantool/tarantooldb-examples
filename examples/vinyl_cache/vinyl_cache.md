@@ -61,7 +61,8 @@
 Перейдите в директорию примера `vinyl_cache`:
 
 ```shell
-cd ./doc/examples/vinyl_cache/ ```
+cd ./doc/examples/vinyl_cache/ 
+```
 
 Запустите стенд:
 
