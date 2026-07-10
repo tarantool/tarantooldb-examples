@@ -318,7 +318,7 @@ echo "box.func.bench_hot:call()" | tt connect admin:secret-cluster-cookie@localh
 # time=0.306s  hit=45000  miss=5000  ratio=0.90
 ```
 
-Ещё раз (кэш уже прогрет — все 5000 ключей в нём):
+Повторите процедуру с уже прогретым кэшем — все 5000 ключей находятся в нём):
 
 ```shell
 echo "box.func.bench_hot:call()" | tt connect admin:secret-cluster-cookie@localhost:3301
