@@ -94,8 +94,8 @@ make start
 В руководстве используются следующие файлы примера `vinyl_cache`:
 
 * `Makefile` -- команды запуска и остановки стенда;
-* `cluster/config.yml` -- конфигурация и топология инстанса (включая секцию `vinyl`);
-* `cluster/docker-compose.yml` -- описание инстанса Tarantool DB и контейнера `init_host`;
+* `cluster/config.yml` -- конфигурация и топология экземпляра (включая секцию `vinyl`);
+* `cluster/docker-compose.yml` -- описание узла Tarantool DB и контейнера `init_host`;
 * `cluster/migrations/scenario/001_vinyl_cache_space.lua` -- миграция: создаёт спейс `data` и регистрирует функции `fill_data`, `bench_hot`, `bench_scattered`;
 * `tools/docker-compose.yml` -- описание etcd-кластера и TCM;
 * `tools/tcm.yml` -- конфигурация TCM.
