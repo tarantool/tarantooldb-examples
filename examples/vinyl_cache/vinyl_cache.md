@@ -32,9 +32,9 @@
 
 Для выполнения примера требуются:
 
-* установленные [Docker-образы](install_docker-image) Tarantool DB (`tarantooldb:3x-latest`) и etcd (`quay.io/coreos/etcd:v3.5.15`);
+* установленные [Docker-образы](i[nstall_docker-image](https://tarantool.io/docs/tdb/ru/3_x/install_and_upgrade/install/install_docker)) Tarantool DB (`tarantooldb:3x-latest`) и etcd (`quay.io/coreos/etcd:v3.5.15`);
 * приложение Docker Compose;
-* утилита [tt CLI](install-install_tt) для подключения к консоли инстанса;
+* утилита [tt CLI](https://tarantool.io/docs/tdb/ru/3_x/install_and_upgrade/install_tt) для подключения к консоли экземпляра;
 * исходные файлы примера `vinyl_cache`.
 
   ```{admonition} Примечание
