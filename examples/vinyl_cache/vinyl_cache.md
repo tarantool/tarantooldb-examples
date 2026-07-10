@@ -256,7 +256,7 @@ echo "box.stat.vinyl().memory.level0" | tt connect admin:secret-cluster-cookie@l
 # 0
 ```
 
-И повторим измерение:
+Теперь повторите измерение:
 
 ```lua
 before = idx:stat()
