@@ -158,7 +158,7 @@ box.cfg.vinyl_cache                          -- посмотреть текущ�
 ## Статистика индекса: index:stat()
 
 Метод `index:stat()` возвращает накопленную статистику по конкретному индексу.
-Подробное описание всех полей: [справочник index:stat()](https://www.tarantool.io/en/doc/latest/reference/reference_lua/box_index/stat/).
+Подробное описание всех полей приведено в документации платформы Tarantool в [справочнике метода index:stat()](https://www.tarantool.io/ru/doc/latest/reference/reference_lua/box_index/stat/).
 
 Для анализа работы кэша vinyl используются следующие поля:
 
