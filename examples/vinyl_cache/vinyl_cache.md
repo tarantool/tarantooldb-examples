@@ -371,7 +371,7 @@ echo "box.space.data.index.pk:stat().cache.evict.rows" | tt connect admin:secret
 # 37397
 ```
 
-Для сравнения — отключим кэш совсем:
+Для сравнения результатов отключите кэш совсем:
 
 ```shell
 echo "box.cfg{ vinyl_cache = 0 }" | tt connect admin:secret-cluster-cookie@localhost:3301
