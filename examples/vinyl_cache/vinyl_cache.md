@@ -302,7 +302,7 @@ box.schema.func.create('bench_hot', {
 })
 ```
 
-Сначала измерим с **выключенным** кэшем — каждое чтение идёт на диск:
+Сначала измерьте время с **выключенным** кэшем — каждое чтение при этом идёт на диск:
 
 ```shell
 echo "box.cfg{ vinyl_cache = 0 }" | tt connect admin:secret-cluster-cookie@localhost:3301
