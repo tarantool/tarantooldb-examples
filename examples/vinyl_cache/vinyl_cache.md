@@ -205,7 +205,7 @@ echo "box.cfg.vinyl_cache" | tt connect admin:secret-cluster-cookie@localhost:33
 ## Подготовка данных
 
 Спейс `data` на движке vinyl создаётся автоматически при запуске стенда через миграцию.
-Залейте данные (200 000 кортежей примерно по 200 байт, итого ~40 MB):
+Загрузите данные (200 000 кортежей примерно по 200 байт, итого ~40 MB):
 
 ```shell
 echo "box.func.fill_data:call()" | tt connect admin:secret-cluster-cookie@localhost:3301
