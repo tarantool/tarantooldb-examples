@@ -228,7 +228,7 @@ echo "box.stat.vinyl().memory.level0" | tt connect admin:secret-cluster-cookie@l
 ## Демо: чтение из vinyl_memory (данные в L0)
 
 Пока данные не сброшены на диск, все чтения обслуживаются из in-memory уровня L0.
-Отключим кэш, чтобы изолировать этот эффект:
+Отключите кэш, чтобы изолировать этот эффект:
 
 ```lua
 s = box.space.data
