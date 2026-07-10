@@ -198,7 +198,7 @@ echo "box.cfg.vinyl_cache" | tt connect admin:secret-cluster-cookie@localhost:33
 echo "box.func.fill_data:call()" | tt connect admin:secret-cluster-cookie@localhost:3301
 ```
 
-`fill_data` вставляет 200 000 кортежей батчами по 10 000, каждый батч — в отдельной транзакции:
+`fill_data` вставляет 200 000 кортежей пачками по 10 000 кортежей, каждая пачка — в отдельной транзакции:
 
 ```lua
 box.schema.func.create('fill_data', {
