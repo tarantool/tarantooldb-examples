@@ -248,7 +248,7 @@ after.memory.iterator.lookup - before.memory.iterator.lookup   -- =5000: дан�
 after.disk.iterator.lookup   - before.disk.iterator.lookup     -- =0:    run-файлов ещё нет
 ```
 
-Сбросим L0 на диск:
+Сбросьте L0 на диск:
 
 ```shell
 echo "box.snapshot()" | tt connect admin:secret-cluster-cookie@localhost:3301
