@@ -1,7 +1,7 @@
 # Кэш кортежей движка vinyl (нагрев/охлаждение)
 
 В этом примере показано устройство и принцип работы **кэша кортежей** движка vinyl, а также описано, как его настроить
-и оценить влияние кэша на производительность чтений. Кроме того, в примере описано, как можно реализовать сценарий нагрева и охлаждения данных.
+и оценить влияние кэша на производительность чтений. Кроме того, показано, как реализовать сценарий нагрева и охлаждения данных.
 
 Движок vinyl — это дисковый LSM-движок: данные сначала пишутся в in-memory уровень (L0), а затем
 сбрасываются на диск в виде run-файлов. Чтение данных, уже сброшенных на диск, требует обращения
@@ -18,31 +18,20 @@
 * [](admin_guide-vinyl_cache-files)
 * [](admin_guide-vinyl_cache-config)
 * [](admin_guide-vinyl_cache-read-path)
-* [](admin_guide-vinyl_cache-index-stat)
 * [](admin_guide-vinyl_cache-connect)
 * [](admin_guide-vinyl_cache-prepare)
+* [](admin_guide-vinyl_cache-index-stat)
 * [](admin_guide-vinyl_cache-demo-memory)
 * [](admin_guide-vinyl_cache-demo-hit)
 * [](admin_guide-vinyl_cache-demo-miss)
-* [Пререквизиты](#пререквизиты)
-* [Запуск стенда](#запуск-стенда)
-* [Используемые файлы](#используемые-файлы)
-* [Настройка кэша vinyl](#настройка-кэша-vinyl)
-* [Путь чтения данных в vinyl](#путь-чтения-данны-в-vinyl)
-* [Статистика индекса: index:stat()](#статистика-индекса-index:stat())
-* [Подключение к консоли](подключение-к-консоли)
-* [Подготовка данных](подготовка-данных)
-* [Демо: чтение из vinyl_memory (данные в L0)](демо-чтение-из-vinyl_memory-данные-в-l0)
-* [Демо A. Кэш помогает: горячий набор данных](демо-A-кэш-помогает-горячий-набор-данных)
-* [Демо B. Кэш бесполезен: чтения по всему набору данных](демо-B-кэш-бесполезен: чтения по всему набору данных)
-* [Остановка стенда](остановка-стенда)
+* [](admin_guide-vinyl_cache-stop)
 
 (admin_guide-vinyl_cache-prereq)=
 ## Пререквизиты
 
 Для выполнения примера требуются:
 
-* установленные [Docker-образы](i[nstall_docker-image](https://tarantool.io/docs/tdb/ru/3_x/install_and_upgrade/install/install_docker)) Tarantool DB (`tarantooldb:3x-latest`) и etcd (`quay.io/coreos/etcd:v3.5.15`);
+* установленные [Docker-образы](https://tarantool.io/docs/tdb/ru/3_x/install_and_upgrade/install/install_docker) Tarantool DB (`tarantooldb:3x-latest`) и etcd (`quay.io/coreos/etcd:v3.5.15`);
 * приложение Docker Compose;
 * утилита [tt CLI](https://tarantool.io/docs/tdb/ru/3_x/install_and_upgrade/install_tt) для подключения к консоли экземпляра;
 * исходные файлы примера `vinyl_cache`.
@@ -71,7 +60,7 @@
 Перейдите в директорию примера `vinyl_cache`:
 
 ```shell
-cd ./doc/examples/vinyl_cache/ 
+cd ./doc/examples/vinyl_cache/
 ```
 
 Запустите стенд:
@@ -126,16 +115,27 @@ vinyl:
 
 * `vinyl.cache` -- размер LRU-кэша прочитанных кортежей в байтах. Значение по умолчанию: 128 MiB.
   Значение `0` отключает кэш. LRU-кэш наполняется при чтениях, в записи он не участвует. Обновление или удаление
-  кортежа инвалидирует его запись в кэше:
+  кортежа инвалидирует его запись в кэше.
 * `vinyl.memory` -- размер in-memory уровня L0 в байтах. Значение по умолчанию: 128 MiB. Сюда попадают
   все операции записи. При заполнении уровень сбрасывается на диск.
 
 Обе опции можно менять динамически из консоли, при этом `vinyl_memory` разрешено только увеличивать,
-а `vinyl_cache` -- изменять в любую сторону:
+а `vinyl_cache` -- изменять в любую сторону.
+
+Выберите узел кластера "vinyl-cache" на вкладке Dashboard веб-интерфейса TCM. В открывшемся окне перейдите на вкладку Terminal и попробуйте ввести следующие команды:
 
 ```lua
-box.cfg{ vinyl_cache = 32 * 1024 * 1024 }   -- изменить размер кэша
-box.cfg.vinyl_cache                          -- посмотреть текущее значение
+box.cfg.vinyl_cache                          -- смотрим текущий размер кэша
+-- 16777216
+```
+
+```lua
+box.cfg{ vinyl_cache = 32 * 1024 * 1024 }   -- меняем
+```
+
+```lua
+box.cfg.vinyl_cache                          -- смотрим новое текущее значение
+-- 33554432
 ```
 
 (admin_guide-vinyl_cache-read-path)=
@@ -150,14 +150,56 @@ box.cfg.vinyl_cache                          -- посмотреть текущ�
 | 2 | `vinyl_memory` — L0, in-memory уровень | `memory.iterator.lookup` |
 | 3 | Диск — run-файлы | `disk.iterator.lookup` |
 
-Чтение идёт из L0 без обращений к диску, пока данные не сброшены на диск — то есть до тех пор, пока не сделан снимок данных через `box.snapshot()`  или не переполнена память в `vinyl_memory`),
-. После сброса данные переезжают на диск, и именно тут `vinyl_cache`
+Чтение идёт из L0 без обращений к диску, пока данные не сброшены на диск — то есть до тех пор, пока не сделан снимок данных через `box.snapshot()` или не переполнена память в `vinyl_memory`. После сброса данные переезжают на диск, и именно тут `vinyl_cache`
 начинает играть роль.
+
+(admin_guide-vinyl_cache-connect)=
+## Подключение к консоли
+
+Подключитесь к экземпляру с помощью tt CLI:
+
+```shell
+tt connect admin:secret-cluster-cookie@localhost:3301
+```
+
+Чтобы выйти из консоли, введите `\quit`.
+
+Проверьте, что значение кэша взято из конфигурации:
+
+```shell
+echo "box.cfg.vinyl_cache" | tt connect admin:secret-cluster-cookie@localhost:3301
+# 16777216
+```
+
+(admin_guide-vinyl_cache-prepare)=
+## Подготовка данных
+
+Спейс `data` на движке vinyl создаётся автоматически при запуске стенда через миграцию.
+Загрузите данные (200 000 кортежей примерно по 200 байт, итого ~40 MB):
+
+```shell
+echo "box.func.fill_data:call()" | tt connect admin:secret-cluster-cookie@localhost:3301
+```
+
+`fill_data` вставляет 200 000 кортежей пачками по 10 000 в отдельных транзакциях.
+
+После вставки данные находятся в in-memory уровне L0. Убедитесь в этом:
+
+```shell
+echo "box.stat.vinyl().memory.level0" | tt connect admin:secret-cluster-cookie@localhost:3301
+# 50938368
+```
 
 (admin_guide-vinyl_cache-index-stat)=
 ## Статистика индекса: index:stat()
 
 Метод `index:stat()` возвращает накопленную статистику по конкретному индексу.
+Для спейса `data` вызов выглядит так:
+
+```lua
+box.space.data.index.pk:stat()
+```
+
 Подробное описание всех полей приведено в документации платформы Tarantool в [справочнике метода index:stat()](https://www.tarantool.io/ru/doc/latest/reference/reference_lua/box_index/stat/).
 
 Для анализа работы кэша vinyl используются следующие поля:
@@ -185,68 +227,31 @@ miss  = total - hit
 -- ratio = hit / total
 ```
 
-(admin_guide-vinyl_cache-connect)=
-## Подключение к консоли
+(admin_guide-vinyl_cache-demo-memory)=
+## Демо: чтение из vinyl_memory (данные в L0)
 
-Подключитесь к экземпляру с помощью tt CLI:
+Пока данные не сброшены на диск, все чтения обслуживаются из in-memory уровня L0.
+Отключите кэш, чтобы изолировать этот эффект. Подключитесь к консоли:
 
 ```shell
 tt connect admin:secret-cluster-cookie@localhost:3301
 ```
 
-Проверьте, что значение кэша взято из конфигурации:
-
-```shell
-echo "box.cfg.vinyl_cache" | tt connect admin:secret-cluster-cookie@localhost:3301
-# 16777216
-```
-
-(admin_guide-vinyl_cache-prepare)=
-## Подготовка данных
-
-Спейс `data` на движке vinyl создаётся автоматически при запуске стенда через миграцию.
-Загрузите данные (200 000 кортежей примерно по 200 байт, итого ~40 MB):
-
-```shell
-echo "box.func.fill_data:call()" | tt connect admin:secret-cluster-cookie@localhost:3301
-```
-
-`fill_data` вставляет 200 000 кортежей пачками по 10 000 кортежей, каждая пачка — в отдельной транзакции:
-
-```lua
-box.schema.func.create('fill_data', {
-    language = 'LUA',
-    body = [=[function()
-        local s = box.space.data
-        for i = 1, 200000, 10000 do
-            box.begin()
-            for j = i, math.min(i + 9999, 200000) do
-                s:replace{ j, string.rep('x', 200) }
-            end
-            box.commit()
-        end
-    end]=],
-    if_not_exists = true,
-})
-```
-
-После вставки данные находятся в in-memory уровне L0. Убедитесь в этом:
-
-```shell
-echo "box.stat.vinyl().memory.level0" | tt connect admin:secret-cluster-cookie@localhost:3301
-# 50938368
-```
-
-(admin_guide-vinyl_cache-demo-memory)=
-## Демо: чтение из vinyl_memory (данные в L0)
-
-Пока данные не сброшены на диск, все чтения обслуживаются из in-memory уровня L0.
-Отключите кэш, чтобы изолировать этот эффект:
+И выполните:
 
 ```lua
 s = box.space.data
+```
+
+```lua
 clock = require('clock')
+```
+
+```lua
 idx = s.index.pk
+```
+
+```lua
 box.cfg{ vinyl_cache = 0 }
 ```
 
@@ -254,10 +259,21 @@ box.cfg{ vinyl_cache = 0 }
 
 ```lua
 before = idx:stat()
-clock.bench(function() for i = 1, 5000 do s:get(i) end end)[1]   -- ~0.021 с
-after = idx:stat()
+```
 
+```lua
+clock.bench(function() for i = 1, 5000 do s:get(i) end end)[1]   -- ~0.021 с
+```
+
+```lua
+after = idx:stat()
+```
+
+```lua
 after.memory.iterator.lookup - before.memory.iterator.lookup   -- =5000: данные в L0
+```
+
+```lua
 after.disk.iterator.lookup   - before.disk.iterator.lookup     -- =0:    run-файлов ещё нет
 ```
 
@@ -273,14 +289,26 @@ echo "box.stat.vinyl().memory.level0" | tt connect admin:secret-cluster-cookie@l
 
 ```lua
 before = idx:stat()
-clock.bench(function() for i = 1, 5000 do s:get(i) end end)[1]   -- ~0.260 с
-after = idx:stat()
+```
 
+```lua
+clock.bench(function() for i = 1, 5000 do s:get(i) end end)[1]   -- ~0.260 с
+```
+
+```lua
+after = idx:stat()
+```
+
+```lua
 after.memory.iterator.lookup - before.memory.iterator.lookup   -- =5000: итератор L0 открывается, но пуст
+```
+
+```lua
 after.disk.iterator.lookup   - before.disk.iterator.lookup     -- =5000: данные читаются с диска
 ```
 
 Второй вызов заметно медленнее — те же данные теперь читаются с диска.
+Сравните значение времени с первым замером: на тестовом стенде ~0.021 с против ~0.260 с (разница в ~12 раз).
 Именно для ускорения таких повторных чтений и существует `vinyl_cache`.
 
 (admin_guide-vinyl_cache-demo-hit)=
@@ -307,14 +335,14 @@ echo "box.func.bench_hot:call()" | tt connect admin:secret-cluster-cookie@localh
 # time=0.306s  hit=45000  miss=5000  ratio=0.90
 ```
 
-Повторите процедуру с уже прогретым кэшем — все 5000 ключей находятся в нём):
+Повторите процедуру с уже прогретым кэшем — все 5000 ключей находятся в нём:
 
 ```shell
 echo "box.func.bench_hot:call()" | tt connect admin:secret-cluster-cookie@localhost:3301
 # time=0.099s  hit=50000  miss=0  ratio=1.00
 ```
 
-Видно, что в сравнении с выключенным кэшем время  сократилось примерно в 25 раз.
+Видно, что в сравнении с выключенным кэшем время сократилось примерно в 25 раз.
 
 (admin_guide-vinyl_cache-demo-miss)=
 ## Демо B. Кэш бесполезен: чтения по всему набору данных
@@ -322,30 +350,7 @@ echo "box.func.bench_hot:call()" | tt connect admin:secret-cluster-cookie@localh
 В этом демо выполняется чтение случайных ключей по **всему** набору данных (200 000 ключей, ~40 MB).
 При кэше 4 MiB данные постоянно вытесняются, и кэш почти не помогает.
 
-Функция `bench_scattered` выполняет 50 000 случайных чтений по всему диапазону ключей — эта функция аналогична `bench_hot`
-по структуре, но с равномерно рассеянным доступом:
-
-```lua
-box.schema.func.create('bench_scattered', {
-    language = 'LUA',
-    body = [=[function()
-        local clock = require('clock')
-        local s = box.space.data
-        local idx = s.index.pk
-        math.randomseed(42)
-        local before = idx:stat()
-        local t = clock.bench(function()
-            for i = 1, 50000 do s:get(math.random(1, 200000)) end
-        end)[1]
-        local after = idx:stat()
-        local hit = after.cache.get.rows - before.cache.get.rows
-        local total = after.get.rows - before.get.rows
-        return string.format('time=%.3fs  hit=%d  miss=%d  ratio=%.2f',
-            t, hit, total - hit, hit / total)
-    end]=],
-    if_not_exists = true,
-})
-```
+Для случайного чтения создана хранимая процедура `bench_scattered`. Она делает 50 000 случайных чтений по всему диапазону ключей.
 
 ```shell
 echo "box.cfg{ vinyl_cache = 4 * 1024 * 1024 }" | tt connect admin:secret-cluster-cookie@localhost:3301
@@ -368,7 +373,7 @@ echo "box.func.bench_scattered:call()" | tt connect admin:secret-cluster-cookie@
 # time=2.333s  hit=0  miss=50000  ratio=0.00
 ```
 
-Разница во времени с включенным и выключенным кэшем минимальна. Это означает, что кэш,размер которого меньше рабочего набора данных,
+Разница во времени с включённым и выключенным кэшем минимальна. Это означает, что кэш, размер которого меньше рабочего набора данных,
 не даёт выигрыша — его поведение неотличимо от полного отсутствия кэша.
 
 > [!NOTE]
