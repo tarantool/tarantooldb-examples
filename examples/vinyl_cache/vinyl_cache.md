@@ -325,7 +325,7 @@ echo "box.func.bench_hot:call()" | tt connect admin:secret-cluster-cookie@localh
 # time=0.099s  hit=50000  miss=0  ratio=1.00
 ```
 
-Ускорение по сравнению с кэшем=0: примерно в 25 раз.
+Видно, что в сравнении с выключенным кэшем время  сократилось примерно в 25 раз.
 
 (admin_guide-vinyl_cache-demo-miss)=
 ## Демо B. Кэш бесполезен: чтения по всему датасету
