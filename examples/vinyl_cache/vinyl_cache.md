@@ -97,7 +97,6 @@ make start
 * `tools/docker-compose.yml` -- описание etcd-кластера и TCM;
 * `tools/tcm.yml` -- конфигурация TCM.
 
-(admin_guide-vinyl_cache-config)=
 ## Настройка кэша vinyl
 
 Кэш vinyl настраивается в корневой секции `vinyl` декларативной конфигурации кластера:
