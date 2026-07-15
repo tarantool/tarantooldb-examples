@@ -117,20 +117,17 @@ vinyl:
 Обе опции можно менять динамически из консоли, при этом `vinyl_memory` разрешено только увеличивать,
 а `vinyl_cache` -- изменять в любую сторону.
 
-В веб-интерфейсе TCM на вкладке **Dashboard** выберите узел кластера **vinyl-cache**. В открывшемся окне перейдите на вкладку **Terminal** и попробуйте ввести следующие команды:
+В веб-интерфейсе TCM на вкладке **Dashboard** выберите узел кластера **vinyl-cache**. В открывшемся окне перейдите на вкладку **Terminal** и посмотрите текущий размер кэша:
 
 ```lua
-box.cfg.vinyl_cache                          -- смотрим текущий размер кэша
+box.cfg.vinyl_cache
 -- 16777216
 ```
 
-```lua
-box.cfg{ vinyl_cache = 32 * 1024 * 1024 }   -- меняем
-```
+Изменить размер кэша можно так:
 
 ```lua
-box.cfg.vinyl_cache                          -- смотрим новое текущее значение
--- 33554432
+box.cfg{ vinyl_cache = 16 * 1024 * 1024 }
 ```
 
 ## Путь чтения данных в vinyl
@@ -203,7 +200,7 @@ box.space.data.index.pk:stat()
 ```lua
 idx = box.space.data.index.pk
 before = idx:stat()
- 
+
 -- ... выполнить чтения ...
 -- например так:
 box.space.data:get(12345)
@@ -212,8 +209,11 @@ after = idx:stat()
 
 hit   = after.cache.get.rows - before.cache.get.rows
 total = after.get.rows       - before.get.rows
-miss  = total - hit
--- ratio = hit / total
+return {
+    hit = hit,
+    miss = total - hit,
+    ratio = hit / total,
+}
 ```
 
 ## Чтение горячих и холодных данных
@@ -223,17 +223,8 @@ miss  = total - hit
 
 ```lua
 s = box.space.data
-```
-
-```lua
 clock = require('clock')
-```
-
-```lua
 idx = s.index.pk
-```
-
-```lua
 box.cfg{ vinyl_cache = 0 }
 ```
 
@@ -241,22 +232,16 @@ box.cfg{ vinyl_cache = 0 }
 
 ```lua
 before = idx:stat()
-```
-
-```lua
-clock.bench(function() for i = 1, 5000 do s:get(i) end end)[1]   -- ~0.021 с
-```
-
-```lua
+t = clock.bench(function() for i = 1, 5000 do s:get(i) end end)[1]
 after = idx:stat()
-```
-
-```lua
-after.memory.iterator.lookup - before.memory.iterator.lookup   -- =5000: данные в L0
-```
-
-```lua
-after.disk.iterator.lookup   - before.disk.iterator.lookup     -- =0:    run-файлов ещё нет
+return {
+    time = t,
+    memory_lookups = after.memory.iterator.lookup - before.memory.iterator.lookup,
+    disk_lookups = after.disk.iterator.lookup - before.disk.iterator.lookup,
+}
+-- time: ~0.021 с
+-- memory_lookups: 5000 — данные в L0
+-- disk_lookups: 0 — run-файлов ещё нет
 ```
 
 Сбросьте L0 на диск:
@@ -274,22 +259,16 @@ box.stat.vinyl().memory.level0
 
 ```lua
 before = idx:stat()
-```
-
-```lua
-clock.bench(function() for i = 1, 5000 do s:get(i) end end)[1]   -- ~0.260 с
-```
-
-```lua
+t = clock.bench(function() for i = 1, 5000 do s:get(i) end end)[1]
 after = idx:stat()
-```
-
-```lua
-after.memory.iterator.lookup - before.memory.iterator.lookup   -- =5000: итератор L0 открывается, но пуст
-```
-
-```lua
-after.disk.iterator.lookup   - before.disk.iterator.lookup     -- =5000: данные читаются с диска
+return {
+    time = t,
+    memory_lookups = after.memory.iterator.lookup - before.memory.iterator.lookup,
+    disk_lookups = after.disk.iterator.lookup - before.disk.iterator.lookup,
+}
+-- time: ~0.260 с
+-- memory_lookups: 5000 — итератор L0 открывается, но пуст
+-- disk_lookups: 5000 — данные читаются с диска
 ```
 
 Второй вызов заметно медленнее — те же данные теперь читаются с диска.
@@ -348,13 +327,6 @@ box.cfg{ vinyl_cache = 4 * 1024 * 1024 }
 ```lua
 box.func.bench_scattered:call()
 -- time=2.309s  hit=3401  miss=46599  ratio=0.07
-```
-
-Рост числа вытеснений подтверждает, что кэш работает безрезультатно:
-
-```lua
-box.space.data.index.pk:stat().cache.evict.rows
--- 37397
 ```
 
 Для сравнения результатов отключите кэш совсем:
