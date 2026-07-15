@@ -47,7 +47,6 @@
   * Отдельный архив [vinyl_cache.tar.gz](https://tarantool.io/ru/tarantooldb/doc/latest/examples/vinyl_cache/vinyl_cache.tar.gz), скачанный c сайта Tarantool.
   ```
 
-(admin_guide-vinyl_cache-start)=
 ## Запуск стенда
 
 Для успешного запуска должны быть свободны следующие порты:
