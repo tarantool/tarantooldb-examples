@@ -210,14 +210,17 @@ box.space.data.index.pk:stat()
 ```lua
 idx = box.space.data.index.pk
 before = idx:stat()
+ 
 -- ... выполнить чтения ...
+-- например так:
+box.space.data:get(12345)
+
 after = idx:stat()
 
 hit   = after.cache.get.rows - before.cache.get.rows
 total = after.get.rows       - before.get.rows
 miss  = total - hit
 -- ratio = hit / total
-```
 
 ## Демо: чтение из vinyl_memory (данные в L0)
 
