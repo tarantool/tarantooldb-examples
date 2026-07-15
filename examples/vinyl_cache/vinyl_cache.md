@@ -86,7 +86,6 @@ make start
 * **Username**: `admin`
 * **Password**: `secret`
 
-(admin_guide-vinyl_cache-files)=
 ## Используемые файлы
 
 В руководстве используются следующие файлы примера `vinyl_cache`:
