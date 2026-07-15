@@ -165,7 +165,6 @@ echo "box.cfg.vinyl_cache" | tt connect admin:secret-cluster-cookie@localhost:33
 # 16777216
 ```
 
-(admin_guide-vinyl_cache-prepare)=
 ## Подготовка данных
 
 Спейс `data` на движке vinyl создаётся автоматически при запуске стенда через миграцию.
