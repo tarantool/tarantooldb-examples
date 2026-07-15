@@ -214,6 +214,9 @@ return {
     miss = total - hit,
     ratio = hit / total,
 }
+-- hit: 0
+-- miss: 1
+-- ratio: 0
 ```
 
 ## Чтение горячих и холодных данных
