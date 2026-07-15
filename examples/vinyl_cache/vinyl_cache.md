@@ -26,7 +26,6 @@
 * [](admin_guide-vinyl_cache-demo-miss)
 * [](admin_guide-vinyl_cache-stop)
 
-(admin_guide-vinyl_cache-prereq)=
 ## Пререквизиты
 
 Для выполнения примера требуются:
