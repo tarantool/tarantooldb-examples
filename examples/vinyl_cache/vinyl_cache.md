@@ -221,7 +221,6 @@ miss  = total - hit
 -- ratio = hit / total
 ```
 
-(admin_guide-vinyl_cache-demo-memory)=
 ## Демо: чтение из vinyl_memory (данные в L0)
 
 Пока данные не сброшены на диск, все чтения обслуживаются из in-memory уровня L0.
