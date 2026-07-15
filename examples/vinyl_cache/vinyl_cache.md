@@ -185,7 +185,6 @@ echo "box.stat.vinyl().memory.level0" | tt connect admin:secret-cluster-cookie@l
 # 50938368
 ```
 
-(admin_guide-vinyl_cache-index-stat)=
 ## Статистика индекса: index:stat()
 
 Метод `index:stat()` возвращает накопленную статистику по конкретному индексу.
