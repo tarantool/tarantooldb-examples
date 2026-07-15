@@ -13,18 +13,18 @@
 
 Содержание:
 
-* [](admin_guide-vinyl_cache-prereq)
-* [](admin_guide-vinyl_cache-start)
-* [](admin_guide-vinyl_cache-files)
-* [](admin_guide-vinyl_cache-config)
-* [](admin_guide-vinyl_cache-read-path)
-* [](admin_guide-vinyl_cache-connect)
-* [](admin_guide-vinyl_cache-prepare)
-* [](admin_guide-vinyl_cache-index-stat)
-* [](admin_guide-vinyl_cache-demo-memory)
-* [](admin_guide-vinyl_cache-demo-hit)
-* [](admin_guide-vinyl_cache-demo-miss)
-* [](admin_guide-vinyl_cache-stop)
+* [Пререквизиты](#пререквизиты)
+* [Запуск стенда](#запуск-стенда)
+* [Используемые файлы](#используемые-файлы)
+* [Настройка кэша vinyl](#настройка-кэша-vinyl)
+* [Путь чтения данных в vinyl](#путь-чтения-данных-в-vinyl)
+* [Подключение к консоли](#подключение-к-консоли)
+* [Подготовка данных](#подготовка-данных)
+* [Статистика индекса: index:stat()](#статистика-индекса-index:stat())
+* [Чтение горячих и холодных данных](#чтение-горячих-и-холодных-данных)
+* [Кэширование горячего набора данных](#кэширование-горячего-набора-данных)
+* [Случайные чтения по всему набору данных](#случайные-чтения-по-всему-набору-данных)
+* [Остановка стенда](#остановка-стенда)
 
 ## Пререквизиты
 
