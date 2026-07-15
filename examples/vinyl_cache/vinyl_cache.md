@@ -185,7 +185,7 @@ echo "box.stat.vinyl().memory.level0" | tt connect admin:secret-cluster-cookie@l
 
 ## Статистика индекса: index:stat()
 
-Метод `index:stat()` возвращает накопленную статистику по конкретному индексу.
+Метод `<index>:stat()` возвращает накопленную статистику по конкретному индексу.
 Для спейса `data` вызов выглядит так:
 
 ```lua
