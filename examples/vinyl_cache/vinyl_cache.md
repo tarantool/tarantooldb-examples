@@ -32,7 +32,6 @@
 
 * установленные [Docker-образы](https://tarantool.io/docs/tdb/ru/3_x/install_and_upgrade/install/install_docker) Tarantool DB (`tarantooldb:3x-latest`) и etcd (`quay.io/coreos/etcd:v3.5.15`);
 * приложение Docker Compose;
-* утилита [tt CLI](https://tarantool.io/docs/tdb/ru/3_x/install_and_upgrade/install_tt) для подключения к консоли экземпляра;
 * исходные файлы примера `vinyl_cache`.
 
   ```{admonition} Примечание
@@ -118,7 +117,7 @@ vinyl:
 Обе опции можно менять динамически из консоли, при этом `vinyl_memory` разрешено только увеличивать,
 а `vinyl_cache` -- изменять в любую сторону.
 
-В веб-интерфейсе TCM на вкладке **Dashboard** выберите узел кластера **vinyl-cache* . В открывшемся окне перейдите на вкладку **Terminal**  и попробуйте ввести следующие команды:
+В веб-интерфейсе TCM на вкладке **Dashboard** выберите узел кластера **vinyl-cache**. В открывшемся окне перейдите на вкладку **Terminal** и попробуйте ввести следующие команды:
 
 ```lua
 box.cfg.vinyl_cache                          -- смотрим текущий размер кэша
@@ -150,37 +149,31 @@ box.cfg.vinyl_cache                          -- смотрим новое тек
 
 ## Подключение к консоли
 
-Подключитесь к экземпляру с помощью tt CLI:
-
-```shell
-tt connect admin:secret-cluster-cookie@localhost:3301
-```
-
-Чтобы выйти из консоли, введите `\quit`.
+Все команды примера выполняются в терминале TCM: на вкладке **Dashboard** выберите узел кластера **vinyl-cache**, в открывшемся окне перейдите на вкладку **Terminal**.
 
 Проверьте, что значение кэша взято из конфигурации:
 
-```shell
-echo "box.cfg.vinyl_cache" | tt connect admin:secret-cluster-cookie@localhost:3301
-# 16777216
+```lua
+box.cfg.vinyl_cache
+-- 16777216
 ```
 
 ## Подготовка данных
 
 Спейс `data` на движке vinyl создаётся автоматически при запуске стенда через миграцию.
-Загрузите данные – 200 000 кортежей примерно по 200 байт, итого ~40 MB):
+Загрузите данные – 200 000 кортежей примерно по 200 байт, итого ~40 MB:
 
-```shell
-echo "box.func.fill_data:call()" | tt connect admin:secret-cluster-cookie@localhost:3301
+```lua
+box.func.fill_data:call()
 ```
 
 `fill_data` вставляет 200 000 кортежей пачками по 10 000 в отдельных транзакциях.
 
 После вставки данные находятся в in-memory уровне L0. Убедитесь в этом:
 
-```shell
-echo "box.stat.vinyl().memory.level0" | tt connect admin:secret-cluster-cookie@localhost:3301
-# 50938368
+```lua
+box.stat.vinyl().memory.level0
+-- 50938368
 ```
 
 ## Статистика индекса: index:stat()
@@ -221,17 +214,12 @@ hit   = after.cache.get.rows - before.cache.get.rows
 total = after.get.rows       - before.get.rows
 miss  = total - hit
 -- ratio = hit / total
-
-## Демо: чтение из vinyl_memory (данные в L0)
-
-Пока данные не сброшены на диск, все чтения обслуживаются из in-memory уровня L0.
-Отключите кэш, чтобы изолировать этот эффект. Подключитесь к консоли:
-
-```shell
-tt connect admin:secret-cluster-cookie@localhost:3301
 ```
 
-И выполните:
+## Чтение горячих и холодных данных
+
+Пока данные не сброшены на диск, все чтения обслуживаются из in-memory уровня L0.
+Отключите кэш, чтобы изолировать этот эффект. Выполните в терминале TCM:
 
 ```lua
 s = box.space.data
@@ -273,10 +261,13 @@ after.disk.iterator.lookup   - before.disk.iterator.lookup     -- =0:    run-ф�
 
 Сбросьте L0 на диск:
 
-```shell
-echo "box.snapshot()" | tt connect admin:secret-cluster-cookie@localhost:3301
-echo "box.stat.vinyl().memory.level0" | tt connect admin:secret-cluster-cookie@localhost:3301
-# 0
+```lua
+box.snapshot()
+```
+
+```lua
+box.stat.vinyl().memory.level0
+-- 0
 ```
 
 Теперь повторите измерение:
@@ -305,64 +296,76 @@ after.disk.iterator.lookup   - before.disk.iterator.lookup     -- =5000: дан�
 Сравните значение времени с первым замером: на тестовом стенде ~0.021 с против ~0.260 с (разница в ~12 раз).
 Именно для ускорения таких повторных чтений и существует `vinyl_cache`.
 
-## Демо A. Кэш помогает: горячий набор данных
+## Кэширование горячего набора данных
 
-В демо выполняется многократное чтение одного и того же небольшого набора ключей (1–5000).
+В этом разделе выполняется многократное чтение одного и того же небольшого набора ключей (1–5000).
 Этот набор целиком помещается в кэш 16 MiB, поэтому повторные чтения обслуживаются из памяти.
 
 Для последовательного чтения данных создана хранимая процедура `bench_hot`. Она выполняет 10 проходов по ключам 1–5000, замеряет время через `clock.bench` и считает hit/miss по разнице счётчиков `index:stat()`. Текст процедуры можно посмотреть на вкладке **Funcs** узла **vinyl-cache** в TCM.
 
 Сначала измерьте время с **выключенным** кэшем — каждое чтение при этом идёт на диск:
 
-```shell
-echo "box.cfg{ vinyl_cache = 0 }" | tt connect admin:secret-cluster-cookie@localhost:3301
-echo "box.func.bench_hot:call()" | tt connect admin:secret-cluster-cookie@localhost:3301
-# time=2.504s  hit=0  miss=50000  ratio=0.00
+```lua
+box.cfg{ vinyl_cache = 0 }
+```
+
+```lua
+box.func.bench_hot:call()
+-- time=2.504s  hit=0  miss=50000  ratio=0.00
 ```
 
 Теперь включите кэш и сделайте повторный замер. Первый проход прогревает кэш, остальные девять обслуживаются из него:
 
-```shell
-echo "box.cfg{ vinyl_cache = 16 * 1024 * 1024 }" | tt connect admin:secret-cluster-cookie@localhost:3301
-echo "box.func.bench_hot:call()" | tt connect admin:secret-cluster-cookie@localhost:3301
-# time=0.306s  hit=45000  miss=5000  ratio=0.90
+```lua
+box.cfg{ vinyl_cache = 16 * 1024 * 1024 }
+```
+
+```lua
+box.func.bench_hot:call()
+-- time=0.306s  hit=45000  miss=5000  ratio=0.90
 ```
 
 Повторите процедуру с уже прогретым кэшем — все 5000 ключей находятся в нём:
 
-```shell
-echo "box.func.bench_hot:call()" | tt connect admin:secret-cluster-cookie@localhost:3301
-# time=0.099s  hit=50000  miss=0  ratio=1.00
+```lua
+box.func.bench_hot:call()
+-- time=0.099s  hit=50000  miss=0  ratio=1.00
 ```
 
 Видно, что в сравнении с выключенным кэшем время сократилось примерно в 25 раз.
 
-## Демо B. Кэш бесполезен: чтения по всему набору данных
+## Случайные чтения по всему набору данных
 
-В этом демо выполняется чтение случайных ключей по **всему** набору данных (200 000 ключей, ~40 MB).
+В этом разделе выполняется чтение случайных ключей по **всему** набору данных (200 000 ключей, ~40 MB).
 При кэше 4 MiB данные постоянно вытесняются, и кэш почти не помогает.
 
 Для случайного чтения создана хранимая процедура `bench_scattered`. Она выполняет 50 000 случайных чтений по всему диапазону ключей.
 
-```shell
-echo "box.cfg{ vinyl_cache = 4 * 1024 * 1024 }" | tt connect admin:secret-cluster-cookie@localhost:3301
-echo "box.func.bench_scattered:call()" | tt connect admin:secret-cluster-cookie@localhost:3301
-# time=2.309s  hit=3401  miss=46599  ratio=0.07
+```lua
+box.cfg{ vinyl_cache = 4 * 1024 * 1024 }
+```
+
+```lua
+box.func.bench_scattered:call()
+-- time=2.309s  hit=3401  miss=46599  ratio=0.07
 ```
 
 Рост числа вытеснений подтверждает, что кэш работает безрезультатно:
 
-```shell
-echo "box.space.data.index.pk:stat().cache.evict.rows" | tt connect admin:secret-cluster-cookie@localhost:3301
-# 37397
+```lua
+box.space.data.index.pk:stat().cache.evict.rows
+-- 37397
 ```
 
 Для сравнения результатов отключите кэш совсем:
 
-```shell
-echo "box.cfg{ vinyl_cache = 0 }" | tt connect admin:secret-cluster-cookie@localhost:3301
-echo "box.func.bench_scattered:call()" | tt connect admin:secret-cluster-cookie@localhost:3301
-# time=2.333s  hit=0  miss=50000  ratio=0.00
+```lua
+box.cfg{ vinyl_cache = 0 }
+```
+
+```lua
+box.func.bench_scattered:call()
+-- time=2.333s  hit=0  miss=50000  ratio=0.00
 ```
 
 Разница во времени с включённым и выключенным кэшем минимальна. Это означает, что кэш, размер которого меньше рабочего набора данных,
