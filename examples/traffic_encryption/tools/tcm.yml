@@ -31,7 +31,7 @@ feature:
 initial-settings:
   clusters:
     - name: Tarantool DB Cluster
-      id: 00000000-0000-0000-0000-000000000000
+      id: 00000000-0000-0000-0000-000000000001
       storage-connection:
         provider: etcd
         etcd-connection:
@@ -53,3 +53,5 @@ initial-settings:
           ca-file: /certs/ca/root-ca.pem
           cert-file: /certs/tarantool/client.pem
           key-file: /certs/tarantool/client-key.pem
+
+default-cluster: false

@@ -22,7 +22,7 @@ feature:
 initial-settings:
   clusters:
     - name: Tarantool DB Cluster
-      id: 00000000-0000-0000-0000-000000000000
+      id: 00000000-0000-0000-0000-000000000001
       storage-connection:
         provider: etcd
         etcd-connection:
@@ -34,3 +34,5 @@ initial-settings:
       tarantool-connection:
         username: admin
         password: 'secret-cluster-cookie'
+
+default-cluster: false
