@@ -1,42 +1,33 @@
-(user_guide-expirationd_user_logic)=
 # Проверка устаревших кортежей в спейсе с помощью пользовательских функций
 
 В этом руководстве описано, как удалять все кортежи в спейсе старше заданного времени.
 Определение устаревших кортежей и их обработка определяется пользовательскими функциями.
-Подробнее о модуле `expirationd` можно узнать в разделе [Устаревание данных](user_guide-expirationd).
+Подробнее о модуле `expirationd` можно узнать в разделе [Устаревание данных](https://www.tarantool.io/docs/tdb/ru/1_x/user_guide/expirationd).
 
 Руководство включает следующие шаги:
 
-* [](user_guide-expirationd_user_logic_example-prereq)
-* [](user_guide-expirationd_user_logic_example-start_example)
-* [](user_guide-expirationd_user_logic_example-migration)
-* [](user_guide-expirationd_user_logic_example-add_data)
-* [](user_guide-expirationd_user_logic_example-config)
-* [](user_guide-expirationd_user_logic_example-functions)
-* [](user_guide-expirationd_user_logic_example-stop_example)
+* [Пререквизиты](#пререквизиты)
+* [Запуск кластера](#запуск-кластера)
+* [Описание миграции](#описание-миграции)
+* [Подключение к узлу и загрузка тестовых данных](#подключение-к-узлу-и-загрузка-тестовых-данных)
+* [Конфигурация устаревания данных](#конфигурация-устаревания-данных)
+* [Функции для экспирации и конфигурация expirationd](#функции-для-экспирации-и-конфигурация-expirationd)
+* [Остановка кластера](#остановка-кластера)
 
-(user_guide-expirationd_user_logic_example-prereq)=
 ## Пререквизиты
 
 Для выполнения примера требуются:
-* установленный [Docker-образ](/install_and_upgrade/install/install_docker.md) Tarantool DB;
-* приложение Docker compose;
-* утилита [TT CLI](install-install_tt);
+* установленный [Docker-образ](https://www.tarantool.io/docs/tdb/ru/1_x/install_and_upgrade/install/install_docker) Tarantool DB;
+* приложение Docker Compose;
+* утилита [TT CLI](https://www.tarantool.io/docs/tdb/ru/1_x/install_and_upgrade/install_tt);
 * исходные файлы примера `expirationd_user_logic`.
 
-  ```{admonition} Примечание
-  :class: note
+> [!NOTE]
+>  Есть два способа получить исходные файлы примера:
+>  * Репозиторий [github.com/tarantool/tarantooldb-examples](https://github.com/tarantool/tarantooldb-examples/tree/release-1x/master).
+>    Пример `expirationd_user_logic` расположен в директории `examples/expirationd_user_logic`.
+>  * Отдельный архив [expirationd_user_logic.zip](https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2Ftarantool%2Ftarantooldb-examples%2Ftree%2Frelease-1x%2Fmaster%2Fexamples%2Fexpirationd_user_logic&filename=expirationd_user_logic), скачанный из этого репозитория.
 
-  Есть два способа получить исходные файлы примера:
-
-  * Архив с полной документацией Tarantool DB, полученный по почте или скачанный в [личном кабинете tarantool.io](https://www.tarantool.io/en/accounts/customer_zone/packages/tarantooldb/release/documentation).
-    Пример архива: `tarantooldb-documentation-1.0.0.tar.gz`.
-    Пример `expirationd` расположен в таком архиве в директории `./doc/examples/expirationd_user_logic/`.
-    
-  * Отдельный архив [expirationd_user_logic.tar.gz](https://tarantool.io/ru/tarantooldb/doc/1.x/examples/expirationd_user_logic/expirationd_user_logic.tar.gz), скачанный c сайта Tarantool.
-  ```
-  
-(user_guide-expirationd_user_logic_example-start_example)=
 ## Запуск кластера
 
 Для успешного запуска кластера должны быть свободны следующие порты:
@@ -47,7 +38,7 @@
 Перейдите в папку с примером `expirationd`:
 
 ```shell
-cd ./doc/examples/expirationd_user_logic/
+cd examples/expirationd_user_logic
 ```
 
 Запустите кластер:
@@ -56,31 +47,35 @@ cd ./doc/examples/expirationd_user_logic/
 docker compose up -d
 ```
 
-(user_guide-expirationd_user_logic_example-migration)=
 ## Описание миграции
 
 В руководстве используется миграция из файла `./bootstrap/migrations/source/001_test.lua` примера `expirationd_user_logic`.
 В этой миграции:
 - создан спейс `messages`;
-- созданы персистентные функции с логикой устаревания данных -- `messages_is_tuple_expired`, `messages_iterate_with`, `messages_process_expired_tuple`;
+- созданы персистентные функции с логикой устаревания данных — `messages_is_tuple_expired`, `messages_iterate_with`, `messages_process_expired_tuple`;
 - созданы тестовые функции для генерации данных:
-  - `__start_messages_stream` -- запуск фоновой записи тестовых данных в спейс `messages`;
-  - `__stop_messages_stream` -- остановка фоновой записи тестовых данных в спейс.
+  - `__start_messages_stream` — запуск фоновой записи тестовых данных в спейс `messages`;
+  - `__stop_messages_stream` — остановка фоновой записи тестовых данных в спейс.
 
 В примере создан спейс `messages` со следующим форматом:
 
-```{literalinclude} bootstrap/migrations/source/001_test.lua
-:start-after: -- создание спейса messages
-:end-before: utils.register_sharding_key
-:language: lua
-:dedent:
+```lua
+box.schema.space.create('messages', {if_not_exists = true})
+box.space.messages:format({
+    { name = 'id', type = 'uuid' },
+    { name = 'bucket_id', type = 'unsigned' },
+    { name = 'text', type = 'string' },
+    { name = 'create_date', type = 'datetime' },
+})
+box.space.messages:create_index('pk', { parts = {'id'}, if_not_exists = true})
+box.space.messages:create_index('bucket_id', { parts = {'bucket_id'}, unique = false, if_not_exists = true})
+box.space.messages:create_index('create_date', { parts = {'create_date'}, unique = false, if_not_exists = true})
 ```
 
 Необходимо удалять все записи в спейсе старше заданного количества секунд. Количество секунд задается в конфигурации.
 
-Смотрите также: [](user_guide-expirationd_universal_func).
+Смотрите также: [Проверка устаревших кортежей с помощью универсальной функции](../expirationd_universal_func/README.md).
 
-(user_guide-expirationd_user_logic_example-add_data)=
 ## Подключение к узлу и загрузка тестовых данных
 
 Подключитесь к экземпляру, используя команду `tt connect`.
@@ -105,32 +100,38 @@ localhost:3300> box.schema.func.call('__start_messages_stream')
 localhost:3300> box.schema.func.call('__stop_messages_stream')
 ```
 
-(user_guide-expirationd_user_logic_example-config)=
 ## Конфигурация устаревания данных
 
 В конфигурации кластера присутствует следующая секция:
 
-```{literalinclude} bootstrap/config.yml
-:start-at: expirationd
-:end-at: seconds
-:language: yaml
-:dedent:
+```yaml
+expirationd:
+  messages_expiration:
+    space: messages
+    is_expired: messages_is_tuple_expired
+    is_master_only: true
+    options:
+      tuples_per_iteration: 100
+      iterate_with: messages_iterate_with
+      process_expired_tuple: messages_process_expired_tuple
+      args:
+        seconds: 5
 ```
 
 Здесь:
-  
-* `messages_expiration` -- название задачи по устареванию данных;
-  * `space` -- название спейса, по которому идет поиск устаревших кортежей;
-  * `is_expired` -- название функции, которая получает кортеж и проверяет его срок жизни;
-  * `is_master_only` -- экспирация запущена только на master-узлах;
-  * `options` -- дополнительные опции конфигурации:
-    * `tuples_per_iteration` -- количество кортежей, которое проверяется за одну итерацию;
-    * `iterate_with` -- название функции, которая получает и обрабатывает устаревшие кортежи;
-    * `process_expired_tuple` -- название функции, возвращающей итератор для обхода спейса;
-    * `args` -- аргументы, доступные в функциях `message_iterate_with` и `message_process_expired_tuple`, `seconds` --
+
+* `messages_expiration` — название задачи по устареванию данных;
+  * `space` — название спейса, по которому идет поиск устаревших кортежей;
+  * `is_expired` — название функции, которая получает кортеж и проверяет его срок жизни;
+  * `is_master_only` — экспирация запущена только на master-узлах;
+  * `options` — дополнительные опции конфигурации:
+    * `tuples_per_iteration` — количество кортежей, которое проверяется за одну итерацию;
+    * `iterate_with` — название функции, которая получает и обрабатывает устаревшие кортежи;
+    * `process_expired_tuple` — название функции, возвращающей итератор для обхода спейса;
+    * `args` — аргументы, доступные в функциях `messages_iterate_with` и `messages_process_expired_tuple`, `seconds` —
       время жизни кортежа.
-  
-Полное описание опций конфигурации `expirationd` приведено в соответствующем разделе [Справочника по конфигурации](configuration_reference-expirationd).
+
+Полное описание опций конфигурации `expirationd` приведено в соответствующем разделе [Справочника по конфигурации](https://www.tarantool.io/docs/tdb/ru/1_x/reference/configuration_reference#configuration_reference-expirationd).
 
 Согласно этой конфигурации, задачи по устареванию данных `messages_expiration` выполняются так:
 
@@ -150,7 +151,7 @@ localhost:3300> box.schema.func.call('__stop_messages_stream')
        return box.space.messages.index.create_date:pairs({ datetime.now() - int }, { iterator = 'LE' })
    end
    ```
-   
+
 3. Срок жизни каждого кортежа проверяется с помощью булевой функции `messages_is_tuple_expired`.
    Значение `true` означает, что срок жизни кортежа истек.
 4. Такой кортеж передается в функцию `messages_process_expired_tuple`, которая удалит этот кортеж:
@@ -159,7 +160,7 @@ localhost:3300> box.schema.func.call('__stop_messages_stream')
     function(space, args, tuple)
         box.space[space]:delete({tuple.id})
     end
-    ```
+   ```
 
 После применения конфигурации можно увидеть, что сгенерированные ранее данные были удалены.
 Подключитесь повторно к узлу кластера:
@@ -179,14 +180,12 @@ localhost:3300> box.schema.func.call('__start_messages_stream')
 Видно, что количество записей в спейсе не растет и периодически уменьшается.
 Это означает, что удаляются все записи старше 5 секунд.
 
-(user_guide-expirationd_user_logic_example-functions)=
 ## Функции для экспирации и конфигурация expirationd
 
 В функции для обработки устаревших кортежей (`process_expired_tuple`) можно не только удалять, но и выполнять любые
 другие операции, в том числе операции по сети.
 При этом, чем быстрее работает функция `process_expired_tuple`, тем меньше вероятность, что ее работа отразится на общей производительности экземпляра.
 
-(user_guide-expirationd_user_logic_example-stop_example)=
 ## Остановка кластера
 
 Чтобы остановить кластер, выполните следующую команду:

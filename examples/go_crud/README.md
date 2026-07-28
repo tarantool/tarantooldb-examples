@@ -8,43 +8,35 @@
 
 Содержание:
 
-* [](user_guide-go_crud-prereq)
-* [](user_guide-go_crud-start_example)
-* [](user_guide-go_crud-run_application)
-* [](user_guide-go_crud-stop_example)
+* [Пререквизиты](#пререквизиты)
+* [Запуск стенда](#запуск-стенда)
+* [Запуск приложения](#запуск-приложения)
+* [Остановка стенда](#остановка-стенда)
 
-(user_guide-go_crud-prereq)=
 ## Пререквизиты
 
 Для выполнения примера требуются:
 
-* установленный [Docker-образ](/install_and_upgrade/install/install_docker.md) Tarantool DB;
-* приложение Docker compose;
+* установленный [Docker-образ](https://www.tarantool.io/docs/tdb/ru/1_x/install_and_upgrade/install/install_docker) Tarantool DB;
+* приложение Docker Compose;
 * исходные файлы примера `go_crud`.
 
-  ```{admonition} Примечание
-  :class: note
+> [!NOTE]
+>  Есть два способа получить исходные файлы примера:
+>  * Репозиторий [github.com/tarantool/tarantooldb-examples](https://github.com/tarantool/tarantooldb-examples/tree/release-1x/master).
+>    Пример `go_crud` расположен в директории `examples/go_crud`.
+>  * Отдельный архив [go_crud.zip](https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2Ftarantool%2Ftarantooldb-examples%2Ftree%2Frelease-1x%2Fmaster%2Fexamples%2Fgo_crud&filename=go_crud), скачанный из этого репозитория.
 
-  Есть два способа получить исходные файлы примера:
-
-  * Архив с полной документацией Tarantool DB, полученный по почте или скачанный в [личном кабинете tarantool.io](https://www.tarantool.io/en/accounts/customer_zone/packages/tarantooldb/release/documentation).
-    Пример архива: `tarantooldb-documentation-1.0.0.tar.gz`.
-    Пример `go_crud` расположен в таком архиве в директории `./doc/examples/go_crud/`.
-    
-  * Отдельный архив [go_crud.tar.gz](https://tarantool.io/ru/tarantooldb/doc/1.x/examples/go_crud/go_crud.tar.gz), скачанный c сайта Tarantool.
-  ```
- 
-(user_guide-go_crud-start_example)=
 ## Запуск стенда
 
 Для успешного запуска должны быть свободны порты:
-* 3301--3306;
-* 8081--8086.
+* 3301—3306;
+* 8081—8086.
 
 Перейдите в директорию `go_crud/tt`:
 
 ```shell
-cd ./doc/examples/go_crud/tt
+cd examples/go_crud/tt
 ```
 
 Запустите стенд:
@@ -63,14 +55,13 @@ docker compose up -d
 После этого перейдите на вкладку **Space Explorer** и выберите любой узел, например `storage1`.
 Проверьте, что на узле есть спейс `test`.
 
-(user_guide-go_crud-run_application)=
 ## Запуск приложения
 
 Откройте вторую вкладку терминала.
 В этой вкладке перейдите в директорию `go_crud/go`:
 
 ```shell
-cd ./doc/examples/go_crud/go
+cd examples/go_crud/go
 ```
 
 Запустите Go-приложение:
@@ -81,7 +72,7 @@ go run -tags go_tarantool_ssl_disable main.go
 
 Здесь:
 
-* `go_tarantool_ssl_disable` -- опция, отключающая поддержку TLS.
+* `go_tarantool_ssl_disable` — опция, отключающая поддержку TLS.
   Так как для поддержки TLS требуется установленный OpenSSL 3.x, для простоты в примере поддержка TLS отключена.
 
 Вывод после окончания работы приложения выглядит так:
@@ -91,9 +82,8 @@ Recorded via crud in batches of 10000 records in 147.229874ms
 Rows verified
 ```
 
-Необходимо убедиться, что в спейсе появились данные. 
+Необходимо убедиться, что в спейсе появились данные.
 
-(user_guide-go_crud-stop_example)=
 ## Остановка стенда
 
 Остановить стенд можно так:

@@ -3,53 +3,44 @@
 В этом руководстве описана миграция данных в Tarantool DB с помощью метода [space:upgrade()](https://www.tarantool.io/ru/doc/2.11/enterprise/space_upgrade/).
 `space:upgrade()` позволяет вносить несовместимые изменения в формат спейса, например изменить название спейса или удалить его.
 
-```{admonition} Ограничения
-:class: note
+> [!NOTE]
+> **Ограничения**
+>
+> Поля, которые используются для индексации, изменять нельзя.
 
-Поля, которые используются для индексации, изменять нельзя.
-```
-
-Подробнее о миграции можно прочитать в разделе [Миграция данных](/user_guide/migrations.md).
+Подробнее о миграции можно прочитать в разделе [Миграция данных](https://www.tarantool.io/docs/tdb/ru/1_x/user_guide/migrations).
 
 Руководство включает следующие шаги:
 
-* [](user_guide-space_upgrade-prereq)
-* [](user_guide-space_upgrade-schema)
-* [](user_guide-space_upgrade-start_example)
-* [](user_guide-space_upgrade-load_data)
-* [](user_guide-space_upgrade-description)
-* [](user_guide-space_upgrade-migration_code)
-* [](user_guide-space_upgrade-run_migration)
-* [](user_guide-space_upgrade-stop_example)
+* [Пререквизиты](#пререквизиты)
+* [Схема данных](#схема-данных)
+* [Запуск стенда](#запуск-стенда)
+* [Подключение к кластеру и загрузка данных](#подключение-к-кластеру-и-загрузка-данных)
+* [Метод space:upgrade()](#метод-spaceupgrade)
+* [Определение кода миграций](#определение-кода-миграций)
+* [Запуск миграции](#запуск-миграции)
+* [Остановка стенда](#остановка-стенда)
 
-(user_guide-space_upgrade-prereq)=
 ## Пререквизиты
 
 Для выполнения примера требуются:
-* установленный [Docker-образ](/install_and_upgrade/install/install_docker.md) Tarantool DB;
-* приложение Docker compose;
-* утилита [TT CLI](install-install_tt);
-* исходные файлы примера `space_upgrade`. 
+* установленный [Docker-образ](https://www.tarantool.io/docs/tdb/ru/1_x/install_and_upgrade/install/install_docker) Tarantool DB;
+* приложение Docker Compose;
+* утилита [TT CLI](https://www.tarantool.io/docs/tdb/ru/1_x/install_and_upgrade/install_tt);
+* исходные файлы примера `space_upgrade`.
 
-  ```{admonition} Примечание
-  :class: note
+> [!NOTE]
+>  Есть два способа получить исходные файлы примера:
+>  * Репозиторий [github.com/tarantool/tarantooldb-examples](https://github.com/tarantool/tarantooldb-examples/tree/release-1x/master).
+>    Пример `space_upgrade` расположен в директории `examples/space_upgrade`.
+>  * Отдельный архив [space_upgrade.zip](https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2Ftarantool%2Ftarantooldb-examples%2Ftree%2Frelease-1x%2Fmaster%2Fexamples%2Fspace_upgrade&filename=space_upgrade), скачанный из этого репозитория.
 
-  Есть два способа получить исходные файлы примера:
-
-  * Архив с полной документацией Tarantool DB, полученный по почте или скачанный в [личном кабинете tarantool.io](https://www.tarantool.io/en/accounts/customer_zone/packages/tarantooldb/release/documentation).
-    Пример архива: `tarantooldb-documentation-1.0.0.tar.gz`.
-    Пример `space_upgrade` расположен в таком архиве в директории `./doc/examples/space_upgrade/`.
-
-  * Отдельный архив [space_upgrade.tar.gz](https://tarantool.io/ru/tarantooldb/doc/1.x/examples/space_upgrade/space_upgrade.tar.gz), скачанный c сайта Tarantool.
-  ```
-
-(user_guide-space_upgrade-schema)=
 ## Схема данных
 
 В примере используется база данных для системы управления проектами, которая состоит из трех спейсов: `projects` (проекты), `tasks` (задачи),
 `users` (пользователи). Изначально схема этой базы данных выглядит так:
 
-![Cхема_данных](images/schema1.drawio.svg)
+![Схема данных](images/schema1.drawio.svg)
 
 После прохождения руководства схема данных будет изменена следующим образом:
 
@@ -61,20 +52,19 @@
 
 После изменений схема данных будет выглядеть так:
 
-![Cхема данных 2](images/schema2.drawio.svg)
+![Схема данных 2](images/schema2.drawio.svg)
 
-(user_guide-space_upgrade-start_example)=
 ## Запуск стенда
 
 Для запуска и настройки кластера используются файлы из папки ``space_upgrade``:
 
-* `docker-compose.yml` -- описание узлов кластера;
-* `installer/topology.json` -- описание топологии кластера.
+* `docker-compose.yml` — описание узлов кластера;
+* `installer/topology.json` — описание топологии кластера.
 
 Перейдите в директорию примера `space_upgrade`:
 
 ```shell
-cd ./doc/examples/space_upgrade/
+cd examples/space_upgrade
 ```
 
 Запустите стенд:
@@ -85,9 +75,8 @@ docker compose up -d --force-recreate
 
 Команда развернет кластер с первоначальной схемой данных:
 
-![схемой данных](images/schema1.drawio.svg)
+![Схема данных](images/schema1.drawio.svg)
 
-(user_guide-space_upgrade-load_data)=
 ## Подключение к кластеру и загрузка данных
 
 Подключитесь к роутеру с помощью команды `tt connect`.
@@ -106,7 +95,7 @@ box.schema.func.call('__fill_data')
 Исходный код функции приведен в файле `001_test.lua` в директории `./bootstrap/migrations/source/` примера `migrations_space_upgrade`.
 
 Дождитесь окончания загрузки данных, это может занять до трех минут.
-В результате на каждом хранилище будет занято по 164 MB данных. 
+В результате на каждом хранилище будет занято по 164 MB данных.
 Процесс заполнения кластера можно отследить в логах:
 
 ```shell
@@ -117,7 +106,6 @@ space_upgrade-tarantool-router-1    | 2024-02-26 05:49:01.559 [12] main/189/main
 space_upgrade-tarantool-router-1    | 2024-02-26 05:49:01.795 [12] main/189/main/tarantool I> data filled
 ```
 
-(user_guide-space_upgrade-description)=
 ## Метод space:upgrade()
 
 `space:upgrade()` принимает следующие аргументы:
@@ -129,23 +117,22 @@ space_upgrade-tarantool-router-1    | 2024-02-26 05:49:01.795 [12] main/189/main
     Функция должна быть идемпотентной, чтобы избежать ошибки миграции или получения некорректных данных при чтении данных из спейса во время миграции.
 а из этого следует, что `func` может быть применена к `tuple` несколько раз.
   - `mode`: режим работы `space:upgrade`. Возможные значения:
-    - `dryrun` -- проверка корректности миграции. Функция `func` выполняется на каждом кортеже, но данные не меняются;
-    - `upgrade` -- обновление данных;
-    - `dryrun+upgrade` -- запуск проверки миграции, после которой при отсутствии ошибок выполняется `upgrade`.
+    - `dryrun` — проверка корректности миграции. Функция `func` выполняется на каждом кортеже, но данные не меняются;
+    - `upgrade` — обновление данных;
+    - `dryrun+upgrade` — запуск проверки миграции, после которой при отсутствии ошибок выполняется `upgrade`.
 - `is_async` - булевый флаг неблокируемого выполнения `space:upgrade`.
 
 `space:upgrade` возвращает объект `future`. По нему можно узнать статус миграции (`future:info`), отменить миграцию (`future:cancel`), или дождаться конца миграции (`future:wait`).
 
 Подробная информация о методе `space:upgrade` приведена в [документации Tarantool Enterprise](https://www.tarantool.io/ru/doc/2.11/enterprise/space_upgrade/).
 
-(user_guide-space_upgrade-migration_code)=
 ## Определение кода миграций
 
 Исходный код миграции приведен в файле `002_test.lua` в корневой директории примера `migrations_space_upgrade`.
 
 ### Спейс projects
 
-В спейсе `projects` нужно добавить `assigned_manager_id` между полями `name` и `description`. 
+В спейсе `projects` нужно добавить `assigned_manager_id` между полями `name` и `description`.
 При работе с кортежами используется встроенная библиотека [`box.tuple`](https://www.tarantool.io/ru/doc/2.11/reference/reference_lua/box_tuple/).
 
 Определите функцию для изменения кортежей:
@@ -158,7 +145,7 @@ box.schema.func.create('__migrator_projects_002', { -- давайте функц
     body = [[
         function(t)
             if #t == 4 then
-                return t:update({{'!', 4, box.NULL}}) 
+                return t:update({{'!', 4, box.NULL}})
             end
             return t
         end
@@ -263,7 +250,7 @@ box.schema.func.create('__migrator_users_002',  {
         function(t)
             -- проверяем, что поле `role` еще не добавлено
             if #t == 4 then
-                -- добавлем новое поле на 4-ю позицию, между `name` и `contact`
+                -- добавляем новое поле на 4-ю позицию, между `name` и `contact`
                 return t:update({{'!', 4, 'not set'}})
             end
             return t
@@ -297,11 +284,10 @@ local users_migration = box.space.users:upgrade({
 rawset(_G, '__users_migration', users_migration)
 ```
 
-(user_guide-space_upgrade-run_migration)=
 ## Запуск миграции
 
 Загрузите файл с миграцией в конфигурацию кластера.
-Подробнее о загрузке миграции в конфигурацию рассказано в разделе [Способы выполнения миграции](user_guide-space_format-change_schema-migrations).
+Подробнее о загрузке миграции в конфигурацию рассказано в разделе [Способы выполнения миграции](../migrations/README.md#способы-выполнения-миграции).
 
 ```shell
 curl -v --raw 'http://localhost:8081/admin/api' -X POST --data '{
@@ -453,7 +439,6 @@ space_upgrade-tarantool-storage3-1  | 2024-02-26 09:13:43.163 [12] main/174/spac
 
 Проверить выполнение миграции и изменение формата можно в веб-интерфейсе во вкладке [Space explorer](http://localhost:8081/admin/space-explorer/hosts).
 
-(user_guide-space_upgrade-stop_example)=
 ## Остановка стенда
 
 Чтобы остановить стенд, выполните следующую команду:

@@ -48,6 +48,6 @@ generate_certificates() {
 
 generate_certificates
 
-# Для передачи в Docker compose для простоты затираем разрешения (там другой пользователь используется)
+# Для передачи в Docker Compose для простоты затираем разрешения (там другой пользователь используется)
 chmod 666 *.pem
 echo "Certificates generated successfully"

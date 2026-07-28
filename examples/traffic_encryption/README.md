@@ -1,4 +1,3 @@
-(admin_guide-traffic_encryption)=
 # Шифрование трафика
 
 Tarantool DB позволяет шифровать трафик по IPROTO при запросах от клиента и при репликации.
@@ -6,45 +5,37 @@ Tarantool DB позволяет шифровать трафик по IPROTO пр
 В этом руководстве описано, как включить шифрование на стороне кластера Tarantool DB,
 а также создать шифрованные соединения из коннекторов на Go и Python.
 
-Документацию по шифрованию трафика можно найти в [документации Tarantool Enterprise](https://www.tarantool.io/ru/doc/2.11/enterprise/security/#enterprise-iproto-encryption). 
+Документацию по шифрованию трафика можно найти в [документации Tarantool Enterprise](https://www.tarantool.io/ru/doc/2.11/enterprise/security/#enterprise-iproto-encryption).
 
 Руководство включает следующие шаги:
 
-* [](admin_guide-traffic_encryption-prereq)
-* [](admin_guide-traffic_encryption-ssl_setup)
-* [](admin_guide-traffic_encryption-connect)
-* [](admin_guide-traffic_encryption-go)
-* [](admin_guide-traffic_encryption-python)
+* [Пререквизиты](#пререквизиты)
+* [Настройка SSL-шифрования](#настройка-ssl-шифрования)
+* [Подключение к узлу с помощью клиентских сертификатов](#подключение-к-узлу-с-помощью-клиентских-сертификатов)
+* [Подключение через Go-коннектор](#подключение-через-go-коннектор)
+* [Подключение через Python-коннектор](#подключение-через-python-коннектор)
 
-(admin_guide-traffic_encryption-prereq)=
 ## Пререквизиты
 
 Для выполнения примера требуются:
 
-* установленный [Docker-образ](/install_and_upgrade/install.md) Tarantool DB;
-* приложение Docker compose;
-* утилита [TT CLI](install-install_tt);
+* установленный [Docker-образ](https://www.tarantool.io/docs/tdb/ru/1_x/install_and_upgrade/install/install_docker) Tarantool DB;
+* приложение Docker Compose;
+* утилита [TT CLI](https://www.tarantool.io/docs/tdb/ru/1_x/install_and_upgrade/install_tt);
 * Go версии 1.13 или выше;
 * python3;
 * исходные файлы примера `traffic_encryption`.
 
-  ```{admonition} Примечание
-  :class: note
+> [!NOTE]
+>  Есть два способа получить исходные файлы примера:
+>  * Репозиторий [github.com/tarantool/tarantooldb-examples](https://github.com/tarantool/tarantooldb-examples/tree/release-1x/master).
+>    Пример `traffic_encryption` расположен в директории `examples/traffic_encryption`.
+>  * Отдельный архив [traffic_encryption.zip](https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2Ftarantool%2Ftarantooldb-examples%2Ftree%2Frelease-1x%2Fmaster%2Fexamples%2Ftraffic_encryption&filename=traffic_encryption), скачанный из этого репозитория.
 
-  Есть два способа получить исходные файлы примера:
-
-  * Архив с полной документацией Tarantool DB, полученный по почте или скачанный в [личном кабинете tarantool.io](https://www.tarantool.io/en/accounts/customer_zone/packages/tarantooldb/release/documentation).
-    Пример архива: `tarantooldb-documentation-1.0.0.tar.gz`.
-    Пример `traffic_encryption` расположен в таком архиве в директории `./doc/examples/traffic_encryption/`.
-
-  * Отдельный архив [traffic_encryption.tar.gz](https://tarantool.io/ru/tarantooldb/doc/1.x/examples/traffic_encryption/traffic_encryption.tar.gz), скачанный c сайта Tarantool.
-  ```
-
-(admin_guide-traffic_encryption-ssl_setup)=
 ## Настройка SSL-шифрования
 
 Для работы с SSL в Tarantool используются SSL-сертификаты.
-Экземпляр Tarantool DB здесь -- это одновременно и сервер, и клиент по отношению к другим экземплярам.
+Экземпляр Tarantool DB здесь — это одновременно и сервер, и клиент по отношению к другим экземплярам.
 Чтобы любой экземпляр мог подключаться ко всем остальным экземплярам, для каждого экземпляра требуется как сертификат
 сервера, так и сертификат клиента.
 Это означает, что для экземпляра кластера всегда нужно передавать как серверные, так и клиентские аргументы.
@@ -55,31 +46,36 @@ Tarantool DB позволяет шифровать трафик по IPROTO пр
 
 В примере заданы параметры SSL-шифрования для экземпляра с помощью переменных окружения:
 
-```{literalinclude} docker-compose.yml
-:start-at: environment
-:end-before: volumes
-:language: yaml
-:dedent:
+```yaml
+environment:
+  - TARANTOOL_ADVERTISE_URI=tarantool-router:3301
+  - TARANTOOL_ALIAS=router-1
+  - TARANTOOL_TRANSPORT=SSL
+  - TARANTOOL_SSL_SERVER_CA_FILE=/certs/ca-cert.pem
+  - TARANTOOL_SSL_SERVER_CERT_FILE=/certs/server-cert.pem
+  - TARANTOOL_SSL_SERVER_KEY_FILE=/certs/server-key.pem
+  - TARANTOOL_SSL_CLIENT_CA_FILE=/certs/ca-cert.pem
+  - TARANTOOL_SSL_CLIENT_CERT_FILE=/certs/client-cert.pem
+  - TARANTOOL_SSL_CLIENT_KEY_FILE=/certs/client-key.pem
 ```
 
 Здесь:
 
-* `TARANTOOL_ADVERTISE_URI` -- адрес и порт, на котором узел доступен в кластере;
-* `TARANTOOL_TRANSPORT` -- значение SSL;
-* `TARANTOOL_SSL_SERVER_CA_FILE` -- путь к корневому сертификату сервера;
-* `TARANTOOL_SSL_SERVER_CERT_FILE` -- путь к сертификату сервера;
-* `TARANTOOL_SSL_SERVER_KEY_FILE` -- путь к закрытому ключу сервера;
-* `TARANTOOL_SSL_CLIENT_CA_FILE` -- путь к корневому сертификату клиента;
-* `TARANTOOL_SSL_CLIENT_CERT_FILE` -- путь к сертификату клиента;
-* `TARANTOOL_SSL_CLIENT_KEY_FILE` -- путь к закрытому ключу клиента.
+* `TARANTOOL_ADVERTISE_URI` — адрес и порт, на котором узел доступен в кластере;
+* `TARANTOOL_TRANSPORT` — значение SSL;
+* `TARANTOOL_SSL_SERVER_CA_FILE` — путь к корневому сертификату сервера;
+* `TARANTOOL_SSL_SERVER_CERT_FILE` — путь к сертификату сервера;
+* `TARANTOOL_SSL_SERVER_KEY_FILE` — путь к закрытому ключу сервера;
+* `TARANTOOL_SSL_CLIENT_CA_FILE` — путь к корневому сертификату клиента;
+* `TARANTOOL_SSL_CLIENT_CERT_FILE` — путь к сертификату клиента;
+* `TARANTOOL_SSL_CLIENT_KEY_FILE` — путь к закрытому ключу клиента.
 
-(admin_guide-traffic_encryption-connect)=
 ## Подключение к узлу с помощью клиентских сертификатов
 
 Перейдите в папку с примером `traffic_encryption`, сгенерируйте сертификаты, а затем запустите стенд:
 
 ```shell
-cd ./doc/examples/traffic_encryption/
+cd examples/traffic_encryption
 cd certs && ./gen.sh
 cd .. && docker compose up -d
 ```
@@ -113,7 +109,6 @@ localhost:3300>
 ```
 
 
-(admin_guide-traffic_encryption-go)=
 ## Подключение через Go-коннектор
 
 В этом разделе описано подключение к экземпляру Tarantool DB через [Go-коннектор](https://github.com/tarantool/go-tarantool/).
@@ -133,16 +128,28 @@ Tarantool 2.11.6 (Binary) 67c35ab2-c334-49b6-a7a4-f617c81bccaa
 
 Код подключения выглядит так:
 
-```{literalinclude} go/main.go
-:start-at: dialer :=
-:end-before: fmt.Println(conn.Greeting.Version)
-:language: go
-:dedent:
+```go
+dialer := tarantool.OpenSslDialer{
+	Address:     "tarantool-router:3301",
+	User:        "admin",
+	Password:    "secret-cluster-cookie",
+	SslKeyFile:  "./certs/client-key.pem",
+	SslCertFile: "./certs/client-cert.pem",
+	SslCaFile:   "./certs/ca-cert.pem",
+	SslPassword: "54321",
+}
+
+opts := tarantool.Opts{}
+
+conn, err := tarantool.Connect(ctx, dialer, opts)
+if err != nil {
+	fmt.Println(err)
+	return
+}
 ```
 
 Опции здесь аналогичны опциям, которые передавались для `tt`.
 
-(admin_guide-traffic_encryption-python)=
 ## Подключение через Python-коннектор
 
 В разделе описано подключение к экземпляру Tarantool DB через [Python-коннектор](https://github.com/tarantool/tarantool-python).
@@ -176,9 +183,17 @@ python connect.py
 
 Код подключения выглядит так:
 
-```{literalinclude} python/connect.py
-:start-at: con = tarantool.Connection(
-:end-before: print(con.eval
-:language: python
-:dedent:
+```python
+con = tarantool.Connection(
+    'localhost',
+    3300,
+    user="admin",
+    password="secret-cluster-cookie",
+    transport='ssl',
+    ssl_key_file='../certs/client-key.pem',
+    ssl_cert_file='../certs/client-cert.pem',
+    ssl_ca_file='../certs/ca-cert.pem',
+    connection_timeout=0.5,
+    socket_timeout=0.5,
+)
 ```

@@ -1,4 +1,3 @@
-(user_guide-dictionary_example)=
 # Запись и получение данных в словаре
 
 В этом руководстве показано, как записать в словарь данные, а затем получить запись из базы данных с обогащением из словаря.
@@ -6,47 +5,39 @@
 
 Содержание:
 
-* [](user_guide-dictionary_example-prereq)
-* [](user_guide-dictionary_example-start_example)
-* [](user_guide-dictionary_example-write_data)
-* [](user_guide-dictionary_example-prepare_data)
-* [](user_guide-dictionary_example-read_data)
-* [](user_guide-dictionary_example-stop_example)
+* [Пререквизиты](#пререквизиты)
+* [Запуск стенда и подключение к узлу](#запуск-стенда-и-подключение-к-узлу)
+* [Запись данных в словарь](#запись-данных-в-словарь)
+* [Подготовка нормализованных данных](#подготовка-нормализованных-данных)
+* [Чтение данных с обогащением из словаря](#чтение-данных-с-обогащением-из-словаря)
+* [Остановка стенда](#остановка-стенда)
 
-(user_guide-dictionary_example-prereq)=
 ## Пререквизиты
 
 Для выполнения примера требуются:
 
-* установленный [Docker-образ](/install_and_upgrade/install/install_docker.md) Tarantool DB;
-* приложение Docker compose;
-* утилита [TT CLI](install-install_tt);
+* установленный [Docker-образ](https://www.tarantool.io/docs/tdb/ru/1_x/install_and_upgrade/install/install_docker) Tarantool DB;
+* приложение Docker Compose;
+* утилита [TT CLI](https://www.tarantool.io/docs/tdb/ru/1_x/install_and_upgrade/install_tt);
 * исходные файлы примера `dictionary`.
 
-  ```{admonition} Примечание
-  :class: note
+> [!NOTE]
+>  Есть два способа получить исходные файлы примера:
+>  * Репозиторий [github.com/tarantool/tarantooldb-examples](https://github.com/tarantool/tarantooldb-examples/tree/release-1x/master).
+>    Пример `dictionary` расположен в директории `examples/dictionary`.
+>  * Отдельный архив [dictionary.zip](https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2Ftarantool%2Ftarantooldb-examples%2Ftree%2Frelease-1x%2Fmaster%2Fexamples%2Fdictionary&filename=dictionary), скачанный из этого репозитория.
 
-  Есть два способа получить исходные файлы примера:
-
-  * Архив с полной документацией Tarantool DB, полученный по почте или скачанный в [личном кабинете tarantool.io](https://www.tarantool.io/en/accounts/customer_zone/packages/tarantooldb/release/documentation).
-    Пример архива: `tarantooldb-documentation-1.0.0.tar.gz`.
-    Пример `dictionary` расположен в таком архиве в директории `./doc/examples/dictionary/`.
-    
-  * Отдельный архив [dictionary.tar.gz](https://tarantool.io/ru/tarantooldb/doc/1.x/examples/dictionary/dictionary.tar.gz), скачанный c сайта Tarantool.
-  ```
-
-(user_guide-dictionary_example-start_example)=
-## Запуск стенда и подключение к узлу 
+## Запуск стенда и подключение к узлу
 
 Для успешного запуска должны быть свободны порты:
 
-* 3301--3306;
-* 8081--8086.
+* 3301—3306;
+* 8081—8086.
 
 Перейдите в папку с примером `dictionary` и запустите стенд:
 
 ```shell
-cd ./doc/examples/dictionary
+cd examples/dictionary
 docker compose up -d
 ```
 
@@ -54,7 +45,7 @@ docker compose up -d
 * кластера Tarantool DB из двух шардов и двух роутеров;
 * кластера etcd для работы восстановления после сбоев (failover) кластера Tarantool DB.
 
-После запуска должны работать все контейнеры, кроме `user-host`. 
+После запуска должны работать все контейнеры, кроме `user-host`.
 
 Теперь откройте в браузере веб-интерфейс Tarantool DB по адресу [http://localhost:8081](http://localhost:8081).
 Перейдите во вкладку **Cluster** и проверьте, что отсутствуют ошибки или предупреждения.
@@ -67,7 +58,6 @@ docker compose up -d
 * `dictionary_vclock`;
 * `money_moves`.
 
-(user_guide-dictionary_example-write_data)=
 ## Запись данных в словарь
 
 Подключитесь к одному из роутеров с помощью команды `tt connect`:
@@ -75,9 +65,9 @@ docker compose up -d
 ```shell
 tt connect admin:secret-cluster-cookie@localhost:3301
 ```
- 
+
 В примере ниже задается словарь с названием `categories`, который содержит категории денежных трат.
-С помощью функции [dictionary_router.set()](reference_lua-dictionary_router-set) запишите несколько элементов ('Shops','Med' и другие) с соответствующими им ключами в словарь:
+С помощью функции [dictionary_router.set()](https://www.tarantool.io/docs/tdb/ru/1_x/reference/api_reference/dictionary#reference_lua-dictionary_router-set) запишите несколько элементов ('Shops','Med' и другие) с соответствующими им ключами в словарь:
 
 ```lua
 dictionary_router.set('categories', '1', 'Shops')
@@ -87,19 +77,15 @@ dictionary_router.set('categories', '4', 'Bills')
 dictionary_router.set('categories', '5', 'Med')
 ```
 
-```{admonition} Примечание
-:class: note
+> [!NOTE]
+> Ключ элемента в словаре может быть только строкой.
 
-Ключ элемента в словаре может быть только строкой.
-```
-
-Чтобы проверить записанные в словарь данные, используйте метод [dictionary_router.get()](reference_lua-dictionary_router-get):
+Чтобы проверить записанные в словарь данные, используйте метод [dictionary_router.get()](https://www.tarantool.io/docs/tdb/ru/1_x/reference/api_reference/dictionary#reference_lua-dictionary_router-get):
 
 ```lua
 dictionary_router.get('categories', '1')
 ```
 
-(user_guide-dictionary_example-prepare_data)=
 ## Подготовка нормализованных данных
 
 Чтобы записать нормализованные данные, выполните следующий код:
@@ -123,7 +109,6 @@ crud.replace('money_moves', {10, box.NULL, 123, require('datetime').now(), '2', 
 crud.get('money_moves', 1)
 ```
 
-(user_guide-dictionary_example-read_data)=
 ## Чтение данных с обогащением из словаря
 
 Чтобы получить запись с добавленной информацией из словаря, выполните следующую команду:
@@ -132,7 +117,6 @@ crud.get('money_moves', 1)
 box.schema.func.call('get_money_move', 1)
 ```
 
-(user_guide-dictionary_example-stop_example)=
 ## Остановка стенда
 
 Чтобы остановить стенд, выполните следующую команду:

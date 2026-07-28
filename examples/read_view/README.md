@@ -1,75 +1,74 @@
-# Фильтрация и итерация в read view с помощью CRUD
+# Фильтрация и итерация в представлениях для чтения с помощью CRUD
 
 В этом разделе приведены подробные примеры использования операций `select` и `pairs` для read view с помощью
 модуля [CRUD](https://github.com/tarantool/crud).
 
 Содержание:
 
-* [](user_guide-readview_crud_filter-prereq)
-* [](user_guide-readview_crud_filter-start_example)
-* [](user_guide-readview_crud-filter-create)
-* [](user_guide-readview_crud-filter-select)
-* [](user_guide-readview_crud-filter-pairs)
-* [](user_guide-readview_crud-filter-stop_example)
+* [Пререквизиты](#пререквизиты)
+* [Запуск стенда и подключение к узлу](#запуск-стенда-и-подключение-к-узлу)
+* [Создание представления для чтения](#создание-представления-для-чтения)
+* [Фильтрация кортежей с помощью select](#фильтрация-кортежей-с-помощью-select)
+* [Итерация с помощью pairs](#итерация-с-помощью-pairs)
+* [Остановка стенда](#остановка-стенда)
 
-(user_guide-readview_crud_filter-prereq)=
 ## Пререквизиты
 
 Для выполнения примера требуются:
 
-* установленный [Docker-образ](/install_and_upgrade/install/install_docker.md) Tarantool DB;
-* приложение Docker compose;
-* утилита [TT CLI](install-install_tt);
+* установленный [Docker-образ](https://www.tarantool.io/docs/tdb/ru/1_x/install_and_upgrade/install/install_docker) Tarantool DB;
+* приложение Docker Compose;
+* утилита [TT CLI](https://www.tarantool.io/docs/tdb/ru/1_x/install_and_upgrade/install_tt);
 * исходные файлы примера `read_view`.
 
-  ```{admonition} Примечание
-  :class: note
+> [!NOTE]
+>  Есть два способа получить исходные файлы примера:
+>  * Репозиторий [github.com/tarantool/tarantooldb-examples](https://github.com/tarantool/tarantooldb-examples/tree/release-1x/master).
+>    Пример `read_view` расположен в директории `examples/read_view`.
+>  * Отдельный архив [read_view.zip](https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2Ftarantool%2Ftarantooldb-examples%2Ftree%2Frelease-1x%2Fmaster%2Fexamples%2Fread_view&filename=read_view), скачанный из этого репозитория.
 
-  Есть два способа получить исходные файлы примера:
-
-  * Архив с полной документацией Tarantool DB, полученный по почте или скачанный в [личном кабинете tarantool.io](https://www.tarantool.io/en/accounts/customer_zone/packages/tarantooldb/release/documentation).
-    Пример архива: `tarantooldb-documentation-1.0.0.tar.gz`.
-    Пример `read_view` расположен в таком архиве в директории `./doc/examples/read_view/`.
-    
-  * Отдельный архив [read_view.tar.gz](https://tarantool.io/ru/tarantooldb/doc/1.x/examples/read_view/read_view.tar.gz), скачанный c сайта Tarantool.
-  ```
-  
-(user_guide-readview_crud_filter-start_example)=
 ## Запуск стенда и подключение к узлу
 
 Перейдите в директорию примера `read_view`:
 
 ```shell
-cd ./doc/examples/read_view/
+cd examples/read_view
 ```
 
-Запустите стенд через docker compose:
+Запустите стенд через Docker Compose:
 
 ```shell
 docker compose up -d
 ```
 
 Команда развернет кластер, состоящий из одного роутера и двух наборов реплик по 2 экземпляра в каждой.
-На завершающем этапе поднятия кластера вызывается команда автоматического бутстрапа и [миграции](../migrations/migrations_space_format.md).
+На завершающем этапе поднятия кластера вызывается команда автоматического бутстрапа и [миграции](../migrations/README.md).
 Миграции создают спейс `customers` (файл `./bootstrap/migrations/source/001_create_space.lua`) и
 загружают в него данные (файл `./bootstrap/migrations/source/002_data.lua`).
 Спейс имеет следующий формат:
 
-```{literalinclude} bootstrap/migrations/source/001_create_space.lua
-:start-after: -- Создание спейса customers
-:end-before: utils.register_sharding_key
-:language: lua
-:dedent:
+```lua
+box.schema.space.create('customers', {if_not_exists = true})
+box.space.customers:format({
+    { name = 'id', type = 'integer' },
+    { name = 'bucket_id', type = 'unsigned' },
+    { name = 'name', type = 'string' },
+    { name = 'surname', type = 'string' },
+    { name = 'age', type = 'number' },
+})
+box.space.customers:create_index('pk', { parts = {'id'}, if_not_exists = true})
+box.space.customers:create_index('bucket_id', { parts = {'bucket_id'}, unique = false, if_not_exists = true})
+box.space.customers:create_index('age_index', { parts = {'age'}, unique = false, if_not_exists = true})
+box.space.customers:create_index('full_name', { parts = {'name', 'surname'}, unique = false, if_not_exists = true})
 ```
 
-Когда в спейс загрузились данные, подключитесь к роутеру с ролью [crud-router](reference-roles-crud), используя команду `tt connect`.
+Когда в спейс загрузились данные, подключитесь к роутеру с ролью [crud-router](https://www.tarantool.io/docs/tdb/ru/1_x/reference/roles#reference-roles-crud), используя команду `tt connect`.
 Команда открывает интерактивную консоль Tarantool, позволяющую работать с базой данных:
 
 ```shell
 tt connect admin:secret-cluster-cookie@localhost:3301
 ```
 
-(user_guide-readview_crud-filter-create)=
 ## Создание представления для чтения
 
 Чтобы создать read view, вызовите функцию `crud.readview()`:
@@ -78,7 +77,6 @@ tt connect admin:secret-cluster-cookie@localhost:3301
 rv = crud.readview()
 ```
 
-(user_guide-readview_crud-filter-select)=
 ## Фильтрация кортежей с помощью select
 
 Метод `read_view_object:select()` позволяет фильтровать кортежи по условиям.
@@ -90,12 +88,9 @@ rv = crud.readview()
 полного сканирования.
 Чтобы избежать длинных выборок, можно ограничить количество результатов с помощью параметра `first`.
 
-```{admonition} Примечание
-:class: note
-
-Если вы укажете ключ шардирования или `bucket_id`, операция `select` будет выполнена на одном узле.
-В противном случае произойдет Map-Reduce по всем узлам.
-```
+> [!NOTE]
+> Если вы укажете ключ шардирования или `bucket_id`, операция `select` будет выполнена на одном узле.
+> В противном случае произойдет Map-Reduce по всем узлам.
 
 В примере ниже получены первые 6 кортежей из спейса `customers`:
 
@@ -124,7 +119,7 @@ rv:select('customers', nil, { first = 6 })
 ### Запрос по простому индексу
 
 В примере по индексу `age_index` выбраны первые 10 клиентов, возраст которых больше или равен 20.
-Так как первое условие -- индекс `age_index`, результат отсортирован по возрасту.
+Так как первое условие — индекс `age_index`, результат отсортирован по возрасту.
 
 ```shell
 rv:select('customers', { { '>=', 'age_index', 20 } }, { first = 10 })
@@ -189,12 +184,9 @@ rv:select('customers', { { '==', 'full_name', 'William' } }, { first = 10 })
 ...
 ```
 
-```{admonition} Примечание
-:class: note
-
-Если указать частичный ключ не для первого параметра, например ``{ '==', 'full_name', {nil, 'Griffin'}``, будет
-выполнено полное сканирование (Map-Reduce).
-```
+> [!NOTE]
+> Если указать частичный ключ не для первого параметра, например ``{ '==', 'full_name', {nil, 'Griffin'}``, будет
+> выполнено полное сканирование (Map-Reduce).
 
 ### Запрос по полю без индекса
 
@@ -214,7 +206,6 @@ rv:select('customers', { { '==', 'surname', 'Wilcox' } }, { first = 10 })
 ...
 ```
 
-(user_guide-readview_crud-filter-pairs)=
 ## Итерация с помощью pairs
 
 Метод `read_view_object:pairs()` позволяет итерироваться по распределенному спейсу.
@@ -398,8 +389,6 @@ tuples
 ...
 ```
 
-
-(user_guide-readview_crud-filter-stop_example)=
 ## Остановка стенда
 
 Чтобы остановить стенд, выполните следующую команду:
