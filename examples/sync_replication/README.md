@@ -40,7 +40,8 @@
 
 - Восстановление после отказов переключено в режим `failover_mode = 'stateful'`.
 - Включена поддержка синхронного режима через переменную окружения `TARANTOOL_ENABLE_SYNCHRO_MODE=true`.
-   > `TARANTOOL_ENABLE_SYNCHRO_MODE` работает только в сочетании с `stateful` failover и автоматически вызывает `box.ctl.promote()` на новых лидерах репликасетов.
+   > [!NOTE]
+   > `TARANTOOL_ENABLE_SYNCHRO_MODE` работает только в сочетании с  восстановлением после отказа в режиме `stateful` и автоматически вызывает `box.ctl.promote()` на новых лидерах наборов реплик.
 
 > [!IMPORTANT]
 >  Ограничения:
