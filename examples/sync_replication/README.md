@@ -195,7 +195,7 @@ localhost:3301> crud.replace('orders', {1, box.NULL, 'Customer_C', 1500.00, 'new
 docker compose start tarantool-storage-1-spb tarantool-storage-1-brn tarantool-storage-2-spb tarantool-storage-2-brn
 ```
 
-Как только реплики поднимутся и догонят WAL лидера, кворум восстановится, и операции записи снова будут завершаться успешно:
+Как только реплики запустятся и догонят журнал упреждающей записи узла-лидера, кворум восстановится, и операции записи снова будут завершаться успешно:
 
 ```shell
 localhost:3301> crud.replace('orders', {1, box.NULL, 'Customer_C', 1500.00, 'new'})
