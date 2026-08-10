@@ -156,9 +156,9 @@ localhost:3301> crud.insert_object_many('orders', {
 docker compose stop tarantool-storage-1-spb tarantool-storage-1-brn tarantool-storage-2-spb tarantool-storage-2-brn
 ```
 
-Теперь в каждом репликасете работает только **1 узел из 3**. Минимальный кворум (2 узла) не набран.
+Теперь в каждом наборе реплик работает только **1 узел из 3**. Минимальный кворум в 2 узла не набран.
 
-Попытка обновить данные завершится ошибкой по таймауту:
+Попытка обновить данные завершится ошибкой с истекшим временем ожидания:
 
 ```shell
 localhost:3301> crud.replace('orders', {1, box.NULL, 'Customer_C', 1500.00, 'new
