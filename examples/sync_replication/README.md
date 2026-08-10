@@ -189,7 +189,7 @@ localhost:3301> crud.replace('orders', {1, box.NULL, 'Customer_C', 1500.00, 'new
 
 Это штатное и ожидаемое поведение: Tarantool DB блокирует запись, предотвращая рассинхронизацию и потерю данных в условиях отсутствия связи с большинством узлов.
 
-Запустите остановленные контейнеры обратно:
+Запустите остановленные контейнеры:
 
 ```shell
 docker compose start tarantool-storage-1-spb tarantool-storage-1-brn tarantool-storage-2-spb tarantool-storage-2-brn
