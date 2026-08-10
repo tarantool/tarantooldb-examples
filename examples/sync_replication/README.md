@@ -215,7 +215,7 @@ localhost:3301> crud.replace('orders', {1, box.NULL, 'Customer_C', 1500.00, 'new
 
 Перевод кластера в режим `election_mode = 'manual'` включает механизм выборов Raft при вызове `box.ctl.promote()`. В этом режиме новый лидер должен не просто догнать журнал упреждающей записи старого мастер-узла, но и собрать кворум узлов. Это защищает от ситуаций, когда узел объявляется мастером, будучи изолированным от остальных реплик.
 
-Ниже рассмотрен пример проверки и изменения режима выборов. Подробное руководство по миграции также доступно в [документации Cartridge](https://www.tarantool.io/ru/doc/2.11/book/cartridge/cartridge_dev/#migrating-a-stateful-replicaset-to-manual-election-mode).
+Ниже рассмотрен пример проверки и изменения режима выборов лидера. Подробное руководство по миграции также доступно в [документации Cartridge](https://www.tarantool.io/ru/doc/2.11/book/cartridge/cartridge_dev/#migrating-a-stateful-replicaset-to-manual-election-mode).
 
 ### Проверка текущего режима
 
