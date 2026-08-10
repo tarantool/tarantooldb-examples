@@ -150,7 +150,7 @@ localhost:3301> crud.insert_object_many('orders', {
 
 В топологии примера используется 2 шарда по 3 узла в каждом (`msk`, `spb`, `brn`). Для набора реплик из 3 узлов минимальный кворум равен **2** (`floor(3/2) + 1`).
 
-Остановим по 2 узла в обоих шардах, оставив только лидеров:
+Остановите по 2 узла в обоих шардах, оставив только узлы-лидеры:
 
 ```shell
 docker compose stop tarantool-storage-1-spb tarantool-storage-1-brn tarantool-storage-2-spb tarantool-storage-2-brn
