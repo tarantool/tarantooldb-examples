@@ -209,7 +209,7 @@ localhost:3301> crud.replace('orders', {1, box.NULL, 'Customer_C', 1500.00, 'new
 ...
 ```
 
-## Перевод репликасетов в election_mode = manual
+## Перевод наборов реплик в election_mode = manual
 
 По умолчанию `stateful failover` использует `election_mode = 'off'`, полагаясь при смене лидера на сравнение `vclock`.
 
