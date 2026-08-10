@@ -38,7 +38,7 @@
 
 Для корректной работы [автоматического восстановления после отказов](https://www.tarantool.io/docs/tdb/ru/1_x/admin_guide/failover) (failover) и захвата синхронной очереди в Tarantool DB должны быть соблюдены все условия ниже:
 
-1. Включён `failover_mode = 'stateful'`.
+- Восстановление после отказов переключено в режим `failover_mode = 'stateful'`.
 2. Включена поддержка синхронного режима через переменную окружения: `TARANTOOL_ENABLE_SYNCHRO_MODE=true`.
    > `TARANTOOL_ENABLE_SYNCHRO_MODE` работает только в сочетании с `stateful` failover и автоматически вызывает `box.ctl.promote()` на новых лидерах репликасетов.
 
