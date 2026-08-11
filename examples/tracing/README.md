@@ -1,49 +1,40 @@
-(admin_guide-tracing_jaeger)=
 # Трассировка с использованием Jaeger
 
 В этом руководстве описано, как настроить трассировку функций, а также просмотреть и оценить результаты трассировки
 в веб-интерфейсе [Jaeger](https://www.jaegertracing.io/).
 
-Подробнее о модуле `tracing` можно узнать в разделе [Оценка производительности](admin_guide-tracing).
+Подробнее о модуле `tracing` можно узнать в разделе [Оценка производительности](https://www.tarantool.io/docs/tdb/ru/1_x/admin_guide/troubleshooting/tracing).
 
 Руководство включает следующие шаги:
 
-* [](admin_guide-tracing_jaeger-prereq)
-* [](admin_guide-tracing_jaeger-start_example)
-* [](admin_guide-tracing_jaeger-set_config)
-* [](admin_guide-tracing_jaeger-tracing_result)
-* [](admin_guide-tracing_jaeger-stop_example)
+* [Пререквизиты](#пререквизиты)
+* [Запуск стенда и подключение к узлу](#запуск-стенда-и-подключение-к-узлу)
+* [Определение конфигурации](#определение-конфигурации)
+* [Оценка результатов трассировки](#оценка-результатов-трассировки)
+* [Остановка стенда](#остановка-стенда)
 
-(admin_guide-tracing_jaeger-prereq)=
 ## Пререквизиты
 
 Для выполнения примера требуются:
 
-* установленный [Docker-образ](/install_and_upgrade/install/install_docker.md) Tarantool DB;
-* приложение Docker compose;
-* утилита [TT CLI](install-install_tt);
+* установленный [Docker-образ](https://www.tarantool.io/docs/tdb/ru/1_x/install_and_upgrade/install/install_docker) Tarantool DB;
+* приложение Docker Compose;
+* утилита [TT CLI](https://www.tarantool.io/docs/tdb/ru/1_x/install_and_upgrade/install_tt);
 * сервис для сбора данных трассировки [Jaeger](https://www.jaegertracing.io/);
 * исходные файлы примера `tracing`.
 
-  ```{admonition} Примечание
-  :class: note
+> [!NOTE]
+>  Есть два способа получить исходные файлы примера:
+>  * Репозиторий [github.com/tarantool/tarantooldb-examples](https://github.com/tarantool/tarantooldb-examples/tree/release-1x/master).
+>    Пример `tracing` расположен в директории `examples/tracing`.
+>  * Отдельный архив [tracing.zip](https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2Ftarantool%2Ftarantooldb-examples%2Ftree%2Frelease-1x%2Fmaster%2Fexamples%2Ftracing&filename=tracing), скачанный из этого репозитория.
 
-  Есть два способа получить исходные файлы примера:
-
-  * Архив с полной документацией Tarantool DB, полученный по почте или скачанный в [личном кабинете tarantool.io](https://www.tarantool.io/en/accounts/customer_zone/packages/tarantooldb/release/documentation).
-    Пример архива: `tarantooldb-documentation-1.0.0.tar.gz`.
-    Пример `tracing` расположен в таком архиве в директории `./doc/examples/tracing/`.
-    
-  * Отдельный архив [tracing.tar.gz](https://tarantool.io/ru/tarantooldb/doc/1.x/examples/tracing/tracing.tar.gz), скачанный c сайта Tarantool.
-  ```
-
-(admin_guide-tracing_jaeger-start_example)=
 ## Запуск стенда и подключение к узлу
 
 Перейдите в директорию примера `tracing`:
 
 ```shell
-cd ./doc/examples/tracing/
+cd examples/tracing
 ```
 
 Запустите стенд:
@@ -59,27 +50,32 @@ cd ./doc/examples/tracing/
 tt connect admin:secret-cluster-cookie@localhost:3300
 ```
 
-(admin_guide-tracing_jaeger-set_config)=
 ## Определение конфигурации
 
 В конфигурации примера указаны следующие параметры трассировки:
 
-```{literalinclude} bootstrap/config.yml
-:start-at: tracing
-:end-at: spans_limit
-:language: yaml
-:dedent:
+```yaml
+tracing:
+  enabled: true
+  global_sample_rate: 0
+  sample_rates:
+    get_token_router: 2
+    debug_1: 1
+  base_url: 'http://tracing:9411/api/v2/spans'
+  api_method: 'POST'
+  report_interval: 1
+  spans_limit: 1000
 ```
 
 Здесь:
 
-* `enabled` -- включает трассировку;
-* `global_sample_rate` -- глобальный коэффициент частоты трассировки запросов, при значении `0` запросы не трассируются;
-* `sample_rates` -- коэффициенты частоты трассировки для заданных сегментов (spans);
-* `base_url` -- URL-адрес сервера, куда отправляются данные трассировки;
-* `api_method` -- HTTP-метод, который используется для отправки данных трассировки на сервер;
-* `report_interval` -- интервал в секундах между отправкой данных трассировки на сервер;
-* `spans_limit` -- максимальное количество сегментов (span) трассировки, которые могут быть сохранены локально
+* `enabled` — включает трассировку;
+* `global_sample_rate` — глобальный коэффициент частоты трассировки запросов, при значении `0` запросы не трассируются;
+* `sample_rates` — коэффициенты частоты трассировки для заданных сегментов (spans);
+* `base_url` — URL-адрес сервера, куда отправляются данные трассировки;
+* `api_method` — HTTP-метод, который используется для отправки данных трассировки на сервер;
+* `report_interval` — интервал в секундах между отправкой данных трассировки на сервер;
+* `spans_limit` — максимальное количество сегментов (span) трассировки, которые могут быть сохранены локально
 на экземпляре Tarantool перед отправкой во внешнюю систему хранения результатов трассировки.
 
 По умолчанию сегменты (span) трассировки не засекают время выполнения участков кода.
@@ -92,9 +88,8 @@ tt connect admin:secret-cluster-cookie@localhost:3300
 Параметры `tracing.base_url`, `tracing.api_method`, `tracing.report_interval` и `tracing.spans_limit` отвечают за
 отправку результатов трассировки в сторонний сервис Jaeger.
 
-Полное описание опций конфигурации `tracing` приведено в соответствующем разделе [Справочника по конфигурации](configuration_reference-tracing).
+Полное описание опций конфигурации `tracing` приведено в соответствующем разделе [Справочника по конфигурации](https://www.tarantool.io/docs/tdb/ru/1_x/reference/configuration_reference#configuration_reference-tracing).
 
-(admin_guide-tracing_jaeger-tracing_result)=
 ## Оценка результатов трассировки
 
 Запустите несколько тестовых функций на роутере:
@@ -123,7 +118,6 @@ box.func.debug_func:call({"debug_2"})
 
 ![Результат трассировки функции get_token()](images/tracing_get_token.jpg)
 
-(admin_guide-tracing_jaeger-stop_example)=
 ## Остановка стенда
 
 Чтобы остановить стенд, выполните следующую команду:

@@ -2,44 +2,36 @@
 
 В примере операции выполняются напрямую с конкретным экземпляром.
 Такой подход может увеличить производительность, но требует дополнительной
-экспертизы -- понимания внутреннего устройства кластера Tarantool DB и принципа его работы.
+экспертизы — понимания внутреннего устройства кластера Tarantool DB и принципа его работы.
 
 В этом примере показано, как выполнять операции напрямую с конкретным экземпляром:
 приложение записывает по одному кортежу напрямую в спейс, а также выполняет чтение.
-Чтобы удобно просматривать содержимое спейсов, в примере используется роль [space-explorer](reference-roles-space-explorer).
+Чтобы удобно просматривать содержимое спейсов, в примере используется роль [space-explorer](https://www.tarantool.io/docs/tdb/ru/1_x/reference/roles#reference-roles-space-explorer).
 Другие роли в этом примере не используются.
 
 Узнать больше про Go-коннектор можно в репозитории [tarantool/go-tarantool](https://pkg.go.dev/github.com/tarantool/go-tarantool/v2).
 
 Содержание:
 
-* [](user_guide-go_directly-prereq)
-* [](user_guide-go_directly-start_example)
-* [](user_guide-go_directly-run_application)
-* [](user_guide-go_directly-stop_example)
+* [Пререквизиты](#пререквизиты)
+* [Запуск стенда](#запуск-стенда)
+* [Запуск приложения](#запуск-приложения)
+* [Остановка стенда](#остановка-стенда)
 
-(user_guide-go_directly-prereq)=
 ## Пререквизиты
 
 Для выполнения примера требуются:
 
-* установленный [Docker-образ](/install_and_upgrade/install/install_docker.md) Tarantool DB;
-* приложение Docker compose;
+* установленный [Docker-образ](https://www.tarantool.io/docs/tdb/ru/1_x/install_and_upgrade/install/install_docker) Tarantool DB;
+* приложение Docker Compose;
 * исходные файлы примера `go_directly`.
 
-  ```{admonition} Примечание
-  :class: note
+> [!NOTE]
+>  Есть два способа получить исходные файлы примера:
+>  * Репозиторий [github.com/tarantool/tarantooldb-examples](https://github.com/tarantool/tarantooldb-examples/tree/release-1x/master).
+>    Пример `go_directly` расположен в директории `examples/go_directly`.
+>  * Отдельный архив [go_directly.zip](https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2Ftarantool%2Ftarantooldb-examples%2Ftree%2Frelease-1x%2Fmaster%2Fexamples%2Fgo_directly&filename=go_directly), скачанный из этого репозитория.
 
-  Есть два способа получить исходные файлы примера:
-
-  * Архив с полной документацией Tarantool DB, полученный по почте или скачанный в [личном кабинете tarantool.io](https://www.tarantool.io/en/accounts/customer_zone/packages/tarantooldb/release/documentation).
-    Пример архива: `tarantooldb-documentation-1.0.0.tar.gz`.
-    Пример `go_directly` расположен в таком архиве в директории `./doc/examples/go_directly/`.
-    
-  * Отдельный архив [go_directly.tar.gz](https://tarantool.io/ru/tarantooldb/doc/1.x/examples/go_directly/go_directly.tar.gz), скачанный c сайта Tarantool.
-  ```
-
-(user_guide-go_directly-start_example)=
 ## Запуск стенда
 
 Для успешного запуска должны быть свободны порты:
@@ -49,7 +41,7 @@
 Перейдите в директорию `go_directly/tt`:
 
 ```shell
-cd ./doc/examples/go_directly/tt
+cd examples/go_directly/tt
 ```
 
 Запустите стенд:
@@ -70,14 +62,13 @@ docker compose up -d
 После этого перейдите на вкладку **Space Explorer** и выберите любой узел, например `storage1`.
 Проверьте, что на узле есть спейс `test`.
 
-(user_guide-go_directly-run_application)=
 ## Запуск приложения
 
 Откройте вторую вкладку терминала.
 В этой вкладке перейдите в директорию `go_directly/go`:
 
 ```shell
-cd ./doc/examples/go_directly/go
+cd examples/go_directly/go
 ```
 
 Запустите Go-приложение:
@@ -88,7 +79,7 @@ go run -tags go_tarantool_ssl_disable main.go
 
 Здесь:
 
-* `go_tarantool_ssl_disable` -- опция, отключающая поддержку TLS.
+* `go_tarantool_ssl_disable` — опция, отключающая поддержку TLS.
   Так как для поддержки TLS требуется установленный OpenSSL 3.x, для простоты в примере поддержка TLS отключена.
 
 Вывод после окончания работы приложения выглядит так:
@@ -100,7 +91,6 @@ Tuples [{{} 1 77 WjishcEWgbUGSerPYtkmAhtSrRYXmyYaXDyScIFcRCpFwIMYpGZwrZbYRSBUdPA
 
 Необходимо убедиться, что в спейсе `test` появились данные.
 
-(user_guide-go_directly-stop_example)=
 ## Остановка стенда
 
 Остановить стенд можно так:

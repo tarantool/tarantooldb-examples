@@ -7,44 +7,36 @@
 
 Руководство включает следующие шаги:
 
-* [](user_guide-space_format-prereq)
-* [](user_guide-space_format-schema)
-* [](user_guide-space_format-start_example)
-* [](user_guide-space_format-load_data)
-* [](user_guide-space_format-check_functions)
-* [](user_guide-space_format-change_schema)
-* [](user_guide-space_format-stop_example)
+* [Пререквизиты](#пререквизиты)
+* [Схема данных](#схема-данных)
+* [Запуск стенда](#запуск-стенда)
+* [Загрузка и проверка данных](#загрузка-и-проверка-данных)
+* [Проверка пользовательских функций базы данных](#проверка-пользовательских-функций-базы-данных)
+* [Изменение схемы данных](#изменение-схемы-данных)
+* [Остановка стенда](#остановка-стенда)
 
-(user_guide-space_format-prereq)=
 ## Пререквизиты
 
 Для выполнения примера требуются:
 
-* установленный [Docker-образ](/install_and_upgrade/install/install_docker.md) Tarantool DB;
-* приложение Docker compose;
-* утилита [TT CLI](install-install_tt);
+* установленный [Docker-образ](https://www.tarantool.io/docs/tdb/ru/1_x/install_and_upgrade/install/install_docker) Tarantool DB;
+* приложение Docker Compose;
+* утилита [TT CLI](https://www.tarantool.io/docs/tdb/ru/1_x/install_and_upgrade/install_tt);
 * исходные файлы примера `migrations`.
 
-  ```{admonition} Примечание
-  :class: note
+> [!NOTE]
+>  Есть два способа получить исходные файлы примера:
+>  * Репозиторий [github.com/tarantool/tarantooldb-examples](https://github.com/tarantool/tarantooldb-examples/tree/release-1x/master).
+>    Пример `migrations` расположен в директории `examples/migrations`.
+>  * Отдельный архив [migrations.zip](https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2Ftarantool%2Ftarantooldb-examples%2Ftree%2Frelease-1x%2Fmaster%2Fexamples%2Fmigrations&filename=migrations), скачанный из этого репозитория.
 
-  Есть два способа получить исходные файлы примера:
-
-  * Архив с полной документацией Tarantool DB, полученный по почте или скачанный в [личном кабинете tarantool.io](https://www.tarantool.io/en/accounts/customer_zone/packages/tarantooldb/release/documentation).
-    Пример архива: `tarantooldb-documentation-1.0.0.tar.gz`.
-    Пример `migrations` расположен в таком архиве в директории `./doc/examples/migrations/`.
-    
-  * Отдельный архив [migrations.tar.gz](https://tarantool.io/ru/tarantooldb/doc/1.x/examples/migrations/migrations.tar.gz), скачанный c сайта Tarantool.
-  ```
- 
-(user_guide-space_format-schema)=
 ## Схема данных
 
 В качестве примера приведена база данных для системы управления проектами, которая состоит из трех спейсов: `projects` (проекты), `tasks` (задачи),
 `users` (пользователи).
 Схема этой базы данных выглядит так:
 
-![Cхема данных](images/schema1.drawio.svg)
+![Схема данных](images/schema1.drawio.svg)
 
 Здесь:
 
@@ -56,25 +48,22 @@
 * При удалении проекта нужно удалить и связанные с ним задачи.
   Это удобно делать, если все записи находятся на одном экземпляре.
 
-```{admonition} Примечание
-:class: note
-При выборе ключа шардирования учитывайте предметную область и предполагаемое API.
-```
+> [!NOTE]
+> При выборе ключа шардирования учитывайте предметную область и предполагаемое API.
 
 Для работы с данными в примере используются методы модуля CRUD.
 Дополнительно будет реализовано следующее API:
 
-- `app.delete_user(user_id)` -- удаление пользователя. У всех задач, связанных с этим пользователем, в поле `assigned_user_id` должен быть выставлен `box.NULL`;
-- `app.delete_project(project_id)` -- удаление проекта и всех связанных с ним задач;
-- `app.get_project_data(project_id)` -- получение проекта и всех связанных с ним задач и пользователей.
+- `app.delete_user(user_id)` — удаление пользователя. У всех задач, связанных с этим пользователем, в поле `assigned_user_id` должен быть выставлен `box.NULL`;
+- `app.delete_project(project_id)` — удаление проекта и всех связанных с ним задач;
+- `app.get_project_data(project_id)` — получение проекта и всех связанных с ним задач и пользователей.
 
-(user_guide-space_format-start_example)=
 ## Запуск стенда
 
 Для запуска и настройки кластера используются файлы из папки `migrations`:
 
-* `docker-compose.yml` -- описание узлов кластера;
-* `bootstrap/topology.json` -- топология кластера.
+* `docker-compose.yml` — описание узлов кластера;
+* `bootstrap/topology.json` — топология кластера.
 
 Для успешного старта должны быть свободны следующие порты:
 
@@ -84,7 +73,7 @@
 Перейдите в директорию примера `migrations`:
 
 ```shell
-cd ./doc/examples/migrations/
+cd examples/migrations
 ```
 
 Запустите стенд:
@@ -96,7 +85,6 @@ docker compose up -d
 В запущенном кластере созданы спейсы `projects`, `tasks` и `users`, а также
 функции `app.delete_user(user_id)` и `app.get_project_data(project_id)`.
 
-(user_guide-space_format-load_data)=
 ## Загрузка и проверка данных
 
 Подключитесь к роутеру с помощью команды `tt connect`.
@@ -168,10 +156,9 @@ localhost:3300> crud.delete('users', require('uuid').fromstr('04e7f6a2-2979-46e4
 localhost:3300> box.schema.func.call('__create_example_data')
 ```
 
-(user_guide-space_format-check_functions)=
 ## Проверка пользовательских функций базы данных
 
-Модуль [CRUD](https://github.com/tarantool/crud) упрощает работу с шардированными данными -- выполнение простых операций
+Модуль [CRUD](https://github.com/tarantool/crud) упрощает работу с шардированными данными — выполнение простых операций
 чтения и записи таких данных прозрачно для пользователя.
 Тем не менее, для задач, реализующих функции базы данных (`app.get_project_data(id)`, `app.delete_user(id)` и `app.delete_project(id)`),
 модуля CRUD недостаточно.
@@ -240,12 +227,12 @@ localhost:3300> crud.get('users', require('uuid').fromstr('04e7f6a2-2979-46e4-8d
 ...
 ```
 
-В выводе функции видно, что информации о пользователе нет -- пользователь успешно удален.
+В выводе функции видно, что информации о пользователе нет — пользователь успешно удален.
 
 Теперь во всех связанных с этим пользователем задачах нужно присвоить полю `assigned_user_id` значение `box.NULL`.
 Для этого на всех хранилищах была объявлена функция `tasks.set_box_NULL_for_user_id`.
 Функция задает `box.NULL` в поле `assigned_user_id` для всех задач, у которых `assigned_user_id == user_id`, где
-`user_id` -- аргумент функции.
+`user_id` — аргумент функции.
 
 Код функции:
 
@@ -268,7 +255,7 @@ end
 Особенность `app.delete_user(id)` состоит в том, что спейсы  `tasks` и `users` шардируются по разным ключам.
 В общем случае связанные задачи и пользователи будут находиться на разных шардах. Это значит, что нет узла, на котором бы было известно,
 на каких шардах будут задачи, связанные с удаляемым пользователем.
-Вызывать функцию `tasks.set_box_NULL_for_user_id` нужно на каждом мастере шарда, потому что такие задачи будут на всех 
+Вызывать функцию `tasks.set_box_NULL_for_user_id` нужно на каждом мастере шарда, потому что такие задачи будут на всех
 шардах.
 Для вызова функции на всех шардах используется модуль для горизонтального масштабирования [vshard](https://www.tarantool.io/ru/doc/2.11/reference/reference_rock/vshard/).
 
@@ -384,7 +371,6 @@ local _, err = vshard_router.callrw(bucket_id, 'projects.delete_project', {id})
 
 Полный исходный код приведен в файле миграции `./bootstrap/migrations/source/001_test.lua` примера `migrations`.
 
-(user_guide-space_format-change_schema)=
 ## Изменение схемы данных
 
 Предположим, что теперь нужно изменить схему данных, добавив в нее новые поля:
@@ -394,14 +380,14 @@ local _, err = vshard_router.callrw(bucket_id, 'projects.delete_project', {id})
 * `role (string)` в спейс `users`.
 
 По умолчанию в полях `projects.deadline` и `due_date(datetime)` должно быть значение `2999-12-31T00:00:00Z`, а в поле
-`users.role` -- значение `not set`.
+`users.role` — значение `not set`.
 Функцию `app.get_project_data` нужно также переписать, чтобы отображались новые поля.
 
 Новая схема данных будет выглядеть так:
 
 ![Схема данных](images/schema2.drawio.svg)
 
-Код миграции приведен в файле `./migrations/002_test.lua002_test.lua` примера `migrations`.
+Код миграции приведен в файле `./migrations/002_test.lua` примера `migrations`.
 
 Миграции выполняются в лексикографическом порядке, поэтому им даны нумерованные названия: (`0001_my_migr.lua`, `2023_12_24_migr.lua`).
 
@@ -411,7 +397,6 @@ local _, err = vshard_router.callrw(bucket_id, 'projects.delete_project', {id})
 localhost:3300> box.schema.func.call('__create_example_data')
 ```
 
-(user_guide-space_format-change_schema-migrations)=
 ### Способы выполнения миграции
 
 Есть два способа выполнить миграцию:
@@ -462,7 +447,7 @@ curl -X POST localhost:8081/migrations/up
 {"applied":["002_test.lua"]}
 ```
 
-Проверьте, что миграция прошла успешно. 
+Проверьте, что миграция прошла успешно.
 Видно, что добавлены новые поля со значениями по умолчанию:
 
 ```shell
@@ -550,7 +535,6 @@ end)
 
 Узнать подробнее о том, как хранятся персистентные функции, можно в спейсе [box.space._func](https://www.tarantool.io/ru/doc/2.11/reference/reference_lua/box_space/_func/).
 
-(user_guide-space_format-stop_example)=
 ## Остановка стенда
 
 Чтобы остановить стенд, выполните следующую команду:

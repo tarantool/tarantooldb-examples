@@ -6,49 +6,41 @@
 
 Содержание:
 
-* [](user_guide-java_crud-prereq)
-* [](user_guide-java_crud-start_example)
-* [](user_guide-java_crud-run_application)
-* [](user_guide-java_crud-stop_example)
+* [Пререквизиты](#пререквизиты)
+* [Запуск стенда](#запуск-стенда)
+* [Запуск приложения](#запуск-приложения)
+* [Остановка стенда](#остановка-стенда)
 
-(user_guide-java_crud-prereq)=
 ## Пререквизиты
 
 Для выполнения примера требуются:
 
-* установленный [Docker-образ](/install_and_upgrade/install/install_docker.md) Tarantool DB;
-* приложение Docker compose;
+* установленный [Docker-образ](https://www.tarantool.io/docs/tdb/ru/1_x/install_and_upgrade/install/install_docker) Tarantool DB;
+* приложение Docker Compose;
 * Maven;
 * Java версии 8+;
-* установленный [tarantool-java-ee версии 1.3.1](/user_guide/connectors/java/java_install.md).
+* установленный [tarantool-java-ee версии 1.3.1](https://www.tarantool.io/docs/tdb/ru/1_x/user_guide/connectors/java/java_install).
 * исходные файлы примера `java_crud`.
 
-  ```{admonition} Примечание
-  :class: note
-
-  Есть два способа получить исходные файлы примера:
-
-  * Архив с полной документацией Tarantool DB, полученный по почте или скачанный в [личном кабинете tarantool.io](https://www.tarantool.io/en/accounts/customer_zone/packages/tarantooldb/release/documentation).
-    Пример архива: `tarantooldb-documentation-1.0.0.tar.gz`.
-    Пример `java_crud` расположен в таком архиве в директории `./doc/examples/java_crud/`.
-    
-  * Отдельный архив [java_crud.tar.gz](https://tarantool.io/ru/tarantooldb/doc/1.x/examples/java_crud/java_crud.tar.gz), скачанный c сайта Tarantool.
-  ```
+> [!NOTE]
+>  Есть два способа получить исходные файлы примера:
+>  * Репозиторий [github.com/tarantool/tarantooldb-examples](https://github.com/tarantool/tarantooldb-examples/tree/release-1x/master).
+>    Пример `java_crud` расположен в директории `examples/java_crud`.
+>  * Отдельный архив [java_crud.zip](https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2Ftarantool%2Ftarantooldb-examples%2Ftree%2Frelease-1x%2Fmaster%2Fexamples%2Fjava_crud&filename=java_crud), скачанный из этого репозитория.
 
 Кроме того, для загрузки Java-коннектора нужно настроить конфигурацию Maven.
-Чтобы задать эту конфигурацию, используйте инструкцию [Установка клиента tarantool-java-ee](/user_guide/connectors/java/java_install.md).
+Чтобы задать эту конфигурацию, используйте инструкцию [Установка клиента tarantool-java-ee](https://www.tarantool.io/docs/tdb/ru/1_x/user_guide/connectors/java/java_install).
 
-(user_guide-java_crud-start_example)=
 ## Запуск стенда
 
 Для успешного запуска должны быть свободны порты:
-* 3301--3306;
-* 8081--8086.
+* 3301—3306;
+* 8081—8086.
 
 Перейдите в директорию `java_crud/tt`:
 
 ```shell
-cd ./doc/examples/java_crud/tt
+cd examples/java_crud/tt
 ```
 
 Запустите стенд:
@@ -67,14 +59,13 @@ docker compose up -d
 После этого перейдите на вкладку **Space Explorer** и выберите любой узел, например `storage1`.
 Проверьте, что на узле есть спейс `test`.
 
-(user_guide-java_crud-run_application)=
 ## Запуск приложения
 
 Откройте вторую вкладку терминала.
 В этой вкладке перейдите в директорию `java_crud`:
 
 ```shell
-cd ./doc/examples/java_crud
+cd examples/java_crud
 ```
 
 Запустите Java-приложение:
@@ -93,7 +84,6 @@ Rows verified
 
 Необходимо убедиться, что в спейсе `test` появились данные.
 
-(user_guide-java_crud-stop_example)=
 ## Остановка стенда
 
 Остановить стенд можно так:
