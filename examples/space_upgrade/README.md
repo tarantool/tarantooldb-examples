@@ -92,7 +92,7 @@ tt connect admin:secret-cluster-cookie@localhost:3300
 box.schema.func.call('__fill_data')
 ```
 
-Исходный код функции приведен в файле `001_test.lua` в директории `./bootstrap/migrations/source/` примера `migrations_space_upgrade`.
+Исходный код функции приведен в файле `001_test.lua` в директории `./bootstrap/migrations/source/` примера `space_upgrade`.
 
 Дождитесь окончания загрузки данных, это может занять до трех минут.
 В результате на каждом хранилище будет занято по 164 MB данных.
@@ -128,7 +128,7 @@ space_upgrade-tarantool-router-1    | 2024-02-26 05:49:01.795 [12] main/189/main
 
 ## Определение кода миграций
 
-Исходный код миграции приведен в файле `002_test.lua` в корневой директории примера `migrations_space_upgrade`.
+Исходный код миграции приведен в файле `002_test.lua` в корневой директории примера `space_upgrade`.
 
 ### Спейс projects
 
@@ -180,7 +180,7 @@ rawset(_G, '__projects_migration', projects_migration)
 
 ### Спейс tasks
 
-В спейс `tasks` нужно изменить тип поля `status` с `number` на `string`, а также добавить в конец поля `due_date(datetime)`.
+В спейс `tasks` нужно изменить тип поля `status` со `string` на `number`, а также добавить в конец поля `due_date(datetime)`.
 
 Определите функцию для изменения кортежей:
 

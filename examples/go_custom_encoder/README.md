@@ -103,8 +103,8 @@ go run -tags go_tarantool_ssl_disable main.go
 Вывод после окончания работы приложения выглядит так:
 
 ```shell
-Recorded via crud in batches of 10000 records in 120.924997ms - auto-encoder
-Recorded via crud in batches of 10000 records in 96.016347ms - custom-encoder
+Inserted 10000 rows via crud in batches in 120.924997ms (auto-encoder)
+Inserted 10000 rows via crud in batches in 96.016347ms (custom-encoder)
 Rows verified
 ```
 

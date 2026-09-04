@@ -88,7 +88,7 @@ mvn exec:java -Dexec.mainClass="org.example.App"
 
 ```shell
 Directly recorded 10000 rows one at a time in 483 milliseconds
-Tuples: [[1, 4677746723089159966, aHRDJPQVkTEBttESWzzUH]]
+Tuples: Tuple(formatId = null, data = [1, 4677746723089159966, aHRDJPQVkTEBttESWzzUH])
 ```
 
 Необходимо убедиться, что в спейсе `test` появились данные.

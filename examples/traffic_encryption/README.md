@@ -136,7 +136,6 @@ dialer := tarantool.OpenSslDialer{
 	SslKeyFile:  "./certs/client-key.pem",
 	SslCertFile: "./certs/client-cert.pem",
 	SslCaFile:   "./certs/ca-cert.pem",
-	SslPassword: "54321",
 }
 
 opts := tarantool.Opts{}
