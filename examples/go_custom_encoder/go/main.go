@@ -200,7 +200,7 @@ func main() {
 	start := time.Now()
 	ok := WritePerBatchOverCrud(conn)
 	if ok {
-		fmt.Printf("Rows via crud in batches of %d records in %v - auto-encoder\n", DATA_QTY, time.Since(start))
+		fmt.Printf("Inserted %d rows via crud in batches in %v (auto-encoder)\n", DATA_QTY, time.Since(start))
 	}
 
 	GenerateBatchesCustom()
@@ -208,10 +208,10 @@ func main() {
 	start = time.Now()
 	ok = WritePerBatchOverCrud(conn)
 	if ok {
-		fmt.Printf("Rows via crud in batches of %d records in %v - custom-encoder\n", DATA_QTY, time.Since(start))
+		fmt.Printf("Inserted %d rows via crud in batches in %v (custom-encoder)\n", DATA_QTY, time.Since(start))
 	}
 
 	start = time.Now()
 	CheckRecords(conn)
-	fmt.Printf("Rows via crud of %d readed in %v\n", DATA_QTY, time.Since(start))
+	fmt.Printf("Verified %d rows via crud in %v\n", DATA_QTY, time.Since(start))
 }
