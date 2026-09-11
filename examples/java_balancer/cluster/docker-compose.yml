@@ -89,6 +89,7 @@ services:
       && tools/client/wait_instance_ready.sh 15 tarantool-storage-1-spb:3301 \
       && tools/client/wait_instance_ready.sh 15 tarantool-storage-2-msk:3301 \
       && tools/client/wait_instance_ready.sh 15 tarantool-storage-2-spb:3301 \
+      && tt replicaset vshard bootstrap tarantool-router-msk:3301 \
       && tt migrations publish http://etcd1:2379/tdb migrations \
       && tt migrations apply http://etcd1:2379/tdb \
       && echo Initialize has completed successfully."
