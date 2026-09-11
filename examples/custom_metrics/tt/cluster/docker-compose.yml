@@ -22,7 +22,6 @@ services:
       - TT_CONFIG_ETCD_ENDPOINTS=http://etcd1:2379,http://etcd2:2379,http://etcd3:2379
       - TT_CONFIG_ETCD_PREFIX=/tdb
       - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
-      - TDB_VSHARD_BOOTSTRAP_TIMEOUT=20
   tarantool-storage-1-spb:
     image: tarantooldb:3x-latest
     networks:
@@ -34,7 +33,6 @@ services:
       - TT_CONFIG_ETCD_ENDPOINTS=http://etcd1:2379,http://etcd2:2379,http://etcd3:2379
       - TT_CONFIG_ETCD_PREFIX=/tdb
       - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
-      - TDB_VSHARD_BOOTSTRAP_TIMEOUT=20
   tarantool-storage-1-brn:
     image: tarantooldb:3x-latest
     networks:
@@ -46,7 +44,6 @@ services:
       - TT_CONFIG_ETCD_ENDPOINTS=http://etcd1:2379,http://etcd2:2379,http://etcd3:2379
       - TT_CONFIG_ETCD_PREFIX=/tdb
       - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
-      - TDB_VSHARD_BOOTSTRAP_TIMEOUT=20
 
   init_host:
     image: tarantooldb:3x-latest
@@ -68,6 +65,7 @@ services:
       && tools/client/wait_instance_ready.sh 15 tarantool-storage-1-msk:3301 \
       && tools/client/wait_instance_ready.sh 15 tarantool-storage-1-spb:3301 \
       && tools/client/wait_instance_ready.sh 15 tarantool-storage-1-brn:3301 \
+      && tt replicaset vshard bootstrap tarantool-router-msk:3301 \
       && tt migrations publish http://etcd1:2379/tdb migrations \
       && tt migrations apply http://etcd1:2379/tdb \
       && echo Initialize has completed successfully."
