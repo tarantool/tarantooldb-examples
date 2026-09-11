@@ -1,15 +1,12 @@
 # Запуск кластера из одного узла через Docker Compose
 
 В этом руководстве показано, как развернуть кластер Tarantool DB из одного узла с помощью Docker Compose.
-В примере применяется нестандартный способ первоначального запуска модуля [шардирования](https://www.tarantool.io/docs/tdb/ru/3_x/admin_guide/sharding)
-— с помощью встроенного модуля.
-Этот способ можно включить через конфигурацию кластера:
+Начальная загрузка модуля [шардирования](https://www.tarantool.io/docs/tdb/ru/3_x/admin_guide/sharding)
+выполняется утилитой [tt CLI](https://www.tarantool.io/docs/tdb/ru/3_x/install_and_upgrade/install_tt)
+в контейнере [init_host](../up_with_docker_compose/README.md#контейнер-init_host):
 
-```yaml
-groups:
-  all_in_one:
-    app:
-      module: app.vshard_bootstrapper
+```shell
+tt replicaset vshard bootstrap tarantool-router-storage-1:3301
 ```
 
 Содержание:

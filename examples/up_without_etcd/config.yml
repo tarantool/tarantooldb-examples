@@ -39,8 +39,6 @@ roles_cfg:
 
 groups:
   routers:
-    app:
-      module: app.vshard_bootstrapper
     sharding:
       roles: [router]
     roles:
