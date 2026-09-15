@@ -28,8 +28,6 @@ sharding:
 
 groups:
   all_in_one:
-    app:
-      module: app.vshard_bootstrapper
     sharding:
       roles: [router, storage]
     roles:

@@ -36,8 +36,6 @@ roles_cfg:
 
 groups:
   routers:
-    app:
-      module: app.vshard_bootstrapper
     replication:
       failover: manual
     sharding:

@@ -24,6 +24,7 @@ services:
       - TT_CLI_PASSWORD=secret-cluster-cookie
     command: /bin/sh -c "\
         tools/client/wait_instance_ready.sh 15 tarantool-router-storage-1:3301 \
+        && tt replicaset vshard bootstrap tarantool-router-storage-1:3301 \
         && tt migrations publish http://etcd1:2379/tdb migrations \
         && tt migrations apply http://etcd1:2379/tdb \
         && echo Initialize has completed successfully."
