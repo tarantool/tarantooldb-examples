@@ -48,6 +48,13 @@ docker compose up -d
 - кластера Tarantool DB (2 роутера, 2 набора реплик по 3 хранилища);
 - средств мониторинга (Prometheus, Grafana).
 
+Начальную загрузку модуля [шардирования](https://www.tarantool.io/ru/doc/latest/platform/sharding/)
+выполняет контейнер `init_host` с помощью утилиты [tt CLI](https://www.tarantool.io/docs/tdb/ru/2_x/install_and_upgrade/install_tt):
+
+```shell
+tt replicaset vshard bootstrap tarantool-router-msk:3301
+```
+
 ## Используемые файлы
 
 В руководстве используются следующие файлы примера `up_without_etcd`:
