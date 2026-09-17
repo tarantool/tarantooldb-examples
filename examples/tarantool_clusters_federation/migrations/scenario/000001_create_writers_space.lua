@@ -11,7 +11,7 @@ local function apply_scenario()
     })
 
     space:create_index('primary', {parts = {'id'}})
-    space:create_index('bucket_id', {parts = {'bucket_id'}})
+    space:create_index('bucket_id', {parts = {'bucket_id'}, unique = false})
 
     helpers.register_sharding_key('writers', {'id'})
 end
