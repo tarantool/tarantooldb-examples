@@ -31,6 +31,7 @@ services:
       - TARANTOOL_ADVERTISE_URI=tarantool-storage-1-msk:3301
       - TARANTOOL_ALIAS=storage-1-msk
       - TARANTOOL_ENABLE_SYNCHRO_MODE=true
+      - TARANTOOL_REPLICATION_SYNCHRO_TIMEOUT=86400
       - TARANTOOL_ELECTION_MODE=manual
       - TARANTOOL_ELECTION_FENCING_MODE=off
   tarantool-storage-1-spb:
@@ -44,6 +45,7 @@ services:
       - TARANTOOL_ADVERTISE_URI=tarantool-storage-1-spb:3301
       - TARANTOOL_ALIAS=storage-1-spb
       - TARANTOOL_ENABLE_SYNCHRO_MODE=true
+      - TARANTOOL_REPLICATION_SYNCHRO_TIMEOUT=86400
       - TARANTOOL_ELECTION_MODE=manual
       - TARANTOOL_ELECTION_FENCING_MODE=off
   tarantool-storage-1-brn:
@@ -57,6 +59,7 @@ services:
       - TARANTOOL_ADVERTISE_URI=tarantool-storage-1-brn:3301
       - TARANTOOL_ALIAS=storage-1-brn
       - TARANTOOL_ENABLE_SYNCHRO_MODE=true
+      - TARANTOOL_REPLICATION_SYNCHRO_TIMEOUT=86400
       - TARANTOOL_ELECTION_MODE=manual
       - TARANTOOL_ELECTION_FENCING_MODE=off
   tarantool-storage-2-msk:
@@ -70,6 +73,7 @@ services:
       - TARANTOOL_ADVERTISE_URI=tarantool-storage-2-msk:3301
       - TARANTOOL_ALIAS=storage-2-msk
       - TARANTOOL_ENABLE_SYNCHRO_MODE=true
+      - TARANTOOL_REPLICATION_SYNCHRO_TIMEOUT=86400
       - TARANTOOL_ELECTION_MODE=manual
       - TARANTOOL_ELECTION_FENCING_MODE=off
   tarantool-storage-2-spb:
@@ -83,6 +87,7 @@ services:
       - TARANTOOL_ADVERTISE_URI=tarantool-storage-2-spb:3301
       - TARANTOOL_ALIAS=storage-2-spb
       - TARANTOOL_ENABLE_SYNCHRO_MODE=true
+      - TARANTOOL_REPLICATION_SYNCHRO_TIMEOUT=86400
       - TARANTOOL_ELECTION_MODE=manual
       - TARANTOOL_ELECTION_FENCING_MODE=off
   tarantool-storage-2-brn:
@@ -96,6 +101,7 @@ services:
       - TARANTOOL_ADVERTISE_URI=tarantool-storage-2-brn:3301
       - TARANTOOL_ALIAS=storage-2-brn
       - TARANTOOL_ENABLE_SYNCHRO_MODE=true
+      - TARANTOOL_REPLICATION_SYNCHRO_TIMEOUT=86400
       - TARANTOOL_ELECTION_MODE=manual
       - TARANTOOL_ELECTION_FENCING_MODE=off
   etcd1:
