@@ -1,0 +1,96 @@
+services:
+  router-1:
+    image: ${TDB_IMAGE:-tarantooldb:3x-latest}
+    networks:
+      - grpc_example
+    ports:
+      - "127.0.0.1:${ROUTER_HOST_PORT:-3301}:3301"
+    environment:
+      TT_INSTANCE_NAME: router-1
+      TT_CONFIG_ETCD_ENDPOINTS: http://etcd:2379
+      TT_CONFIG_ETCD_PREFIX: /tdb
+      TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT: 3
+
+  storage-1-a:
+    image: ${TDB_IMAGE:-tarantooldb:3x-latest}
+    networks:
+      - grpc_example
+    environment:
+      TT_INSTANCE_NAME: storage-1-a
+      TT_CONFIG_ETCD_ENDPOINTS: http://etcd:2379
+      TT_CONFIG_ETCD_PREFIX: /tdb
+      TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT: 3
+
+  storage-1-b:
+    image: ${TDB_IMAGE:-tarantooldb:3x-latest}
+    networks:
+      - grpc_example
+    environment:
+      TT_INSTANCE_NAME: storage-1-b
+      TT_CONFIG_ETCD_ENDPOINTS: http://etcd:2379
+      TT_CONFIG_ETCD_PREFIX: /tdb
+      TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT: 3
+
+  storage-2-a:
+    image: ${TDB_IMAGE:-tarantooldb:3x-latest}
+    networks:
+      - grpc_example
+    environment:
+      TT_INSTANCE_NAME: storage-2-a
+      TT_CONFIG_ETCD_ENDPOINTS: http://etcd:2379
+      TT_CONFIG_ETCD_PREFIX: /tdb
+      TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT: 3
+
+  storage-2-b:
+    image: ${TDB_IMAGE:-tarantooldb:3x-latest}
+    networks:
+      - grpc_example
+    environment:
+      TT_INSTANCE_NAME: storage-2-b
+      TT_CONFIG_ETCD_ENDPOINTS: http://etcd:2379
+      TT_CONFIG_ETCD_PREFIX: /tdb
+      TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT: 3
+
+  init_host:
+    image: ${TDB_IMAGE:-tarantooldb:3x-latest}
+    profiles: [init]
+    networks:
+      - grpc_example
+    volumes:
+      - ./migrations:/app/tarantooldb/migrations:ro
+    environment:
+      TT_CLI_USERNAME: admin
+      TT_CLI_PASSWORD: secret-cluster-cookie
+    command:
+      - /bin/sh
+      - -ec
+      - |
+        tools/client/wait_instance_ready.sh 60 router-1:3301
+        tools/client/wait_instance_ready.sh 60 storage-1-a:3301
+        tools/client/wait_instance_ready.sh 60 storage-1-b:3301
+        tools/client/wait_instance_ready.sh 60 storage-2-a:3301
+        tools/client/wait_instance_ready.sh 60 storage-2-b:3301
+        tt replicaset vshard bootstrap router-1:3301
+        tt migrations publish http://etcd:2379/tdb migrations
+        tt migrations apply http://etcd:2379/tdb
+
+  grpc-gateway:
+    image: ${TDB_IMAGE:-tarantooldb:3x-latest}
+    profiles: [worker]
+    hostname: grpc-gateway
+    networks:
+      - grpc_example
+    ports:
+      - "127.0.0.1:${GATEWAY_HOST_PORT:-9091}:9090"
+      - "127.0.0.1:${GATEWAY_INSTR_HOST_PORT:-9081}:9081"
+    environment:
+      TDB_WORKER_NAME: grpc-gateway
+      TDB_WORKER_HOST_NAME: grpc-gateway
+      TDB_WORKER_CONFIG_ETCD_ENDPOINTS: http://etcd:2379
+      TDB_WORKER_CONFIG_ETCD_PREFIX: /tdb-workers/grpc-example
+    command: ["/app/tarantooldb/tdb-gateway/bin/tdb-grpc-gateway"]
+
+networks:
+  grpc_example:
+    name: tdb_grpc_example_network
+    external: true
