@@ -1,0 +1,28 @@
+type: nontarantool
+instrumentation:
+  url: grpc-gateway:9081
+  metrics_url: /metrics
+  metrics_format: prometheus
+  liveness_url: /alive
+  info_url: /info
+  binary: /app/tarantooldb/tdb-gateway/bin/tdb-grpc-gateway
+config:
+  server:
+    grpc_addr: 0.0.0.0:9090
+    enable_reflection: true
+  log:
+    level: info
+  vshard:
+    tarantool_cluster_prefix: /tdb/config/all
+    user: client
+    password: secret
+    startup_timeout: 30s
+    timeout: 5s
+    native_ops: true
+    retries: 2
+    retry_backoff: 200ms
+    discovery_timeout: 1m
+    route_retry_pause: 50ms
+    spaces:
+      test_kv:
+        sharding_key: [id]
