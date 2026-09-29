@@ -1,121 +1,150 @@
 # Работа с кластером через gRPC Gateway
 
-Доступно с версии Tarantool DB 3.4.0.
+В этом руководстве описано, как запустить gRPC-интерфейс Tarantool DB
+и выполнять CRUD-запросы. Конфигурация шлюзов хранится в etcd,
+состояние и метрики доступны в TCM.
 
-В этом примере показано, как запустить gRPC Gateway в качестве узла-обработчика
-Tarantool DB и выполнять CRUD-запросы через gRPC.
-Конфигурация обработчика хранится в etcd, состояние и метрики доступны в TCM.
+> [!NOTE]
+> Пример доступен с версии Tarantool DB 3.4.0.
 
-Шлюз принимает запросы по gRPC и использует топологию vshard для выбора хранилища.
-Роутер используется для начального запуска шардирования и миграций.
-На хранилищах включена роль `app.roles.tdb_gateway`, необходимая для `Select`
-и постраничной выборки.
+Руководство включает следующие шаги:
+
+* [Пререквизиты](#пререквизиты)
+* [Запуск стенда](#запуск-стенда)
+* [Определение конфигурации](#определение-конфигурации)
+* [Выполнение CRUD-запросов](#выполнение-crud-запросов)
+* [Постраничная выборка](#постраничная-выборка)
+* [Просмотр состояния и метрик](#просмотр-состояния-и-метрик)
+* [Остановка стенда](#остановка-стенда)
 
 ## Пререквизиты
 
 Для выполнения примера требуются:
 
-- установленный Docker-образ Tarantool DB;
-- Docker Compose и `make`;
-- `grpcurl` для выполнения запросов;
-- `curl` для просмотра состояния и метрик обработчика.
+* установленный [Docker-образ](https://www.tarantool.io/docs/tdb/ru/3_x/install_and_upgrade/install/install_docker) Tarantool DB;
+* приложение Docker Compose и утилита `make`;
+* утилита `grpcurl` для выполнения запросов;
+* утилита `curl` для просмотра метрик шлюзов;
+* исходные файлы примера `grpc_gateway`.
 
-`grpcurl` получает контракты через включённый в примере gRPC reflection.
+> [!NOTE]
+> Есть два способа получить исходные файлы примера:
+>
+> * Репозиторий [github.com/tarantool/tarantooldb-examples](https://github.com/tarantool/tarantooldb-examples/tree/release-3x/master).
+>   Пример `grpc_gateway` расположен в директории `examples/grpc_gateway`.
+> * Отдельный архив [grpc_gateway.zip](https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2Ftarantool%2Ftarantooldb-examples%2Ftree%2Frelease-3x%2Fmaster%2Fexamples%2Fgrpc_gateway&filename=grpc_gateway), скачанный из этого репозитория.
 
 ## Запуск стенда
 
-Перейдите в каталог примера и запустите стенд:
+Для успешного запуска должны быть свободны следующие порты:
+
+* 3301;
+* 8081;
+* 9081–9082;
+* 9091–9092.
+
+Перейдите в директорию примера `grpc_gateway`:
 
 ```shell
 cd examples/grpc_gateway
+```
+
+Запустите стенд:
+
+```shell
 make start
 ```
 
-Стенд состоит из одного etcd, TCM, одного роутера, двух наборов реплик
-по два хранилища и одного gRPC-обработчика. Для компактного примера используется
-ручной выбор лидеров (`replication.failover: manual`).
+Запущенный стенд состоит из:
 
-`make start` публикует конфигурацию кластера и обработчика в etcd, запускает
-экземпляры Tarantool DB, выполняет bootstrap vshard и миграции, затем запускает
-шлюз. В спейсе `test_kv` уже есть 15 записей с `id` от 1 до 15.
+* кластера Tarantool DB:
+  * 1 роутер;
+  * 2 набора реплик по 2 хранилища;
+* 2 экземпляров gRPC Gateway;
+* 1 узла etcd;
+* 1 узла [Tarantool Cluster Manager](https://www.tarantool.io/docs/tdb/ru/3_x/getting_started#getting_started-tcm) (TCM).
+
+После запуска должны работать все контейнеры, кроме
+[init_host](../up_with_docker_compose/README.md#контейнер-init_host).
+Этот контейнер настраивает шардирование и применяет миграции, после чего удаляется.
+
+Также после запуска кластера становится доступен веб-интерфейс TCM.
+Для входа в TCM откройте в браузере адрес [http://localhost:8081](http://localhost:8081).
+Логин и пароль для входа:
+
+* **Username**: `admin`
+* **Password**: `secret`
+
+Выберите кластер **gRPC example** и откройте вкладку **Stateboard**.
+Узлы, предоставляющие gRPC-интерфейс, отображаются как `grpc-gateway-1` и `grpc-gateway-2`.
 
 | Интерфейс | Адрес |
 | --- | --- |
-| gRPC | `localhost:9091` |
-| Состояние worker | `http://localhost:9081/alive` |
-| Версия и информация | `http://localhost:9081/info` |
-| Метрики | `http://localhost:9081/metrics` |
-| TCM | `http://localhost:8081` |
+| gRPC первого шлюза | `localhost:9091` |
+| gRPC второго шлюза | `localhost:9092` |
+| Метрики первого шлюза | `http://localhost:9081/metrics` |
+| Метрики второго шлюза | `http://localhost:9082/metrics` |
 | Роутер (iproto) | `localhost:3301` |
 
-Порты опубликованы на loopback. В TCM войдите как `admin` с паролем `secret`
-и выберите кластер **gRPC example**. Префикс обработчиков уже настроен;
-worker `grpc-gateway` должен отображаться в списке узлов-обработчиков.
+В запросах ниже используется первый шлюз. Для обращения ко второму
+замените `localhost:9091` на `localhost:9092`: оба работают с одним кластером.
 
-## Используемые файлы
+## Определение конфигурации
 
-- `cluster/config.yml` — топология, пользователи и технологические роли кластера;
-- `cluster/docker-compose.yml` — экземпляры TDB, контейнер миграций и worker;
-- `cluster/migrations/scenario/` — создание спейса и начальных данных;
-- `tools/docker-compose.yml` и `tools/tcm.yml` — запуск etcd и настройка TCM;
-- `workers/grpc-gateway.yml` — конфигурация обработчика для публикации в etcd;
-- `Makefile` — команды управления стендом.
+Топология, пользователи и роли кластера заданы в файле `cluster/config.yml`.
+В примере используется ручной выбор лидеров (`replication.failover: manual`).
+Роутер используется для начальной настройки шардирования и применения миграций.
+На хранилищах включена роль `app.roles.tdb_gateway`, которая выполняет
+запросы шлюзов через vshard.
 
-## Конфигурация обработчика
+В файлах `cluster/grpc-gateway-1.yml` и `cluster/grpc-gateway-2.yml`
+секция `instrumentation` задаёт служебный HTTP-интерфейс для TCM
+(состояние, метрики), а секция `config` - параметры gRPC, логирования и vshard.
+Ключ шардирования спейса `test_kv` - поле `id`.
+Шлюз использует топологию vshard для выбора хранилища.
 
-Worker запускается бинарником из поставки TDB. Его переменные окружения:
+При запуске применяются миграции из директории `cluster/migrations/scenario`.
+Они создают спейс `test_kv` с полями `id`, `bucket_id`, `name` и `payload`
+и заполняют его 8 записями с `id` от 1 до 8.
+Значение `bucket_id` вычисляет шлюз; клиенту передавать его не нужно.
 
-```yaml
-TDB_WORKER_NAME: grpc-gateway
-TDB_WORKER_HOST_NAME: grpc-gateway
-TDB_WORKER_CONFIG_ETCD_ENDPOINTS: http://etcd:2379
-TDB_WORKER_CONFIG_ETCD_PREFIX: /tdb-workers/grpc-example
-```
+> [!NOTE]
+> В примере включён gRPC reflection: утилита `grpcurl` получает описание API
+> из запущенного шлюза, поэтому для выполнения запросов не требуются локальные proto-файлы.
 
-Конфигурация хранится в etcd по ключу:
-
-```text
-/tdb-workers/grpc-example/instances/grpc-gateway/grpc-gateway
-```
-
-В файле `workers/grpc-gateway.yml` секция `instrumentation` задаёт служебный
-HTTP-интерфейс для TCM, а секция `config` — параметры gRPC, логирования и vshard.
-`config.vshard.tarantool_cluster_prefix` указывает на `/tdb/config/all`, где
-опубликована топология TDB. Ключ шардирования `test_kv` — поле `id`.
-При `native_ops: true` операции `Get`, `Insert`, `Replace`, `Update` и `Delete`
-выполняются напрямую по iproto. `Select` и пагинация по-прежнему используют
-роль `app.roles.tdb_gateway`.
-
-Этот режим рассчитан на неизменное распределение бакетов, как в данном примере.
-Если предполагается ребалансировка или перенос бакетов, используйте `native_ops: false`.
-
-Посмотреть опубликованную конфигурацию:
-
-```shell
-make show-worker-config
-```
-
-После изменения файла повторно опубликовать её:
-
-```shell
-make publish-worker-config
-```
-
-Worker следит за конфигурацией в etcd. Изменение адреса gRPC или уровня логов
-требует перезапуска процесса; изменение состава кластера также требует
-перезапуска gateway.
+> [!NOTE]
+> После изменения адреса gRPC, уровня логирования или состава кластера
+> необходимо перезапустить шлюзы.
 
 ## Выполнение CRUD-запросов
 
-Посмотреть доступные сервисы и описание CRUD API:
+Посмотреть доступные сервисы можно с помощью команды:
 
 ```shell
 grpcurl -plaintext localhost:9091 list
+```
+
+Посмотреть описание команд CRUD API можно так:
+
+```shell
 grpcurl -plaintext localhost:9091 describe service.tdb.crud.v1.Crud
 ```
 
-Миграция создаёт спейс `test_kv` с полями `id`, `bucket_id`, `name` и `payload`.
-`bucket_id` вычисляет gateway; клиенту передавать его не нужно.
+Proto-контракты можно получить из запущенного шлюза через gRPC reflection.
+Следующая команда сохранит определение CRUD API и все его зависимости
+в каталог `proto`:
+
+```shell
+grpcurl -plaintext -proto-out-dir proto localhost:9091 describe service.tdb.crud.v1.Crud
+```
+
+Определение сервиса будет в `proto/service/tdb/crud/v1/service.proto`,
+форматы запросов и ответов - в соседних файлах, общие параметры -
+в `proto/service/tdb/shared/v1/options.proto`.
+
+Посмотреть содержимое спейса можно в TCM: откройте вкладку **Tuples**
+и выберите `test_kv`. Начальных записей меньше десяти, поэтому они помещаются
+на одной странице.
 Ниже приведены ответы при последовательном выполнении команд на стенде
 с исходными данными.
 
@@ -140,8 +169,11 @@ grpcurl -plaintext -d '{"space":"test_kv","key":{"parts":[1]}}' \
 }
 ```
 
-Создать запись с `id=100`. Повторный `Insert` того же ключа вернёт ошибку;
-для повторяемой записи используйте `Replace`:
+Создать запись с `id=100`:
+
+> [!NOTE]
+> Повторный `Insert` того же ключа вернёт ошибку.
+> Для замены существующей записи используйте `Replace`.
 
 ```shell
 grpcurl -plaintext -d '{"space":"test_kv","record":{"id":100,"name":"alice","payload":{"source":"example"}}}' \
@@ -204,7 +236,7 @@ grpcurl -plaintext -d '{"space":"test_kv","key":{"parts":[100]},"operations":[{"
 }
 ```
 
-Выбрать запись по ключу шардирования — запрос попадёт на один набор реплик:
+Выбрать запись по ключу шардирования - запрос попадёт на один набор реплик:
 
 ```shell
 grpcurl -plaintext -d '{"space":"test_kv","conditions":[{"field":"id","operator":"COMPARE_OPERATOR_EQ","value":100}],"options":{"limit":1}}' \
@@ -296,8 +328,11 @@ grpcurl -plaintext -d '{"space":"test_kv","conditions":[{"field":"name","operato
 ```
 
 Передайте `nextCursor` из ответа в поле `options.cursor` следующего запроса,
-сохранив остальные параметры. Значение курсора в примере иллюстративное:
-подставляйте `nextCursor` из собственного ответа целиком, без изменений:
+сохранив остальные параметры:
+
+> [!NOTE]
+> Значение курсора в примере иллюстративное. Вместо `<nextCursor из предыдущего ответа>`
+> подставьте `nextCursor` из собственного ответа целиком, без изменений.
 
 ```shell
 grpcurl -plaintext -d '{"space":"test_kv","conditions":[{"field":"name","operator":"COMPARE_OPERATOR_GTE","value":"seed-demo-row-01"}],"options":{"limit":3,"cursor":"<nextCursor из предыдущего ответа>"}}' \
@@ -337,24 +372,39 @@ grpcurl -plaintext -d '{"space":"test_kv","conditions":[{"field":"name","operato
 
 Пустой или отсутствующий `nextCursor` означает, что выборка завершена.
 
-## Мониторинг состояния и метрики
+## Просмотр состояния и метрик
+
+Чтобы просмотреть метрики каждого шлюза, выполните следующие команды:
 
 ```shell
-curl -fsS http://localhost:9081/alive
-curl -fsS http://localhost:9081/info
 curl -fsS http://localhost:9081/metrics | grep '^grpc_gateway_'
-make ps
-make logs-worker
+curl -fsS http://localhost:9082/metrics | grep '^grpc_gateway_'
 ```
 
-Метрики включают количество запросов, коды ответов, ошибки и задержки по каждому
-методу. Обычные логи worker доступны через Docker Compose.
+Метрики включают количество запросов, коды ответов, ошибки и задержки по каждому методу.
+
+Чтобы просмотреть состояние контейнеров, выполните команду:
+
+```shell
+make ps
+```
+
+Чтобы просмотреть логи шлюзов, выполните команду:
+
+```shell
+make logs-gateway
+```
+
+Для выхода из просмотра логов нажмите `Ctrl + C`.
 
 ## Остановка стенда
+
+Чтобы остановить стенд, выполните в директории примера следующую команду:
 
 ```shell
 make stop
 ```
 
-Команда удаляет контейнеры и сеть только этого примера. Данные находятся внутри
-контейнеров; после остановки и нового `make start` исходные данные создаются заново.
+> [!WARNING]
+> Команда `make stop` удаляет контейнеры и сеть примера вместе с данными стенда.
+> При следующем запуске `make start` исходные данные создаются заново.

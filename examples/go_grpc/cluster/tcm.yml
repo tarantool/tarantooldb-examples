@@ -1,0 +1,36 @@
+http:
+  host: 0.0.0.0
+  port: 8081
+
+storage:
+  provider: etcd
+  etcd:
+    prefix: /tcm
+    endpoints:
+      - http://etcd:2379
+
+security:
+  bootstrap-password: secret
+
+cluster:
+  tt-command: /app/tarantooldb/tt
+
+feature:
+  tuples: true
+
+initial-settings:
+  clusters:
+    - name: Go gRPC example
+      id: 00000000-0000-0000-0000-000000000001
+      storage-connection:
+        provider: etcd
+        etcd-connection:
+          prefix: /go-grpc
+          workers-prefix: /tdb-workers/go-grpc-example
+          endpoints:
+            - http://etcd:2379
+      tarantool-connection:
+        username: admin
+        password: secret-cluster-cookie
+
+default-cluster: false

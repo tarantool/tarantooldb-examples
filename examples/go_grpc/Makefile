@@ -11,17 +11,17 @@ ifndef DOCKER_COMPOSE
     $(error Не найден docker-compose или docker compose)
 endif
 
-COMPOSE := $(DOCKER_COMPOSE) -p tdb-grpc-cluster -f cluster/docker-compose.yml
+COMPOSE := $(DOCKER_COMPOSE) -p tdb-go-grpc -f cluster/docker-compose.yml
 
 .PHONY: start stop ps logs logs-gateway
 
 start:
 	$(COMPOSE) up -d etcd tcm
-	$(COMPOSE) exec -T tcm sh -ec 'tools/client/wait_etcd_ready.sh 30 http://etcd:2379 && tt cluster publish http://etcd:2379/tdb config.yml --force && tools/client/wait_config_ready.sh 30 http://etcd:2379/tdb'
+	$(COMPOSE) exec -T tcm sh -ec 'tools/client/wait_etcd_ready.sh 30 http://etcd:2379 && tt cluster publish http://etcd:2379/go-grpc config.yml --force && tools/client/wait_config_ready.sh 30 http://etcd:2379/go-grpc'
 	$(COMPOSE) exec -T -e ETCDCTL_API=3 etcd etcdctl --endpoints=http://etcd:2379 put \
-		/tdb-workers/grpc-example/instances/grpc-gateway-1/grpc-gateway-1 < cluster/grpc-gateway-1.yml
+		/tdb-workers/go-grpc-example/instances/grpc-gateway-1/grpc-gateway-1 < cluster/grpc-gateway-1.yml
 	$(COMPOSE) exec -T -e ETCDCTL_API=3 etcd etcdctl --endpoints=http://etcd:2379 put \
-		/tdb-workers/grpc-example/instances/grpc-gateway-2/grpc-gateway-2 < cluster/grpc-gateway-2.yml
+		/tdb-workers/go-grpc-example/instances/grpc-gateway-2/grpc-gateway-2 < cluster/grpc-gateway-2.yml
 	$(COMPOSE) up -d router-1 storage-1-a storage-1-b storage-2-a storage-2-b
 	$(COMPOSE) run --rm init_host
 	$(COMPOSE) up -d grpc-gateway-1 grpc-gateway-2

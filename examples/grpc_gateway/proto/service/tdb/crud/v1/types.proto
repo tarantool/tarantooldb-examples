@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package service.tdb.crud.v1;
+
+import "google/protobuf/struct.proto";
+
+option csharp_namespace = "Service.Tdb.Crud.V1";
+
+option go_package = "gitlab.corp.mail.ru/tarantool/tdb/pocs/tdb-grpc/pbtdbcontractsgen.git/service/tdb/crud/v1;pbcrud";
+
+option java_multiple_files = true;
+
+option java_outer_classname = "TypesProto";
+
+option java_package = "com.service.tdb.crud.v1";
+
+option objc_class_prefix = "STC";
+
+option php_metadata_namespace = "Service\\Tdb\\Crud\\V1\\GPBMetadata";
+
+option php_namespace = "Service\\Tdb\\Crud\\V1";
+
+option ruby_package = "Service::Tdb::Crud::V1";
+
+message Key {
+  repeated google.protobuf.Value parts = 1;
+}
+
+message Condition {
+  string field = 1;
+
+  CompareOperator operator = 2;
+
+  google.protobuf.Value value = 3;
+}
+
+message PatchOperation {
+  string field = 1;
+
+  PatchOperator operator = 2;
+
+  google.protobuf.Value value = 3;
+}
+
+enum CompareOperator {
+  COMPARE_OPERATOR_UNSPECIFIED = 0;
+
+  COMPARE_OPERATOR_EQ = 1;
+
+  COMPARE_OPERATOR_GT = 2;
+
+  COMPARE_OPERATOR_GTE = 3;
+
+  COMPARE_OPERATOR_LT = 4;
+
+  COMPARE_OPERATOR_LTE = 5;
+}
+
+enum PatchOperator {
+  PATCH_OPERATOR_UNSPECIFIED = 0;
+
+  PATCH_OPERATOR_SET = 1;
+
+  PATCH_OPERATOR_ADD = 2;
+
+  PATCH_OPERATOR_SUBTRACT = 3;
+}

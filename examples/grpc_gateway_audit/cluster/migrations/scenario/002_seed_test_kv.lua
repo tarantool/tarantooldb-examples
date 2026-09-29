@@ -14,8 +14,8 @@ local function apply()
     for id = 1, 8 do
         local _, err = crud.replace_object('test_kv', {
             id = id,
-            name = string.format('seed-demo-row-%02d', id),
-            payload = {source = 'grpc-example'},
+            name = string.format('seed-audit-row-%02d', id),
+            payload = {source = 'grpc-audit-example'},
         }, {timeout = 5})
         if err ~= nil then
             error(err)

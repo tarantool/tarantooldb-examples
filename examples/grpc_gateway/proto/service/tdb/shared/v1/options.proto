@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package service.tdb.shared.v1;
+
+option csharp_namespace = "Service.Tdb.Shared.V1";
+
+option go_package = "gitlab.corp.mail.ru/tarantool/tdb/pocs/tdb-grpc/pbtdbcontractsgen.git/service/tdb/shared/v1;pbtdbshared";
+
+option java_multiple_files = true;
+
+option java_outer_classname = "OptionsProto";
+
+option java_package = "com.service.tdb.shared.v1";
+
+option objc_class_prefix = "STS";
+
+option php_metadata_namespace = "Service\\Tdb\\Shared\\V1\\GPBMetadata";
+
+option php_namespace = "Service\\Tdb\\Shared\\V1";
+
+option ruby_package = "Service::Tdb::Shared::V1";
+
+message RequestOptions {
+  uint32 timeout_ms = 1;
+
+  ExecutionMode execution_mode = 2;
+}
+
+message SelectOptions {
+  uint32 timeout_ms = 1;
+
+  uint32 limit = 2;
+
+  ExecutionMode execution_mode = 3;
+
+  bytes cursor = 4;
+}
+
+enum ExecutionMode {
+  EXECUTION_MODE_UNSPECIFIED = 0;
+
+  EXECUTION_MODE_MASTER = 1;
+
+  EXECUTION_MODE_ANY = 2;
+
+  EXECUTION_MODE_REPLICA = 3;
+
+  EXECUTION_MODE_PREFER_REPLICA = 4;
+}

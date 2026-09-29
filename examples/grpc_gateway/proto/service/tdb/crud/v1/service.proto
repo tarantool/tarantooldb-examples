@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package service.tdb.crud.v1;
+
+import "service/tdb/crud/v1/service_get.proto";
+
+import "service/tdb/crud/v1/service_select.proto";
+
+import "service/tdb/crud/v1/service_insert.proto";
+
+import "service/tdb/crud/v1/service_replace.proto";
+
+import "service/tdb/crud/v1/service_update.proto";
+
+import "service/tdb/crud/v1/service_delete.proto";
+
+option csharp_namespace = "Service.Tdb.Crud.V1";
+
+option go_package = "gitlab.corp.mail.ru/tarantool/tdb/pocs/tdb-grpc/pbtdbcontractsgen.git/service/tdb/crud/v1;pbcrud";
+
+option java_multiple_files = true;
+
+option java_outer_classname = "ServiceProto";
+
+option java_package = "com.service.tdb.crud.v1";
+
+option objc_class_prefix = "STC";
+
+option php_metadata_namespace = "Service\\Tdb\\Crud\\V1\\GPBMetadata";
+
+option php_namespace = "Service\\Tdb\\Crud\\V1";
+
+option ruby_package = "Service::Tdb::Crud::V1";
+
+service Crud {
+  rpc Get ( GetRequest ) returns ( GetResponse );
+
+  rpc Select ( SelectRequest ) returns ( SelectResponse );
+
+  rpc Insert ( InsertRequest ) returns ( InsertResponse );
+
+  rpc Replace ( ReplaceRequest ) returns ( ReplaceResponse );
+
+  rpc Update ( UpdateRequest ) returns ( UpdateResponse );
+
+  rpc Delete ( DeleteRequest ) returns ( DeleteResponse );
+}

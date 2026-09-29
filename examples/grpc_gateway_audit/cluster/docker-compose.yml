@@ -2,7 +2,7 @@ services:
   router-1:
     image: tarantooldb:3x-latest
     networks:
-      - grpc_example
+      - grpc_audit_example
     ports:
       - "127.0.0.1:3301:3301"
     environment:
@@ -14,7 +14,7 @@ services:
   storage-1-a:
     image: tarantooldb:3x-latest
     networks:
-      - grpc_example
+      - grpc_audit_example
     environment:
       TT_INSTANCE_NAME: storage-1-a
       TT_CONFIG_ETCD_ENDPOINTS: http://etcd:2379
@@ -24,7 +24,7 @@ services:
   storage-1-b:
     image: tarantooldb:3x-latest
     networks:
-      - grpc_example
+      - grpc_audit_example
     environment:
       TT_INSTANCE_NAME: storage-1-b
       TT_CONFIG_ETCD_ENDPOINTS: http://etcd:2379
@@ -34,7 +34,7 @@ services:
   storage-2-a:
     image: tarantooldb:3x-latest
     networks:
-      - grpc_example
+      - grpc_audit_example
     environment:
       TT_INSTANCE_NAME: storage-2-a
       TT_CONFIG_ETCD_ENDPOINTS: http://etcd:2379
@@ -44,7 +44,7 @@ services:
   storage-2-b:
     image: tarantooldb:3x-latest
     networks:
-      - grpc_example
+      - grpc_audit_example
     environment:
       TT_INSTANCE_NAME: storage-2-b
       TT_CONFIG_ETCD_ENDPOINTS: http://etcd:2379
@@ -55,7 +55,7 @@ services:
     image: tarantooldb:3x-latest
     profiles: [init]
     networks:
-      - grpc_example
+      - grpc_audit_example
     volumes:
       - ./migrations:/app/tarantooldb/migrations:ro
     environment:
@@ -79,7 +79,7 @@ services:
     profiles: [gateway]
     hostname: grpc-gateway-1
     networks:
-      - grpc_example
+      - grpc_audit_example
     ports:
       - "127.0.0.1:9091:9090"
       - "127.0.0.1:9081:9081"
@@ -87,7 +87,7 @@ services:
       TDB_WORKER_NAME: grpc-gateway-1
       TDB_WORKER_HOST_NAME: grpc-gateway-1
       TDB_WORKER_CONFIG_ETCD_ENDPOINTS: http://etcd:2379
-      TDB_WORKER_CONFIG_ETCD_PREFIX: /tdb-workers/grpc-example
+      TDB_WORKER_CONFIG_ETCD_PREFIX: /tdb-workers/grpc-audit-example
     command: ["/app/tarantooldb/tdb-gateway/bin/tdb-grpc-gateway"]
 
   grpc-gateway-2:
@@ -95,15 +95,17 @@ services:
     profiles: [gateway]
     hostname: grpc-gateway-2
     networks:
-      - grpc_example
+      - grpc_audit_example
     ports:
       - "127.0.0.1:9092:9090"
       - "127.0.0.1:9082:9081"
+    volumes:
+      - gateway_audit:/var/log/tdb-gateway
     environment:
       TDB_WORKER_NAME: grpc-gateway-2
       TDB_WORKER_HOST_NAME: grpc-gateway-2
       TDB_WORKER_CONFIG_ETCD_ENDPOINTS: http://etcd:2379
-      TDB_WORKER_CONFIG_ETCD_PREFIX: /tdb-workers/grpc-example
+      TDB_WORKER_CONFIG_ETCD_PREFIX: /tdb-workers/grpc-audit-example
     command: ["/app/tarantooldb/tdb-gateway/bin/tdb-grpc-gateway"]
 
   etcd:
@@ -117,12 +119,12 @@ services:
       --initial-cluster etcd=http://etcd:2380
       --initial-cluster-state new
     networks:
-      - grpc_example
+      - grpc_audit_example
 
   tcm:
     image: tarantooldb:3x-latest
     networks:
-      - grpc_example
+      - grpc_audit_example
     ports:
       - "127.0.0.1:8081:8081"
     volumes:
@@ -131,4 +133,7 @@ services:
     command: ["./tcm", "-c", "tcm.yml"]
 
 networks:
-  grpc_example:
+  grpc_audit_example:
+
+volumes:
+  gateway_audit:
