@@ -11,7 +11,7 @@ local function apply()
     end
 
     local crud = require('crud')
-    for id = 1, 15 do
+    for id = 1, 8 do
         local _, err = crud.replace_object('test_kv', {
             id = id,
             name = string.format('seed-demo-row-%02d', id),
