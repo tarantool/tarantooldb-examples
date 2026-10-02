@@ -1,0 +1,134 @@
+services:
+  router-1:
+    image: tarantooldb:3x-latest
+    networks:
+      - grpc_example
+    ports:
+      - "127.0.0.1:3301:3301"
+    environment:
+      TT_INSTANCE_NAME: router-1
+      TT_CONFIG_ETCD_ENDPOINTS: http://etcd:2379
+      TT_CONFIG_ETCD_PREFIX: /tdb
+      TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT: 3
+
+  storage-1-a:
+    image: tarantooldb:3x-latest
+    networks:
+      - grpc_example
+    environment:
+      TT_INSTANCE_NAME: storage-1-a
+      TT_CONFIG_ETCD_ENDPOINTS: http://etcd:2379
+      TT_CONFIG_ETCD_PREFIX: /tdb
+      TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT: 3
+
+  storage-1-b:
+    image: tarantooldb:3x-latest
+    networks:
+      - grpc_example
+    environment:
+      TT_INSTANCE_NAME: storage-1-b
+      TT_CONFIG_ETCD_ENDPOINTS: http://etcd:2379
+      TT_CONFIG_ETCD_PREFIX: /tdb
+      TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT: 3
+
+  storage-2-a:
+    image: tarantooldb:3x-latest
+    networks:
+      - grpc_example
+    environment:
+      TT_INSTANCE_NAME: storage-2-a
+      TT_CONFIG_ETCD_ENDPOINTS: http://etcd:2379
+      TT_CONFIG_ETCD_PREFIX: /tdb
+      TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT: 3
+
+  storage-2-b:
+    image: tarantooldb:3x-latest
+    networks:
+      - grpc_example
+    environment:
+      TT_INSTANCE_NAME: storage-2-b
+      TT_CONFIG_ETCD_ENDPOINTS: http://etcd:2379
+      TT_CONFIG_ETCD_PREFIX: /tdb
+      TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT: 3
+
+  init_host:
+    image: tarantooldb:3x-latest
+    profiles: [init]
+    networks:
+      - grpc_example
+    volumes:
+      - ./migrations:/app/tarantooldb/migrations:ro
+    environment:
+      TT_CLI_USERNAME: admin
+      TT_CLI_PASSWORD: secret-cluster-cookie
+    command:
+      - /bin/sh
+      - -ec
+      - |
+        tools/client/wait_instance_ready.sh 60 router-1:3301
+        tools/client/wait_instance_ready.sh 60 storage-1-a:3301
+        tools/client/wait_instance_ready.sh 60 storage-1-b:3301
+        tools/client/wait_instance_ready.sh 60 storage-2-a:3301
+        tools/client/wait_instance_ready.sh 60 storage-2-b:3301
+        tt replicaset vshard bootstrap router-1:3301
+        tt migrations publish http://etcd:2379/tdb migrations
+        tt migrations apply http://etcd:2379/tdb
+
+  grpc-gateway-1:
+    image: tarantooldb:3x-latest
+    profiles: [gateway]
+    hostname: grpc-gateway-1
+    networks:
+      - grpc_example
+    ports:
+      - "127.0.0.1:9091:9090"
+      - "127.0.0.1:9081:9081"
+    environment:
+      TDB_WORKER_NAME: grpc-gateway-1
+      TDB_WORKER_HOST_NAME: grpc-gateway-1
+      TDB_WORKER_CONFIG_ETCD_ENDPOINTS: http://etcd:2379
+      TDB_WORKER_CONFIG_ETCD_PREFIX: /tdb-workers/grpc-example
+    command: ["/app/tarantooldb/tdb-gateway/bin/tdb-grpc-gateway"]
+
+  grpc-gateway-2:
+    image: tarantooldb:3x-latest
+    profiles: [gateway]
+    hostname: grpc-gateway-2
+    networks:
+      - grpc_example
+    ports:
+      - "127.0.0.1:9092:9090"
+      - "127.0.0.1:9082:9081"
+    environment:
+      TDB_WORKER_NAME: grpc-gateway-2
+      TDB_WORKER_HOST_NAME: grpc-gateway-2
+      TDB_WORKER_CONFIG_ETCD_ENDPOINTS: http://etcd:2379
+      TDB_WORKER_CONFIG_ETCD_PREFIX: /tdb-workers/grpc-example
+    command: ["/app/tarantooldb/tdb-gateway/bin/tdb-grpc-gateway"]
+
+  etcd:
+    image: quay.io/coreos/etcd:v3.5.15
+    command: >
+      etcd --name etcd
+      --advertise-client-urls http://etcd:2379
+      --listen-client-urls http://0.0.0.0:2379
+      --initial-advertise-peer-urls http://etcd:2380
+      --listen-peer-urls http://0.0.0.0:2380
+      --initial-cluster etcd=http://etcd:2380
+      --initial-cluster-state new
+    networks:
+      - grpc_example
+
+  tcm:
+    image: tarantooldb:3x-latest
+    networks:
+      - grpc_example
+    ports:
+      - "127.0.0.1:8081:8081"
+    volumes:
+      - ./tcm.yml:/app/tarantooldb/tcm.yml:ro
+      - ./config.yml:/app/tarantooldb/config.yml:ro
+    command: ["./tcm", "-c", "tcm.yml"]
+
+networks:
+  grpc_example:

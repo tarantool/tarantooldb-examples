@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package service.tdb.crud.v1;
+
+import "google/protobuf/struct.proto";
+
+import "service/tdb/shared/v1/options.proto";
+
+option csharp_namespace = "Service.Tdb.Crud.V1";
+
+option go_package = "gitlab.corp.mail.ru/tarantool/tdb/pocs/tdb-grpc/pbtdbcontractsgen.git/service/tdb/crud/v1;pbcrud";
+
+option java_multiple_files = true;
+
+option java_outer_classname = "ServiceReplaceProto";
+
+option java_package = "com.service.tdb.crud.v1";
+
+option objc_class_prefix = "STC";
+
+option php_metadata_namespace = "Service\\Tdb\\Crud\\V1\\GPBMetadata";
+
+option php_namespace = "Service\\Tdb\\Crud\\V1";
+
+option ruby_package = "Service::Tdb::Crud::V1";
+
+message ReplaceRequest {
+  string space = 1;
+
+  google.protobuf.Struct record = 2;
+
+  service.tdb.shared.v1.RequestOptions options = 3;
+}
+
+message ReplaceResponse {
+  google.protobuf.Struct record = 1;
+}
