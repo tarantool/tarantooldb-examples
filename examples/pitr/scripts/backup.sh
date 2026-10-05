@@ -18,11 +18,11 @@ CLUSTER_CFG="http://etcd1:2379/tdb"
 TT_USER="admin"
 TT_PASS="secret-cluster-cookie"
 
-echo "=== 1. Идентификатор бэкапа (tt backup-id) ==="
+echo "=== 1. Идентификатор резервной копии (tt backup-id) ==="
 BACKUP_ID=$($COMPOSE exec -T manager tt backup-id)
 echo "backup id: $BACKUP_ID"
 
-echo "=== 2. План бэкапа (tt backup plan) ==="
+echo "=== 2. План резервного копирования (tt backup plan) ==="
 $COMPOSE exec -T manager sh -c "tt backup plan --target=$MODE \
   --backup-storage file:///backup/storage \
   -c $CLUSTER_CFG -u $TT_USER -p $TT_PASS \
@@ -31,9 +31,9 @@ $COMPOSE exec -T manager sh -c "tt backup plan --target=$MODE \
 # План нужен на хосте, чтобы раздать команды по узлам.
 $COMPOSE exec -T manager cat /backup/plan.json > /tmp/pitr-plan.json
 
-echo "=== 3. Снятие бэкапа с узлов (tt backup start) ==="
+echo "=== 3. Снятие резервной копии с узлов (tt backup start) ==="
 for MASTER in $(jq -r '.replicasets[].master_instance_name' /tmp/pitr-plan.json); do
-  # Имя инстанса (storage-1-msk) -> имя сервиса (tarantool-storage-1-msk).
+  # Имя экземпляра (storage-1-msk) -> имя сервиса (tarantool-storage-1-msk).
   CONTAINER="tarantool-$MASTER"
   URI="$TT_USER:$TT_PASS@$CONTAINER:3301"
   ARGS=(--backup-id "$BACKUP_ID" --dir /backup/archives)
@@ -75,4 +75,4 @@ for MASTER in $(jq -r '.replicasets[].master_instance_name' /tmp/pitr-plan.json)
     --backup-id "$BACKUP_ID" --dir /backup/archives
 done
 
-echo "Готово: бэкап $BACKUP_ID ($MODE) записан в хранилище."
+echo "Готово: резервная копия $BACKUP_ID ($MODE) записана в хранилище."
