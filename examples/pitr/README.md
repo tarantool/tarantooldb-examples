@@ -1,5 +1,7 @@
 # Резервное копирование и восстановление на момент времени (PITR)
 
+Доступно с версии Tarantool DB 3.3.0.
+
 В этом руководстве показано, как выполнить резервное копирование кластера Tarantool DB
 и восстановить его данные на заданный момент времени (point-in-time recovery, PITR)
 с помощью утилиты [tt CLI](https://www.tarantool.io/docs/tdb/ru/3_x/install_and_upgrade/install_tt).
