@@ -78,6 +78,9 @@ services:
     image: tarantooldb:3x-latest
     profiles: [gateway]
     hostname: grpc-gateway-1
+    user: "${LOCAL_UID:-1000}:${LOCAL_GID:-1000}"
+    volumes:
+      - ../logs/grpc-gateway-1:/var/log/tdb-gateway
     networks:
       - grpc_audit_example
     ports:
@@ -94,13 +97,14 @@ services:
     image: tarantooldb:3x-latest
     profiles: [gateway]
     hostname: grpc-gateway-2
+    user: "${LOCAL_UID:-1000}:${LOCAL_GID:-1000}"
+    volumes:
+      - ../logs/grpc-gateway-2:/var/log/tdb-gateway
     networks:
       - grpc_audit_example
     ports:
       - "127.0.0.1:9092:9090"
       - "127.0.0.1:9082:9081"
-    volumes:
-      - gateway_audit:/var/log/tdb-gateway
     environment:
       TDB_WORKER_NAME: grpc-gateway-2
       TDB_WORKER_HOST_NAME: grpc-gateway-2
@@ -134,6 +138,3 @@ services:
 
 networks:
   grpc_audit_example:
-
-volumes:
-  gateway_audit:

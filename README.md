@@ -59,7 +59,8 @@ Go или Java.
 
 ### Мониторинг и диагностика
 
-- [Аудит запросов к gRPC Gateway](examples/grpc_gateway_audit/README.md) — настройка аудита, просмотр событий в stdout и файле и поиск запросов по идентификатору.
+- [Аудит запросов к gRPC Gateway](examples/grpc_gateway_audit/README.md) — настройка аудита, запись событий в локальные файлы и поиск запросов через `jq` и `grep`.
+- [Ротация логов gRPC Gateway](examples/grpc_gateway_log_rotation/README.md) — обычный журнал и аудит в локальных файлах, переименование и переоткрытие по сигналу `SIGUSR1`.
 - [Создание пользовательской метрики](examples/custom_metrics/README.md) — создание произвольной метрики и её просмотр в Grafana.
 - [Проверка работоспособности кластера](examples/healthcheck/README.md) — проверка здоровья кластера с помощью роли `roles.healthcheck`.
 - [Проверка целостности приложения](examples/integrity_check/README.md) — упаковка и запуск приложения Tarantool DB с проверкой целостности файлов.

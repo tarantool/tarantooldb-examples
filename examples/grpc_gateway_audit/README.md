@@ -12,8 +12,8 @@
 * [Запуск стенда](#запуск-стенда)
 * [Определение конфигурации](#определение-конфигурации)
 * [Выполнение запросов](#выполнение-запросов)
-* [Просмотр аудита в stdout](#просмотр-аудита-в-stdout)
-* [Просмотр аудита в файле](#просмотр-аудита-в-файле)
+* [Просмотр аудита](#просмотр-аудита)
+* [Поиск событий](#поиск-событий)
 * [Изменение настроек аудита](#изменение-настроек-аудита)
 * [Остановка стенда](#остановка-стенда)
 
@@ -80,8 +80,8 @@ make start
 
 | Шлюз | Адрес gRPC | Место записи аудита |
 | --- | --- | --- |
-| `grpc-gateway-1` | `localhost:9091` | stdout контейнера |
-| `grpc-gateway-2` | `localhost:9092` | `/var/log/tdb-gateway/audit.jsonl` внутри контейнера |
+| `grpc-gateway-1` | `localhost:9091` | `logs/grpc-gateway-1/audit.jsonl` на хосте |
+| `grpc-gateway-2` | `localhost:9092` | `logs/grpc-gateway-2/audit.jsonl` на хосте |
 
 ## Определение конфигурации
 
@@ -93,16 +93,7 @@ make start
 и `cluster/grpc-gateway-2.yml`. При запуске они публикуются в etcd.
 Аудит настраивается в секции `config.audit_log`.
 
-Первый шлюз записывает события в stdout:
-
-```yaml
-config:
-  audit_log:
-    enabled: true
-    output: stdout
-```
-
-Второй шлюз записывает события в файл:
+Каждый шлюз записывает события в файл:
 
 ```yaml
 config:
@@ -119,8 +110,22 @@ config:
 
 Аудит работает независимо от уровня обычного лога `config.log.level`.
 Каждое событие записывается отдельной JSON-строкой.
-Каталог для файла подключён к контейнеру второго шлюза через Docker volume
-`gateway_audit`, заданный в `cluster/docker-compose.yml`.
+В `cluster/docker-compose.yml` к каждому шлюзу подключён отдельный каталог
+с локального компьютера:
+
+```yaml
+volumes:
+  - ../logs/grpc-gateway-1:/var/log/tdb-gateway
+```
+
+Путь слева указан относительно Compose-файла в `cluster/`. Файл
+`/var/log/tdb-gateway/audit.jsonl` первого шлюза доступен на хосте как
+`logs/grpc-gateway-1/audit.jsonl`. Для второго шлюза используется
+`logs/grpc-gateway-2`.
+
+`make start` создаёт каталоги и передаёт UID и GID текущего пользователя
+в контейнеры шлюзов. Поэтому файлы аудита, создаваемые с правами `0600`,
+можно читать на хосте без `sudo`. Файлы открываются на добавление.
 
 При запуске применяются миграции из директории `cluster/migrations/scenario`.
 Они создают спейс `test_kv` с полями `id`, `bucket_id`, `name` и `payload`
@@ -168,15 +173,13 @@ grpcurl -plaintext -H 'request-id: audit-invalid-get-1' \
 Запрос завершится ошибкой `InvalidArgument`. В журнал попадёт событие
 с идентификатором `audit-invalid-get-1` и результатом `nok`.
 
-## Просмотр аудита в stdout
+## Просмотр аудита
 
-Первый шлюз пишет события аудита в тот же поток, что и обычные логи.
-Выберите события с полем `type: grpc.request`:
+Все команды просмотра и поиска выполняются на локальном компьютере
+из директории примера. Посмотрите события первого шлюза:
 
 ```shell
-docker compose -p tdb-grpc-audit -f cluster/docker-compose.yml \
-  logs --no-color --no-log-prefix grpc-gateway-1 \
-  | jq -R 'fromjson? | select(.type == "grpc.request")'
+jq . logs/grpc-gateway-1/audit.jsonl
 ```
 
 Пример события успешного запроса:
@@ -211,12 +214,13 @@ docker compose -p tdb-grpc-audit -f cluster/docker-compose.yml \
 | `duration_ms` | Время обработки запроса в миллисекундах до записи события аудита |
 | `space` | Имя спейса для CRUD-запроса |
 
+## Поиск событий
+
 Найдите событие ошибочного запроса по его идентификатору:
 
 ```shell
-docker compose -p tdb-grpc-audit -f cluster/docker-compose.yml \
-  logs --no-color --no-log-prefix grpc-gateway-1 \
-  | jq -R 'fromjson? | select(.type == "grpc.request" and .request_id == "audit-invalid-get-1")'
+jq 'select(.request_id == "audit-invalid-get-1") | {level, request_id, result, code}' \
+  logs/grpc-gateway-1/audit.jsonl
 ```
 
 В событии будут следующие значения:
@@ -235,7 +239,15 @@ docker compose -p tdb-grpc-audit -f cluster/docker-compose.yml \
 > ответы и текст ошибок в события не включаются.
 > `request-id` передаётся клиентом и используется для сопоставления событий.
 
-## Просмотр аудита в файле
+Для текстового поиска используйте `grep`, а для фильтрации по полям — `jq`:
+
+```shell
+grep -F 'audit-get-1' logs/grpc-gateway-1/audit.jsonl | jq .
+jq 'select(.result == "nok")' logs/grpc-gateway-*/audit.jsonl
+```
+
+`grep` ищет совпадение в строке целиком. Для точного поиска по идентификатору
+используйте `select(.request_id == "...")`.
 
 Выполните запрос ко второму шлюзу:
 
@@ -245,26 +257,22 @@ grpcurl -plaintext -H 'request-id: audit-file-get-1' \
   localhost:9092 service.tdb.crud.v1.Crud/Get
 ```
 
-Ответ будет таким же, как у первого шлюза. Посмотрите файл аудита:
+Ответ будет таким же, как у первого шлюза. Найдите событие в локальном файле:
 
 ```shell
-docker compose -p tdb-grpc-audit -f cluster/docker-compose.yml \
-  exec -T grpc-gateway-2 cat /var/log/tdb-gateway/audit.jsonl | jq .
+jq 'select(.request_id == "audit-file-get-1") | {request_id, result, code}' \
+  logs/grpc-gateway-2/audit.jsonl
 ```
 
-В нём будет событие с `request_id: audit-file-get-1`, `result: ok`
-и `code: OK`.
+Вывод:
 
-Для сохранения журнала на локальном компьютере выполните:
-
-```shell
-docker compose -p tdb-grpc-audit -f cluster/docker-compose.yml \
-  exec -T grpc-gateway-2 cat /var/log/tdb-gateway/audit.jsonl > audit.jsonl
+```json
+{
+  "request_id": "audit-file-get-1",
+  "result": "ok",
+  "code": "OK"
+}
 ```
-
-Файл в контейнере открывается на добавление и создаётся с правами `0600`.
-Каталог для него должен существовать и быть доступен пользователю Gateway;
-в этом примере каталог создаёт Docker при подключении volume.
 
 ## Изменение настроек аудита
 
@@ -300,5 +308,5 @@ make stop
 > При следующем запуске `make start` исходные данные создаются заново.
 
 > [!NOTE]
-> Docker volume с файлом аудита сохраняется после остановки стенда.
-> При следующем запуске события будут дописываться в тот же файл.
+> Каталог `logs/` с файлами аудита сохраняется на локальном компьютере.
+> При следующем запуске события будут дописываться в те же файлы.
