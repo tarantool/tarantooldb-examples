@@ -14,7 +14,7 @@ config:
     level: info
   audit_log:
     enabled: true
-    output: stdout
+    output: /var/log/tdb-gateway/audit.jsonl
   vshard:
     tarantool_cluster_prefix: /tdb/config/all
     user: client

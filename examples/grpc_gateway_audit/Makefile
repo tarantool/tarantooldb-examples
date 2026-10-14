@@ -13,9 +13,13 @@ endif
 
 COMPOSE := $(DOCKER_COMPOSE) -p tdb-grpc-audit -f cluster/docker-compose.yml
 
+export LOCAL_UID := $(shell id -u)
+export LOCAL_GID := $(shell id -g)
+
 .PHONY: start stop ps logs logs-gateway
 
 start:
+	mkdir -p logs/grpc-gateway-1 logs/grpc-gateway-2
 	$(COMPOSE) up -d etcd tcm
 	$(COMPOSE) exec -T tcm sh -ec 'tools/client/wait_etcd_ready.sh 30 http://etcd:2379 && tt cluster publish http://etcd:2379/tdb config.yml --force && tools/client/wait_config_ready.sh 30 http://etcd:2379/tdb'
 	$(COMPOSE) exec -T -e ETCDCTL_API=3 etcd etcdctl --endpoints=http://etcd:2379 put \
