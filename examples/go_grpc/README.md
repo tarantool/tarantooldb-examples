@@ -114,14 +114,14 @@ cd go
 Сохраните описание CRUD API и все его зависимости из запущенного шлюза:
 
 ```shell
-grpcurl -plaintext -proto-out-dir proto localhost:9091 describe service.tdb.crud.v1.Crud
+grpcurl -plaintext -proto-out-dir proto localhost:9091 describe tdb.crud.v1.Crud
 ```
 
 Файлы появятся в директории `proto`:
 
-* `service/tdb/crud/v1/service.proto` — сервис CRUD и его методы;
-* остальные файлы в `service/tdb/crud/v1/` — сообщения запросов и ответов;
-* `service/tdb/shared/v1/options.proto` — параметры выполнения запросов;
+* `tdb/crud/v1/service.proto` — сервис CRUD и его методы;
+* остальные файлы в `tdb/crud/v1/` — сообщения запросов и ответов;
+* `tdb/shared/v1/options.proto` — параметры выполнения запросов;
 * `google/protobuf/struct.proto` — стандартные типы для представления записей.
 
 > [!NOTE]
@@ -160,14 +160,17 @@ go run .
 
 Приложение подключается к `localhost:9091` и выполняет `Insert`, `Get`,
 `Replace`, `Update`, `Select` и `Delete` для записи с `id=1` в спейсе `books`.
+Оно добавляет книгу «The Hobbit», читает её карточку, заменяет карточку
+данными иллюстрированного издания, уточняет полное имя автора и выбирает
+обновлённую запись. В конце приложение удаляет созданную карточку.
 
 Вывод:
 
 ```text
-Insert: First edition
-Get: First edition
-Replace: Second edition
-Update: Revised edition
+Insert: The Hobbit
+Get: The Hobbit
+Replace: The Hobbit: Illustrated Edition
+Update: John Ronald Reuel Tolkien
 Select: 1 record(s)
 Delete: true
 ```

@@ -24,6 +24,7 @@
 * установленный [Docker-образ](https://www.tarantool.io/docs/tdb/ru/3_x/install_and_upgrade/install/install_docker) Tarantool DB;
 * приложение Docker Compose и утилита `make`;
 * утилита `grpcurl` для выполнения запросов;
+* утилита `jq` для обработки страниц выборки;
 * утилита `curl` для просмотра метрик шлюзов;
 * исходные файлы примера `grpc_gateway`.
 
@@ -98,14 +99,22 @@ make start
 запросы шлюзов через vshard.
 
 В файлах `cluster/grpc-gateway-1.yml` и `cluster/grpc-gateway-2.yml`
-секция `instrumentation` задаёт служебный HTTP-интерфейс для TCM
-(состояние, метрики), а секция `config` - параметры gRPC, логирования и vshard.
-Ключ шардирования спейса `test_kv` - поле `id`.
+секция `instrumentation` задаёт логирование и служебный HTTP-интерфейс
+для TCM (состояние, метрики), а секция `config` — параметры gRPC и vshard.
+Ключ шардирования спейса `books` - поле `id`.
 Шлюз использует топологию vshard для выбора хранилища.
 
 При запуске применяются миграции из директории `cluster/migrations/scenario`.
-Они создают спейс `test_kv` с полями `id`, `bucket_id`, `name` и `payload`
-и заполняют его 8 записями с `id` от 1 до 8.
+Они создают каталог книг — спейс `books` с полями `id`, `bucket_id`, `title`
+и `author`. Миграция `002_books.lua` добавляет шесть книг с идентификаторами
+от 1 до 6. Миграция `003_book_copies.lua` создаёт ещё 1000 экземпляров этих
+книг с идентификаторами от 1000 до 1999. Всего в исходном каталоге 1006 записей;
+идентификатор `100` остаётся свободным для CRUD-запросов ниже.
+
+Поле `id` задаёт идентификатор экземпляра, `title` — название книги,
+`author` — автора. Разные экземпляры одного произведения имеют одинаковое
+название. Индекс `title` включает поля `title` и `id`, поэтому при совпадающих
+названиях выборка продолжается по идентификатору экземпляра.
 Значение `bucket_id` вычисляет шлюз; клиенту передавать его не нужно.
 
 > [!NOTE]
@@ -127,7 +136,7 @@ grpcurl -plaintext localhost:9091 list
 Посмотреть описание команд CRUD API можно так:
 
 ```shell
-grpcurl -plaintext localhost:9091 describe service.tdb.crud.v1.Crud
+grpcurl -plaintext localhost:9091 describe tdb.crud.v1.Crud
 ```
 
 Proto-контракты можно получить из запущенного шлюза через gRPC reflection.
@@ -135,16 +144,16 @@ Proto-контракты можно получить из запущенного
 в каталог `proto`:
 
 ```shell
-grpcurl -plaintext -proto-out-dir proto localhost:9091 describe service.tdb.crud.v1.Crud
+grpcurl -plaintext -proto-out-dir proto localhost:9091 describe tdb.crud.v1.Crud
 ```
 
-Определение сервиса будет в `proto/service/tdb/crud/v1/service.proto`,
+Определение сервиса будет в `proto/tdb/crud/v1/service.proto`,
 форматы запросов и ответов - в соседних файлах, общие параметры -
-в `proto/service/tdb/shared/v1/options.proto`.
+в `proto/tdb/shared/v1/options.proto`.
 
 Посмотреть содержимое спейса можно в TCM: откройте вкладку **Tuples**
-и выберите `test_kv`. Начальных записей меньше десяти, поэтому они помещаются
-на одной странице.
+и выберите `books`. Для просмотра 1006 исходных записей используйте
+переход между страницами.
 Ниже приведены ответы при последовательном выполнении команд на стенде
 с исходными данными.
 
@@ -153,11 +162,11 @@ grpcurl -plaintext -proto-out-dir proto localhost:9091 describe service.tdb.crud
 > Это непрозрачный курсор: для следующей страницы используйте значение
 > из собственного ответа без изменений.
 
-Получить подготовленную запись:
+Прочитать карточку книги «Dune»:
 
 ```shell
-grpcurl -plaintext -d '{"space":"test_kv","key":{"parts":[1]}}' \
-  localhost:9091 service.tdb.crud.v1.Crud/Get
+grpcurl -plaintext -d '{"space":"books","key":{"parts":[1]}}' \
+  localhost:9091 tdb.crud.v1.Crud/Get
 ```
 
 Ответ:
@@ -165,24 +174,22 @@ grpcurl -plaintext -d '{"space":"test_kv","key":{"parts":[1]}}' \
 ```json
 {
   "record": {
+    "author": "Frank Herbert",
     "id": 1,
-    "name": "seed-demo-row-01",
-    "payload": {
-      "source": "grpc-example"
-    }
+    "title": "Dune"
   }
 }
 ```
 
-Создать запись с `id=100`:
+Добавить в каталог книгу «A Wizard of Earthsea» с `id=100`:
 
 > [!NOTE]
 > Повторный `Insert` того же ключа вернёт ошибку.
 > Для замены существующей записи используйте `Replace`.
 
 ```shell
-grpcurl -plaintext -d '{"space":"test_kv","record":{"id":100,"name":"alice","payload":{"source":"example"}}}' \
-  localhost:9091 service.tdb.crud.v1.Crud/Insert
+grpcurl -plaintext -d '{"space":"books","record":{"id":100,"title":"A Wizard of Earthsea","author":"Ursula Le Guin"}}' \
+  localhost:9091 tdb.crud.v1.Crud/Insert
 ```
 
 Ответ:
@@ -190,20 +197,18 @@ grpcurl -plaintext -d '{"space":"test_kv","record":{"id":100,"name":"alice","pay
 ```json
 {
   "record": {
+    "author": "Ursula Le Guin",
     "id": 100,
-    "name": "alice",
-    "payload": {
-      "source": "example"
-    }
+    "title": "A Wizard of Earthsea"
   }
 }
 ```
 
-Заменить запись целиком:
+Заменить карточку целиком, указав иллюстрированное издание:
 
 ```shell
-grpcurl -plaintext -d '{"space":"test_kv","record":{"id":100,"name":"alice-replaced","payload":{"source":"example"}}}' \
-  localhost:9091 service.tdb.crud.v1.Crud/Replace
+grpcurl -plaintext -d '{"space":"books","record":{"id":100,"title":"A Wizard of Earthsea: Illustrated Edition","author":"Ursula Le Guin"}}' \
+  localhost:9091 tdb.crud.v1.Crud/Replace
 ```
 
 Ответ:
@@ -211,20 +216,18 @@ grpcurl -plaintext -d '{"space":"test_kv","record":{"id":100,"name":"alice-repla
 ```json
 {
   "record": {
+    "author": "Ursula Le Guin",
     "id": 100,
-    "name": "alice-replaced",
-    "payload": {
-      "source": "example"
-    }
+    "title": "A Wizard of Earthsea: Illustrated Edition"
   }
 }
 ```
 
-Обновить имя:
+Уточнить имя автора, изменив только поле `author`:
 
 ```shell
-grpcurl -plaintext -d '{"space":"test_kv","key":{"parts":[100]},"operations":[{"field":"name","operator":"PATCH_OPERATOR_SET","value":"bob"}]}' \
-  localhost:9091 service.tdb.crud.v1.Crud/Update
+grpcurl -plaintext -d '{"space":"books","key":{"parts":[100]},"operations":[{"field":"author","operator":"PATCH_OPERATOR_SET","value":"Ursula K. Le Guin"}]}' \
+  localhost:9091 tdb.crud.v1.Crud/Update
 ```
 
 Ответ:
@@ -232,11 +235,9 @@ grpcurl -plaintext -d '{"space":"test_kv","key":{"parts":[100]},"operations":[{"
 ```json
 {
   "record": {
+    "author": "Ursula K. Le Guin",
     "id": 100,
-    "name": "bob",
-    "payload": {
-      "source": "example"
-    }
+    "title": "A Wizard of Earthsea: Illustrated Edition"
   }
 }
 ```
@@ -244,8 +245,8 @@ grpcurl -plaintext -d '{"space":"test_kv","key":{"parts":[100]},"operations":[{"
 Выбрать запись по ключу шардирования - запрос попадёт на один набор реплик:
 
 ```shell
-grpcurl -plaintext -d '{"space":"test_kv","conditions":[{"field":"id","operator":"COMPARE_OPERATOR_EQ","value":100}],"options":{"limit":1}}' \
-  localhost:9091 service.tdb.crud.v1.Crud/Select
+grpcurl -plaintext -d '{"space":"books","conditions":[{"field":"id","operator":"COMPARE_OPERATOR_EQ","value":100}],"options":{"limit":1}}' \
+  localhost:9091 tdb.crud.v1.Crud/Select
 ```
 
 Ответ:
@@ -254,22 +255,20 @@ grpcurl -plaintext -d '{"space":"test_kv","conditions":[{"field":"id","operator"
 {
   "records": [
     {
+      "author": "Ursula K. Le Guin",
       "id": 100,
-      "name": "bob",
-      "payload": {
-        "source": "example"
-      }
+      "title": "A Wizard of Earthsea: Illustrated Edition"
     }
   ],
-  "nextCursor": "g6Zyb3V0ZWSBpWFmdGVygaJpZNBkomZwsDM3ZjY0Y2Q0ZmU3NDNmYzChdgE="
+  "nextCursor": "g6Zyb3V0ZWSBpWFmdGVygaJpZNBkomZwsDk1ZjU1YTA2Mzg4NDBkNDehdgE="
 }
 ```
 
-Удалить запись:
+Удалить добавленную карточку из каталога:
 
 ```shell
-grpcurl -plaintext -d '{"space":"test_kv","key":{"parts":[100]}}' \
-  localhost:9091 service.tdb.crud.v1.Crud/Delete
+grpcurl -plaintext -d '{"space":"books","key":{"parts":[100]}}' \
+  localhost:9091 tdb.crud.v1.Crud/Delete
 ```
 
 Ответ:
@@ -278,11 +277,9 @@ grpcurl -plaintext -d '{"space":"test_kv","key":{"parts":[100]}}' \
 {
   "deleted": true,
   "record": {
+    "author": "Ursula K. Le Guin",
     "id": 100,
-    "name": "bob",
-    "payload": {
-      "source": "example"
-    }
+    "title": "A Wizard of Earthsea: Illustrated Edition"
   }
 }
 ```
@@ -291,91 +288,110 @@ grpcurl -plaintext -d '{"space":"test_kv","key":{"parts":[100]}}' \
 
 ## Постраничная выборка
 
-Выборка по `name` обращается ко всем наборам реплик, поскольку условие не содержит
-полного ключа шардирования. Gateway объединяет записи в порядке индекса `name`.
+Выборка по `title` обращается ко всем наборам реплик, поскольку условие не содержит
+полного ключа шардирования. Gateway объединяет записи в порядке индекса `title`.
+
+Выберем экземпляры книг по алфавиту, начиная с «Dune», по три на странице.
+При одинаковом названии экземпляры упорядочены по `id`. Первые страницы содержат
+разные экземпляры «Dune»: это позволяет проверить продолжение выборки внутри
+одного названия.
 
 Первая страница:
 
 ```shell
-grpcurl -plaintext -d '{"space":"test_kv","conditions":[{"field":"name","operator":"COMPARE_OPERATOR_GTE","value":"seed-demo-row-01"}],"options":{"limit":3}}' \
-  localhost:9091 service.tdb.crud.v1.Crud/Select
+grpcurl -plaintext -d '{"space":"books","conditions":[{"field":"title","operator":"COMPARE_OPERATOR_GTE","value":"Dune"}],"options":{"limit":3}}' \
+  localhost:9091 tdb.crud.v1.Crud/Select
 ```
 
-Ответ:
+Ответ (`nextCursor` показан условно):
 
 ```json
 {
   "records": [
     {
+      "author": "Frank Herbert",
       "id": 1,
-      "name": "seed-demo-row-01",
-      "payload": {
-        "source": "grpc-example"
-      }
+      "title": "Dune"
     },
     {
-      "id": 2,
-      "name": "seed-demo-row-02",
-      "payload": {
-        "source": "grpc-example"
-      }
+      "author": "Frank Herbert",
+      "id": 1000,
+      "title": "Dune"
     },
     {
-      "id": 3,
-      "name": "seed-demo-row-03",
-      "payload": {
-        "source": "grpc-example"
-      }
+      "author": "Frank Herbert",
+      "id": 1006,
+      "title": "Dune"
     }
   ],
-  "nextCursor": "g6tyZXBsaWNhc2V0c4Kpc3RvcmFnZS0xgaVhZnRlcoKiaWTQAqRuYW1lsHNlZWQtZGVtby1yb3ctMDKpc3RvcmFnZS0ygaVhZnRlcoKkbmFtZbBzZWVkLWRlbW8tcm93LTAzomlk0AOiZnCwNTk2MDVkOTE2MjlkMzllZqF2AQ=="
+  "nextCursor": "<курсор продолжения из ответа>"
 }
 ```
 
 Передайте `nextCursor` из ответа в поле `options.cursor` следующего запроса,
-сохранив остальные параметры:
+сохранив `space` и `conditions`. Размер страницы `limit` можно менять между
+запросами: например, после 30 записей запросить следующие 300 или 3.
+В командах ниже оставим по три записи на странице:
 
 > [!NOTE]
 > Значение курсора в примере иллюстративное. Вместо `<nextCursor из предыдущего ответа>`
 > подставьте `nextCursor` из собственного ответа целиком, без изменений.
 
 ```shell
-grpcurl -plaintext -d '{"space":"test_kv","conditions":[{"field":"name","operator":"COMPARE_OPERATOR_GTE","value":"seed-demo-row-01"}],"options":{"limit":3,"cursor":"<nextCursor из предыдущего ответа>"}}' \
-  localhost:9091 service.tdb.crud.v1.Crud/Select
+grpcurl -plaintext -d '{"space":"books","conditions":[{"field":"title","operator":"COMPARE_OPERATOR_GTE","value":"Dune"}],"options":{"limit":3,"cursor":"<nextCursor из предыдущего ответа>"}}' \
+  localhost:9091 tdb.crud.v1.Crud/Select
 ```
 
-Ответ:
+Ответ (`nextCursor` показан условно):
 
 ```json
 {
   "records": [
     {
-      "id": 4,
-      "name": "seed-demo-row-04",
-      "payload": {
-        "source": "grpc-example"
-      }
+      "author": "Frank Herbert",
+      "id": 1012,
+      "title": "Dune"
     },
     {
-      "id": 5,
-      "name": "seed-demo-row-05",
-      "payload": {
-        "source": "grpc-example"
-      }
+      "author": "Frank Herbert",
+      "id": 1018,
+      "title": "Dune"
     },
     {
-      "id": 6,
-      "name": "seed-demo-row-06",
-      "payload": {
-        "source": "grpc-example"
-      }
+      "author": "Frank Herbert",
+      "id": 1024,
+      "title": "Dune"
     }
   ],
-  "nextCursor": "g6tyZXBsaWNhc2V0c4Kpc3RvcmFnZS0xgaVhZnRlcoKkbmFtZbBzZWVkLWRlbW8tcm93LTA2omlk0Aapc3RvcmFnZS0ygaVhZnRlcoKkbmFtZbBzZWVkLWRlbW8tcm93LTAzomlk0AOiZnCwNTk2MDVkOTE2MjlkMzllZqF2AQ=="
+  "nextCursor": "<курсор продолжения из ответа>"
 }
 ```
 
 Пустой или отсутствующий `nextCursor` означает, что выборка завершена.
+
+### Обход всего каталога
+
+Чтобы пройти всю выборку, увеличьте размер страницы до 100 и передавайте
+полученный курсор в следующий запрос. Команды ниже выводят размер каждой
+страницы и её первую и последнюю записи:
+
+```shell
+request='{"space":"books","conditions":[{"field":"title","operator":"COMPARE_OPERATOR_GTE","value":"Dune"}],"options":{"limit":100}}'
+
+while :; do
+    response=$(grpcurl -plaintext -d "$request" \
+        localhost:9091 tdb.crud.v1.Crud/Select) || break
+    printf '%s\n' "$response" | jq '{count: (.records | length), first: .records[0], last: .records[-1]}'
+    cursor=$(printf '%s\n' "$response" | jq -r '.nextCursor // empty')
+    [ -n "$cursor" ] || break
+    request=$(jq -cn --argjson request "$request" --arg cursor "$cursor" \
+        '$request | .options.cursor = $cursor')
+done
+```
+
+На исходных данных получится 11 страниц: десять по 100 записей и последняя
+из 6 записей. `limit` ограничивает размер одной страницы. Для просмотра каждой
+записи замените фильтр `jq` на `.records[] | {id, title, author}`.
 
 ## Просмотр состояния и метрик
 

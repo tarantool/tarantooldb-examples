@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package tdb.auth.v1;
+
+option go_package = "gitlab.corp.mail.ru/tarantool/tdb/tarantooldb/workers/gen/grpc-gateway/tdb/auth/v1;authpb";
+
+service Auth {
+  rpc Login(LoginRequest) returns (LoginResponse);
+}
+
+message LoginRequest {
+  string login = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  string token = 1;
+  int64 expires_at_unix = 2;
+}

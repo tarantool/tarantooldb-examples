@@ -2,8 +2,12 @@ local helpers = require('tt-migrations.helpers')
 local config = require('config')
 local fun = require('fun')
 
+local function is_storage()
+    return fun.index('roles.crud-storage', config:get('roles')) ~= nil
+end
+
 local function apply()
-    if fun.index('roles.crud-storage', config:get('roles')) == nil then
+    if not is_storage() then
         return true
     end
 

@@ -98,3 +98,4 @@ Go или Java.
 - [Использование узлов-обработчиков](examples/tdb_worker/README.md) — разработка Go-обработчиков для работы с кластером и централизованным хранилищем конфигурации.
 
 - [Работа с кластером через gRPC Gateway](examples/grpc_gateway/README.md) — запуск gRPC-интерфейса, CRUD-запросы, пагинация и мониторинг в TCM.
+- [Вход в gRPC Gateway через LDAP](examples/grpc_gateway_ldap/README.md) — LDAP-worker, общий токен для двух шлюзов и права доступа по группам.

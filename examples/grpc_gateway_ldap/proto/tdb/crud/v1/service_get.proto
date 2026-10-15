@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package tdb.crud.v1;
+
+option go_package = "gitlab.corp.mail.ru/tarantool/tdb/tarantooldb/workers/gen/grpc-gateway/tdb/crud/v1;pbcrud";
+
+import "google/protobuf/struct.proto";
+import "tdb/crud/v1/types.proto";
+import "tdb/shared/v1/options.proto";
+
+// GetRequest is the input for Crud.Get.
+message GetRequest {
+  // space is the target space name.
+  string space = 1;
+
+  // key is the primary key of the record to fetch.
+  Key key = 2;
+
+  // options carries routing and timeout settings.
+  tdb.shared.v1.RequestOptions options = 3;
+}
+
+// GetResponse is the result of Crud.Get.
+message GetResponse {
+  // record is the matched record, or unset when no record exists for the key.
+  google.protobuf.Struct record = 1;
+}

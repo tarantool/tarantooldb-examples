@@ -1,0 +1,36 @@
+type: nontarantool
+instrumentation:
+  log:
+    level: info
+  url: grpc-gateway-1:9081
+  metrics_url: /metrics
+  metrics_format: prometheus
+  liveness_url: /alive
+  info_url: /info
+  binary: /app/tarantooldb/bin/grpc-worker
+config:
+  server:
+    grpc_addr: 0.0.0.0:9090
+    enable_reflection: false
+    tls_cert_file: /demo/secrets/gateway.crt
+    tls_key_file: /demo/secrets/gateway.key
+  auth:
+    enabled: true
+    worker_url: https://ldap-worker:9081
+    worker_ca_file: /demo/secrets/ca.crt
+    worker_token_file: /demo/secrets/worker-token
+    signing_key_file: /demo/secrets/session-key
+    token_audience: grpc-ldap-example
+    request_timeout: 3s
+    session_ttl: 5m
+    mapping:
+      cn=readers,ou=groups,dc=example,dc=com:
+        Get: [books]
+        Select: [books]
+  vshard:
+    tarantool_cluster_prefix: /tdb/config/all
+    user: client
+    password: secret
+    spaces:
+      books:
+        sharding_key: [id]

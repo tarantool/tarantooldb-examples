@@ -1,0 +1,19 @@
+dn: ou=people,dc=example,dc=com
+objectClass: organizationalUnit
+ou: people
+
+dn: uid=alice,ou=people,dc=example,dc=com
+objectClass: inetOrgPerson
+uid: alice
+cn: Alice
+sn: Alice
+userPassword: alice-pass
+
+dn: ou=groups,dc=example,dc=com
+objectClass: organizationalUnit
+ou: groups
+
+dn: cn=readers,ou=groups,dc=example,dc=com
+objectClass: groupOfUniqueNames
+cn: readers
+uniqueMember: uid=alice,ou=people,dc=example,dc=com

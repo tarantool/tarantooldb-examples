@@ -7,8 +7,8 @@ import (
 	"log"
 	"time"
 
-	pb "example.com/tdb-go-grpc/gen/service/tdb/crud/v1"
-	shared "example.com/tdb-go-grpc/gen/service/tdb/shared/v1"
+	pb "example.com/tdb-go-grpc/gen/tdb/crud/v1"
+	shared "example.com/tdb-go-grpc/gen/tdb/shared/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/protobuf/types/known/structpb"
@@ -37,8 +37,8 @@ func run(address string) error {
 	key := &pb.Key{Parts: []*structpb.Value{structpb.NewNumberValue(1)}}
 	book, err := structpb.NewStruct(map[string]any{
 		"id":     1,
-		"title":  "First edition",
-		"author": "Alice",
+		"title":  "The Hobbit",
+		"author": "J. R. R. Tolkien",
 	})
 	if err != nil {
 		return err
@@ -67,7 +67,7 @@ func run(address string) error {
 	}
 	fmt.Println("Get:", got.GetRecord().GetFields()["title"].GetStringValue())
 
-	book.Fields["title"] = structpb.NewStringValue("Second edition")
+	book.Fields["title"] = structpb.NewStringValue("The Hobbit: Illustrated Edition")
 	replaced, err := client.Replace(ctx, &pb.ReplaceRequest{Space: space, Record: book})
 	if err != nil {
 		return fmt.Errorf("replace: %w", err)
@@ -78,15 +78,15 @@ func run(address string) error {
 		Space: space,
 		Key:   key,
 		Operations: []*pb.PatchOperation{{
-			Field:    "title",
+			Field:    "author",
 			Operator: pb.PatchOperator_PATCH_OPERATOR_SET,
-			Value:    structpb.NewStringValue("Revised edition"),
+			Value:    structpb.NewStringValue("John Ronald Reuel Tolkien"),
 		}},
 	})
 	if err != nil {
 		return fmt.Errorf("update: %w", err)
 	}
-	fmt.Println("Update:", updated.GetRecord().GetFields()["title"].GetStringValue())
+	fmt.Println("Update:", updated.GetRecord().GetFields()["author"].GetStringValue())
 
 	selected, err := client.Select(ctx, &pb.SelectRequest{
 		Space: space,

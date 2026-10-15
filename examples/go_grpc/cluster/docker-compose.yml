@@ -88,7 +88,7 @@ services:
       TDB_WORKER_HOST_NAME: grpc-gateway-1
       TDB_WORKER_CONFIG_ETCD_ENDPOINTS: http://etcd:2379
       TDB_WORKER_CONFIG_ETCD_PREFIX: /tdb-workers/go-grpc-example
-    command: ["/app/tarantooldb/tdb-gateway/bin/tdb-grpc-gateway"]
+    command: ["/app/tarantooldb/bin/grpc-worker"]
 
   grpc-gateway-2:
     image: tarantooldb:3x-latest
@@ -104,7 +104,7 @@ services:
       TDB_WORKER_HOST_NAME: grpc-gateway-2
       TDB_WORKER_CONFIG_ETCD_ENDPOINTS: http://etcd:2379
       TDB_WORKER_CONFIG_ETCD_PREFIX: /tdb-workers/go-grpc-example
-    command: ["/app/tarantooldb/tdb-gateway/bin/tdb-grpc-gateway"]
+    command: ["/app/tarantooldb/bin/grpc-worker"]
 
   etcd:
     image: quay.io/coreos/etcd:v3.5.15

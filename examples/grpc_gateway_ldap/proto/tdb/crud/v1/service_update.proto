@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package tdb.crud.v1;
+
+option go_package = "gitlab.corp.mail.ru/tarantool/tdb/tarantooldb/workers/gen/grpc-gateway/tdb/crud/v1;pbcrud";
+
+import "google/protobuf/struct.proto";
+import "tdb/crud/v1/types.proto";
+import "tdb/shared/v1/options.proto";
+
+// UpdateRequest is the input for Crud.Update.
+message UpdateRequest {
+  // space is the target space name.
+  string space = 1;
+
+  // key is the primary key of the record to update.
+  Key key = 2;
+
+  // operations are the field-level patches applied in order.
+  repeated PatchOperation operations = 3;
+
+  // options carries routing and timeout settings.
+  tdb.shared.v1.RequestOptions options = 4;
+}
+
+// UpdateResponse is the result of Crud.Update.
+message UpdateResponse {
+  // record is the updated record, or unset when no record matched the key.
+  google.protobuf.Struct record = 1;
+}

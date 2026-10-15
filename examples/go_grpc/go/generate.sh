@@ -5,7 +5,7 @@ cd "$(dirname "$0")"
 module=example.com/tdb-go-grpc
 files=()
 options=()
-for source in proto/service/tdb/crud/v1/*.proto proto/service/tdb/shared/v1/*.proto; do
+for source in proto/tdb/crud/v1/*.proto proto/tdb/shared/v1/*.proto; do
     file=${source#proto/}
     package="$module/gen/$(dirname "$file")"
     files+=("$file")

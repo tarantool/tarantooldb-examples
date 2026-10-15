@@ -11,15 +11,13 @@ local function apply()
     end
 
     local crud = require('crud')
-    for id = 1, 8 do
-        local _, err = crud.replace_object('test_kv', {
-            id = id,
-            name = string.format('seed-rotation-row-%02d', id),
-            payload = {source = 'grpc-log-rotation-example'},
-        }, {timeout = 5})
-        if err ~= nil then
-            error(err)
-        end
+    local _, err = crud.replace_object('books', {
+        id = 1,
+        title = 'The Hobbit',
+        author = 'J. R. R. Tolkien',
+    }, {timeout = 5})
+    if err ~= nil then
+        error(err)
     end
 
     return true

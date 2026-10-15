@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package tdb.shared.v1;
+
+option go_package = "gitlab.corp.mail.ru/tarantool/tdb/tarantooldb/workers/gen/grpc-gateway/tdb/shared/v1;pbtdbshared";
+
+// ExecutionMode selects which instance of a replicaset serves a request, and therefore
+// the read/write consistency the caller accepts.
+enum ExecutionMode {
+  // EXECUTION_MODE_UNSPECIFIED is the default; the gateway routes to the master.
+  EXECUTION_MODE_UNSPECIFIED = 0;
+
+  // EXECUTION_MODE_MASTER routes to the replicaset master (read-write).
+  EXECUTION_MODE_MASTER = 1;
+
+  // EXECUTION_MODE_ANY routes to any available instance, master or replica.
+  EXECUTION_MODE_ANY = 2;
+
+  // EXECUTION_MODE_REPLICA routes to a replica (read-only).
+  EXECUTION_MODE_REPLICA = 3;
+
+  // EXECUTION_MODE_PREFER_REPLICA prefers a replica and falls back to the master.
+  EXECUTION_MODE_PREFER_REPLICA = 4;
+}
+
+// RequestOptions carries routing and timeout settings shared by the point CRUD operations
+// (Get, Insert, Replace, Update, Delete) and by Func calls.
+message RequestOptions {
+  // timeout_ms bounds the storage call in milliseconds; 0 uses the gateway default.
+  uint32 timeout_ms = 1;
+
+  // execution_mode selects master/replica routing; write operations accept only
+  // EXECUTION_MODE_MASTER or EXECUTION_MODE_UNSPECIFIED.
+  ExecutionMode execution_mode = 2;
+}
+
+// SelectOptions carries routing and paging settings for Select.
+message SelectOptions {
+  // timeout_ms bounds the storage call in milliseconds; 0 uses the gateway default.
+  uint32 timeout_ms = 1;
+
+  // limit is the maximum number of records returned per page; must be greater than 0.
+  uint32 limit = 2;
+
+  // execution_mode selects master/replica routing for the scan.
+  ExecutionMode execution_mode = 3;
+
+  // cursor is the opaque pagination token from the previous response's next_cursor;
+  // an empty cursor starts from the first page.
+  bytes cursor = 4;
+}
