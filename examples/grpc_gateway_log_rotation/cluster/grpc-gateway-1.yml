@@ -22,5 +22,5 @@ config:
     user: client
     password: secret
     spaces:
-      test_kv:
+      books:
         sharding_key: [id]

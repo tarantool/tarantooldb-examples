@@ -100,12 +100,14 @@ make start
 В файлах `cluster/grpc-gateway-1.yml` и `cluster/grpc-gateway-2.yml`
 секция `instrumentation` задаёт служебный HTTP-интерфейс для TCM
 (состояние, метрики), а секция `config` - параметры gRPC, логирования и vshard.
-Ключ шардирования спейса `test_kv` - поле `id`.
+Ключ шардирования спейса `books` - поле `id`.
 Шлюз использует топологию vshard для выбора хранилища.
 
 При запуске применяются миграции из директории `cluster/migrations/scenario`.
-Они создают спейс `test_kv` с полями `id`, `bucket_id`, `name` и `payload`
-и заполняют его 8 записями с `id` от 1 до 8.
+Они создают каталог книг — спейс `books` с полями `id`, `bucket_id`, `title`
+и `author` — и добавляют шесть книг. Поле `id` задаёт идентификатор книги,
+`title` — название, `author` — автора. Индекс `title` нужен для выборки
+книг по названию с постраничным выводом.
 Значение `bucket_id` вычисляет шлюз; клиенту передавать его не нужно.
 
 > [!NOTE]
@@ -143,7 +145,7 @@ grpcurl -plaintext -proto-out-dir proto localhost:9091 describe service.tdb.crud
 в `proto/service/tdb/shared/v1/options.proto`.
 
 Посмотреть содержимое спейса можно в TCM: откройте вкладку **Tuples**
-и выберите `test_kv`. Начальных записей меньше десяти, поэтому они помещаются
+и выберите `books`. Начальных записей меньше десяти, поэтому они помещаются
 на одной странице.
 Ниже приведены ответы при последовательном выполнении команд на стенде
 с исходными данными.
@@ -153,10 +155,10 @@ grpcurl -plaintext -proto-out-dir proto localhost:9091 describe service.tdb.crud
 > Это непрозрачный курсор: для следующей страницы используйте значение
 > из собственного ответа без изменений.
 
-Получить подготовленную запись:
+Прочитать карточку книги «Dune»:
 
 ```shell
-grpcurl -plaintext -d '{"space":"test_kv","key":{"parts":[1]}}' \
+grpcurl -plaintext -d '{"space":"books","key":{"parts":[1]}}' \
   localhost:9091 service.tdb.crud.v1.Crud/Get
 ```
 
@@ -165,23 +167,21 @@ grpcurl -plaintext -d '{"space":"test_kv","key":{"parts":[1]}}' \
 ```json
 {
   "record": {
+    "author": "Frank Herbert",
     "id": 1,
-    "name": "seed-demo-row-01",
-    "payload": {
-      "source": "grpc-example"
-    }
+    "title": "Dune"
   }
 }
 ```
 
-Создать запись с `id=100`:
+Добавить в каталог книгу «A Wizard of Earthsea» с `id=100`:
 
 > [!NOTE]
 > Повторный `Insert` того же ключа вернёт ошибку.
 > Для замены существующей записи используйте `Replace`.
 
 ```shell
-grpcurl -plaintext -d '{"space":"test_kv","record":{"id":100,"name":"alice","payload":{"source":"example"}}}' \
+grpcurl -plaintext -d '{"space":"books","record":{"id":100,"title":"A Wizard of Earthsea","author":"Ursula Le Guin"}}' \
   localhost:9091 service.tdb.crud.v1.Crud/Insert
 ```
 
@@ -190,19 +190,17 @@ grpcurl -plaintext -d '{"space":"test_kv","record":{"id":100,"name":"alice","pay
 ```json
 {
   "record": {
+    "author": "Ursula Le Guin",
     "id": 100,
-    "name": "alice",
-    "payload": {
-      "source": "example"
-    }
+    "title": "A Wizard of Earthsea"
   }
 }
 ```
 
-Заменить запись целиком:
+Заменить карточку целиком, указав иллюстрированное издание:
 
 ```shell
-grpcurl -plaintext -d '{"space":"test_kv","record":{"id":100,"name":"alice-replaced","payload":{"source":"example"}}}' \
+grpcurl -plaintext -d '{"space":"books","record":{"id":100,"title":"A Wizard of Earthsea: Illustrated Edition","author":"Ursula Le Guin"}}' \
   localhost:9091 service.tdb.crud.v1.Crud/Replace
 ```
 
@@ -211,19 +209,17 @@ grpcurl -plaintext -d '{"space":"test_kv","record":{"id":100,"name":"alice-repla
 ```json
 {
   "record": {
+    "author": "Ursula Le Guin",
     "id": 100,
-    "name": "alice-replaced",
-    "payload": {
-      "source": "example"
-    }
+    "title": "A Wizard of Earthsea: Illustrated Edition"
   }
 }
 ```
 
-Обновить имя:
+Уточнить имя автора, изменив только поле `author`:
 
 ```shell
-grpcurl -plaintext -d '{"space":"test_kv","key":{"parts":[100]},"operations":[{"field":"name","operator":"PATCH_OPERATOR_SET","value":"bob"}]}' \
+grpcurl -plaintext -d '{"space":"books","key":{"parts":[100]},"operations":[{"field":"author","operator":"PATCH_OPERATOR_SET","value":"Ursula K. Le Guin"}]}' \
   localhost:9091 service.tdb.crud.v1.Crud/Update
 ```
 
@@ -232,11 +228,9 @@ grpcurl -plaintext -d '{"space":"test_kv","key":{"parts":[100]},"operations":[{"
 ```json
 {
   "record": {
+    "author": "Ursula K. Le Guin",
     "id": 100,
-    "name": "bob",
-    "payload": {
-      "source": "example"
-    }
+    "title": "A Wizard of Earthsea: Illustrated Edition"
   }
 }
 ```
@@ -244,7 +238,7 @@ grpcurl -plaintext -d '{"space":"test_kv","key":{"parts":[100]},"operations":[{"
 Выбрать запись по ключу шардирования - запрос попадёт на один набор реплик:
 
 ```shell
-grpcurl -plaintext -d '{"space":"test_kv","conditions":[{"field":"id","operator":"COMPARE_OPERATOR_EQ","value":100}],"options":{"limit":1}}' \
+grpcurl -plaintext -d '{"space":"books","conditions":[{"field":"id","operator":"COMPARE_OPERATOR_EQ","value":100}],"options":{"limit":1}}' \
   localhost:9091 service.tdb.crud.v1.Crud/Select
 ```
 
@@ -254,21 +248,19 @@ grpcurl -plaintext -d '{"space":"test_kv","conditions":[{"field":"id","operator"
 {
   "records": [
     {
+      "author": "Ursula K. Le Guin",
       "id": 100,
-      "name": "bob",
-      "payload": {
-        "source": "example"
-      }
+      "title": "A Wizard of Earthsea: Illustrated Edition"
     }
   ],
-  "nextCursor": "g6Zyb3V0ZWSBpWFmdGVygaJpZNBkomZwsDM3ZjY0Y2Q0ZmU3NDNmYzChdgE="
+  "nextCursor": "g6Zyb3V0ZWSBpWFmdGVygaJpZNBkomZwsDk1ZjU1YTA2Mzg4NDBkNDehdgE="
 }
 ```
 
-Удалить запись:
+Удалить добавленную карточку из каталога:
 
 ```shell
-grpcurl -plaintext -d '{"space":"test_kv","key":{"parts":[100]}}' \
+grpcurl -plaintext -d '{"space":"books","key":{"parts":[100]}}' \
   localhost:9091 service.tdb.crud.v1.Crud/Delete
 ```
 
@@ -278,11 +270,9 @@ grpcurl -plaintext -d '{"space":"test_kv","key":{"parts":[100]}}' \
 {
   "deleted": true,
   "record": {
+    "author": "Ursula K. Le Guin",
     "id": 100,
-    "name": "bob",
-    "payload": {
-      "source": "example"
-    }
+    "title": "A Wizard of Earthsea: Illustrated Edition"
   }
 }
 ```
@@ -291,13 +281,15 @@ grpcurl -plaintext -d '{"space":"test_kv","key":{"parts":[100]}}' \
 
 ## Постраничная выборка
 
-Выборка по `name` обращается ко всем наборам реплик, поскольку условие не содержит
-полного ключа шардирования. Gateway объединяет записи в порядке индекса `name`.
+Выборка по `title` обращается ко всем наборам реплик, поскольку условие не содержит
+полного ключа шардирования. Gateway объединяет записи в порядке индекса `title`.
+
+Выберем книги по алфавиту, начиная с «Dune», по три на странице.
 
 Первая страница:
 
 ```shell
-grpcurl -plaintext -d '{"space":"test_kv","conditions":[{"field":"name","operator":"COMPARE_OPERATOR_GTE","value":"seed-demo-row-01"}],"options":{"limit":3}}' \
+grpcurl -plaintext -d '{"space":"books","conditions":[{"field":"title","operator":"COMPARE_OPERATOR_GTE","value":"Dune"}],"options":{"limit":3}}' \
   localhost:9091 service.tdb.crud.v1.Crud/Select
 ```
 
@@ -307,28 +299,22 @@ grpcurl -plaintext -d '{"space":"test_kv","conditions":[{"field":"name","operato
 {
   "records": [
     {
+      "author": "Frank Herbert",
       "id": 1,
-      "name": "seed-demo-row-01",
-      "payload": {
-        "source": "grpc-example"
-      }
+      "title": "Dune"
     },
     {
+      "author": "Ray Bradbury",
       "id": 2,
-      "name": "seed-demo-row-02",
-      "payload": {
-        "source": "grpc-example"
-      }
+      "title": "Fahrenheit 451"
     },
     {
+      "author": "Isaac Asimov",
       "id": 3,
-      "name": "seed-demo-row-03",
-      "payload": {
-        "source": "grpc-example"
-      }
+      "title": "Foundation"
     }
   ],
-  "nextCursor": "g6tyZXBsaWNhc2V0c4Kpc3RvcmFnZS0xgaVhZnRlcoKiaWTQAqRuYW1lsHNlZWQtZGVtby1yb3ctMDKpc3RvcmFnZS0ygaVhZnRlcoKkbmFtZbBzZWVkLWRlbW8tcm93LTAzomlk0AOiZnCwNTk2MDVkOTE2MjlkMzllZqF2AQ=="
+  "nextCursor": "g6tyZXBsaWNhc2V0c4Kpc3RvcmFnZS0xgaVhZnRlcoKldGl0bGWuRmFocmVuaGVpdCA0NTGiaWTQAqlzdG9yYWdlLTKCpWFmdGVygqJpZNADpXRpdGxlqkZvdW5kYXRpb26kZG9uZcOiZnCwODlhZmVhZDUzNjFkODJjNKF2AQ=="
 }
 ```
 
@@ -340,7 +326,7 @@ grpcurl -plaintext -d '{"space":"test_kv","conditions":[{"field":"name","operato
 > подставьте `nextCursor` из собственного ответа целиком, без изменений.
 
 ```shell
-grpcurl -plaintext -d '{"space":"test_kv","conditions":[{"field":"name","operator":"COMPARE_OPERATOR_GTE","value":"seed-demo-row-01"}],"options":{"limit":3,"cursor":"<nextCursor из предыдущего ответа>"}}' \
+grpcurl -plaintext -d '{"space":"books","conditions":[{"field":"title","operator":"COMPARE_OPERATOR_GTE","value":"Dune"}],"options":{"limit":3,"cursor":"<nextCursor из предыдущего ответа>"}}' \
   localhost:9091 service.tdb.crud.v1.Crud/Select
 ```
 
@@ -350,28 +336,22 @@ grpcurl -plaintext -d '{"space":"test_kv","conditions":[{"field":"name","operato
 {
   "records": [
     {
+      "author": "Stanislaw Lem",
       "id": 4,
-      "name": "seed-demo-row-04",
-      "payload": {
-        "source": "grpc-example"
-      }
+      "title": "Solaris"
     },
     {
+      "author": "J. R. R. Tolkien",
       "id": 5,
-      "name": "seed-demo-row-05",
-      "payload": {
-        "source": "grpc-example"
-      }
+      "title": "The Hobbit"
     },
     {
+      "author": "Andy Weir",
       "id": 6,
-      "name": "seed-demo-row-06",
-      "payload": {
-        "source": "grpc-example"
-      }
+      "title": "The Martian"
     }
   ],
-  "nextCursor": "g6tyZXBsaWNhc2V0c4Kpc3RvcmFnZS0xgaVhZnRlcoKkbmFtZbBzZWVkLWRlbW8tcm93LTA2omlk0Aapc3RvcmFnZS0ygaVhZnRlcoKkbmFtZbBzZWVkLWRlbW8tcm93LTAzomlk0AOiZnCwNTk2MDVkOTE2MjlkMzllZqF2AQ=="
+  "nextCursor": "g6tyZXBsaWNhc2V0c4Kpc3RvcmFnZS0xgaVhZnRlcoKiaWTQBqV0aXRsZatUaGUgTWFydGlhbqlzdG9yYWdlLTKCpWFmdGVygqV0aXRsZapGb3VuZGF0aW9uomlk0AOkZG9uZcOiZnCwODlhZmVhZDUzNjFkODJjNKF2AQ=="
 }
 ```
 

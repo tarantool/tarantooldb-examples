@@ -128,10 +128,10 @@ volumes:
 можно читать на хосте без `sudo`. Файлы открываются на добавление.
 
 При запуске применяются миграции из директории `cluster/migrations/scenario`.
-Они создают спейс `test_kv` с полями `id`, `bucket_id`, `name` и `payload`
-и заполняют его 8 записями с `id` от 1 до 8.
-Чтобы посмотреть записи в TCM, откройте вкладку **Tuples** и выберите `test_kv`.
-Все начальные записи помещаются на одной странице.
+Они создают каталог книг — спейс `books` с полями `id`, `bucket_id`, `title`
+и `author` — и добавляют одну книгу: «The Hobbit» Дж. Р. Р. Толкина.
+Пример показывает аудит чтения её карточки и запроса с пропущенным ключом.
+Чтобы посмотреть книгу в TCM, откройте вкладку **Tuples** и выберите `books`.
 
 > [!NOTE]
 > В примере включён gRPC reflection: утилита `grpcurl` получает описание API
@@ -139,12 +139,12 @@ volumes:
 
 ## Выполнение запросов
 
-Вызовите первый шлюз и получите подготовленную запись.
+Вызовите первый шлюз и прочитайте карточку книги «The Hobbit».
 Передайте идентификатор запроса в metadata `request-id`:
 
 ```shell
 grpcurl -plaintext -H 'request-id: audit-get-1' \
-  -d '{"space":"test_kv","key":{"parts":[1]}}' \
+  -d '{"space":"books","key":{"parts":[1]}}' \
   localhost:9091 service.tdb.crud.v1.Crud/Get
 ```
 
@@ -154,10 +154,8 @@ grpcurl -plaintext -H 'request-id: audit-get-1' \
 {
   "record": {
     "id": 1,
-    "name": "seed-audit-row-01",
-    "payload": {
-      "source": "grpc-audit-example"
-    }
+    "title": "The Hobbit",
+    "author": "J. R. R. Tolkien"
   }
 }
 ```
@@ -166,7 +164,7 @@ grpcurl -plaintext -H 'request-id: audit-get-1' \
 
 ```shell
 grpcurl -plaintext -H 'request-id: audit-invalid-get-1' \
-  -d '{"space":"test_kv"}' \
+  -d '{"space":"books"}' \
   localhost:9091 service.tdb.crud.v1.Crud/Get
 ```
 
@@ -196,7 +194,7 @@ jq . logs/grpc-gateway-1/audit.jsonl
   "result": "ok",
   "code": "OK",
   "duration_ms": 1.25,
-  "space": "test_kv"
+  "space": "books"
 }
 ```
 
@@ -253,7 +251,7 @@ jq 'select(.result == "nok")' logs/grpc-gateway-*/audit.jsonl
 
 ```shell
 grpcurl -plaintext -H 'request-id: audit-file-get-1' \
-  -d '{"space":"test_kv","key":{"parts":[1]}}' \
+  -d '{"space":"books","key":{"parts":[1]}}' \
   localhost:9092 service.tdb.crud.v1.Crud/Get
 ```
 

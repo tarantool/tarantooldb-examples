@@ -85,9 +85,11 @@ make start
 ## Определение конфигурации
 
 Топология, пользователи и роли кластера заданы в файле `cluster/config.yml`.
-Миграции из `cluster/migrations/scenario` создают спейс `test_kv`
-и заполняют его 8 записями. Чтобы посмотреть их в TCM, откройте вкладку
-**Tuples** и выберите `test_kv`.
+Миграции из `cluster/migrations/scenario` создают спейс `books`
+с полями `id`, `bucket_id`, `title` и `author` и добавляют книгу «The Hobbit»
+Дж. Р. Р. Толкина. Её карточка используется для запросов до и после ротации.
+Чтобы посмотреть книгу в TCM, откройте вкладку
+**Tuples** и выберите `books`.
 
 Настройки шлюзов находятся в `cluster/grpc-gateway-1.yml`
 и `cluster/grpc-gateway-2.yml`. При запуске они публикуются в etcd.
@@ -133,7 +135,7 @@ volumes:
 
 ```shell
 grpcurl -plaintext -H 'request-id: rotation-before' \
-  -d '{"space":"test_kv","key":{"parts":[1]}}' \
+  -d '{"space":"books","key":{"parts":[1]}}' \
   localhost:9091 service.tdb.crud.v1.Crud/Get
 ```
 
@@ -143,10 +145,8 @@ grpcurl -plaintext -H 'request-id: rotation-before' \
 {
   "record": {
     "id": 1,
-    "name": "seed-rotation-row-01",
-    "payload": {
-      "source": "grpc-log-rotation-example"
-    }
+    "title": "The Hobbit",
+    "author": "J. R. R. Tolkien"
   }
 }
 ```
@@ -241,7 +241,7 @@ tail -F logs/grpc-gateway-1/gateway.log
 
 ```shell
 grpcurl -plaintext -H 'request-id: rotation-after' \
-  -d '{"space":"test_kv","key":{"parts":[1]}}' \
+  -d '{"space":"books","key":{"parts":[1]}}' \
   localhost:9091 service.tdb.crud.v1.Crud/Get
 ```
 
