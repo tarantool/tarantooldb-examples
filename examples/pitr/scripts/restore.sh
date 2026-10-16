@@ -35,25 +35,26 @@ $COMPOSE exec -T manager cat /backup/restore/plan.json > /tmp/pitr-restore-plan.
 echo "=== 2. Остановка хранилищ ==="
 $COMPOSE stop $STORAGE_NODES
 
-echo "=== 3. Подготовка каталогов данных (tt restore apply) ==="
-while IFS=$'\t' read -r UUID INSTANCE; do
-  ARCHIVES=$(jq -r --arg u "$UUID" \
+echo "=== 3. Восстановление данных (tt restore apply) ==="
+for RS_UUID in $(jq -r '.restore_targets | keys[]' /tmp/pitr-restore-plan.json); do
+  ARCHIVES=$(jq -r --arg u "$RS_UUID" \
     '.download_plan[$u] | map(.artifact) | join(",")' /tmp/pitr-restore-plan.json)
-  TARGET_POINT=$(jq -c --arg u "$UUID" \
+  TARGET_POINT=$(jq -c --arg u "$RS_UUID" \
     '.recovery_point.trim_to_by_replicaset[$u]' /tmp/pitr-restore-plan.json)
 
-  echo "  -> $INSTANCE"
-  $COMPOSE exec -T manager tt restore apply \
-    --archives "$ARCHIVES" \
-    --work-dir "/data/$INSTANCE" \
-    --target-point "$TARGET_POINT" < /dev/null
-done < <(jq -r '.restore_targets | to_entries[] | [.key, .value.instance_name] | @tsv' \
-  /tmp/pitr-restore-plan.json)
+  while IFS=$'\t' read -r INSTANCE PATCH_UUID; do
+    echo "  -> $INSTANCE"
+    $COMPOSE exec -T manager tt restore apply \
+      --archives "$ARCHIVES" \
+      --work-dir "/data/$INSTANCE" \
+      --target-point "$TARGET_POINT" \
+      --patch-uuid "$PATCH_UUID" < /dev/null
+  done < <(jq -r --arg u "$RS_UUID" \
+    '.restore_targets[$u].instances[] | [.instance_name, .patch_uuid] | @tsv' \
+    /tmp/pitr-restore-plan.json)
+done
 
-echo "=== 4. Очистка каталогов данных реплик ==="
-$COMPOSE exec -T manager sh -c "rm -rf /data/storage-1-spb/* /data/storage-1-brn/* /data/storage-2-spb/* /data/storage-2-brn/*"
-
-echo "=== 5. Запуск хранилищ ==="
+echo "=== 4. Запуск хранилищ ==="
 $COMPOSE start $STORAGE_NODES
 
 echo "Готово: кластер восстановлен на $TARGET_TIME."
