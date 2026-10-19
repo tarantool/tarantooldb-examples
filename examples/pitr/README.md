@@ -409,9 +409,9 @@ crud.get('customers', 4)
    * `--target-point` — из `recovery_point.trim_to_by_replicaset[<uuid>]`. Это позиция
    обрезки хвоста WAL;
    * `--work-dir` указывает каталог данных экземпляра, смонтированный в `manager`;
-   * `--patch-uuid` — instance UUID узла из `restore_targets[<uuid>].instances[]`.
-   Для реплик `tt restore apply` пропатчивает заголовки xlog/snap под instance UUID
-   этого узла, чтобы узел стартовал под своим идентификатором.
+   * `--patch-uuid` — идентификатор узла (UUID) из `restore_targets[<uuid>].instances[]`.
+   Для реплик `tt restore apply` перезаписывает заголовки xlog/snap под значение идентификатора
+   этого узла, чтобы узел запускался под своим идентификатором.
 
    ```shell
    tt restore apply \
