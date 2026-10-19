@@ -272,6 +272,7 @@ tt connect admin:secret-cluster-cookie@localhost:3301
 ```
 
 Для проверки получите кортеж, который был добавлен в спейс уже после полного резервного копирования:
+
 ```lua
 crud.get('customers', 4)
 ```
