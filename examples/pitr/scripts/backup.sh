@@ -38,6 +38,10 @@ for MASTER in $(jq -r '.replicasets[].master_instance_name' /tmp/pitr-plan.json)
   URI="$TT_USER:$TT_PASS@$CONTAINER:3301"
   ARGS=(--backup-id "$BACKUP_ID" --dir /backup/archives)
 
+  if [ "$MODE" = "full" ]; then
+    ARGS+=(--snapshot)
+  fi
+
   FROM_VCLOCK=$(jq -c --arg n "$MASTER" \
     '.replicasets[] | select(.master_instance_name==$n) | .from_vclock' \
     /tmp/pitr-plan.json)

@@ -12,8 +12,6 @@ services:
       - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
     volumes:
       - backup:/backup
-      # ВРЕМЕННО: патченный tt с per-instance restore
-      - ../tt-ee-2.15.0-restore-per-instance-linux-amd64:/app/tarantooldb/tt:ro
   tarantool-storage-1-msk:
     image: tarantooldb:3x-latest
     networks:
@@ -28,8 +26,6 @@ services:
     volumes:
       - storage-1-msk-data:/data
       - backup:/backup
-      # ВРЕМЕННО: патченный tt с per-instance restore
-      - ../tt-ee-2.15.0-restore-per-instance-linux-amd64:/app/tarantooldb/tt:ro
   tarantool-storage-1-spb:
     image: tarantooldb:3x-latest
     networks:
@@ -70,8 +66,6 @@ services:
     volumes:
       - storage-2-msk-data:/data
       - backup:/backup
-      # ВРЕМЕННО: патченный tt с per-instance restore
-      - ../tt-ee-2.15.0-restore-per-instance-linux-amd64:/app/tarantooldb/tt:ro
   tarantool-storage-2-spb:
     image: tarantooldb:3x-latest
     networks:
@@ -134,8 +128,6 @@ services:
     networks:
       - tarantooldb_network
     volumes:
-      # ВРЕМЕННО: патченный tt с per-instance restore
-      - ../tt-ee-2.15.0-restore-per-instance-linux-amd64:/app/tarantooldb/tt:ro
       - backup:/backup
       - storage-1-msk-data:/data/storage-1-msk
       - storage-1-spb-data:/data/storage-1-spb
