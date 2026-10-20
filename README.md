@@ -29,6 +29,7 @@ Go или Java.
 
 - [Запуск кластера из одного узла через Docker Compose](examples/all_in_one/README.md) — развертывание кластера Tarantool DB из одного узла с нестандартным способом начального запуска шардирования.
 - [Запуск кластера через Docker Compose](examples/up_with_docker_compose/README.md) — запуск кластера Tarantool DB с помощью Docker Compose.
+- [Запуск нешардированного кластера через Docker Compose](examples/without_sharding/README.md) — запуск кластера Tarantool DB из одного набора реплик без шардирования.
 - [Запуск Tarantool DB вручную](examples/up_with_tt/README.md) — локальное развертывание Tarantool DB с помощью утилиты tt CLI.
 - [Запуск кластера без централизованной конфигурации](examples/up_without_etcd/README.md) — запуск кластера через Docker Compose без etcd.
 - [Запуск кластера как централизованного хранилища конфигураций](examples/tdb_as_config_storage/README.md) — развертывание кластера Tarantool DB в качестве централизованного хранилища конфигураций.
