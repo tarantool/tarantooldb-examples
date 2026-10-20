@@ -1,0 +1,12 @@
+global:
+  scrape_interval: 2s
+  scrape_timeout: 1s
+
+scrape_configs:
+  - job_name: "tarantooldb"
+    static_configs:
+      - targets:
+          - 'tarantool-node-msk:8081'
+          - 'tarantool-node-spb:8081'
+          - 'tarantool-node-brn:8081'
+    metrics_path: /metrics
