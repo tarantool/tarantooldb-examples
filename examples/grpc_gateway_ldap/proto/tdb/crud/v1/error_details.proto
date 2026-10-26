@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package tdb.crud.v1;
+
+option go_package = "gitlab.corp.mail.ru/tarantool/tdb/tarantooldb/workers/gen/grpc-gateway/tdb/crud/v1;pbcrud";
+
+// CrudErrorDetail carries the storage-side classification of an error. It is intended to be
+// packed into a google.rpc.Status's details when a Crud RPC fails.
+message CrudErrorDetail {
+  // code is the machine-readable error code (e.g. "not_found", "already_exists").
+  string code = 1;
+
+  // operation is the gateway operation that failed (e.g. "get", "select", "call").
+  string operation = 2;
+
+  // space is the target space, when the failed operation is space-scoped.
+  string space = 3;
+
+  // retriable reports whether the caller may safely retry the request as-is.
+  bool retriable = 4;
+
+  // metadata carries additional storage-provided key/value context.
+  map<string, string> metadata = 5;
+}

@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package tdb.crud.v1;
+
+option go_package = "gitlab.corp.mail.ru/tarantool/tdb/tarantooldb/workers/gen/grpc-gateway/tdb/crud/v1;pbcrud";
+
+import "google/protobuf/struct.proto";
+import "tdb/shared/v1/options.proto";
+
+// ReplaceRequest is the input for Crud.Replace.
+message ReplaceRequest {
+  // space is the target space name.
+  string space = 1;
+
+  // record is the record to store, overwriting any existing one with the same key.
+  google.protobuf.Struct record = 2;
+
+  // options carries routing and timeout settings.
+  tdb.shared.v1.RequestOptions options = 3;
+}
+
+// ReplaceResponse is the result of Crud.Replace.
+message ReplaceResponse {
+  // record is the stored record as persisted by the storage.
+  google.protobuf.Struct record = 1;
+}

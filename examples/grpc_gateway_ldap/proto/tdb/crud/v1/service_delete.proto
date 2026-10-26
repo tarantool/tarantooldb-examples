@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package tdb.crud.v1;
+
+option go_package = "gitlab.corp.mail.ru/tarantool/tdb/tarantooldb/workers/gen/grpc-gateway/tdb/crud/v1;pbcrud";
+
+import "google/protobuf/struct.proto";
+import "tdb/crud/v1/types.proto";
+import "tdb/shared/v1/options.proto";
+
+// DeleteRequest is the input for Crud.Delete.
+message DeleteRequest {
+  // space is the target space name.
+  string space = 1;
+
+  // key is the primary key of the record to delete.
+  Key key = 2;
+
+  // options carries routing and timeout settings.
+  tdb.shared.v1.RequestOptions options = 3;
+}
+
+// DeleteResponse is the result of Crud.Delete.
+message DeleteResponse {
+  // deleted reports whether a record was actually removed.
+  bool deleted = 1;
+
+  // record is the removed record, or unset when no record matched the key.
+  google.protobuf.Struct record = 2;
+}

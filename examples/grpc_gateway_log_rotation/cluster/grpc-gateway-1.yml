@@ -1,0 +1,26 @@
+type: nontarantool
+instrumentation:
+  log:
+    level: debug
+    format: json
+    output: /var/log/tdb-gateway/gateway.log
+  audit_log:
+    enabled: true
+    output: /var/log/tdb-gateway/audit.jsonl
+  url: grpc-gateway-1:9081
+  metrics_url: /metrics
+  metrics_format: prometheus
+  liveness_url: /alive
+  info_url: /info
+  binary: /app/tarantooldb/bin/grpc-worker
+config:
+  server:
+    grpc_addr: 0.0.0.0:9090
+    enable_reflection: true
+  vshard:
+    tarantool_cluster_prefix: /tdb/config/all
+    user: client
+    password: secret
+    spaces:
+      books:
+        sharding_key: [id]

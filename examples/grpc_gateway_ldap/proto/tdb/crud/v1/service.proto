@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package tdb.crud.v1;
+
+option go_package = "gitlab.corp.mail.ru/tarantool/tdb/tarantooldb/workers/gen/grpc-gateway/tdb/crud/v1;pbcrud";
+
+import "tdb/crud/v1/service_get.proto";
+import "tdb/crud/v1/service_select.proto";
+import "tdb/crud/v1/service_insert.proto";
+import "tdb/crud/v1/service_replace.proto";
+import "tdb/crud/v1/service_update.proto";
+import "tdb/crud/v1/service_delete.proto";
+
+// Crud exposes typed record operations over Tarantool spaces. The gateway computes the
+// vshard bucket id and routes each call to the owning shard.
+service Crud {
+  // Get returns a single record by primary key.
+  rpc Get(GetRequest) returns (GetResponse);
+
+  // Select returns records matching the given conditions, with cursor paging.
+  rpc Select(SelectRequest) returns (SelectResponse);
+
+  // Insert stores a new record and fails if a record with the same key exists.
+  rpc Insert(InsertRequest) returns (InsertResponse);
+
+  // Replace stores a record, overwriting any existing record with the same key.
+  rpc Replace(ReplaceRequest) returns (ReplaceResponse);
+
+  // Update applies field-level patch operations to an existing record.
+  rpc Update(UpdateRequest) returns (UpdateResponse);
+
+  // Delete removes a record by primary key.
+  rpc Delete(DeleteRequest) returns (DeleteResponse);
+}

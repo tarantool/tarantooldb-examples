@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package tdb.crud.v1;
+
+option go_package = "gitlab.corp.mail.ru/tarantool/tdb/tarantooldb/workers/gen/grpc-gateway/tdb/crud/v1;pbcrud";
+
+import "google/protobuf/struct.proto";
+import "tdb/shared/v1/options.proto";
+
+// InsertRequest is the input for Crud.Insert.
+message InsertRequest {
+  // space is the target space name.
+  string space = 1;
+
+  // record is the new record to store.
+  google.protobuf.Struct record = 2;
+
+  // options carries routing and timeout settings.
+  tdb.shared.v1.RequestOptions options = 3;
+}
+
+// InsertResponse is the result of Crud.Insert.
+message InsertResponse {
+  // record is the stored record as persisted by the storage.
+  google.protobuf.Struct record = 1;
+}

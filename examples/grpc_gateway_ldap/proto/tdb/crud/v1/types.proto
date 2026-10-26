@@ -1,0 +1,73 @@
+syntax = "proto3";
+
+package tdb.crud.v1;
+
+option go_package = "gitlab.corp.mail.ru/tarantool/tdb/tarantooldb/workers/gen/grpc-gateway/tdb/crud/v1;pbcrud";
+
+import "google/protobuf/struct.proto";
+
+// CompareOperator is the comparison applied by a Select Condition.
+enum CompareOperator {
+  // COMPARE_OPERATOR_UNSPECIFIED is an invalid, unset operator.
+  COMPARE_OPERATOR_UNSPECIFIED = 0;
+
+  // COMPARE_OPERATOR_EQ matches records whose field equals the value.
+  COMPARE_OPERATOR_EQ = 1;
+
+  // COMPARE_OPERATOR_GT matches records whose field is greater than the value.
+  COMPARE_OPERATOR_GT = 2;
+
+  // COMPARE_OPERATOR_GTE matches records whose field is greater than or equal to the value.
+  COMPARE_OPERATOR_GTE = 3;
+
+  // COMPARE_OPERATOR_LT matches records whose field is less than the value.
+  COMPARE_OPERATOR_LT = 4;
+
+  // COMPARE_OPERATOR_LTE matches records whose field is less than or equal to the value.
+  COMPARE_OPERATOR_LTE = 5;
+}
+
+// PatchOperator is the mutation applied to a field by an Update PatchOperation.
+enum PatchOperator {
+  // PATCH_OPERATOR_UNSPECIFIED is an invalid, unset operator.
+  PATCH_OPERATOR_UNSPECIFIED = 0;
+
+  // PATCH_OPERATOR_SET assigns the value to the field.
+  PATCH_OPERATOR_SET = 1;
+
+  // PATCH_OPERATOR_ADD adds the value to the (numeric) field.
+  PATCH_OPERATOR_ADD = 2;
+
+  // PATCH_OPERATOR_SUBTRACT subtracts the value from the (numeric) field.
+  PATCH_OPERATOR_SUBTRACT = 3;
+}
+
+// Key is a primary-key tuple. Its parts are ordered to match the space's primary index.
+message Key {
+  // parts are the primary-key field values, in primary-index order.
+  repeated google.protobuf.Value parts = 1;
+}
+
+// Condition is a single Select filter of the form: field <operator> value.
+message Condition {
+  // field is the record field the condition applies to.
+  string field = 1;
+
+  // operator is the comparison applied between the field and value.
+  CompareOperator operator = 2;
+
+  // value is the right-hand operand compared against the field.
+  google.protobuf.Value value = 3;
+}
+
+// PatchOperation is a single field mutation applied by Update.
+message PatchOperation {
+  // field is the record field to mutate.
+  string field = 1;
+
+  // operator is the mutation applied to the field.
+  PatchOperator operator = 2;
+
+  // value is the operand for the mutation (the new value, or the addend/subtrahend).
+  google.protobuf.Value value = 3;
+}

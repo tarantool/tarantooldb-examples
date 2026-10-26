@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package tdb.crud.v1;
+
+option go_package = "gitlab.corp.mail.ru/tarantool/tdb/tarantooldb/workers/gen/grpc-gateway/tdb/crud/v1;pbcrud";
+
+import "google/protobuf/struct.proto";
+import "tdb/crud/v1/types.proto";
+import "tdb/shared/v1/options.proto";
+
+// SelectRequest is the input for Crud.Select.
+message SelectRequest {
+  // space is the target space name.
+  string space = 1;
+
+  // conditions are the filters records must satisfy; an empty list scans all records.
+  repeated Condition conditions = 2;
+
+  // options carries paging, cursor, routing and timeout settings.
+  tdb.shared.v1.SelectOptions options = 3;
+}
+
+// SelectResponse is one page of Crud.Select results.
+message SelectResponse {
+  // records are the matched records for this page.
+  repeated google.protobuf.Struct records = 1;
+
+  // next_cursor is the opaque token for the next page; empty marks the last page.
+  bytes next_cursor = 2;
+}
