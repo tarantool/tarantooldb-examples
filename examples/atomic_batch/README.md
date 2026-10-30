@@ -201,7 +201,7 @@ make start
 
 То же самое можно сделать из Go-приложения. В примере используется коннектор
 [`go-tarantool`](https://pkg.go.dev/github.com/tarantool/go-tarantool/v3) v3.
-Батч операций передаётся в вызов `crud.atomic_batch`:
+Пакет операций передаётся в вызов `crud.atomic_batch`:
 
 ```go
 req := tarantool.NewCallRequest("crud.atomic_batch").
