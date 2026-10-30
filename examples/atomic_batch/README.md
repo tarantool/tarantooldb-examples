@@ -154,6 +154,8 @@ make start
    ...
    ```
 
+Затем проверьте баланс счета `savings`:
+
    ```lua
    crud.get('accounts', {1, 'savings'})
    ```
