@@ -238,11 +238,11 @@ Balances after rollback:  main=900 savings=600
 
 ## Просмотр метрик в TCM
 
-Метод `crud.atomic_batch` ведёт статистику, которая экспортируется в формате Prometheus:
+Метод `crud.atomic_batch()` ведёт статистику, которая экспортируется в формате Prometheus:
 
 * `tnt_crud_stats{operation="atomic_batch"}` — количество вызовов и время выполнения самого
   метода `atomic_batch` на роутере;
-* `tnt_crud_atomic_batch_sub_ops` — статистика вложенных операций батча (`get`, `insert`,
+* `tnt_crud_atomic_batch_sub_ops` — статистика вложенных операций пакета (`get`, `insert`,
   `update` и т.д.) с метками `operation` и `status`.
 
 Метрики доступны на роутере по адресу `/metrics`.
