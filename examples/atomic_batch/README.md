@@ -35,9 +35,9 @@
 
 Для выполнения примера требуются:
 
-* установленный [Docker-образ](https://www.tarantool.io/docs/tdb/ru/3_x/install_and_upgrade/install/install_docker) Tarantool DB 3.3.0 или новее;
+* установленный [Docker-образ](https://www.tarantool.io/docs/tdb/ru/3_x/install_and_upgrade/install/install_docker) Tarantool DB версии 3.3.0 или выше;
 * приложение Docker Compose;
-* [Go](https://go.dev/dl/) 1.24 или новее — для запуска Go-приложения;
+* [Go](https://go.dev/dl/) версии 1.24.0 или выше — для запуска Go-приложения;
 * исходные файлы примера `atomic_batch`.
 
 > [!NOTE]
