@@ -2,12 +2,15 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"log/slog"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -196,13 +199,35 @@ func main() {
 	)
 
 	go func() {
-		logger.Info("starting instrumentation server", "addr", workerCfg.Instrumentation.URL)
-		err := http.ListenAndServe(
-			workerCfg.Instrumentation.URL,
-			metricsMux,
-		)
+		addr, scheme, err := splitInstrumentationURL(workerCfg.Instrumentation.URL)
 		if err != nil {
-			logger.Error("failed to start metrics server", "err", err)
+			logger.Error("invalid instrumentation url", "url", workerCfg.Instrumentation.URL, "err", err)
+			return
+		}
+
+		server := &http.Server{
+			Addr:    addr,
+			Handler: metricsMux,
+		}
+
+		var serveErr error
+		if scheme == "https" {
+			tlsConfig, err := workerCfg.Instrumentation.tlsConfig()
+			if err != nil {
+				logger.Error("failed to configure instrumentation TLS", "err", err)
+				return
+			}
+
+			server.TLSConfig = tlsConfig
+			logger.Info("starting instrumentation server", "addr", addr, "tls", true)
+			serveErr = server.ListenAndServeTLS("", "")
+		} else {
+			logger.Info("starting instrumentation server", "addr", addr)
+			serveErr = server.ListenAndServe()
+		}
+
+		if serveErr != nil {
+			logger.Error("failed to start instrumentation server", "err", serveErr)
 		}
 	}()
 	h := &HttpHandler{
@@ -321,12 +346,21 @@ type WorkerConfig struct {
 }
 
 type InstrumentationConfig struct {
-	URL           string `yaml:"url"`
-	MetricsURL    string `yaml:"metrics_url"`
-	MetricsFormat string `yaml:"metrics_format"`
-	LivenessURL   string `yaml:"liveness_url"`
-	InfoURL       string `yaml:"info_url"`
-	Binary        string `yaml:"binary"`
+	URL           string                    `yaml:"url"`
+	MetricsURL    string                    `yaml:"metrics_url"`
+	MetricsFormat string                    `yaml:"metrics_format"`
+	LivenessURL   string                    `yaml:"liveness_url"`
+	InfoURL       string                    `yaml:"info_url"`
+	Binary        string                    `yaml:"binary"`
+	SSL           *InstrumentationSSLConfig `yaml:"ssl"`
+}
+
+// InstrumentationSSLConfig mirrors the `instrumentation.ssl` section of the
+// worker configuration stored in the config storage.
+type InstrumentationSSLConfig struct {
+	CertFile string `yaml:"cert_file"`
+	KeyFile  string `yaml:"key_file"`
+	CaFile   string `yaml:"ca_file"`
 }
 
 type WorkerRuntimeConfig struct {
@@ -334,6 +368,61 @@ type WorkerRuntimeConfig struct {
 	TarantoolClusterPrefix string `yaml:"tarantool_cluster_prefix"`
 	TarantoolUser          string `yaml:"tarantool_user"`
 	TarantoolPass          string `yaml:"tarantool_pass"`
+}
+
+// splitInstrumentationURL parses the worker's instrumentation.url and returns
+// the address to listen on and the URL scheme. A url without an explicit
+// scheme (for example "host:port") is treated as plain HTTP for backward
+// compatibility.
+func splitInstrumentationURL(raw string) (addr string, scheme string, err error) {
+	if !strings.Contains(raw, "://") {
+		return raw, "http", nil
+	}
+
+	parsed, err := url.Parse(raw)
+	if err != nil {
+		return "", "", fmt.Errorf("parse url %q: %w", raw, err)
+	}
+	if parsed.Host == "" {
+		return "", "", fmt.Errorf("parse url %q: missing host", raw)
+	}
+
+	return parsed.Host, parsed.Scheme, nil
+}
+
+// tlsConfig builds the TLS configuration for the instrumentation server.
+// If ca_file is set, client certificates are required and verified (mTLS).
+func (c InstrumentationConfig) tlsConfig() (*tls.Config, error) {
+	if c.SSL == nil {
+		return nil, fmt.Errorf("instrumentation.ssl is not set")
+	}
+
+	cert, err := tls.LoadX509KeyPair(c.SSL.CertFile, c.SSL.KeyFile)
+	if err != nil {
+		return nil, fmt.Errorf("load cert/key: %w", err)
+	}
+
+	config := &tls.Config{
+		Certificates: []tls.Certificate{cert},
+		MinVersion:   tls.VersionTLS12,
+	}
+
+	if c.SSL.CaFile != "" {
+		caPEM, err := os.ReadFile(c.SSL.CaFile)
+		if err != nil {
+			return nil, fmt.Errorf("read ca file: %w", err)
+		}
+
+		caPool := x509.NewCertPool()
+		if !caPool.AppendCertsFromPEM(caPEM) {
+			return nil, fmt.Errorf("parse ca file %q: no certificates found", c.SSL.CaFile)
+		}
+
+		config.ClientCAs = caPool
+		config.ClientAuth = tls.RequireAndVerifyClientCert
+	}
+
+	return config, nil
 }
 
 type Tuple struct {

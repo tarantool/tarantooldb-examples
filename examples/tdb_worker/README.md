@@ -390,6 +390,47 @@ curl http://127.0.0.1:9080/info
 ![Информация об обработчике в TCM](images/worker_info.png)
 
 
+### HTTPS и mTLS для адресов обработчика запроса
+
+По умолчанию обработчик отдаёт адреса обработчика запроса (`/alive`, `/metrics`, `/info`) по HTTP. Чтобы включить HTTPS, задайте в конфигурации обработчика `url` со схемой `https://` и добавьте блок `ssl` с путями к серверному сертификату и его приватному ключу:
+
+```yaml
+instrumentation:
+    url:            https://worker-1:9080
+    metrics_url:    /metrics
+    metrics_format: "prometheus"
+    liveness_url:   /alive
+    info_url:       /info
+    binary:         ./bin/http-server
+    ssl:
+        cert_file:  /app/tdb-worker/certs/server.crt
+        key_file:   /app/tdb-worker/certs/server.key
+```
+
+Для взаимного TLS (mTLS) дополнительно укажите CA-сертификат, которым проверяются клиентские сертификаты:
+
+```yaml
+    ssl:
+        cert_file:  /app/tdb-worker/certs/server.crt
+        key_file:   /app/tdb-worker/certs/server.key
+        ca_file:    /app/tdb-worker/certs/ca.crt
+```
+
+Пример конфигурации с HTTPS и mTLS приведён в файле `http-server-1-ssl-config.yml`.
+
+Проверить, что адреса обработчика запроса доступны по HTTPS, можно командой:
+
+```shell
+curl -k https://127.0.0.1:9080/alive
+```
+
+При включённом mTLS укажите CA-сертификат, клиентский сертификат и его ключ:
+
+```shell
+curl --cacert ca.crt --cert client.crt --key client.key https://127.0.0.1:9080/alive
+```
+
+
 ## Остановка стенда
 
 Для остановки стенда выполните в локальном терминале команды ниже:
