@@ -1,0 +1,52 @@
+credentials:
+  users:
+    admin:
+      password: 'secret-cluster-cookie'
+      roles: [super]
+    client:
+      password: 'secret'
+      roles: [super]
+    replicator:
+      password: 'secret'
+      roles: [replication]
+
+iproto:
+  advertise:
+    peer:
+      login: replicator
+
+roles_cfg:
+  roles.metrics-export:
+    http:
+    - endpoints:
+      - format: prometheus
+        path: /metrics
+      listen: 8081
+
+groups:
+  nodes:
+    replication:
+      failover: election
+    roles:
+      - roles.metrics-export
+    replicasets:
+      replicaset-1:
+        instances:
+          node-msk:
+            iproto:
+              listen:
+                - uri: tarantool-node-msk:3301
+              advertise:
+                client: tarantool-node-msk:3301
+          node-spb:
+            iproto:
+              listen:
+                - uri: tarantool-node-spb:3301
+              advertise:
+                client: tarantool-node-spb:3301
+          node-brn:
+            iproto:
+              listen:
+                - uri: tarantool-node-brn:3301
+              advertise:
+                client: tarantool-node-brn:3301
