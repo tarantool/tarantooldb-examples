@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"github.com/tarantool/go-tarantool/v2"
@@ -119,7 +120,25 @@ func wrongPasswordScenario() {
 	}
 }
 
+// scenarios — доступные сценарии по имени (аргумент командной строки).
+var scenarios = map[string]func(){
+	"alice":          aliceScenario,
+	"bob":            bobScenario,
+	"wrong-password": wrongPasswordScenario,
+}
+
 func main() {
+	if len(os.Args) > 1 {
+		name := os.Args[1]
+		fn, ok := scenarios[name]
+		if !ok {
+			fmt.Printf("неизвестный сценарий %q; доступные: alice, bob, wrong-password\n", name)
+			os.Exit(1)
+		}
+		fn()
+		return
+	}
+
 	aliceScenario()
 	fmt.Println()
 	bobScenario()
