@@ -1,0 +1,158 @@
+services:
+  router-1:
+    image: tarantooldb:3x-latest
+    networks:
+    - grpc_example
+    ports:
+    - 127.0.0.1:3301:3301
+    environment:
+      TT_INSTANCE_NAME: router-1
+      TT_CONFIG_STORAGE_ENDPOINTS: '[{"uri":"tarantool-config-storage-1:3301","login":"client","password":"secret"},{"uri":"tarantool-config-storage-2:3301","login":"client","password":"secret"},{"uri":"tarantool-config-storage-3:3301","login":"client","password":"secret"}]'
+      TT_CONFIG_STORAGE_PREFIX: /tdb
+  storage-1-a:
+    image: tarantooldb:3x-latest
+    networks:
+    - grpc_example
+    environment:
+      TT_INSTANCE_NAME: storage-1-a
+      TT_CONFIG_STORAGE_ENDPOINTS: '[{"uri":"tarantool-config-storage-1:3301","login":"client","password":"secret"},{"uri":"tarantool-config-storage-2:3301","login":"client","password":"secret"},{"uri":"tarantool-config-storage-3:3301","login":"client","password":"secret"}]'
+      TT_CONFIG_STORAGE_PREFIX: /tdb
+  storage-1-b:
+    image: tarantooldb:3x-latest
+    networks:
+    - grpc_example
+    environment:
+      TT_INSTANCE_NAME: storage-1-b
+      TT_CONFIG_STORAGE_ENDPOINTS: '[{"uri":"tarantool-config-storage-1:3301","login":"client","password":"secret"},{"uri":"tarantool-config-storage-2:3301","login":"client","password":"secret"},{"uri":"tarantool-config-storage-3:3301","login":"client","password":"secret"}]'
+      TT_CONFIG_STORAGE_PREFIX: /tdb
+  storage-2-a:
+    image: tarantooldb:3x-latest
+    networks:
+    - grpc_example
+    environment:
+      TT_INSTANCE_NAME: storage-2-a
+      TT_CONFIG_STORAGE_ENDPOINTS: '[{"uri":"tarantool-config-storage-1:3301","login":"client","password":"secret"},{"uri":"tarantool-config-storage-2:3301","login":"client","password":"secret"},{"uri":"tarantool-config-storage-3:3301","login":"client","password":"secret"}]'
+      TT_CONFIG_STORAGE_PREFIX: /tdb
+  storage-2-b:
+    image: tarantooldb:3x-latest
+    networks:
+    - grpc_example
+    environment:
+      TT_INSTANCE_NAME: storage-2-b
+      TT_CONFIG_STORAGE_ENDPOINTS: '[{"uri":"tarantool-config-storage-1:3301","login":"client","password":"secret"},{"uri":"tarantool-config-storage-2:3301","login":"client","password":"secret"},{"uri":"tarantool-config-storage-3:3301","login":"client","password":"secret"}]'
+      TT_CONFIG_STORAGE_PREFIX: /tdb
+  init_host:
+    image: tarantooldb:3x-latest
+    profiles:
+    - init
+    networks:
+    - grpc_example
+    volumes:
+    - ./migrations:/app/tarantooldb/migrations:ro
+    environment:
+      TT_CLI_USERNAME: admin
+      TT_CLI_PASSWORD: secret-cluster-cookie
+      TT_CLI_CONFIG_STORAGE_USERNAME: client
+      TT_CLI_CONFIG_STORAGE_PASSWORD: secret
+    command:
+    - /bin/bash
+    - -ec
+    - 'tools/client/wait_instance_ready.sh 60 router-1:3301
+
+      tools/client/wait_instance_ready.sh 60 storage-1-a:3301
+
+      tools/client/wait_instance_ready.sh 60 storage-1-b:3301
+
+      tools/client/wait_instance_ready.sh 60 storage-2-a:3301
+
+      tools/client/wait_instance_ready.sh 60 storage-2-b:3301
+
+      tt replicaset vshard bootstrap router-1:3301
+
+      source tools/client/get_config_master.sh client:secret@tarantool-config-storage-1:3301
+
+      test -n "$$CONFIG_MASTER"
+
+      tt migrations publish http://$$CONFIG_MASTER/tdb migrations
+
+      tt migrations apply http://$$CONFIG_MASTER/tdb
+
+      '
+  grpc-gateway-1:
+    image: tarantooldb:3x-latest
+    profiles:
+    - gateway
+    hostname: grpc-gateway-1
+    networks:
+    - grpc_example
+    ports:
+    - 127.0.0.1:9091:9090
+    - 127.0.0.1:9081:9081
+    environment:
+      TDB_WORKER_NAME: grpc-gateway-1
+      TDB_WORKER_HOST_NAME: grpc-gateway-1
+      TDB_WORKER_CONFIG_STORAGE_ENDPOINTS: '[{"uri":"tarantool-config-storage-1:3301","login":"client","password":"secret"},{"uri":"tarantool-config-storage-2:3301","login":"client","password":"secret"},{"uri":"tarantool-config-storage-3:3301","login":"client","password":"secret"}]'
+      TDB_WORKER_CONFIG_STORAGE_PREFIX: /tdb-workers/grpc-tbcs-example
+    command:
+    - /app/tarantooldb/bin/grpc-worker
+  grpc-gateway-2:
+    image: tarantooldb:3x-latest
+    profiles:
+    - gateway
+    hostname: grpc-gateway-2
+    networks:
+    - grpc_example
+    ports:
+    - 127.0.0.1:9092:9090
+    - 127.0.0.1:9082:9081
+    environment:
+      TDB_WORKER_NAME: grpc-gateway-2
+      TDB_WORKER_HOST_NAME: grpc-gateway-2
+      TDB_WORKER_CONFIG_STORAGE_ENDPOINTS: '[{"uri":"tarantool-config-storage-1:3301","login":"client","password":"secret"},{"uri":"tarantool-config-storage-2:3301","login":"client","password":"secret"},{"uri":"tarantool-config-storage-3:3301","login":"client","password":"secret"}]'
+      TDB_WORKER_CONFIG_STORAGE_PREFIX: /tdb-workers/grpc-tbcs-example
+    command:
+    - /app/tarantooldb/bin/grpc-worker
+  tcm:
+    image: tarantooldb:3x-latest
+    networks:
+    - grpc_example
+    ports:
+    - 127.0.0.1:8081:8081
+    volumes:
+    - ./tcm.yml:/app/tarantooldb/tcm.yml:ro
+    - ./config.yml:/app/tarantooldb/config.yml:ro
+    - ./grpc-gateway-1.yml:/app/tarantooldb/grpc-gateway-1.yml:ro
+    - ./grpc-gateway-2.yml:/app/tarantooldb/grpc-gateway-2.yml:ro
+    command:
+    - ./tcm
+    - -c
+    - tcm.yml
+  tarantool-config-storage-1:
+    image: tarantooldb:3x-latest
+    networks:
+    - grpc_example
+    environment:
+      TT_INSTANCE_NAME: config-storage-1
+      TT_CONFIG: /app/tarantooldb/config.yml
+    volumes:
+    - ./config-storage.yml:/app/tarantooldb/config.yml:ro
+  tarantool-config-storage-2:
+    image: tarantooldb:3x-latest
+    networks:
+    - grpc_example
+    environment:
+      TT_INSTANCE_NAME: config-storage-2
+      TT_CONFIG: /app/tarantooldb/config.yml
+    volumes:
+    - ./config-storage.yml:/app/tarantooldb/config.yml:ro
+  tarantool-config-storage-3:
+    image: tarantooldb:3x-latest
+    networks:
+    - grpc_example
+    environment:
+      TT_INSTANCE_NAME: config-storage-3
+      TT_CONFIG: /app/tarantooldb/config.yml
+    volumes:
+    - ./config-storage.yml:/app/tarantooldb/config.yml:ro
+networks:
+  grpc_example: null

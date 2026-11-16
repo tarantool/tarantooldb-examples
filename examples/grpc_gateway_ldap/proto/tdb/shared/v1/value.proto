@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+package tdb.shared.v1;
+
+option go_package = "gitlab.corp.mail.ru/tarantool/tdb/tarantooldb/workers/gen/grpc-gateway/tdb/shared/v1;pbtdbshared";
+
+// Value preserves the type of a Tarantool value. Exactly one kind must be set.
+// In ProtoJSON, int64/uint64 values are decimal strings and bytes are Base64.
+// Invalid or unsupported values are rejected rather than coerced to another type.
+message Value {
+  // Reject old google.protobuf.Value payloads instead of interpreting them as new kinds.
+  reserved 1 to 6;
+  oneof kind {
+    // null_value must be true and represents an explicit null.
+    bool null_value = 11;
+    bool bool_value = 12;
+    int64 int_value = 13;
+    uint64 uint_value = 14;
+    double double_value = 15;
+    string string_value = 16;
+    bytes bytes_value = 17;
+    // decimal_value is a fixed-point decimal string, without an exponent.
+    string decimal_value = 18;
+    string uuid_value = 19;
+    Datetime datetime_value = 20;
+    Interval interval_value = 21;
+    List list_value = 22;
+    // record_value supports string keys only; other map keys are rejected.
+    Record record_value = 23;
+  }
+}
+
+// Record maps field names to typed values, including nested user objects.
+message Record {
+  map<string, Value> fields = 1;
+}
+
+// List is an ordered array of typed values.
+message List {
+  repeated Value values = 1;
+}
+
+// Datetime preserves a Tarantool datetime's instant and time zone.
+message Datetime {
+  int64 seconds = 1;
+  // nanos must be between 0 and 999999999.
+  int32 nanos = 2;
+  // timezone is a Tarantool-supported name; empty denotes a fixed UTC offset.
+  string timezone = 3;
+  // offset is the UTC offset in seconds.
+  int32 offset = 4;
+}
+
+// Interval is a Tarantool calendar interval.
+message Interval {
+  int64 year = 1;
+  int64 month = 2;
+  int64 week = 3;
+  int64 day = 4;
+  int64 hour = 5;
+  int64 min = 6;
+  int64 sec = 7;
+  int64 nsec = 8;
+  // adjust is one of "none", "excess", "last"; empty means "none".
+  string adjust = 9;
+}
