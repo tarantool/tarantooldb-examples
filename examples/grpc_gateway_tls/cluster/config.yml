@@ -1,0 +1,80 @@
+credentials:
+  users:
+    admin:
+      password: secret-cluster-cookie
+      roles:
+      - super
+    client:
+      password: secret
+      roles:
+      - super
+    replicator:
+      password: secret
+      roles:
+      - replication
+    storage:
+      password: secret
+      roles:
+      - sharding
+iproto:
+  advertise:
+    peer:
+      login: replicator
+    sharding:
+      login: storage
+sharding:
+  bucket_count: 3000
+groups:
+  routers:
+    roles:
+    - roles.crud-router
+    replication:
+      failover: manual
+    sharding:
+      roles:
+      - router
+    replicasets:
+      router-1:
+        leader: router-1
+        instances:
+          router-1:
+            iproto:
+              listen:
+              - uri: router-1:3301
+                params: &ssl_params
+                  transport: ssl
+                  ssl_ca_file: /certs/ca.crt
+                  ssl_cert_file: /certs/storage.crt
+                  ssl_key_file: /certs/storage.key
+              advertise:
+                client: router-1:3301
+  storages:
+    roles:
+    - roles.crud-storage
+    - app.roles.tdb_gateway
+    replication:
+      failover: manual
+    sharding:
+      roles:
+      - storage
+    replicasets:
+      storage-1:
+        instances:
+          storage-1-a:
+            iproto:
+              listen:
+              - uri: storage-1-a:3301
+                params: *ssl_params
+              advertise:
+                client: storage-1-a:3301
+        leader: storage-1-a
+      storage-2:
+        instances:
+          storage-2-a:
+            iproto:
+              listen:
+              - uri: storage-2-a:3301
+                params: *ssl_params
+              advertise:
+                client: storage-2-a:3301
+        leader: storage-2-a

@@ -1,0 +1,85 @@
+x-tarantool: &tarantool
+  image: tarantooldb:3x-latest
+  volumes:
+    - ../_local/storage:/certs:ro
+
+x-config: &config
+  TT_CONFIG_ETCD_ENDPOINTS: http://etcd:2379
+  TT_CONFIG_ETCD_PREFIX: /tdb
+  TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT: 3
+
+services:
+  router-1:
+    <<: *tarantool
+    environment:
+      <<: *config
+      TT_INSTANCE_NAME: router-1
+
+  storage-1-a:
+    <<: *tarantool
+    environment:
+      <<: *config
+      TT_INSTANCE_NAME: storage-1-a
+
+  storage-2-a:
+    <<: *tarantool
+    environment:
+      <<: *config
+      TT_INSTANCE_NAME: storage-2-a
+
+  init_host:
+    image: tarantooldb:3x-latest
+    profiles: [init]
+    volumes:
+      - ./config.yml:/app/tarantooldb/config.yml:ro
+      - ./migrations:/app/tarantooldb/migrations:ro
+      - ../_local/client:/certs:ro
+    environment:
+      TT_CLI_USERNAME: admin
+      TT_CLI_PASSWORD: secret-cluster-cookie
+      TT_CLI_SSLCAFILE: /certs/ca.crt
+      TT_CLI_SSLCERTFILE: /certs/client.crt
+      TT_CLI_SSLKEYFILE: /certs/client.key
+    command:
+      - /bin/sh
+      - -ec
+      - |
+        tools/client/wait_instance_ready.sh 60 router-1:3301
+        tools/client/wait_instance_ready.sh 60 storage-1-a:3301
+        tools/client/wait_instance_ready.sh 60 storage-2-a:3301
+        tt replicaset vshard bootstrap --sslcafile /certs/ca.crt --sslcertfile /certs/client.crt --sslkeyfile /certs/client.key router-1:3301
+        tt migrations publish http://etcd:2379/tdb migrations
+        tt migrations apply --tarantool-sslcafile /certs/ca.crt --tarantool-sslcertfile /certs/client.crt --tarantool-sslkeyfile /certs/client.key http://etcd:2379/tdb
+
+  grpc-gateway-1:
+    image: tarantooldb:3x-latest
+    profiles: [gateway]
+    hostname: grpc-gateway-1
+    volumes:
+      - ../_local/gateway:/gateway:ro
+      - ../_local/client:/client:ro
+    ports:
+      - "127.0.0.1:9443:9090"
+      - "127.0.0.1:9181:9081"
+    environment:
+      TDB_WORKER_NAME: grpc-gateway-1
+      TDB_WORKER_HOST_NAME: grpc-gateway-1
+      TDB_WORKER_CONFIG_ETCD_ENDPOINTS: http://etcd:2379
+      TDB_WORKER_CONFIG_ETCD_PREFIX: /tdb-workers/grpc-tls-example
+    command: ["/app/tarantooldb/bin/grpc-worker"]
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://grpc-gateway-1:9081/ready"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+
+  etcd:
+    image: quay.io/coreos/etcd:v3.5.15
+    command: >
+      etcd --name etcd
+      --advertise-client-urls http://etcd:2379
+      --listen-client-urls http://0.0.0.0:2379
+      --initial-advertise-peer-urls http://etcd:2380
+      --listen-peer-urls http://0.0.0.0:2380
+      --initial-cluster etcd=http://etcd:2380
+      --initial-cluster-state new
