@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package tdb.crud.v1;
+
+option go_package = "gitlab.corp.mail.ru/tarantool/tdb/tarantooldb/workers/gen/grpc-gateway/tdb/crud/v1;pbcrud";
+
+import "tdb/shared/v1/value.proto";
+import "tdb/crud/v1/types.proto";
+import "tdb/shared/v1/options.proto";
+
+// SelectRequest is the input for Crud.Select.
+message SelectRequest {
+  // space is the target space name.
+  string space = 1;
+
+  // conditions are the filters records must satisfy; an empty list scans all records.
+  repeated Condition conditions = 2;
+
+  // options carries paging, cursor, routing and timeout settings.
+  SelectOptions options = 3;
+}
+
+// SelectResponse is one page of Crud.Select results.
+message SelectResponse {
+  // records are the matched records for this page.
+  repeated tdb.shared.v1.Record records = 1;
+
+  // next_cursor is an opaque continuation after the last emitted composite index
+  // and primary key. Reuse it with the same space and conditions; limit may change.
+  // Empty marks the last page. Pages do not provide a consistent data snapshot.
+  bytes next_cursor = 2;
+}
+
+// SelectOptions carries routing and paging settings for Select.
+message SelectOptions {
+  // timeout_ms bounds one page retrieval, including routing and retries; 0 uses the gateway default.
+  uint32 timeout_ms = 1;
+
+  // limit is the maximum number of records returned per page; must be between 1 and 1000.
+  // It can change when continuing with a cursor.
+  uint32 limit = 2;
+
+  // execution_mode selects master/replica routing for the scan.
+  tdb.shared.v1.ExecutionMode execution_mode = 3;
+
+  // cursor is the opaque pagination token from the previous response's next_cursor;
+  // an empty cursor starts from the first page.
+  bytes cursor = 4;
+}

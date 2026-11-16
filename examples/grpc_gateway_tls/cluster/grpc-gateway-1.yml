@@ -1,0 +1,33 @@
+type: nontarantool
+instrumentation:
+  url: grpc-gateway-1:9081
+  metrics_url: /metrics
+  metrics_format: prometheus
+  liveness_url: /alive
+  info_url: /info
+  binary: /app/tarantooldb/bin/grpc-worker
+config:
+  roles.httpd:
+    instrumentation:
+      listen: 0.0.0.0:9081
+  log:
+    to: stderr
+    level: info
+  server:
+    grpc_addr: 0.0.0.0:9090
+    enable_reflection: true
+    tls_cert_file: /gateway/gateway.crt
+    tls_key_file: /gateway/gateway.key
+  vshard:
+    tarantool_cluster_prefix: /tdb/config/all
+    user: client
+    password: secret
+    spaces:
+      books:
+        sharding_key:
+        - id
+    tls:
+      enabled: true
+      ca_file: /client/ca.crt
+      cert_file: /client/client.crt
+      key_file: /client/client.key
