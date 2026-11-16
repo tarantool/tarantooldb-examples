@@ -1,0 +1,30 @@
+services:
+  # Каталог 1: OpenLDAP (пользователь alice, группа readers)
+  openldap:
+    image: osixia/openldap:1.5.0
+    command: --copy-service
+    environment:
+      - LDAP_ORGANISATION=Example
+      - LDAP_DOMAIN=example.com
+      - LDAP_ADMIN_PASSWORD=secret-admin
+    volumes:
+      - ./openldap/bootstrap.ldif:/container/service/slapd/assets/config/bootstrap/ldif/custom/bootstrap.ldif:ro
+    networks:
+      - tarantooldb_network
+
+  # Каталог 2: Active Directory на базе Samba (пользователь bob, группа tdb-writers)
+  ad:
+    image: smblds/smblds:latest
+    environment:
+      - REALM=SAMDOM.EXAMPLE.COM
+      - DOMAIN=SAMDOM
+      - ADMINPASS=Passw0rd!
+      - INSECURE_LDAP=true
+    volumes:
+      - ./ad/entrypoint.d:/entrypoint.d:ro
+    networks:
+      - tarantooldb_network
+
+networks:
+  tarantooldb_network:
+    external: true

@@ -1,0 +1,86 @@
+credentials:
+  users:
+    admin:
+      password: 'secret-cluster-cookie'
+      roles: [super]
+    replicator:
+      password: 'secret'
+      roles: [replication]
+    storage:
+      password: 'secret'
+      roles: [sharding]
+    # Служебный пользователь LDAP-аутентификации, роль app.roles.tdb_ldap_auth
+    # переключает на него LDAP-сессии. Без пароля — прямой вход запрещён ролью.
+    tdb_ldap_auth:
+      roles: [super]
+
+iproto:
+  advertise:
+    peer:
+      login: replicator
+    sharding:
+      login: storage
+
+sharding:
+  bucket_count: 30000
+
+groups:
+  routers:
+    replication:
+      failover: manual
+    sharding:
+      roles: [router]
+    roles:
+      - roles.crud-router
+      - app.roles.tdb_ldap_auth
+    roles_cfg:
+      app.roles.tdb_ldap_auth:
+        # Каталоги LDAP: в группе — обработчики одного каталога (фейловер по недоступности),
+        # между группами опрашиваются все
+        worker_directories:
+          - ['https://ldap-worker-openldap:9081', 'https://ldap-worker-openldap-2:9083']
+          - ['https://ldap-worker-ad:9082']
+        # Общее время ожидания выполнения для одного запроса аутентификации (сек). Небольшое, чтобы
+        # зависший обработчик не блокировал клиента дольше двух секунд
+        # (см. раздел «Резервный обработчик» в README)
+        worker_request_timeout: 2
+        worker_attempt_timeout: 1
+        worker_ca_file: /certs/ca/root-ca.pem
+        # Клиентский сертификат роутера для mTLS к LDAP-обработчикам
+        # (у обработчиков ssl_ca_file, без сертификата соединение отклоняется)
+        worker_client_cert_file: /certs/client/client.pem
+        worker_client_key_file: /certs/client/client-key.pem
+        # Права сессии по LDAP-группам: ключ — DN группы из ответа обработчика
+        mapping:
+          'cn=readers,ou=groups,dc=example,dc=com':
+            spaces:
+              orders: [read]
+          'CN=tdb-writers,CN=Users,DC=samdom,DC=example,DC=com':
+            spaces:
+              orders: [read, write]
+    replicasets:
+      router:
+        leader: router
+        instances:
+          router:
+            iproto:
+              listen:
+                - uri: tarantool-router:3301
+              advertise:
+                client: tarantool-router:3301
+  storages:
+    replication:
+      failover: election
+    sharding:
+      roles: [storage]
+    roles:
+      - roles.crud-storage
+    replicasets:
+      storage-1:
+        instances:
+          storage-1:
+            iproto:
+              listen:
+                - uri: tarantool-storage-1:3301
+              advertise:
+                client: tarantool-storage-1:3301
