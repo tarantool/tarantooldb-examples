@@ -26,10 +26,15 @@ sharding:
 
 roles_cfg:
   app.roles.tdb_ldap_auth:
-    # Каталоги LDAP: один обработчик на каталог, опрашиваются все
+    # Каталоги LDAP: в группе — обработчики одного каталога (фейловер по недоступности),
+    # между группами опрашиваются все
     worker_directories:
-      - ['https://ldap-worker-openldap:9081']
+      - ['https://ldap-worker-openldap:9081', 'https://ldap-worker-openldap-2:9083']
       - ['https://ldap-worker-ad:9082']
+    # Общее время ожидания выполнения для одного запроса аутентификации (сек). Небольшое, чтобы
+    # зависший обработчик не блокировал клиента дольше двух секунд
+    # (см. раздел «Резервный обработчик» в README)
+    worker_request_timeout: 2
     worker_ca_file: /certs/ca/root-ca.pem
     # Права сессии по LDAP-группам: ключ — DN группы из ответа обработчика
     mapping:

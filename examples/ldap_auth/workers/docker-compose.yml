@@ -13,6 +13,20 @@ services:
       - TDB_WORKER_CONFIG_ETCD_ENDPOINTS=http://etcd:2379
       - TDB_WORKER_CONFIG_ETCD_PREFIX=/tdb-workers/tdb
 
+  # Резервный узел-обработчик каталога 1: OpenLDAP (фейловер основного)
+  ldap-worker-openldap-2:
+    image: tarantooldb:3.4.0-rc1-28-g5b1491c5
+    command: ./bin/ldap-worker
+    networks:
+      - tarantooldb_network
+    volumes:
+      - ../certs:/certs:ro
+    environment:
+      - TDB_WORKER_NAME=ldap-worker-openldap-2
+      - TDB_WORKER_HOST_NAME=127.0.0.1
+      - TDB_WORKER_CONFIG_ETCD_ENDPOINTS=http://etcd:2379
+      - TDB_WORKER_CONFIG_ETCD_PREFIX=/tdb-workers/tdb
+
   # Узел-обработчик каталога 2: Active Directory (smblds)
   ldap-worker-ad:
     image: tarantooldb:3.4.0-rc1-28-g5b1491c5

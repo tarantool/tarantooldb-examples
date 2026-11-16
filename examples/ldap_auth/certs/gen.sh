@@ -9,6 +9,7 @@ DAYS=36000
 # Имена ldap-обработчиков из workers/docker-compose.yml — попадают в SAN сертификата
 HOSTNAMES=(
   "ldap-worker-openldap"
+  "ldap-worker-openldap-2"
   "ldap-worker-ad"
 )
 
