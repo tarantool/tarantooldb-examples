@@ -66,6 +66,11 @@ groups:
             iproto:
               listen:
                 - uri: tarantool-router:3301
+                  params:
+                    transport: ssl
+                    ssl_ca_file: /certs/ca/root-ca.pem
+                    ssl_cert_file: /certs/router/server.pem
+                    ssl_key_file: /certs/router/server-key.pem
               advertise:
                 client: tarantool-router:3301
   storages:

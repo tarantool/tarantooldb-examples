@@ -12,6 +12,7 @@ import (
 
 	"github.com/tarantool/go-tarantool/v2"
 	"github.com/tarantool/go-tarantool/v2/crud"
+	"github.com/tarantool/go-tlsdialer"
 )
 
 const routerAddr = "localhost:3301"
@@ -26,11 +27,14 @@ func connectLDAP(login, password string) (*tarantool.Connection, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	dialer := tarantool.AuthDialer{
-		Dialer:   tarantool.NetDialer{Address: routerAddr},
-		Auth:     tarantool.PapSha256Auth,
-		Username: "ldap:" + login,
-		Password: password,
+	dialer := tlsdialer.OpenSSLDialer{
+		Address:     routerAddr,
+		User:        "ldap:" + login,
+		Password:    password,
+		Auth:        tarantool.PapSha256Auth, // единственный auth_type роли tdb_ldap_auth
+		SslCaFile:   "../certs/ca/root-ca.pem",
+		SslCertFile: "../certs/client/client.pem",
+		SslKeyFile:  "../certs/client/client-key.pem",
 	}
 	return tarantool.Connect(ctx, dialer, tarantool.Opts{})
 }
