@@ -8,16 +8,13 @@
 из Go с помощью библиотеки `go-tarantool`.
 
 > [!IMPORTANT]
-> Пример упрощает настройку ради наглядности и не подходит для продуктивного
-> использования без изменений:
-> * `pap-sha256` передаёт пароль в пакете `AUTH` открытым текстом, поэтому
->   слушатель роутера обязан работать через SSL — в примере, для простоты,
->   используется обычный TCP-порт 3301;
-> * соединения LDAP-обработчиков с каталогами не шифруются (`tls.enabled: false`,
->   `INSECURE_LDAP=true` у AD);
+> Пример упрощает настройку ради наглядности и не подходит в текущем виде для промышленной эксплуатации:
+> * соединения LDAP-обработчиков с каталогами не шифруются (заданы настройки `tls.enabled: false` и
+>   `INSECURE_LDAP=true` у каталога AD);
 > * пароли и DN сервисных аккаунтов лежат в конфигурационных файлах примера.
 >
-> Как настроить SSL-соединения, показано в примере
+> Настройка SSL-соединения между узлами кластера (репликация, sharding)
+> и etcd показана в примере
 > [traffic_encryption](../traffic_encryption/README.md).
 
 В стенде два LDAP-каталога:
@@ -50,7 +47,22 @@
 * приложение Docker Compose;
 * утилита `openssl` (генерация сертификатов);
 * компилятор Go;
+* заголовки и библиотеки OpenSSL 3.x для cgo-сборки `go-tlsdialer`
+  (`libssl-dev` в Debian/Ubuntu, `openssl-devel` в RHEL-семействе,
+  `openssl@3` в Homebrew на macOS);
 * свободные порты 2379 и 3301.
+
+> [!IMPORTANT]
+> `go-tlsdialer` v1.0.2 зависит от `go-openssl` v1.2.1, который не собирается
+> с OpenSSL 4.x. В macOS с Homebrew по умолчанию устанавливается OpenSSL 4.x.
+> Установите `openssl@3` (`brew install openssl@3`) и передайте пути к нему
+> при запуске приложения:
+>
+> ```shell
+> CGO_CFLAGS="-I$(brew --prefix openssl@3)/include" \
+> CGO_LDFLAGS="-L$(brew --prefix openssl@3)/lib" \
+> go -C ./go run main.go
+> ```
 
 > [!NOTE]
 > Есть два способа получить исходные файлы примера:
@@ -60,7 +72,8 @@
 
 ## Используемые файлы
 
-* `certs/gen.sh` — генерация CA и сертификата LDAP-обработчиков;
+* `certs/gen.sh` — генерация CA, серверных сертификатов LDAP-обработчиков и
+  роутера, клиентского сертификата (mTLS клиент ↔ роутер и роутер ↔ обработчик);
 * `tools/docker-compose.yml` — etcd из одного узла для хранения конфигураций кластера
   и обработчиков, а также одноразовый сервис `tt-tools` для публикации
   кластерной конфигурации;
@@ -127,10 +140,10 @@ Initialize has completed successfully.
 
 ```
 Go-клиент
-   │  iproto: user = ldap:{login}, auth_type = pap-sha256
+   │  iproto SSL (mTLS): user = ldap:{login}, auth_type = pap-sha256
    ▼
 роутер TDB (роль app.roles.tdb_ldap_auth)
-   │  HTTPS POST /authenticate
+   │  HTTPS (mTLS) POST /authenticate
    ├──► ldap-worker-openldap:9081 ──► OpenLDAP (openldap:389)
    └──► ldap-worker-ad:9082      ──► Active Directory (ad:389, smblds)
 ```
@@ -139,7 +152,8 @@ Go-клиент
 
 1. Клиент подключается к роутеру с именем пользователя `ldap:{login}`
    (префикс `ldap:` — признак LDAP-аккаунта, `{login}` — логин в LDAP) через метод
-   аутентификации `auth_type = pap-sha256`.
+   аутентификации `auth_type = pap-sha256`
+   по SSL-соединению (mTLS: слушатель роутера требует клиентский сертификат).
 2. Технологическая роль `app.roles.tdb_ldap_auth` перехватывает запрос `IPROTO_AUTH` и вызывает
    LDAP-обработчик, который опрашивает все каталоги из параметра `worker_directories`.
    Если один и тот же логин найден в двух каталогах, возвращается ошибка конфигурации.
@@ -158,9 +172,19 @@ Go-клиент
   основной и резервный обработчики, у AD — один;
 * `worker_ca_file` — CA, с помощью которого проверяется TLS-сертификат обработчика
   (`certs/ca/root-ca.pem`);
+* `worker_client_cert_file` / `worker_client_key_file` — клиентский
+  сертификат и ключ, которые роутер предъявляет LDAP-обработчикам (mTLS:
+  обработчики с опцией `ssl_ca_file` отклоняют соединения без клиентского сертификата);
 * `mapping` — сопоставление LDAP-групп (DN) с правами. Группа `readers` из каталога OpenLDAP даёт
   право на чтение спейса `orders`, группа `tdb-writers` из каталога AD — право на чтение и запись в этот спейс. Группы, которых нет в этой опции, игнорируются. Если у пользователя
   не осталось сопоставленных групп, вход отклоняется.
+
+Слушатель iproto-роутера работает через SSL: транспорт и сертификаты задаются
+в опциях `params` слушателя в файле конфигурации `cluster/config.yml` (`transport: ssl`,
+`ssl_cert_file`/`ssl_key_file` — серверный сертификат роутера,
+`ssl_ca_file` — CA клиентских сертификатов, т.е. mTLS). Клиентский
+сертификат требуется на каждом соединении, его предъявляют Go-клиент
+и утилиты `tt` при начальной инициализации кластера.
 
 LDAP-обработчик представляет собой бинарный файл `bin/ldap-worker` из образа Tarantool DB. Каждый обработчик
 обслуживает один каталог (в примере это `openldap` и `ad`) и проверяет
@@ -179,7 +203,7 @@ cd examples/ldap_auth
 Запустите Go-приложение:
 
 ```shell
-go -C ./go run -tags go_tarantool_ssl_disable main.go
+go -C ./go run main.go
 ```
 
 Программа выполняет три сценария:
@@ -193,7 +217,7 @@ go -C ./go run -tags go_tarantool_ssl_disable main.go
 передав в команду при запуске название сценария (`alice`, `bob` или `wrong-password`):
 
 ```shell
-go -C ./go run -tags go_tarantool_ssl_disable main.go alice
+go -C ./go run main.go alice
 ```
 
 Ответ для сценариев выглядит так:
@@ -216,11 +240,11 @@ bob: crud.select выполнен успешно, строк в спейсе ord
 Число строк в выводе `crud.select` зависит от количества запусков программы, поскольку `bob` при каждом запуске добавляет новый заказ.
 
 > [!NOTE]
-> При каждом подключении go-tarantool печатает служебную строку вида
+> При каждом подключении `go-tarantool` печатает служебную строку вида
 > `tarantool: connection ... got unexpected request ID (2) in response (probably
-> cancelled request)` — это известная особенность рукопожатия pap-sha256 через
-> композитный dialer (см. `connectLDAP` в `main.go`), на работу примера она
-> не влияет.
+> cancelled request)` — это известная особенность рукопожатия pap-sha256
+> в библиотеке `go-tarantool` (см. `connectLDAP` в `main.go`). На работу
+> примера эта особенность не влияет.
 
 ## Резервный обработчик
 
@@ -247,7 +271,7 @@ docker compose -f workers/docker-compose.yml stop ldap-worker-openldap
 Запустите сценарий `alice` с аутентификацией в OpenLDAP:
 
 ```shell
-go -C ./go run -tags go_tarantool_ssl_disable main.go alice
+go -C ./go run main.go alice
 ```
 
 Вход выполняется через резервный обработчик, сценарий выполняется без изменений:

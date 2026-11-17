@@ -16,6 +16,9 @@ config:
       listen: ldap-worker-openldap-2:9083
       ssl_cert_file: /certs/worker/server.pem
       ssl_key_file: /certs/worker/server-key.pem
+      # CA клиентских сертификатов — включает mTLS: без клиентского
+      # сертификата (роутера) соединение отклоняется
+      ssl_ca_file: /certs/ca/root-ca.pem
   ldap:
     type: openldap                # пресет: template-query (uid={0}), группы — memberOf overlay
     endpoints:

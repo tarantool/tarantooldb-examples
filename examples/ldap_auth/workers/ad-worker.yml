@@ -16,6 +16,9 @@ config:
       listen: ldap-worker-ad:9082
       ssl_cert_file: /certs/worker/server.pem
       ssl_key_file: /certs/worker/server-key.pem
+      # CA клиентских сертификатов — включает mTLS: без клиентского
+      # сертификата (роутера) соединение отклоняется
+      ssl_ca_file: /certs/ca/root-ca.pem
   ldap:
     type: ad                       # пресет: (|(sAMAccountName={0})(userPrincipalName={0})), группы — memberOf
     endpoints:

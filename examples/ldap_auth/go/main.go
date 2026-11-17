@@ -12,6 +12,7 @@ import (
 
 	"github.com/tarantool/go-tarantool/v2"
 	"github.com/tarantool/go-tarantool/v2/crud"
+	"github.com/tarantool/go-tlsdialer"
 )
 
 const routerAddr = "localhost:3301"
@@ -20,17 +21,22 @@ const routerAddr = "localhost:3301"
 //
 // pap-sha256 — единственный auth_type, который принимает роль tdb_ldap_auth:
 // chap-sha1 передаёт в слот пароля байты scramble, бесполезные для LDAP-bind.
-// У NetDialer нет выбора auth-метода (только chap-sha1), поэтому pap-sha256
-// выполняется обёрткой AuthDialer поверх гостевого подключения NetDialer.
+// pap-sha256 передаёт пароль открытым текстом, поэтому слушатель роутера
+// работает через SSL (mTLS). OpenSSLDialer, в отличие от NetDialer,
+// поддерживает выбор auth-метода нативно (поле Auth) — обёртка AuthDialer
+// не нужна.
 func connectLDAP(login, password string) (*tarantool.Connection, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	dialer := tarantool.AuthDialer{
-		Dialer:   tarantool.NetDialer{Address: routerAddr},
-		Auth:     tarantool.PapSha256Auth,
-		Username: "ldap:" + login,
-		Password: password,
+	dialer := tlsdialer.OpenSSLDialer{
+		Address:     routerAddr,
+		User:        "ldap:" + login,
+		Password:    password,
+		Auth:        tarantool.PapSha256Auth, // единственный auth_type роли tdb_ldap_auth
+		SslCaFile:   "../certs/ca/root-ca.pem",
+		SslCertFile: "../certs/client/client.pem",
+		SslKeyFile:  "../certs/client/client-key.pem",
 	}
 	return tarantool.Connect(ctx, dialer, tarantool.Opts{})
 }
