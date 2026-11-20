@@ -1,0 +1,62 @@
+services:
+  tarantool-router:
+    image: tarantooldb:3.4.0-rc1-28-g5b1491c5
+    networks:
+      - tarantooldb_network
+    ports:
+      - "3301:3301"
+    volumes:
+      - ../certs:/certs:ro
+    environment:
+      - TT_INSTANCE_NAME=router
+      - TT_CONFIG_ETCD_ENDPOINTS=http://etcd:2379
+      - TT_CONFIG_ETCD_PREFIX=/tdb
+      - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
+
+  tarantool-storage-1:
+    image: tarantooldb:3.4.0-rc1-28-g5b1491c5
+    networks:
+      - tarantooldb_network
+    environment:
+      - TT_INSTANCE_NAME=storage-1
+      - TT_CONFIG_ETCD_ENDPOINTS=http://etcd:2379
+      - TT_CONFIG_ETCD_PREFIX=/tdb
+      - TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT=3
+
+  # Начальная инициализация: vshard bootstrap + миграции
+  init_host:
+    image: tarantooldb:3.4.0-rc1-28-g5b1491c5
+    networks:
+      - tarantooldb_network
+    volumes:
+      - ./migrations/:/app/tarantooldb/migrations/
+      - ../certs:/certs:ro
+    depends_on:
+      - tarantool-router
+      - tarantool-storage-1
+    environment:
+      - TT_CLI_USERNAME=admin
+      - TT_CLI_PASSWORD=secret-cluster-cookie
+    # Слушатель роутера работает через SSL (mTLS): ожидание готовности роутера
+    # и vshard bootstrap идут с клиентским сертификатом. Хранилище в примере
+    # без TLS (см. traffic_encryption), поэтому SSL-параметры задаются не
+    # на весь контейнер, а только для обращений к роутеру.
+    command: /bin/sh -c "\
+        TT_CLI_SSLKEYFILE=/certs/client/client-key.pem \
+        TT_CLI_SSLCERTFILE=/certs/client/client.pem \
+        tools/client/wait_instance_ready.sh 30 tarantool-router:3301 \
+        && tools/client/wait_instance_ready.sh 30 tarantool-storage-1:3301 \
+        && tt replicaset vshard bootstrap \
+           --sslkeyfile /certs/client/client-key.pem \
+           --sslcertfile /certs/client/client.pem \
+           tarantool-router:3301 \
+        && tt migrations publish http://etcd:2379/tdb migrations \
+        && tt migrations apply http://etcd:2379/tdb --replicaset=router \
+           --tarantool-sslcertfile /certs/client/client.pem \
+           --tarantool-sslkeyfile /certs/client/client-key.pem \
+        && tt migrations apply http://etcd:2379/tdb --replicaset=storage-1 \
+        && echo Initialize has completed successfully."
+
+networks:
+  tarantooldb_network:
+    external: true
