@@ -1,0 +1,30 @@
+type: nontarantool
+instrumentation:
+  url: ldap-worker:9080
+  metrics_url: /metrics
+  liveness_url: /alive
+  info_url: /info
+  binary: /app/tarantooldb/bin/ldap-worker
+config:
+  roles.httpd:
+    instrumentation:
+      listen: 0.0.0.0:9080
+    ldap:
+      listen: 0.0.0.0:9081
+      ssl_cert_file: /demo/secrets/worker.crt
+      ssl_key_file: /demo/secrets/worker.key
+  ldap:
+    endpoints: [ldap:636]
+    query-user: cn=admin,dc=example,dc=com
+    query-password: itest-admin-pass
+    base-dn: dc=example,dc=com
+    template-query: '(uid={0})'
+    group-query-template: '(uniqueMember={0})'
+    request-timeout: 2s
+    conn-limit: 32
+    tls:
+      enabled: true
+      ca-file: /demo/secrets/ca.crt
+    cache:
+      ttl: 300s
+      max-entries: 10000

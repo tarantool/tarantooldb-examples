@@ -1,0 +1,38 @@
+http:
+  host: 0.0.0.0
+  port: 8081
+storage:
+  provider: tarantool
+  tarantool:
+    prefix: /tcm
+    username: client
+    password: secret
+    addrs:
+    - tarantool-config-storage-1:3301
+    - tarantool-config-storage-2:3301
+    - tarantool-config-storage-3:3301
+security:
+  bootstrap-password: secret
+cluster:
+  tt-command: /app/tarantooldb/tt
+feature:
+  tuples: true
+initial-settings:
+  clusters:
+  - name: gRPC TBCS example
+    id: 00000000-0000-0000-0000-000000000001
+    storage-connection:
+      provider: tarantool
+      tarantool-connection:
+        prefix: /tdb
+        username: client
+        password: secret
+        endpoints:
+        - tarantool-config-storage-1:3301
+        - tarantool-config-storage-2:3301
+        - tarantool-config-storage-3:3301
+        workers-prefix: /tdb-workers/grpc-tbcs-example
+    tarantool-connection:
+      username: admin
+      password: secret-cluster-cookie
+default-cluster: false
