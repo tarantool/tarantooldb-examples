@@ -22,9 +22,13 @@ config:
   ldap:
     type: ad                       # пресет: (|(sAMAccountName={0})(userPrincipalName={0})), группы — memberOf
     endpoints:
-      - ad:389
+      - ad:636                     # LDAPS-порт каталога
     query-user: CN=Administrator,CN=Users,DC=samdom,DC=example,DC=com
     query-password: Passw0rd!
     base-dn: DC=samdom,DC=example,DC=com
     tls:
-      enabled: false               # демо-стенд, INSECURE_LDAP=true
+      enabled: true                # ldaps://
+      # CA примера: им проверяется сертификат каталога (certs/ad/server.pem,
+      # подключается скриптом ldap/ad/entrypoint.d/02-tls.sh).
+      # Имя сервера в сертификате — хост из endpoint (ad)
+      ca-file: /certs/ca/root-ca.pem

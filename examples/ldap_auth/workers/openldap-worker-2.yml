@@ -22,9 +22,12 @@ config:
   ldap:
     type: openldap                # пресет: template-query (uid={0}), группы — memberOf overlay
     endpoints:
-      - openldap:389
+      - openldap:636               # LDAPS-порт каталога
     query-user: cn=admin,dc=example,dc=com
     query-password: secret-admin
     base-dn: dc=example,dc=com
     tls:
-      enabled: false              # демо-стенд, LDAP без TLS
+      enabled: true                # ldaps://
+      # CA примера: им проверяется сертификат каталога (certs/openldap/server.pem).
+      # Имя сервера в сертификате — хост из endpoint (openldap)
+      ca-file: /certs/ca/root-ca.pem
