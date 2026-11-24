@@ -76,13 +76,14 @@
   роутера, клиентского сертификата (mTLS клиент ↔ роутер и роутер ↔ обработчик);
 * `tools/docker-compose.yml` — etcd из одного узла для хранения конфигураций кластера
   и обработчиков, а также одноразовый сервис `tt-tools` для публикации
-  кластерной конфигурации;
+  кластерной конфигурации и конфигураций LDAP-обработчиков командами `tt cluster`;
 * `ldap/docker-compose.yml` — каталоги OpenLDAP и Active Directory;
 * `ldap/openldap/bootstrap.ldif` — пользователь `alice` и группа `readers`;
 * `ldap/ad/entrypoint.d/01-users.sh` — пользователь `bob` и группа
   `tdb-writers` (создаются `samba-tool` при старте контейнера AD);
 * `workers/openldap-worker.yml`, `workers/openldap-worker-2.yml`,
-  `workers/ad-worker.yml` — конфигурации LDAP-обработчиков, которые публикуются в etcd;
+  `workers/ad-worker.yml` — конфигурации LDAP-обработчиков, которые публикуются
+  в etcd командой `tt cluster worker publish`;
 * `workers/docker-compose.yml` — три узла LDAP-обработчика: основной и резервный экземпляры для
   каталога OpenLDAP, один узел для каталога AD;
 * `cluster/config.yml` — конфигурация кластера: служебный пользователь
@@ -115,8 +116,8 @@ cd examples/ldap_auth
 make start
 ```
 
-Команда `make start` публикует в etcd конфигурации кластера (`tt cluster
-publish`) и LDAP-обработчиков (`etcdctl put`), запускает все слои
+Команда `make start` публикует в etcd конфигурации кластера и LDAP-обработчиков
+(команды `tt cluster publish` и `tt cluster worker publish`), запускает все слои
 стенда, а затем выполняет начальную инициализацию кластера через команду `tt replicaset vshard
 bootstrap` и применяет миграции. Проверить успешное завершение инициализации можно
 в логах:

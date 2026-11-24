@@ -7,8 +7,8 @@ services:
     ports:
       - "2379:2379"
 
-  # Одноразовый сервис для публикации кластерной конфигурации через tt
-  # (запускается только явно: docker compose run --rm tt-tools ...)
+  # Одноразовый сервис для публикации кластерной конфигурации и конфигураций
+  # LDAP-обработчиков через tt (запускается только явно: docker compose run --rm tt-tools ...)
   tt-tools:
     image: tarantooldb:3.4.0
     profiles: ["tools"]
@@ -16,6 +16,7 @@ services:
       - tarantooldb_network
     volumes:
       - ../cluster/config.yml:/app/tarantooldb/config.yml
+      - ../workers:/app/tarantooldb/workers:ro
 
 networks:
   tarantooldb_network:
