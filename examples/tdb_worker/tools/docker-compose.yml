@@ -20,7 +20,7 @@ services:
       - tarantooldb_network
 
   tcm-1:
-    image: tarantooldb:3x-latest
+    image: tarantooldb:3.4.0-rc1-tt-ee-fc97745-tcm-3d9c83801
     networks:
       - tarantooldb_network
     ports:
@@ -28,6 +28,8 @@ services:
     volumes:
       - ./tcm.yml:/app/tarantooldb/tcm.yml
       - ../cluster/config.yml:/app/tarantooldb/config.yml
+      - ../workers:/app/tarantooldb/workers:ro
+      - ../certs:/app/tdb-worker/certs:ro
     command: ./tcm -c tcm.yml
 
 networks:

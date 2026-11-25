@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -196,13 +198,32 @@ func main() {
 	)
 
 	go func() {
-		logger.Info("starting instrumentation server", "addr", workerCfg.Instrumentation.URL)
-		err := http.ListenAndServe(
-			workerCfg.Instrumentation.URL,
-			metricsMux,
-		)
-		if err != nil {
-			logger.Error("failed to start metrics server", "err", err)
+		listen := workerCfg.Config.RolesHTTPD.Instrumentation
+		addr := listen.Listen
+
+		server := &http.Server{
+			Addr:    addr,
+			Handler: metricsMux,
+		}
+
+		var serveErr error
+		if listen.SSLCertFile != "" {
+			tlsConfig, err := listen.tlsConfig()
+			if err != nil {
+				logger.Error("failed to configure instrumentation TLS", "err", err)
+				return
+			}
+
+			server.TLSConfig = tlsConfig
+			logger.Info("starting instrumentation server", "addr", addr, "tls", true)
+			serveErr = server.ListenAndServeTLS(listen.SSLCertFile, listen.SSLKeyFile)
+		} else {
+			logger.Info("starting instrumentation server", "addr", addr)
+			serveErr = server.ListenAndServe()
+		}
+
+		if serveErr != nil {
+			logger.Error("failed to start instrumentation server", "err", serveErr)
 		}
 	}()
 	h := &HttpHandler{
@@ -329,11 +350,56 @@ type InstrumentationConfig struct {
 	Binary        string `yaml:"binary"`
 }
 
+// ListenSection maps the HTTP server of a role, e.g. config.roles.httpd.instrumentation.
+type ListenSection struct {
+	Listen        string `yaml:"listen"`
+	SSLCertFile   string `yaml:"ssl_cert_file"`
+	SSLKeyFile    string `yaml:"ssl_key_file"`
+	SSLCACertFile string `yaml:"ssl_ca_file"`
+}
+
+type HTTPDConfig struct {
+	Instrumentation ListenSection `yaml:"instrumentation"`
+}
+
 type WorkerRuntimeConfig struct {
+	RolesHTTPD HTTPDConfig `yaml:"roles.httpd"`
+
 	Addr                   string `yaml:"addr"`
 	TarantoolClusterPrefix string `yaml:"tarantool_cluster_prefix"`
 	TarantoolUser          string `yaml:"tarantool_user"`
 	TarantoolPass          string `yaml:"tarantool_pass"`
+}
+
+// tlsConfig builds the TLS configuration for the instrumentation server.
+// If ssl_ca_file is set, client certificates are required and verified (mTLS).
+func (l ListenSection) tlsConfig() (*tls.Config, error) {
+	cert, err := tls.LoadX509KeyPair(l.SSLCertFile, l.SSLKeyFile)
+	if err != nil {
+		return nil, fmt.Errorf("load cert/key: %w", err)
+	}
+
+	config := &tls.Config{
+		Certificates: []tls.Certificate{cert},
+		MinVersion:   tls.VersionTLS12,
+	}
+
+	if l.SSLCACertFile != "" {
+		caPEM, err := os.ReadFile(l.SSLCACertFile)
+		if err != nil {
+			return nil, fmt.Errorf("read ssl_ca_file: %w", err)
+		}
+
+		caPool := x509.NewCertPool()
+		if !caPool.AppendCertsFromPEM(caPEM) {
+			return nil, fmt.Errorf("ssl_ca_file %q has no certificates", l.SSLCACertFile)
+		}
+
+		config.ClientCAs = caPool
+		config.ClientAuth = tls.RequireAndVerifyClientCert
+	}
+
+	return config, nil
 }
 
 type Tuple struct {
