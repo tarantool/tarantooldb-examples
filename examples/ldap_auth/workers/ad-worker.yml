@@ -1,0 +1,34 @@
+type: nontarantool
+
+instrumentation:
+  url: https://ldap-worker-ad:9082
+  metrics_url: /metrics
+  metrics_format: prometheus
+  liveness_url: /alive
+  info_url: /info
+  binary: ./bin/ldap-worker
+
+config:
+  roles.httpd:
+    instrumentation:
+      listen: ldap-worker-ad:9082
+    ldap:
+      listen: ldap-worker-ad:9082
+      ssl_cert_file: /certs/worker/server.pem
+      ssl_key_file: /certs/worker/server-key.pem
+      # CA клиентских сертификатов — включает mTLS: без клиентского
+      # сертификата (роутера) соединение отклоняется
+      ssl_ca_file: /certs/ca/root-ca.pem
+  ldap:
+    type: ad                       # пресет: (|(sAMAccountName={0})(userPrincipalName={0})), группы — memberOf
+    endpoints:
+      - ad:636                     # LDAPS-порт каталога
+    query-user: CN=Administrator,CN=Users,DC=samdom,DC=example,DC=com
+    query-password: Passw0rd!
+    base-dn: DC=samdom,DC=example,DC=com
+    tls:
+      enabled: true                # ldaps://
+      # CA примера: им проверяется сертификат каталога (certs/ad/server.pem,
+      # подключается скриптом ldap/ad/entrypoint.d/02-tls.sh).
+      # Имя сервера в сертификате — хост из endpoint (ad)
+      ca-file: /certs/ca/root-ca.pem

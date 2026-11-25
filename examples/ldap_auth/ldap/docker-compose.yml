@@ -1,0 +1,42 @@
+services:
+  # Каталог 1: OpenLDAP (пользователь alice, группа readers)
+  openldap:
+    image: osixia/openldap:1.5.0
+    command: --copy-service
+    environment:
+      - LDAP_ORGANISATION=Example
+      - LDAP_DOMAIN=example.com
+      - LDAP_ADMIN_PASSWORD=secret-admin
+      # Обработчик не предъявляет каталогу клиентский сертификат —
+      # не требовать его при LDAPS-соединении (дефолт образа — demand)
+      - LDAP_TLS_VERIFY_CLIENT=try
+      # Сертификаты каталога из certs/gen.sh; имена отличаются от
+      # дефолтов образа (ldap.crt/ldap.key), поэтому задаются явно
+      - LDAP_TLS_CRT_FILENAME=server.pem
+      - LDAP_TLS_KEY_FILENAME=server-key.pem
+      - LDAP_TLS_CA_CRT_FILENAME=ca.crt
+    volumes:
+      - ./openldap/bootstrap.ldif:/container/service/slapd/assets/config/bootstrap/ldif/custom/bootstrap.ldif:ro
+      # Серверный сертификат каталога (LDAPS) и CA из certs/gen.sh;
+      # имена файлов заданы переменными LDAP_TLS_*_FILENAME выше
+      - ../certs/openldap:/container/service/slapd/assets/certs
+    networks:
+      - tarantooldb_network
+
+  # Каталог 2: Active Directory на базе Samba (пользователь bob, группа tdb-writers)
+  ad:
+    image: smblds/smblds:latest
+    environment:
+      - REALM=SAMDOM.EXAMPLE.COM
+      - DOMAIN=SAMDOM
+      - ADMINPASS=Passw0rd!
+    volumes:
+      - ./ad/entrypoint.d:/entrypoint.d:ro
+      # Сертификаты для LDAPS подключает скрипт ad/entrypoint.d/02-tls.sh
+      - ../certs:/certs:ro
+    networks:
+      - tarantooldb_network
+
+networks:
+  tarantooldb_network:
+    external: true
