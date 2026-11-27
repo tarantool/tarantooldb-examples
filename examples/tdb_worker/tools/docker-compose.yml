@@ -20,7 +20,7 @@ services:
       - tarantooldb_network
 
   tcm-1:
-    image: tarantooldb:3.4.0-rc1-tt-ee-fc97745-tcm-3d9c83801
+    image: tarantooldb:3x-latest
     networks:
       - tarantooldb_network
     ports:
