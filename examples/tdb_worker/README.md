@@ -161,7 +161,7 @@ config: # произвольная конфигурация обработчик
 2. В выпадающем меню выберите пункт **Edit** и перейдите на вкладку настроек **Configuration storage**, нажав кнопку **Next**.
 3. На вкладке **Configuration storage** введите название префикса в поле **Workers prefix**.
 
-![Добавление префикса обработчиков в TCM](images/edit_cluster.png)
+<img src="images/edit_cluster.png" alt="Добавление префикса обработчиков в TCM" width="600">
 
 ## Запуск обработчика
 
@@ -173,12 +173,12 @@ config: # произвольная конфигурация обработчик
 - `TDB_WORKER_CONFIG_ETCD_ENDPOINTS=http://etcd1:2379` — список узлов централизованного хранилища конфигурации для подключения, узлы указываются через запятую. Тип: `array`.
 
 Если зайти в TCM по адресу [http://localhost:8081](http://localhost:8081), на вкладке **Stateboard** вы увидите секцию с обработчиками:
-![Неактивные узлы обработчиков в TCM](images/workers_gray.png)
+<img src="images/workers_gray.png" alt="Неактивные узлы обработчиков в TCM" width="600">
 
 Сейчас эти узлы отключены, поэтому они подсвечены серым цветом.
 Если нажать на такой узел, в открывшемся окне  будет видно, что узел имеет статус `no-connection`:
 
-![Обработчик со статусом no-connection](images/workers_empty.png)
+<img src="images/workers_empty.png" alt="Обработчик со статусом no-connection" width="600">
 
 
 Запустите узлы-обработчики:
@@ -206,7 +206,7 @@ worker-2-1  | 2026-11-25T11:12:59Z INFO /home/user/tarantooldb/doc/examples/tdb_
 
 В TCM обработчики будут отображаться так:
 
-![Группа узлов-обработчиков в TCM](images/workers_green.png)
+<img src="images/workers_green.png" alt="Группа узлов-обработчиков в TCM" width="600">
 
 Обработчик запускает два простых HTTP‑сервера:
 - сервер для доступа к спейсу `bands`;
@@ -362,7 +362,7 @@ curl -s --cacert certs/ca.crt --cert certs/client.crt --key certs/client.key htt
 
 Чтобы просмотреть метрики узла-обработчика в TCM, перейдите на вкладку **Stateboard**, нажмите на соответствующий узел, и в открывшемся окне перейдите на вкладку **Metrics**:
 
-![Метрики узла-обработчика в TCM](images/worker_metrics.png)
+<img src="images/worker_metrics.png" alt="Метрики узла-обработчика в TCM" width="600">
 
 Подробная информация о мониторинге в Tarantool DB и поддерживаемых метриках приведена в разделе [Мониторинг в Tarantool DB](https://www.tarantool.io/docs/tdb/ru/3_x/admin_guide/monitoring).
 
@@ -393,7 +393,7 @@ curl -s --cacert certs/ca.crt --cert certs/client.crt --key certs/client.key htt
 
 Чтобы просмотреть информацию об обработчике в TCM, перейдите на вкладку **Stateboard** и нажмите на соответствующий узел. Откроется окно **Details**:
 
-![Информация об обработчике в TCM](images/worker_info.png)
+<img src="images/worker_info.png" alt="Информация об обработчике в TCM" width="600">
 
 
 ### Использование протоколов HTTPS и mTLS для адресов обработчика запроса
