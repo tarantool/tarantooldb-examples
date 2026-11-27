@@ -40,7 +40,7 @@ initial-settings:
       worker-connection:
         ssl:
           enabled: true
-          # Доверенный CA для проверки серверного сертификата воркера.
+          # Доверенный CA для проверки серверного сертификата обработчика.
           ca-file: /app/tdb-worker/certs/ca.crt
           # Собственный клиентский сертификат TCM для взаимной аутентификации (mTLS).
           cert-file: /app/tdb-worker/certs/client.crt

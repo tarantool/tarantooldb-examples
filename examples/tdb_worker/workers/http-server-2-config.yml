@@ -6,7 +6,7 @@ instrumentation: # опции для мониторинга
     liveness_url:   /alive
     info_url:       /info
     binary:         ./bin/http-server
-config: # произвольная конфигурация воркера
+config: # произвольная конфигурация узла-обработчика
     roles.httpd:
         instrumentation:
             listen: 0.0.0.0:9081

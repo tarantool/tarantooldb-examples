@@ -1,6 +1,7 @@
 # Использование узлов-обработчиков
 
-Доступно с версии TDB 3.4.0.
+Доступно с версии TDB 3.1.0.
+Пример обновлен в версии 3.4.0 — добавлена поддержка протоколов HTTPS и mTLS.
 
 В этом руководстве показано, как разрабатывать приложения Go-обработчиков для работы с Tarantool DB с помощью библиотек из экосистемы Tarantool.
 *Обработчик* — это программа на языке Go, которая:
@@ -63,7 +64,7 @@ make start
 > и клиентский), а также ключи TCM (для подписи и шифрования конфигураций) в директорию
 > `certs/` с помощью скрипта `certs/gen.sh`.
 > Сертификаты используются для HTTPS/mTLS адресов обработчика запроса обоих узлов-обработчиков.
-> Перегенерировать их вручную можно командой `make certificates`.
+> Сгенерировать их заново вручную можно через команду `make certificates`.
 
 Запущенный стенд состоит из:
 
@@ -89,7 +90,7 @@ make start
 * `main.go` — исходный код обработчика;
 * `workers/http-server-1-config.yml` — конфигурация первого обработчика;
 * `workers/http-server-2-config.yml` — конфигурация второго обработчика;
-* `tools/tcm.yml` — конфигурация TCM (включая `worker-connection.ssl` для HTTPS/mTLS
+* `tools/tcm.yml` — конфигурация TCM, в том числе файл `worker-connection.ssl` для HTTPS/mTLS
   подключения к обработчикам и ключи TCM для подписи и шифрования);
 * `certs/gen.sh` — скрипт генерации самоподписанных сертификатов и ключей.
 
@@ -104,8 +105,8 @@ CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bin/http-server ./main.go
 ```
 
 Конфигурация узлов-обработчиков хранится в файлах `workers/http-server-1-config.yml`, `workers/http-server-2-config.yml` и публикуется в хранилище конфигурации
-(в примере это etcd) при запуске стенда командой `tt cluster worker publish`
-(её вызывает `make start`).
+(в примере это etcd) при запуске стенда с помощью команды `tt cluster worker publish`.
+ Команда вызывается при запуске стенда через `make start`.
 
 Прочитать опубликованную конфигурацию можно командой `tt cluster worker show`:
 
@@ -114,7 +115,7 @@ docker compose -f tools/docker-compose.yml exec tcm-1 \
     tt cluster worker show http://etcd1:2379/tdb-workers/tdb/127.0.0.1/http-server-1
 ```
 
-При публикации команда `tt cluster worker publish` записывает конфигурацию в etcd по ключу
+При публикации команда `tt cluster worker publish` записывает конфигурацию в etcd по префиксу
 `/tdb-workers/tdb/instances/127.0.0.1/http-server-1`.
 
 Сама конфигурация выглядит так:
@@ -156,7 +157,8 @@ config: # произвольная конфигурация обработчик
 1. В TCM перейдите на вкладку **Clusters** и нажмите на кнопку
 вызова меню **...** (**Actions**) справа от нужного кластера (в примере это кластер **Tarantool DB Cluster**).
 2. В выпадающем меню выберите пункт **Edit** и перейдите на вкладку настроек **Config storage connection**, нажав кнопку **Next**.
-3. На вкладке **Config storage connection** введите название префикса в поле **Workers prefix**.
+2. В выпадающем меню выберите пункт **Edit** и перейдите на вкладку настроек **Configuration storage**, нажав кнопку **Next**.
+3. На вкладке **Configuration storage** введите название префикса в поле **Workers prefix**.
 
 ![Добавление префикса обработчиков в TCM](images/edit_cluster.png)
 
@@ -384,8 +386,8 @@ curl -s --cacert certs/ca.crt --cert certs/client.crt --key certs/client.key htt
 }
 ```
 
-Значения `uptime_seconds` и `memory_usage_bytes` меняются при каждом запросе;
-поле `extra_info` — произвольный словарь, в этом примере оно содержит имя
+Значения полей `uptime_seconds` и `memory_usage_bytes` меняются при каждом запросе.
+Поле `extra_info` — это произвольный словарь, в этом примере оно содержит имя
 приложения `AppName`.
 
 Чтобы просмотреть информацию об обработчике в TCM, перейдите на вкладку **Stateboard** и нажмите на соответствующий узел. Откроется окно **Details**:
@@ -393,11 +395,11 @@ curl -s --cacert certs/ca.crt --cert certs/client.crt --key certs/client.key htt
 ![Информация об обработчике в TCM](images/worker_info.png)
 
 
-### HTTPS и mTLS для адресов обработчика запроса
+### Использование протоколов HTTPS и mTLS для адресов обработчика запроса
 
 В примере адреса обработчика запроса (`/alive`, `/metrics`, `/info`) обоих узлов-обработчиков
-отдаются по HTTPS с взаимной аутентификацией (mTLS). Для этого в секции
-`config.roles.httpd.instrumentation` заданы:
+доступны по HTTPS с взаимной аутентификацией (mTLS). Для этого в конфигурации обработчика, в секции
+`config.roles.httpd.instrumentation`, заданы:
 
 * `ssl_cert_file` и `ssl_key_file` — серверный сертификат и его приватный ключ;
 * `ssl_ca_file` — CA-сертификат, которым проверяются клиентские сертификаты
@@ -413,11 +415,11 @@ config:
             ssl_ca_file: /app/tdb-worker/certs/ca.crt
 ```
 
-Если `ssl_ca_file` не указать, останется обычный HTTPS (серверный TLS) без проверки
+Если параметр `ssl_ca_file` не указан, используется протокол HTTPS (серверный TLS) без проверки
 клиентских сертификатов.
 
-Самоподписанные сертификаты генерируются в директорию `certs/` командой `make certificates`
-(вызывается автоматически при `make start`):
+Самоподписанные сертификаты генерируются в директории `certs/` с помощью команды `make certificates`
+(команда вызывается автоматически при запуске стенда через `make start`):
 
 * `certs/ca.crt`, `certs/ca.key` — корневой CA, которому доверяют и обработчик, и TCM;
 * `certs/server.crt`, `certs/server.key` — серверный сертификат с именами
@@ -438,7 +440,7 @@ worker-connection:
         key-file: /app/tdb-worker/certs/client.key
 ```
 
-Проверить, что адреса обработчика запроса доступны по HTTPS, можно командой:
+Проверить, что адреса обработчика запроса доступны по HTTPS, можно командой ниже:
 
 ```shell
 curl -s --cacert certs/ca.crt --cert certs/client.crt --key certs/client.key https://127.0.0.1:9080/alive
