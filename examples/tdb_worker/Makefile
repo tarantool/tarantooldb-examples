@@ -13,7 +13,13 @@ ifndef DOCKER_COMPOSE
 endif
 
 .SILENT: start
-start:
+.PHONY: certificates
+
+# Генерирует самоподписанные сертификаты для HTTPS/mTLS узла-обработчика.
+certificates:
+	cd certs && ./gen.sh
+
+start: certificates
 	docker network create tarantooldb_network
 	cd tools \
 		&& $(DOCKER_COMPOSE) up -d --build \
@@ -22,10 +28,10 @@ start:
 			&& tools/client/wait_etcd_ready.sh 15 http://etcd2:2379 \
 			&& tools/client/wait_etcd_ready.sh 15 http://etcd3:2379 \
 			&& tt cluster publish http://etcd1:2379/tdb config.yml --force \
+			&& tt cluster worker publish http://etcd1:2379/tdb-workers/tdb/127.0.0.1/http-server-1 workers/http-server-1-config.yml --force \
+			&& tt cluster worker publish http://etcd1:2379/tdb-workers/tdb/127.0.0.1/http-server-2 workers/http-server-2-config.yml --force \
 			&& tools/client/wait_config_ready.sh 25 http://etcd1:2379/tdb \
 			&& echo Load config done"
-	ETCDCTL_API=3 etcdctl --endpoints=http://127.0.0.1:2379 put /tdb-workers/tdb/instances/127.0.0.1/http-server-1 -- < http-server-1-config.yml
-	ETCDCTL_API=3 etcdctl --endpoints=http://127.0.0.1:2379 put /tdb-workers/tdb/instances/127.0.0.1/http-server-2 -- < http-server-2-config.yml
 	cd cluster && $(DOCKER_COMPOSE) up -d --build
 
 stop:

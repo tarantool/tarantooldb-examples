@@ -1,13 +1,14 @@
 # Использование узлов-обработчиков
 
-Доступно с версии 3.1.0.
+Доступно с версии TDB 3.1.0.
+Пример обновлен в версии 3.4.0 — добавлена поддержка протоколов HTTPS и mTLS.
 
 В этом руководстве показано, как разрабатывать приложения Go-обработчиков для работы с Tarantool DB с помощью библиотек из экосистемы Tarantool.
 *Обработчик* — это программа на языке Go, которая:
 
 - использует библиотеки из экосистемы Tarantool для работы с кластером и централизованным хранилищем конфигурации;
 - хранит свою конфигурацию в централизованном хранилище конфигурации — etcd или
-  хранилище на основе Tarantool (*Tarantool-based configuration storage*, далее — TBCS).
+  хранилище на основе Tarantool (*Tarantool-based configuration storage*).
 
 Использование обработчика позволяет:
 
@@ -36,7 +37,6 @@
 
 * установленные [Docker-образы](https://www.tarantool.io/docs/tdb/ru/3_x/install_and_upgrade/install/install_docker) Tarantool DB, Prometheus и Grafana;
 * приложение Docker Compose;
-* утилита `etcdctl`;
 * компилятор Go;
 * исходные файлы примера `tdb_worker`.
 
@@ -60,6 +60,13 @@ cd examples/tdb_worker
 make start
 ```
 
+> [!NOTE]
+> При запуске `make start` генерируются самоподписанные сертификаты (CA, серверный
+> и клиентский), а также ключи TCM (для подписи и шифрования конфигураций) в директорию
+> `certs/` с помощью скрипта `certs/gen.sh`.
+> Сертификаты используются для HTTPS/mTLS адресов обработчика запроса обоих узлов-обработчиков.
+> Сгенерировать их заново вручную можно через команду `make certificates`.
+
 Запущенный стенд состоит из:
 
 - кластера Tarantool DB (2 роутера, 2 набора реплик по 3 хранилища);
@@ -80,10 +87,13 @@ make start
 
 * `cluster/config.yml` — конфигурация и топология кластера;
 * `cluster/docker-compose.yml` — описание узлов кластера Tarantool DB;
-* `docker-compose-worker.yml` — описание узлов-обработчиков;
+* `workers/docker-compose.yml` — описание узлов-обработчиков;
 * `main.go` — исходный код обработчика;
-* `http-server-1-config.yml` — конфигурация первого обработчика;
-* `http-server-2-config.yml` — конфигурация второго обработчика.
+* `workers/http-server-1-config.yml` — конфигурация первого обработчика;
+* `workers/http-server-2-config.yml` — конфигурация второго обработчика;
+* `tools/tcm.yml` — конфигурация TCM, в том числе файл `worker-connection.ssl` для HTTPS/mTLS
+  подключения к обработчикам и ключи TCM для подписи и шифрования);
+* `certs/gen.sh` — скрипт генерации самоподписанных сертификатов и ключей.
 
 ## Сборка обработчика
 
@@ -95,14 +105,19 @@ make start
 CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bin/http-server ./main.go
 ```
 
-Конфигурация узлов-обработчиков хранится в файлах `http-server-1-config.yml`, `http-server-2-config.yml` и загружается в хранилище конфигурации
-(в примере это etcd) при запуске стенда.
+Конфигурация узлов-обработчиков хранится в файлах `workers/http-server-1-config.yml`, `workers/http-server-2-config.yml` и публикуется в хранилище конфигурации
+(в примере это etcd) при запуске стенда с помощью команды `tt cluster worker publish`.
+ Команда вызывается при запуске стенда через `make start`.
 
-Прочитать её можно так:
+Прочитать опубликованную конфигурацию можно командой `tt cluster worker show`:
 
 ```shell
-ETCDCTL_API=3 etcdctl get --prefix '/tdb-workers/'
+docker compose -f tools/docker-compose.yml exec tcm-1 \
+    tt cluster worker show http://etcd1:2379/tdb-workers/tdb/127.0.0.1/http-server-1
 ```
+
+При публикации команда `tt cluster worker publish` записывает конфигурацию в etcd по префиксу
+`/tdb-workers/tdb/instances/127.0.0.1/http-server-1`.
 
 Сама конфигурация выглядит так:
 
@@ -110,17 +125,23 @@ ETCDCTL_API=3 etcdctl get --prefix '/tdb-workers/'
 /tdb-workers/tdb/instances/127.0.0.1/http-server-1
 type: nontarantool
 instrumentation: # параметры мониторинга
-    url:            worker-1:9080
+    url:            https://worker-1:9080
     metrics_url:    /metrics
     metrics_format: "prometheus"
     liveness_url:   /alive
     info_url:       /info
     binary:         ./bin/http-server
 config: # произвольная конфигурация обработчика
-    addr:                       0.0.0.0:10000
-    tarantool_cluster_prefix:   /tdb/config/all
-    tarantool_user:             admin
-    tarantool_pass:             secret-cluster-cookie
+    roles.httpd:
+        instrumentation:
+            listen: 0.0.0.0:9080
+            ssl_cert_file: /app/tdb-worker/certs/server.crt
+            ssl_key_file: /app/tdb-worker/certs/server.key
+            ssl_ca_file: /app/tdb-worker/certs/ca.crt
+    addr: 0.0.0.0:10000
+    tarantool_cluster_prefix: /tdb/config/all
+    tarantool_user: admin
+    tarantool_pass: secret-cluster-cookie
 ```
 
 
@@ -137,9 +158,10 @@ config: # произвольная конфигурация обработчик
 1. В TCM перейдите на вкладку **Clusters** и нажмите на кнопку
 вызова меню **...** (**Actions**) справа от нужного кластера (в примере это кластер **Tarantool DB Cluster**).
 2. В выпадающем меню выберите пункт **Edit** и перейдите на вкладку настроек **Config storage connection**, нажав кнопку **Next**.
-3. На вкладке **Config storage connection** введите название префикса в поле **Workers prefix**.
+2. В выпадающем меню выберите пункт **Edit** и перейдите на вкладку настроек **Configuration storage**, нажав кнопку **Next**.
+3. На вкладке **Configuration storage** введите название префикса в поле **Workers prefix**.
 
-![Добавление префикса обработчиков в TCM](images/edit_cluster.png)
+<img src="images/edit_cluster.png" alt="Добавление префикса обработчиков в TCM" width="600">
 
 ## Запуск обработчика
 
@@ -147,63 +169,44 @@ config: # произвольная конфигурация обработчик
 
 - `TDB_WORKER_NAME=http-server-1` — имя обработчика. Тип: `string`;
 - `TDB_WORKER_HOST_NAME=127.0.0.1` — название хоста, на котором расположен обработчик.  Тип: `string`.
-- `TDB_WORKER_CONFIG_ETCD_PREFIX=/tdb-workers/tdb/instances` — путь префикса в централизованном хранилище конфигурации etcd, который указывает расположение конфигурации обработчиков. Тип: `string`.
-
-Также можно указать дополнительные параметры для подключения, аналогичные параметрам для Tarantool:
-
-- `TDB_WORKER_CONFIG_ETCD_USERNAME` — имя пользователя для подключения к централизованному хранилищу конфигурации etcd. Тип: `string`. Значение по умолчанию: `""`;
-- `TDB_WORKER_CONFIG_ETCD_PASSWORD` — пароль для подключения к централизованному хранилищу конфигурации etcd. Тип: `string`. Значение по умолчанию: `""`;
-- `TDB_WORKER_CONFIG_ETCD_ENDPOINTS=http://etcd1:2379` — список узлов централизованного хранилища конфигурации для подключения, узлы указываются через запятую. Тип: `array`;
-
-Также можно указать опции SSL-подключения:
-
-- `TDB_WORKER_CONFIG_ETCD_SSL_VERIFY_PEER` — наличие проверки peer-сертификата etcd. Тип: `boolean`.  Значение по умолчанию: `false`;
-- `TDB_WORKER_CONFIG_ETCD_SSL_VERIFY_HOST` — наличие проверки master-сертификата etcd. Тип: `boolean`.  Значение по умолчанию: `false`;
-- `TDB_WORKER_CONFIG_ETCD_SSL_CA_PATH` — путь к доверенному CA-сертификату, используемому для установки соединения с etcd. Тип: `string`;
-- `TDB_WORKER_CONFIG_ETCD_SSL_CERT` — путь к клиентскому SSL-сертификату, используемому для установки соединения с etcd. Тип: `string`;
-- `TDB_WORKER_CONFIG_ETCD_SSL_KEY` — путь к клиентскому SSL-ключу, используемому для установки соединения с etcd. Тип: `string`.
-
-Для TBCS используются схожие параметры, но с другим префиксом.
-- `TDB_WORKER_CONFIG_STORAGE_PREFIX`
-- `TDB_WORKER_CONFIG_STORAGE_ENDPOINTS`
-
-Узнать больше про настройку [etcd](https://www.tarantool.io/en/doc/latest/reference/configuration/configuration_reference/#config-etcd) и [TBCS](https://www.tarantool.io/en/doc/latest/reference/configuration/configuration_reference/#config-storage) можно в документации платформы Tarantool.
+- `TDB_WORKER_CONFIG_ETCD_PREFIX=/tdb-workers/tdb` — путь префикса в централизованном хранилище конфигурации etcd, который указывает расположение конфигурации обработчиков. Тип: `string`.
+- `TDB_WORKER_CONFIG_ETCD_ENDPOINTS=http://etcd1:2379` — список узлов централизованного хранилища конфигурации для подключения, узлы указываются через запятую. Тип: `array`.
 
 Если зайти в TCM по адресу [http://localhost:8081](http://localhost:8081), на вкладке **Stateboard** вы увидите секцию с обработчиками:
-![Неактивные узлы обработчиков в TCM](images/workers_gray.png)
+<img src="images/workers_gray.png" alt="Неактивные узлы обработчиков в TCM" width="600">
 
 Сейчас эти узлы отключены, поэтому они подсвечены серым цветом.
 Если нажать на такой узел, в открывшемся окне  будет видно, что узел имеет статус `no-connection`:
 
-![Обработчик со статусом no-connection](images/workers_empty.png)
+<img src="images/workers_empty.png" alt="Обработчик со статусом no-connection" width="600">
 
 
 Запустите узлы-обработчики:
 
 ```shell
-docker compose -f docker-compose-worker.yml up -d worker-1 worker-2
+docker compose -f workers/docker-compose.yml up -d worker-1 worker-2
 ```
 
 Проверьте логи:
 
 ```shell
-docker compose -f docker-compose-worker.yml logs
+docker compose -f workers/docker-compose.yml logs
 ```
 
 В логах должны появиться следующие строки:
 
 ```
 worker-1-1  | http-server-1 /tdb-workers/tdb/instances/127.0.0.1
-worker-1-1  | 2026-01-29T11:36:39Z INFO /home/user/tarantooldb/doc/examples/tdb_worker/main.go:213 "starting http server" addr=0.0.0.0:10000
-worker-1-1  | 2026-01-29T11:36:39Z INFO /home/user/tarantooldb/doc/examples/tdb_worker/main.go:194 "starting instrumentation server" addr=worker-1:9080
+worker-1-1  | 2026-11-25T11:12:59Z INFO /home/user/tarantooldb/doc/examples/tdb_worker/main.go:240 "starting http server" addr=0.0.0.0:10000
+worker-1-1  | 2026-11-25T11:12:59Z INFO /home/user/tarantooldb/doc/examples/tdb_worker/main.go:218 "starting instrumentation server" addr=0.0.0.0:9080 tls=true
 worker-2-1  | http-server-2 /tdb-workers/tdb/instances/127.0.0.1
-worker-2-1  | 2026-01-29T11:36:39Z INFO /home/user/tarantooldb/doc/examples/tdb_worker/main.go:213 "starting http server" addr=0.0.0.0:10001
-worker-2-1  | 2026-01-29T11:36:39Z INFO /home/user/tarantooldb/doc/examples/tdb_worker/main.go:194 "starting instrumentation server" addr=worker-2:9081
+worker-2-1  | 2026-11-25T11:12:59Z INFO /home/user/tarantooldb/doc/examples/tdb_worker/main.go:240 "starting http server" addr=0.0.0.0:10001
+worker-2-1  | 2026-11-25T11:12:59Z INFO /home/user/tarantooldb/doc/examples/tdb_worker/main.go:218 "starting instrumentation server" addr=0.0.0.0:9081 tls=true
 ```
 
 В TCM обработчики будут отображаться так:
 
-![Группа узлов-обработчиков в TCM](images/workers_green.png)
+<img src="images/workers_green.png" alt="Группа узлов-обработчиков в TCM" width="600">
 
 Обработчик запускает два простых HTTP‑сервера:
 - сервер для доступа к спейсу `bands`;
@@ -307,7 +310,7 @@ curl http://127.0.0.1:10000/api/bands/2
 4. Запустите экземпляр `router‑brn`:
 
     ```shell
-    docker compose -f docker-compose-worker.yml up -d tarantool-router-brn
+    docker compose -f workers/docker-compose.yml up -d tarantool-router-brn
     ```
 
 5. Теперь запросы будут распределяться и на `router‑brn`.
@@ -327,7 +330,7 @@ curl http://127.0.0.1:10000/api/bands/2
 
 Обработчик предоставляет три адреса обработчика запроса (*endpoints*) для отслеживания своего состояния и интеграции с TCM:
 
-- [/healthcheck](#проверка-работоспособности-обработчика) — проверка работоспособности узла обработчика;
+- [/alive](#проверка-работоспособности-обработчика) — проверка работоспособности узла обработчика;
 - [/metrics](#метрики) — метрики экземпляра обработчика;
 - [/info](#информация-об-обработчике) — общая информация об обработчике.
 
@@ -353,13 +356,13 @@ curl http://127.0.0.1:10000/api/bands/2
 Адрес обработчика запроса `/metrics` отдаёт метрики в формате Prometheus:
 
 ```shell
-curl http://127.0.0.1:9080/metrics | head -n 5
-curl http://127.0.0.1:9081/metrics | head -n 5
+curl -s --cacert certs/ca.crt --cert certs/client.crt --key certs/client.key https://127.0.0.1:9080/metrics | head -n 5
+curl -s --cacert certs/ca.crt --cert certs/client.crt --key certs/client.key https://127.0.0.1:9081/metrics | head -n 5
 ```
 
 Чтобы просмотреть метрики узла-обработчика в TCM, перейдите на вкладку **Stateboard**, нажмите на соответствующий узел, и в открывшемся окне перейдите на вкладку **Metrics**:
 
-![Метрики узла-обработчика в TCM](images/worker_metrics.png)
+<img src="images/worker_metrics.png" alt="Метрики узла-обработчика в TCM" width="600">
 
 Подробная информация о мониторинге в Tarantool DB и поддерживаемых метриках приведена в разделе [Мониторинг в Tarantool DB](https://www.tarantool.io/docs/tdb/ru/3_x/admin_guide/monitoring).
 
@@ -368,26 +371,81 @@ curl http://127.0.0.1:9081/metrics | head -n 5
 Адрес обработчика запроса `/info` предоставляет общую информацию об экземпляре обработчика:
 
 ```shell
-curl http://127.0.0.1:9080/info
+curl -s --cacert certs/ca.crt --cert certs/client.crt --key certs/client.key https://127.0.0.1:9080/info
 ```
 
 Формат ответа выглядит так:
 
 ```json
 {
-  "version": "1.0.0",
-  "uptime_seconds": 362349.44,
-  "memory_usage_bytes": 209213124,
+  "version": "0.0.1",
+  "uptime_seconds": 13.821577515,
+  "memory_usage_bytes": 4422960,
   "extra_info": {
-    "env": "staging",
-    "my_custom": "foo-bar"
+    "AppName": "tdb-worker-example"
   }
 }
 ```
 
+Значения полей `uptime_seconds` и `memory_usage_bytes` меняются при каждом запросе.
+Поле `extra_info` — это произвольный словарь, в этом примере оно содержит имя
+приложения `AppName`.
+
 Чтобы просмотреть информацию об обработчике в TCM, перейдите на вкладку **Stateboard** и нажмите на соответствующий узел. Откроется окно **Details**:
 
-![Информация об обработчике в TCM](images/worker_info.png)
+<img src="images/worker_info.png" alt="Информация об обработчике в TCM" width="600">
+
+
+### Использование протоколов HTTPS и mTLS для адресов обработчика запроса
+
+В примере адреса обработчика запроса (`/alive`, `/metrics`, `/info`) обоих узлов-обработчиков
+доступны по HTTPS с взаимной аутентификацией (mTLS). Для этого в конфигурации обработчика, в секции
+`config.roles.httpd.instrumentation`, заданы:
+
+* `ssl_cert_file` и `ssl_key_file` — серверный сертификат и его приватный ключ;
+* `ssl_ca_file` — CA-сертификат, которым проверяются клиентские сертификаты
+  (наличие этого параметра включает mTLS).
+
+```yaml
+config:
+    roles.httpd:
+        instrumentation:
+            listen: 0.0.0.0:9080
+            ssl_cert_file: /app/tdb-worker/certs/server.crt
+            ssl_key_file: /app/tdb-worker/certs/server.key
+            ssl_ca_file: /app/tdb-worker/certs/ca.crt
+```
+
+Если параметр `ssl_ca_file` не указан, используется протокол HTTPS (серверный TLS) без проверки
+клиентских сертификатов.
+
+Самоподписанные сертификаты генерируются в директории `certs/` с помощью команды `make certificates`
+(команда вызывается автоматически при запуске стенда через `make start`):
+
+* `certs/ca.crt`, `certs/ca.key` — корневой CA, которому доверяют и обработчик, и TCM;
+* `certs/server.crt`, `certs/server.key` — серверный сертификат с именами
+  `worker-1`, `worker-2`, `localhost`, `127.0.0.1`, `0.0.0.0`;
+* `certs/client.crt`, `certs/client.key` — клиентский сертификат (его предъявляет TCM
+  и утилита `curl` при включённом mTLS).
+
+Чтобы TCM обращался к обработчикам по HTTPS, поле `url` в конфигурации обработчика
+указано со схемой `https://` (например `https://worker-1:9080`), а в файле `tools/tcm.yml`
+в секции `initial-settings` задано подключение `worker-connection.ssl`:
+
+```yaml
+worker-connection:
+    ssl:
+        enabled: true
+        ca-file: /app/tdb-worker/certs/ca.crt
+        cert-file: /app/tdb-worker/certs/client.crt
+        key-file: /app/tdb-worker/certs/client.key
+```
+
+Проверить, что адреса обработчика запроса доступны по HTTPS, можно командой ниже:
+
+```shell
+curl -s --cacert certs/ca.crt --cert certs/client.crt --key certs/client.key https://127.0.0.1:9080/alive
+```
 
 
 ## Остановка стенда
@@ -396,5 +454,5 @@ curl http://127.0.0.1:9080/info
 
 ```shell
 make stop
-docker compose -f docker-compose-worker.yml down
+docker compose -f workers/docker-compose.yml down
 ```

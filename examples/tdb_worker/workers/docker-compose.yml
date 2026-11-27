@@ -4,7 +4,8 @@ services:
     networks:
       - tarantooldb_network
     volumes:
-      - ./bin:/app/tarantooldb/bin
+      - ../bin:/app/tarantooldb/bin
+      - ../certs:/app/tdb-worker/certs:ro
     environment:
       - TDB_WORKER_NAME=http-server-1
       - TDB_WORKER_CONFIG_ETCD_ENDPOINTS=http://etcd1:2379
@@ -19,7 +20,8 @@ services:
     networks:
       - tarantooldb_network
     volumes:
-      - ./bin:/app/tarantooldb/bin
+      - ../bin:/app/tarantooldb/bin
+      - ../certs:/app/tdb-worker/certs:ro
     environment:
       - TDB_WORKER_NAME=http-server-2
       - TDB_WORKER_CONFIG_ETCD_ENDPOINTS=http://etcd1:2379

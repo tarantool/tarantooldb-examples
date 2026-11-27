@@ -28,6 +28,8 @@ services:
     volumes:
       - ./tcm.yml:/app/tarantooldb/tcm.yml
       - ../cluster/config.yml:/app/tarantooldb/config.yml
+      - ../workers:/app/tarantooldb/workers:ro
+      - ../certs:/app/tdb-worker/certs:ro
     command: ./tcm -c tcm.yml
 
 networks:

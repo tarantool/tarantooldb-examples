@@ -12,6 +12,8 @@ storage:
             - http://etcd3:2379
 security:
   bootstrap-password: secret
+  signature-private-key-file: /app/tdb-worker/certs/tcm-signature.pem
+  encryption-key-file: /app/tdb-worker/certs/tcm-encryption.key
 
 cluster:
   tt-command: /app/tarantooldb/tt
@@ -35,5 +37,13 @@ initial-settings:
       tarantool-connection:
         username: "admin"
         password: "secret-cluster-cookie"
+      worker-connection:
+        ssl:
+          enabled: true
+          # Доверенный CA для проверки серверного сертификата обработчика.
+          ca-file: /app/tdb-worker/certs/ca.crt
+          # Собственный клиентский сертификат TCM для взаимной аутентификации (mTLS).
+          cert-file: /app/tdb-worker/certs/client.crt
+          key-file: /app/tdb-worker/certs/client.key
 
 default-cluster: false
